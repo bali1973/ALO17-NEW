@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NEXT_PUBLIC_SOCKET_URL = "https://alo17-socket.onrender.com"
+  NEXT_PUBLIC_API_URL = "https://alo17-api.onrender.com"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs" 
