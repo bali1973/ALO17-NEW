@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "socket": "node socket-server.js",
-    "api": "node api-server.js"
+    "api": "node api-server.js",
+    "render-start": "node api-server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "^4.41.3",
