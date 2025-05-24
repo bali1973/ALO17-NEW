@@ -30,44 +30,80 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm">
-      <nav className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-blue-600">
-            ALO17
+          <Link href="/" className="flex items-center">
+            <span className="text-2xl font-bold text-blue-600">ALO17</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/listings" className="text-gray-600 hover:text-blue-600">
-              İlanlar
+          <div className="hidden md:flex items-center space-x-4">
+            <Link
+              href="/ilan/olustur"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              İlan Oluştur
             </Link>
-            <Link href="/listings/create" className="text-gray-600 hover:text-blue-600">
-              İlan Ver
-            </Link>
+
             {isLoggedIn ? (
-              <div className="flex items-center space-x-4">
-                <Link href="/profile" className="text-gray-600 hover:text-blue-600">
-                  {username}
-                </Link>
+              <div className="relative">
                 <button
-                  onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
                 >
-                  Çıkış Yap
+                  <span>{username}</span>
+                  <svg
+                    className={`h-5 w-5 transform transition-transform ${
+                      isMenuOpen ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
                 </button>
+
+                {isMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10">
+                    <Link
+                      href="/profil"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Profilim
+                    </Link>
+                    <Link
+                      href="/ilanlarim"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      İlanlarım
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Çıkış Yap
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center space-x-4">
                 <Link
-                  href="/login"
-                  className="text-gray-600 hover:text-blue-600"
+                  href="/giris"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
                 >
                   Giriş Yap
                 </Link>
                 <Link
-                  href="/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                  href="/kayit"
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                 >
                   Kayıt Ol
                 </Link>
@@ -75,61 +111,65 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-gray-600"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-700 hover:text-blue-600"
             >
-              {isMenuOpen ? (
-                <path d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 space-y-4">
+          <div className="md:hidden py-4 space-y-4">
             <Link
-              href="/listings"
-              className="block text-gray-600 hover:text-blue-600"
-              onClick={() => setIsMenuOpen(false)}
+              href="/ilan/olustur"
+              className="block w-full text-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
-              İlanlar
+              İlan Oluştur
             </Link>
-            <Link
-              href="/listings/create"
-              className="block text-gray-600 hover:text-blue-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              İlan Ver
-            </Link>
+
             {isLoggedIn ? (
               <>
                 <Link
-                  href="/profile"
-                  className="block text-gray-600 hover:text-blue-600"
-                  onClick={() => setIsMenuOpen(false)}
+                  href="/profil"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
-                  {username}
+                  Profilim
+                </Link>
+                <Link
+                  href="/ilanlarim"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
+                  İlanlarım
                 </Link>
                 <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }}
-                  className="block w-full text-left text-red-600 hover:text-red-700"
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
                   Çıkış Yap
                 </button>
@@ -137,16 +177,14 @@ export default function Header() {
             ) : (
               <>
                 <Link
-                  href="/login"
-                  className="block text-gray-600 hover:text-blue-600"
-                  onClick={() => setIsMenuOpen(false)}
+                  href="/giris"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
                   Giriş Yap
                 </Link>
                 <Link
-                  href="/register"
-                  className="block text-gray-600 hover:text-blue-600"
-                  onClick={() => setIsMenuOpen(false)}
+                  href="/kayit"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
                   Kayıt Ol
                 </Link>
@@ -154,7 +192,7 @@ export default function Header() {
             )}
           </div>
         )}
-      </nav>
+      </div>
     </header>
   );
 } 
