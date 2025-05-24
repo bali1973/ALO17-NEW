@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import GoogleAdsense from '@/components/ads/GoogleAdsense';
 
 const steps = [
   {
@@ -26,9 +27,9 @@ const steps = [
 
 export default function HomePage() {
   return (
-    <div className="space-y-12">
+    <main className="flex-1">
       {/* Hero Section */}
-      <section className="text-center py-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
           ALO17 İlan Sitesine Hoş Geldiniz
         </h1>
@@ -51,8 +52,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Üst Banner Reklam */}
+      <div className="container mx-auto px-4 py-4">
+        <GoogleAdsense
+          slot="YOUR_TOP_BANNER_SLOT"
+          style={{ minHeight: '90px' }}
+          format="horizontal"
+        />
+      </div>
+
       {/* How It Works Section */}
-      <section className="py-12">
+      <section className="py-16 bg-gray-50">
         <h2 className="text-3xl font-bold text-center mb-12">Nasıl Çalışır?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map((step) => (
@@ -68,8 +78,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Orta Banner Reklam */}
+      <div className="container mx-auto px-4 py-8">
+        <GoogleAdsense
+          slot="YOUR_MIDDLE_BANNER_SLOT"
+          style={{ minHeight: '250px' }}
+          format="rectangle"
+        />
+      </div>
+
       {/* Featured Listings Section */}
-      <section className="py-12">
+      <section className="py-16">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold">Öne Çıkan İlanlar</h2>
           <Link
@@ -87,8 +106,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Alt Banner Reklam */}
+      <div className="container mx-auto px-4 py-4">
+        <GoogleAdsense
+          slot="YOUR_BOTTOM_BANNER_SLOT"
+          style={{ minHeight: '90px' }}
+          format="horizontal"
+        />
+      </div>
+
       {/* Call to Action Section */}
-      <section className="bg-blue-600 text-white py-12 rounded-lg text-center">
+      <section className="bg-blue-600 text-white py-16">
         <h2 className="text-3xl font-bold mb-4">
           Hemen İlan Vermeye Başlayın
         </h2>
@@ -102,6 +130,6 @@ export default function HomePage() {
           Ücretsiz İlan Ver
         </Link>
       </section>
-    </div>
+    </main>
   );
 } 

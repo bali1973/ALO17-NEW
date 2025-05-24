@@ -41,13 +41,54 @@ export default function AdminPanel() {
       return;
     }
 
-    fetchData();
+    // Token'ın geçerliliğini kontrol et
+    const checkToken = async () => {
+      try {
+        const response = await fetch('https://alo17-api.onrender.com/api/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          console.error('Token geçersiz:', response.status);
+          localStorage.removeItem('token');
+          localStorage.removeItem('userRole');
+          router.push('/admin/login');
+          return;
+        }
+        
+        const data = await response.json();
+        if (!data.user || data.user.role !== 'admin') {
+          console.error('Kullanıcı admin değil:', data);
+          localStorage.removeItem('token');
+          localStorage.removeItem('userRole');
+          router.push('/admin/login');
+          return;
+        }
+        
+        await fetchData();
+      } catch (err) {
+        console.error('Token kontrolü sırasında hata:', err);
+        setError('Oturum süresi doldu. Lütfen tekrar giriş yapın.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        router.push('/admin/login');
+      }
+    };
+
+    checkToken();
   }, [activeTab]);
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
+      setError('');
       const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('Oturum bulunamadı');
+      }
       
       if (activeTab === 'users') {
         const response = await fetch('https://alo17-api.onrender.com/api/admin/users', {
@@ -56,7 +97,12 @@ export default function AdminPanel() {
           }
         });
         
-        if (!response.ok) throw new Error('Kullanıcılar yüklenirken bir hata oluştu');
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Oturum süresi doldu. Lütfen tekrar giriş yapın.');
+          }
+          throw new Error('Kullanıcılar yüklenirken bir hata oluştu');
+        }
         
         const data = await response.json();
         setUsers(data);
@@ -67,13 +113,24 @@ export default function AdminPanel() {
           }
         });
         
-        if (!response.ok) throw new Error('İlanlar yüklenirken bir hata oluştu');
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Oturum süresi doldu. Lütfen tekrar giriş yapın.');
+          }
+          throw new Error('İlanlar yüklenirken bir hata oluştu');
+        }
         
         const data = await response.json();
         setListings(data);
       }
     } catch (err) {
+      console.error('Veri yükleme hatası:', err);
       setError(err instanceof Error ? err.message : 'Bir hata oluştu');
+      if (err instanceof Error && err.message.includes('Oturum süresi doldu')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userRole');
+        router.push('/admin/login');
+      }
     } finally {
       setIsLoading(false);
     }
