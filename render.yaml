@@ -5,9 +5,11 @@ services:
     region: frankfurt
     plan: free
     buildCommand: npm install
-    startCommand: npm run socket
+    startCommand: node socket-server.js
     envVars:
+      - key: PORT
+        value: 10000
       - key: NEXT_PUBLIC_FRONTEND_URL
-        value: https://wondrous-crumble-1459e2.netlify.app
+        value: https://mq4nym7p6b1.netlify.app
     healthCheckPath: /
     autoDeploy: true 

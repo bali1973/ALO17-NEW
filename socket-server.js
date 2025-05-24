@@ -1,44 +1,63 @@
-const { Server } = require('socket.io')
-const http = require('http')
-const express = require('express')
-const cors = require('cors')
+const express = require('express');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
 
-const app = express()
-app.use(cors())
-const server = http.createServer(app)
-const io = new Server(server, {
+const app = express();
+app.use(cors());
+
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Socket server is running' });
+});
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
   cors: {
-    origin: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  },
-})
+    origin: process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
 
-// Socket.IO bağlantı yönetimi
+// Aktif odaları tutmak için
+const activeRooms = new Map();
+
 io.on('connection', (socket) => {
-  console.log('Yeni kullanıcı bağlandı:', socket.id)
+  console.log('Yeni bir kullanıcı bağlandı:', socket.id);
 
-  // Kullanıcı odaya katılma
   socket.on('join_room', (roomId) => {
-    socket.join(roomId)
-    console.log(`Kullanıcı ${socket.id} odaya katıldı: ${roomId}`)
-  })
+    socket.join(roomId);
+    if (!activeRooms.has(roomId)) {
+      activeRooms.set(roomId, new Set());
+    }
+    activeRooms.get(roomId).add(socket.id);
+    console.log(`Kullanıcı ${socket.id} odaya katıldı: ${roomId}`);
+  });
 
-  // Mesaj gönderme
   socket.on('send_message', (data) => {
-    io.to(data.roomId).emit('receive_message', {
-      ...data,
-      socketId: socket.id,
-      timestamp: new Date().toISOString(),
-    })
-  })
+    const { roomId, ...message } = data;
+    io.to(roomId).emit('receive_message', {
+      ...message,
+      senderId: socket.id,
+      timestamp: new Date().toISOString()
+    });
+  });
 
-  // Bağlantı koptuğunda
   socket.on('disconnect', () => {
-    console.log('Kullanıcı ayrıldı:', socket.id)
-  })
-})
+    console.log('Kullanıcı ayrıldı:', socket.id);
+    // Kullanıcının bulunduğu odalardan çıkar
+    activeRooms.forEach((users, roomId) => {
+      if (users.has(socket.id)) {
+        users.delete(socket.id);
+        if (users.size === 0) {
+          activeRooms.delete(roomId);
+        }
+      }
+    });
+  });
+});
 
-const PORT = process.env.PORT || 3001
-server.listen(PORT, () => {
-  console.log(`Socket.IO sunucusu ${PORT} portunda çalışıyor`)
-}) 
+const PORT = process.env.PORT || 3001;
+httpServer.listen(PORT, () => {
+  console.log(`Socket.IO sunucusu ${PORT} portunda çalışıyor`);
+}); 
