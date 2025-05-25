@@ -181,12 +181,6 @@ export default function HomePage() {
           </div>
           <div>
             <h3 className="font-bold mb-2">Yasal</h3>
-            <ul>
-              <li><Link href="/terms" className="hover:underline">Kullanım Şartları</Link></li>
-              <li><Link href="/privacy" className="hover:underline">Gizlilik Politikası</Link></li>
-              <li><Link href="/cookies" className="hover:underline">Çerez Politikası</Link></li>
-              <li><Link href="/kvkk" className="hover:underline">KVKK</Link></li>
-            </ul>
           </div>
           <div>
             <h3 className="font-bold mb-2">Hakkımızda</h3>
