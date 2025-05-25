@@ -52,7 +52,7 @@ export default function CreateListing() {
         }
       );
 
-      router.push(`/listings/${response.data.listing.id}`);
+      router.push(`/listings/${(response.data as { listing: { id: string } }).listing.id}`);
     } catch (err: any) {
       setError(err.response?.data?.error || 'İlan oluşturulurken bir hata oluştu');
     } finally {
