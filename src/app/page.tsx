@@ -56,6 +56,72 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Premium İlan Avantajları */}
+      <section className="py-12 bg-gradient-to-r from-blue-50 to-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-blue-800 mb-2">Premium İlan Avantajları</h2>
+            <p className="text-gray-600">İlanınızı öne çıkarın, daha fazla görüntülenme ve etkileşim alın!</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Premium Özellik 1 */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-blue-100">
+              <div className="flex items-center mb-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold ml-4">Öne Çıkan İlan</h3>
+              </div>
+              <p className="text-gray-600">İlanınız kategorisinde en üstte gösterilir ve daha fazla dikkat çeker.</p>
+            </div>
+
+            {/* Premium Özellik 2 */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-blue-100">
+              <div className="flex items-center mb-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold ml-4">Premium Rozeti</h3>
+              </div>
+              <p className="text-gray-600">Premium rozeti ile ilanınız daha güvenilir ve profesyonel görünür.</p>
+            </div>
+
+            {/* Premium Özellik 3 */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-blue-100">
+              <div className="flex items-center mb-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold ml-4">3 Kat Daha Fazla Görüntülenme</h3>
+              </div>
+              <p className="text-gray-600">Premium ilanlar normal ilanlara göre 3 kat daha fazla görüntülenme alır.</p>
+            </div>
+          </div>
+
+          {/* Premium Fiyat ve CTA */}
+          <div className="mt-8 text-center">
+            <div className="inline-block bg-white p-6 rounded-lg shadow-sm border border-blue-200">
+              <p className="text-2xl font-bold text-blue-800 mb-2">Sadece 99.00 ₺</p>
+              <p className="text-gray-600 mb-4">/ aylık</p>
+              <Link 
+                href="/ilan-ver" 
+                className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Hemen Premium İlan Ver
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Popüler Kategoriler */}
       <section className="py-12">
         <h2 className="text-2xl font-bold mb-6 text-center">Popüler Kategoriler</h2>
