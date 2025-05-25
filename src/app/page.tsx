@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import GoogleAdsense from '@/components/ads/GoogleAdsense';
 
 const steps = [
   {
@@ -52,15 +51,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Üst Banner Reklam */}
-      <div className="container mx-auto px-4 py-4">
-        <GoogleAdsense
-          slot="YOUR_TOP_BANNER_SLOT"
-          style={{ minHeight: '90px' }}
-          format="horizontal"
-        />
-      </div>
-
       {/* How It Works Section */}
       <section className="py-16 bg-gray-50">
         <h2 className="text-3xl font-bold text-center mb-12">Nasıl Çalışır?</h2>
@@ -77,15 +67,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* Orta Banner Reklam */}
-      <div className="container mx-auto px-4 py-8">
-        <GoogleAdsense
-          slot="YOUR_MIDDLE_BANNER_SLOT"
-          style={{ minHeight: '250px' }}
-          format="rectangle"
-        />
-      </div>
 
       {/* Featured Listings Section */}
       <section className="py-16">
@@ -105,15 +86,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Alt Banner Reklam */}
-      <div className="container mx-auto px-4 py-4">
-        <GoogleAdsense
-          slot="YOUR_BOTTOM_BANNER_SLOT"
-          style={{ minHeight: '90px' }}
-          format="horizontal"
-        />
-      </div>
 
       {/* Call to Action Section */}
       <section className="bg-blue-600 text-white py-16">
