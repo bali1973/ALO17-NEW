@@ -4,10 +4,12 @@ env: node
 region: frankfurt
 plan: free
 buildCommand: npm install
-startCommand: npm run socket
+startCommand: node socket-server.js
 envVars:
   - key: NEXT_PUBLIC_FRONTEND_URL
     value: https://wondrous-crumble-1459e2.netlify.app
+  - key: PORT
+    value: 10000
 healthCheckPath: /
 autoDeploy: true
 repo: bali1973/ALO17-NEW 
