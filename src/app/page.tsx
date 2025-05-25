@@ -164,19 +164,24 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-gray-100 py-8 mt-8 border-t">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+          {/* İletişim ve Hakkımızda */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm mb-8">
+            {/* İletişim */}
             <div>
               <h3 className="font-bold mb-2">İletişim</h3>
               <p>📍 Cevatpaşa Mahallesi, Bayrak Sokak No:4, Çanakkale</p>
               <p>✉️ destek@alo17.tr</p>
               <p>📞 0541 404 2 404</p>
             </div>
+            {/* Hakkımızda */}
             <div>
               <h3 className="font-bold mb-2">Hakkımızda</h3>
               <p>ALO17.TR, Türkiye'nin yeni nesil ilan platformudur. 30 gün ücretsiz kullanım imkanıyla kullanıcılarına kolayca ilan vermeleri sağlar.</p>
             </div>
           </div>
-          <div className="text-center text-gray-400 text-xs mt-8">© 2025 ALO17.TR. Tüm hakları saklıdır.</div>
+          {/* Telif Hakkı */}
+          <div className="text-center text-gray-400 text-xs">© 2025 ALO17.TR. Tüm hakları saklıdır.</div>
+          {/* Ücretsiz Dönem */}
           <div className="text-center text-blue-600 font-bold mt-2">30 GÜN ÜCRETSİZ! Avantajlı ücretsiz dönemini kaçırma!</div>
         </div>
       </footer>
