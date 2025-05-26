@@ -41,18 +41,17 @@ const featuredListings = [
 ];
 
 export default function HomePage() {
-  // Örnek olarak boş bir dizi (veya gerçek API'den gelen veri) kullanıyoruz.
-  const [newListings, setNewListings] = useState<{ id: string; title: string; description: string; price: number; }[]>([]);
-
   return (
-    <main className="flex-1">
+    <main>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
-        <h1 className="text-4xl font-bold mb-4 text-center">Herkesin Kolayca İlan Verebileceği Platform</h1>
-        <p className="text-xl mb-8 max-w-2xl mx-auto text-center">30 gün ücretsiz kullanım imkanıyla hayalinizdeki alıcı veya satıcıyı bulun.</p>
-        <div className="flex gap-4 justify-center">
-          <Link href="/ilan-ver" className="bg-white text-blue-700 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">İlan Ver</Link>
-          <Link href="/giris" className="bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-800 transition-colors">Giriş Yap</Link>
+        <div className="max-w-6xl mx-auto px-4">
+          <h1 className="text-4xl font-bold mb-4 text-center">Herkesin Kolayca İlan Verebileceği Platform</h1>
+          <p className="text-xl mb-8 max-w-2xl mx-auto text-center">30 gün ücretsiz kullanım imkanıyla hayalinizdeki alıcı veya satıcıyı bulun.</p>
+          <div className="flex gap-4 justify-center">
+            <Link href="/ilan-ver" className="bg-white text-blue-700 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">İlan Ver</Link>
+            <Link href="/giris" className="bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-800 transition-colors">Giriş Yap</Link>
+          </div>
         </div>
       </section>
 
@@ -124,40 +123,44 @@ export default function HomePage() {
 
       {/* Popüler Kategoriler */}
       <section className="py-12">
-        <h2 className="text-2xl font-bold mb-6 text-center">Popüler Kategoriler</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-5xl mx-auto">
-          {categories.map(cat => (
-            <div key={cat.id} className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-              <span className="text-4xl mb-2">{cat.icon}</span>
-              <span className="font-semibold text-lg mb-1">{cat.title}</span>
-              <span className="text-blue-600 text-sm">{cat.count} ilan</span>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-6">
-          <Link href="/kategoriler" className="text-blue-700 font-medium hover:underline">Tüm Kategoriler →</Link>
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-6 text-center">Popüler Kategoriler</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {categories.map(cat => (
+              <div key={cat.id} className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                <span className="text-4xl mb-2">{cat.icon}</span>
+                <span className="font-semibold text-lg mb-1">{cat.title}</span>
+                <span className="text-blue-600 text-sm">{cat.count} ilan</span>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <Link href="/kategoriler" className="text-blue-700 font-medium hover:underline">Tüm Kategoriler →</Link>
+          </div>
         </div>
       </section>
 
       {/* Öne Çıkan İlanlar */}
       <section className="py-12 bg-gray-50">
-        <h2 className="text-2xl font-bold mb-6 text-center">Öne Çıkan İlanlar</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          {featuredListings.map(listing => (
-            <div key={listing.id} className="bg-white rounded-lg shadow p-5 flex flex-col gap-2">
-              <span className="font-bold text-lg">{listing.title}</span>
-              <span className="text-gray-500 text-sm">{listing.category}</span>
-              {listing.isFree ? (
-                <span className="text-blue-600 font-semibold">Ücretsiz Gel Al</span>
-              ) : (
-                <span className="text-blue-600 font-semibold">{listing.price} ₺</span>
-              )}
-              <span className="text-gray-400 text-xs">{listing.location} • {listing.time}</span>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-6">
-          <Link href="/ilanlar" className="text-blue-700 font-medium hover:underline">Tüm İlanlar →</Link>
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-6 text-center">Öne Çıkan İlanlar</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {featuredListings.map(listing => (
+              <div key={listing.id} className="bg-white rounded-lg shadow p-5 flex flex-col gap-2">
+                <span className="font-bold text-lg">{listing.title}</span>
+                <span className="text-gray-500 text-sm">{listing.category}</span>
+                {listing.isFree ? (
+                  <span className="text-blue-600 font-semibold">Ücretsiz Gel Al</span>
+                ) : (
+                  <span className="text-blue-600 font-semibold">{listing.price} ₺</span>
+                )}
+                <span className="text-gray-400 text-xs">{listing.location} • {listing.time}</span>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <Link href="/ilanlar" className="text-blue-700 font-medium hover:underline">Tüm İlanlar →</Link>
+          </div>
         </div>
       </section>
 
