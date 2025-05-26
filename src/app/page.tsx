@@ -20,7 +20,7 @@ const featuredListings = [
   { id: 1, title: 'iPhone 14 Pro Max 256GB - Sıfır, Kutusunda', category: 'elektronik', price: 42000, location: 'Ankara', time: '2 gün önce' },
   { id: 2, title: 'İngilizce Özel Ders - Konuşma ve Yazma Odaklı', category: 'egitim', price: 300, location: 'Çanakkale', time: '3 gün önce' },
   { id: 3, title: 'Elektrik Tesisatı Tamiri ve Bakım', category: 'hizmet', price: 250, location: 'İzmir', time: '1 gün önce' },
-  { id: 4, title: 'Ücretsiz Roman ve Kitaplar - İyi Durumda', category: 'ucretsiz-gel-al', price: 0, location: 'İstanbul', time: '5 saat önce', isFree: true },
+  { id: 4, title: 'Ücretsiz Roman ve Kitaplar - İyi Durumda', category: 'ucretsiz-gel-al', price: 0, location: 'İstanbul', time: '5 saat önce', isFree: true }
 ];
 
 export default function HomePage() {
