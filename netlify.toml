@@ -3,8 +3,12 @@
   publish = ".next"
 
 [build.environment]
-  NEXT_PUBLIC_SOCKET_URL = "https://alo17-socket.onrender.com"
-  NEXT_PUBLIC_API_URL = "https://alo17-api.onrender.com"
+  NEXT_TELEMETRY_DISABLED = "1"
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs" 
+  package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 

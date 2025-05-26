@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { UserIcon, EnvelopeIcon, LockClosedIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
+    phone: '',
     password: '',
-    rememberMe: false,
+    confirmPassword: '',
+    agreeToTerms: false,
   });
   const [error, setError] = useState('');
 
@@ -26,12 +29,22 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
+    if (formData.password !== formData.confirmPassword) {
+      setError('Şifreler eşleşmiyor.');
+      return;
+    }
+
+    if (!formData.agreeToTerms) {
+      setError('Devam etmek için kullanım koşullarını kabul etmelisiniz.');
+      return;
+    }
+
     try {
-      // API'ye giriş isteği gönderilecek
-      console.log('Login attempt:', formData);
-      router.push('/profil');
+      // API'ye kayıt isteği gönderilecek
+      console.log('Register attempt:', formData);
+      router.push('/giris');
     } catch (err) {
-      setError('Giriş yapılırken bir hata oluştu. Lütfen bilgilerinizi kontrol edin.');
+      setError('Kayıt olurken bir hata oluştu. Lütfen bilgilerinizi kontrol edin.');
     }
   };
 
@@ -40,12 +53,12 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold text-alo-dark">
-            Hesabınıza Giriş Yapın
+            Yeni Hesap Oluştur
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Hesabınız yok mu?{' '}
-            <Link href="/kayit" className="font-medium text-alo-orange hover:text-alo-light-orange">
-              Hemen Kayıt Olun
+            Zaten hesabınız var mı?{' '}
+            <Link href="/giris" className="font-medium text-alo-orange hover:text-alo-light-orange">
+              Giriş Yapın
             </Link>
           </p>
         </div>
@@ -58,6 +71,28 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Ad Soyad
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <UserIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-alo-orange focus:border-alo-orange"
+                  placeholder="Ad Soyad"
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 E-posta Adresi
@@ -81,6 +116,28 @@ export default function LoginPage() {
             </div>
 
             <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                Telefon Numarası
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <PhoneIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-alo-orange focus:border-alo-orange"
+                  placeholder="05XX XXX XX XX"
+                />
+              </div>
+            </div>
+
+            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Şifre
               </label>
@@ -92,7 +149,7 @@ export default function LoginPage() {
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   value={formData.password}
                   onChange={handleInputChange}
@@ -101,28 +158,51 @@ export default function LoginPage() {
                 />
               </div>
             </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Şifre Tekrar
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-alo-orange focus:border-alo-orange"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="rememberMe"
-                name="rememberMe"
-                type="checkbox"
-                checked={formData.rememberMe}
-                onChange={handleInputChange}
-                className="h-4 w-4 text-alo-orange focus:ring-alo-orange border-gray-300 rounded"
-              />
-              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
-                Beni hatırla
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link href="/sifremi-unuttum" className="font-medium text-alo-orange hover:text-alo-light-orange">
-                Şifremi unuttum
-              </Link>
-            </div>
+          <div className="flex items-center">
+            <input
+              id="agreeToTerms"
+              name="agreeToTerms"
+              type="checkbox"
+              checked={formData.agreeToTerms}
+              onChange={handleInputChange}
+              className="h-4 w-4 text-alo-orange focus:ring-alo-orange border-gray-300 rounded"
+            />
+            <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-700">
+              <span>
+                <Link href="/kullanim-kosullari" className="font-medium text-alo-orange hover:text-alo-light-orange">
+                  Kullanım Koşulları
+                </Link>
+                'nı ve{' '}
+                <Link href="/gizlilik-politikasi" className="font-medium text-alo-orange hover:text-alo-light-orange">
+                  Gizlilik Politikası
+                </Link>
+                'nı kabul ediyorum
+              </span>
+            </label>
           </div>
 
           <div>
@@ -130,7 +210,7 @@ export default function LoginPage() {
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-alo-orange hover:bg-alo-light-orange focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-alo-orange"
             >
-              Giriş Yap
+              Kayıt Ol
             </button>
           </div>
         </form>

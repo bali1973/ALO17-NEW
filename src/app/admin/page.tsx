@@ -1,364 +1,307 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import {
+  HomeIcon,
+  UserGroupIcon,
+  ClipboardDocumentListIcon,
+  ChatBubbleLeftRightIcon,
+  Cog6ToothIcon,
+  ChartBarIcon,
+  BellIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline';
 
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  role: string;
-  createdAt: string;
-}
+// Örnek veri
+const stats = {
+  totalUsers: 1234,
+  totalListings: 5678,
+  activeListings: 4321,
+  pendingListings: 1357,
+  totalMessages: 8901,
+  totalViews: 123456,
+};
 
-interface Listing {
-  _id: string;
-  title: string;
-  price: number;
-  category: string;
-  status: string;
-  createdAt: string;
-  user: {
-    username: string;
-  };
-}
+const recentListings = [
+  {
+    id: 1,
+    title: 'Sahibinden Satılık Lüks Daire',
+    user: 'Ahmet Yılmaz',
+    status: 'pending',
+    createdAt: '2024-02-20',
+  },
+  {
+    id: 2,
+    title: '2019 Model BMW 320i',
+    user: 'Mehmet Demir',
+    status: 'active',
+    createdAt: '2024-02-19',
+  },
+  // Daha fazla örnek ilan eklenebilir
+];
 
-export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState('users');
-  const [users, setUsers] = useState<User[]>([]);
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const router = useRouter();
+const recentUsers = [
+  {
+    id: 1,
+    name: 'Ahmet Yılmaz',
+    email: 'ahmet@example.com',
+    joinedAt: '2024-02-20',
+    listings: 5,
+  },
+  {
+    id: 2,
+    name: 'Mehmet Demir',
+    email: 'mehmet@example.com',
+    joinedAt: '2024-02-19',
+    listings: 3,
+  },
+  // Daha fazla örnek kullanıcı eklenebilir
+];
 
-  useEffect(() => {
-    // Check if user is admin
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
-    
-    if (!token || userRole !== 'admin') {
-      router.push('/admin/login');
-      return;
-    }
-
-    // Token'ın geçerliliğini kontrol et
-    const checkToken = async () => {
-      try {
-        const response = await fetch('https://alo17-api.onrender.com/api/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          console.error('Token geçersiz:', response.status);
-          localStorage.removeItem('token');
-          localStorage.removeItem('userRole');
-          router.push('/admin/login');
-          return;
-        }
-        
-        const data = await response.json();
-        if (!data.user || data.user.role !== 'admin') {
-          console.error('Kullanıcı admin değil:', data);
-          localStorage.removeItem('token');
-          localStorage.removeItem('userRole');
-          router.push('/admin/login');
-          return;
-        }
-        
-        await fetchData();
-      } catch (err) {
-        console.error('Token kontrolü sırasında hata:', err);
-        setError('Oturum süresi doldu. Lütfen tekrar giriş yapın.');
-        localStorage.removeItem('token');
-        localStorage.removeItem('userRole');
-        router.push('/admin/login');
-      }
-    };
-
-    checkToken();
-  }, [activeTab]);
-
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('Oturum bulunamadı');
-      }
-      
-      if (activeTab === 'users') {
-        const response = await fetch('https://alo17-api.onrender.com/api/admin/users', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error('Oturum süresi doldu. Lütfen tekrar giriş yapın.');
-          }
-          throw new Error('Kullanıcılar yüklenirken bir hata oluştu');
-        }
-        
-        const data = await response.json();
-        setUsers(data);
-      } else {
-        const response = await fetch('https://alo17-api.onrender.com/api/admin/listings', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error('Oturum süresi doldu. Lütfen tekrar giriş yapın.');
-          }
-          throw new Error('İlanlar yüklenirken bir hata oluştu');
-        }
-        
-        const data = await response.json();
-        setListings(data);
-      }
-    } catch (err) {
-      console.error('Veri yükleme hatası:', err);
-      setError(err instanceof Error ? err.message : 'Bir hata oluştu');
-      if (err instanceof Error && err.message.includes('Oturum süresi doldu')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userRole');
-        router.push('/admin/login');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUserAction = async (userId: string, action: 'delete' | 'changeRole') => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`https://alo17-api.onrender.com/api/admin/users/${userId}`, {
-        method: action === 'delete' ? 'DELETE' : 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: action === 'changeRole' ? JSON.stringify({ role: 'admin' }) : undefined
-      });
-
-      if (!response.ok) throw new Error('İşlem başarısız oldu');
-      
-      fetchData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Bir hata oluştu');
-    }
-  };
-
-  const handleListingAction = async (listingId: string, action: 'delete' | 'approve' | 'reject') => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`https://alo17-api.onrender.com/api/admin/listings/${listingId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: action === 'approve' ? 'approved' : 'rejected' })
-      });
-
-      if (!response.ok) throw new Error('İşlem başarısız oldu');
-      
-      fetchData();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Bir hata oluştu');
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Yükleniyor...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600 text-xl">{error}</div>
-      </div>
-    );
-  }
+export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8">Admin Paneli</h1>
-
-        {/* Tabs */}
-        <div className="flex space-x-4 mb-8">
-          <button
-            className={`px-4 py-2 rounded-lg ${
-              activeTab === 'users'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
-            onClick={() => setActiveTab('users')}
-          >
-            Kullanıcılar
-          </button>
-          <button
-            className={`px-4 py-2 rounded-lg ${
-              activeTab === 'listings'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
-            onClick={() => setActiveTab('listings')}
-          >
-            İlanlar
-          </button>
+    <div className="min-h-screen bg-alo-light">
+      {/* Üst Menü */}
+      <nav className="bg-white shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Link href="/admin" className="text-xl font-bold text-alo-dark">
+                ALO17 Admin
+              </Link>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Ara..."
+                  className="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-alo-orange focus:border-alo-orange"
+                />
+                <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              </div>
+              <button className="p-2 text-gray-500 hover:text-alo-orange relative">
+                <BellIcon className="w-6 h-6" />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-alo-red rounded-full"></span>
+              </button>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-full bg-alo-orange text-white flex items-center justify-center">
+                  A
+                </div>
+                <span className="text-sm font-medium text-gray-700">Admin</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </nav>
 
-        {/* Content */}
-        {activeTab === 'users' ? (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Kullanıcı Adı
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    E-posta
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Rol
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Kayıt Tarihi
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    İşlemler
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">{user.username}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {new Date(user.createdAt).toLocaleDateString('tr-TR')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                      {user.role !== 'admin' && (
-                        <button
-                          onClick={() => handleUserAction(user._id, 'changeRole')}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          Admin Yap
-                        </button>
-                      )}
-                      <button
-                        onClick={() => handleUserAction(user._id, 'delete')}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Sil
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
+          {/* Sol Menü */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm p-4">
+              <nav className="space-y-1">
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg ${
+                    activeTab === 'dashboard'
+                      ? 'bg-alo-orange text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <HomeIcon className="w-5 h-5 mr-3" />
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg ${
+                    activeTab === 'users'
+                      ? 'bg-alo-orange text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <UserGroupIcon className="w-5 h-5 mr-3" />
+                  Kullanıcılar
+                </button>
+                <button
+                  onClick={() => setActiveTab('listings')}
+                  className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg ${
+                    activeTab === 'listings'
+                      ? 'bg-alo-orange text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <ClipboardDocumentListIcon className="w-5 h-5 mr-3" />
+                  İlanlar
+                </button>
+                <button
+                  onClick={() => setActiveTab('messages')}
+                  className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg ${
+                    activeTab === 'messages'
+                      ? 'bg-alo-orange text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <ChatBubbleLeftRightIcon className="w-5 h-5 mr-3" />
+                  Mesajlar
+                </button>
+                <button
+                  onClick={() => setActiveTab('reports')}
+                  className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg ${
+                    activeTab === 'reports'
+                      ? 'bg-alo-orange text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <ChartBarIcon className="w-5 h-5 mr-3" />
+                  Raporlar
+                </button>
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg ${
+                    activeTab === 'settings'
+                      ? 'bg-alo-orange text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Cog6ToothIcon className="w-5 h-5 mr-3" />
+                  Ayarlar
+                </button>
+              </nav>
+            </div>
           </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Başlık
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Kategori
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fiyat
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Durum
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Kullanıcı
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tarih
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    İşlemler
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {listings.map((listing) => (
-                  <tr key={listing._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">{listing.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{listing.category}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">₺{listing.price}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          listing.status === 'approved'
-                            ? 'bg-green-100 text-green-800'
-                            : listing.status === 'rejected'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {listing.status === 'approved'
-                          ? 'Onaylandı'
-                          : listing.status === 'rejected'
-                          ? 'Reddedildi'
-                          : 'Beklemede'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">{listing.user.username}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                      {listing.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleListingAction(listing._id, 'approve')}
-                            className="text-green-600 hover:text-green-800"
-                          >
-                            Onayla
-                          </button>
-                          <button
-                            onClick={() => handleListingAction(listing._id, 'reject')}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            Reddet
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={() => handleListingAction(listing._id, 'delete')}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Sil
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+          {/* Ana İçerik */}
+          <div className="lg:col-span-5">
+            {/* Dashboard */}
+            {activeTab === 'dashboard' && (
+              <div className="space-y-6">
+                {/* İstatistikler */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Toplam Kullanıcı</p>
+                        <p className="text-2xl font-bold text-alo-dark">{stats.totalUsers}</p>
+                      </div>
+                      <div className="p-3 bg-alo-light-blue bg-opacity-10 rounded-lg">
+                        <UserGroupIcon className="w-6 h-6 text-alo-light-blue" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Toplam İlan</p>
+                        <p className="text-2xl font-bold text-alo-dark">{stats.totalListings}</p>
+                      </div>
+                      <div className="p-3 bg-alo-orange bg-opacity-10 rounded-lg">
+                        <ClipboardDocumentListIcon className="w-6 h-6 text-alo-orange" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Aktif İlan</p>
+                        <p className="text-2xl font-bold text-alo-dark">{stats.activeListings}</p>
+                      </div>
+                      <div className="p-3 bg-green-500 bg-opacity-10 rounded-lg">
+                        <ClipboardDocumentListIcon className="w-6 h-6 text-green-500" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Toplam Görüntülenme</p>
+                        <p className="text-2xl font-bold text-alo-dark">{stats.totalViews}</p>
+                      </div>
+                      <div className="p-3 bg-alo-red bg-opacity-10 rounded-lg">
+                        <ChartBarIcon className="w-6 h-6 text-alo-red" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Son İlanlar */}
+                <div className="bg-white rounded-xl shadow-sm">
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-alo-dark">Son İlanlar</h2>
+                  </div>
+                  <div className="divide-y divide-gray-200">
+                    {recentListings.map((listing) => (
+                      <div key={listing.id} className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-medium text-alo-dark">{listing.title}</h3>
+                            <p className="text-sm text-gray-500">
+                              {listing.user} • {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                listing.status === 'active'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}
+                            >
+                              {listing.status === 'active' ? 'Aktif' : 'Onay Bekliyor'}
+                            </span>
+                            <button className="text-gray-500 hover:text-alo-orange">
+                              <ClipboardDocumentListIcon className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Son Kullanıcılar */}
+                <div className="bg-white rounded-xl shadow-sm">
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-alo-dark">Son Kullanıcılar</h2>
+                  </div>
+                  <div className="divide-y divide-gray-200">
+                    {recentUsers.map((user) => (
+                      <div key={user.id} className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-medium text-alo-dark">{user.name}</h3>
+                            <p className="text-sm text-gray-500">
+                              {user.email} • {new Date(user.joinedAt).toLocaleDateString('tr-TR')}
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <span className="text-sm text-gray-500">{user.listings} ilan</span>
+                            <button className="text-gray-500 hover:text-alo-orange">
+                              <UserGroupIcon className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Diğer sekmeler için içerikler buraya eklenecek */}
+            {activeTab !== 'dashboard' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-alo-dark mb-4">
+                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                </h2>
+                <p className="text-gray-500">Bu bölüm yapım aşamasındadır.</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

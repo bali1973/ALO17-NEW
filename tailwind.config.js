@@ -16,6 +16,9 @@ module.exports = {
         'alo-dark': '#1F2937',    // Koyu arka plan
         'alo-light': '#F3F4F6',   // Açık arka plan
       },
+      fontFamily: {
+        sans: ['var(--font-inter)'],
+      },
     },
   },
   plugins: [],

@@ -1,14 +1,14 @@
-import React from 'react'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Header from '../components/layout/Header'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'ALO17 - İlan Sitesi',
-  description: 'Türkiye\'nin en büyük ilan sitesi',
+  title: 'ALO17.TR - Türkiye\'nin En Büyük İlan Platformu',
+  description: 'Emlak, Vasıta, Elektronik ve daha fazlası için Türkiye\'nin en büyük ilan platformu.',
 }
 
 export default function RootLayout({
@@ -18,9 +18,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
-      <body className={inter.className}>
+      <body className={`${inter.variable} font-sans min-h-screen flex flex-col`}>
         <Header />
-        {children}
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   )

@@ -2,12 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  body {
+    @apply bg-alo-light text-alo-dark antialiased;
+  }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Swiper özelleştirmeleri */
+.categories-swiper {
+  @apply pb-12;
+}
+
+.categories-swiper .swiper-button-next,
+.categories-swiper .swiper-button-prev {
+  @apply text-alo-orange;
+}
+
+.categories-swiper .swiper-pagination-bullet-active {
+  @apply bg-alo-orange;
+}
+
+.categories-swiper .swiper-pagination-bullet {
+  @apply bg-alo-light-blue;
 } 
