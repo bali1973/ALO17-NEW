@@ -25,12 +25,16 @@ const steps = [
 ];
 
 const categories = [
-  { id: 1, title: 'İş İlanları', icon: '💼', count: 567 },
-  { id: 2, title: 'Hizmet', icon: '🔧', count: 1432 },
-  { id: 3, title: 'Sağlık Güzellik', icon: '🩺', count: 378 },
-  { id: 4, title: 'Elektronik', icon: '📱', count: 576 },
-  { id: 5, title: 'Ev ve Bahçe', icon: '🏠', count: 534 },
-  { id: 6, title: 'Ücretsiz Gel Al', icon: '🎁', count: 210 },
+  { id: 1, title: 'Emlak', icon: '🏠', count: 1234 },
+  { id: 2, title: 'Vasıta', icon: '🚗', count: 856 },
+  { id: 3, title: 'Elektronik', icon: '📱', count: 945 },
+  { id: 4, title: 'Ev Eşyası', icon: '🛋️', count: 678 },
+  { id: 5, title: 'Giyim', icon: '👕', count: 789 },
+  { id: 6, title: 'Spor', icon: '⚽', count: 432 },
+  { id: 7, title: 'Hobi', icon: '🎨', count: 345 },
+  { id: 8, title: 'Hayvanlar', icon: '🐶', count: 234 },
+  { id: 9, title: 'İş Makineleri', icon: '🚜', count: 123 },
+  { id: 10, title: 'Yemek', icon: '🍽️', count: 567 }
 ];
 
 const featuredListings = [
@@ -122,20 +126,29 @@ export default function HomePage() {
       </section>
 
       {/* Popüler Kategoriler */}
-      <section className="py-12">
+      <section className="py-12 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-center">Popüler Kategoriler</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Popüler Kategoriler</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {categories.map(cat => (
-              <div key={cat.id} className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                <span className="text-4xl mb-2">{cat.icon}</span>
-                <span className="font-semibold text-lg mb-1">{cat.title}</span>
-                <span className="text-blue-600 text-sm">{cat.count} ilan</span>
-              </div>
+              <Link 
+                href={`/kategori/${cat.title.toLowerCase()}`} 
+                key={cat.id} 
+                className="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center hover:shadow-md transition-shadow border border-gray-100"
+              >
+                <span className="text-3xl mb-2">{cat.icon}</span>
+                <span className="font-medium text-gray-800 text-center">{cat.title}</span>
+                <span className="text-blue-600 text-sm mt-1">{cat.count} ilan</span>
+              </Link>
             ))}
           </div>
-          <div className="text-center mt-6">
-            <Link href="/kategoriler" className="text-blue-700 font-medium hover:underline">Tüm Kategoriler →</Link>
+          <div className="text-center mt-8">
+            <Link 
+              href="/kategoriler" 
+              className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              Tüm Kategoriler
+            </Link>
           </div>
         </div>
       </section>
