@@ -143,41 +143,25 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Kategoriler Slider */}
+      {/* Kategoriler */}
       <div className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">Kategoriler</h2>
-        <Swiper
-          modules={[Navigation, Pagination]}
-          spaceBetween={20}
-          slidesPerView={1}
-          navigation
-          pagination={{ clickable: true }}
-          breakpoints={{
-            640: {
-              slidesPerView: 2,
-            },
-            768: {
-              slidesPerView: 3,
-            },
-            1024: {
-              slidesPerView: 4,
-            },
-          }}
-          className="pb-12"
-        >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           {categories.map((category) => (
-            <SwiperSlide key={category.id}>
-              <Link href={`/kategori/${category.slug}`} className="block">
-                <div className="bg-white rounded-lg shadow-md p-6 text-center transition-transform hover:scale-105">
-                  <div className="text-4xl mb-4">{category.icon}</div>
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {category.name}
-                  </h3>
-                </div>
-              </Link>
-            </SwiperSlide>
+            <Link
+              key={category.id}
+              href={`/kategori/${category.slug}`}
+              className="group"
+            >
+              <div className="bg-white rounded-lg shadow-md p-6 text-center transition-transform hover:scale-105">
+                <div className="text-4xl mb-4">{category.icon}</div>
+                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600">
+                  {category.name}
+                </h3>
+              </div>
+            </Link>
           ))}
-        </Swiper>
+        </div>
       </div>
 
       {/* Öne Çıkan İlanlar */}
