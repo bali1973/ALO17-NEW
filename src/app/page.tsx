@@ -37,9 +37,9 @@ const categories = [
   },
   {
     id: 5,
-    name: 'Hobi',
-    icon: '🎮',
-    slug: 'hobi',
+    name: 'Hobi & Sanat',
+    icon: '🎨',
+    slug: 'hobi-sanat',
   },
   {
     id: 6,
@@ -109,36 +109,30 @@ const categories = [
   },
   {
     id: 17,
-    name: 'Sanat',
-    icon: '🎨',
-    slug: 'sanat',
-  },
-  {
-    id: 18,
     name: 'Hobiticaret',
     icon: '🎯',
     slug: 'hobiticaret',
   },
   {
-    id: 19,
+    id: 18,
     name: 'Catering',
     icon: '🍽️',
     slug: 'catering',
   },
   {
-    id: 20,
+    id: 19,
     name: 'Bilgisayar',
     icon: '💻',
     slug: 'bilgisayar',
   },
   {
-    id: 21,
+    id: 20,
     name: 'Ofis Ekipmanları',
     icon: '📎',
     slug: 'ofis-ekipmanlari',
   },
   {
-    id: 22,
+    id: 21,
     name: 'Diğer',
     icon: '📦',
     slug: 'diger',
