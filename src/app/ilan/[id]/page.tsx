@@ -87,29 +87,20 @@ export default function ListingDetail() {
             <p className="text-2xl font-bold text-alo-red">{listing.price} TL</p>
           </div>
 
-          {/* İlan Görselleri */}
+          {/* Fotoğraf Galerisi */}
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <Swiper
-              modules={[Navigation, Pagination]}
-              spaceBetween={0}
-              slidesPerView={1}
-              navigation
-              pagination={{ clickable: true }}
-              className="listing-swiper"
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
               {listing.images.map((image, index) => (
-                <SwiperSlide key={index}>
-                  <div className="relative h-96">
-                    <Image
-                      src={image}
-                      alt={`${listing.title} - Görsel ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </SwiperSlide>
+                <div key={index} className="relative aspect-square">
+                  <Image
+                    src={image}
+                    alt={`${listing.title} - Fotoğraf ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               ))}
-            </Swiper>
+            </div>
           </div>
 
           {/* İlan Detayları */}

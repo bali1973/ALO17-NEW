@@ -131,8 +131,8 @@ export default function AddListingPage() {
   // Resim yükleme işlemi
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + images.length > 10) {
-      alert('En fazla 10 resim yükleyebilirsiniz');
+    if (files.length + images.length > 5) {
+      alert('En fazla 5 resim yükleyebilirsiniz');
       return;
     }
 
@@ -360,43 +360,43 @@ export default function AddListingPage() {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-semibold text-alo-dark mb-4">Fotoğraflar</h2>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Resim Yükleme Alanı */}
-                <label className="relative aspect-square border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-alo-orange group">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                  <div className="text-center">
-                    <PhotoIcon className="w-8 h-8 text-gray-400 group-hover:text-alo-orange mx-auto mb-2" />
-                    <span className="text-sm text-gray-500">Fotoğraf Ekle</span>
-                  </div>
-                </label>
-
-                {/* Yüklenen Fotoğraflar */}
-                {previewUrls.map((url, index) => (
-                  <div key={index} className="relative aspect-square group">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {images.map((image, index) => (
+                  <div key={index} className="relative aspect-square">
                     <Image
-                      src={url}
-                      alt={`Preview ${index + 1}`}
+                      src={image}
+                      alt={`İlan fotoğrafı ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
                     />
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                     >
-                      <XMarkIcon className="w-4 h-4" />
+                      <XMarkIcon className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
+                {images.length < 5 && (
+                  <label className="relative aspect-square border-2 border-dashed border-gray-300 rounded-lg hover:border-alo-orange cursor-pointer flex items-center justify-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <div className="text-center">
+                      <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
+                      <span className="mt-2 block text-sm text-gray-600">
+                        Fotoğraf Ekle
+                      </span>
+                    </div>
+                  </label>
+                )}
               </div>
               <p className="text-sm text-gray-500">
-                En fazla 10 fotoğraf yükleyebilirsiniz. Her fotoğraf en fazla 5MB olabilir.
+                En fazla 5 fotoğraf yükleyebilirsiniz. Her fotoğraf en fazla 5MB olabilir.
               </p>
             </div>
           </div>
