@@ -91,6 +91,12 @@ const categories = [
   },
   {
     id: 14,
+    name: 'Ücretsiz Gel Al',
+    icon: '🎁',
+    slug: 'ucretsiz-gel-al',
+  },
+  {
+    id: 15,
     name: 'Diğer',
     icon: '📦',
     slug: 'diger',
