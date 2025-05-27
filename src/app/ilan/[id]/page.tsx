@@ -28,9 +28,9 @@ const listing = {
     '5G Desteği',
   ],
   images: [
-    'https://placehold.co/800x600/e2e8f0/1e293b?text=iPhone+14+Pro+Max+1',
-    'https://placehold.co/800x600/e2e8f0/1e293b?text=iPhone+14+Pro+Max+2',
-    'https://placehold.co/800x600/e2e8f0/1e293b?text=iPhone+14+Pro+Max+3',
+    'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+1&font=roboto',
+    'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+2&font=roboto',
+    'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+3&font=roboto',
   ],
   seller: {
     name: 'Ahmet Yılmaz',
