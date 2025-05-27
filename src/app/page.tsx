@@ -262,6 +262,23 @@ const categories = [
   },
   {
     id: 8,
+    name: 'Çocukların Dünyası',
+    slug: 'cocuklarin-dunyasi',
+    icon: '🧸',
+    subCategories: [
+      { id: 'oyuncak', name: 'Oyuncak', slug: 'oyuncak' },
+      { id: 'bebek-giyim', name: 'Bebek Giyim', slug: 'bebek-giyim' },
+      { id: 'bebek-bakim', name: 'Bebek Bakım', slug: 'bebek-bakim' },
+      { id: 'cocuk-odasi', name: 'Çocuk Odası', slug: 'cocuk-odasi' },
+      { id: 'cocuk-kitap', name: 'Çocuk Kitapları', slug: 'cocuk-kitap' },
+      { id: 'cocuk-ayakkabi', name: 'Çocuk Ayakkabı', slug: 'cocuk-ayakkabi' },
+      { id: 'cocuk-aksesuar', name: 'Çocuk Aksesuar', slug: 'cocuk-aksesuar' },
+      { id: 'anne-bebek', name: 'Anne & Bebek', slug: 'anne-bebek' },
+      { id: 'diger-cocuk', name: 'Diğer', slug: 'diger-cocuk' }
+    ]
+  },
+  {
+    id: 9,
     name: 'İş İlanları',
     slug: 'is-ilanlari',
     icon: '💼',
@@ -273,7 +290,7 @@ const categories = [
     ]
   },
   {
-    id: 9,
+    id: 10,
     name: 'Yedek Parça',
     slug: 'yedek-parca',
     icon: '🔧',
@@ -285,7 +302,7 @@ const categories = [
     ]
   },
   {
-    id: 10,
+    id: 11,
     name: 'Hizmetler',
     slug: 'hizmetler',
     icon: '🛠️',
@@ -300,7 +317,7 @@ const categories = [
     ]
   },
   {
-    id: 11,
+    id: 12,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',
