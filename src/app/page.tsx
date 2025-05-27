@@ -9,6 +9,33 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+// Tip tanımları (örneğin, en üstte import'lardan sonra ekleyin)
+type Subcategory = { id: number; name: string; slug: string; };
+type Category = { id: number; name: string; icon: string; slug: string; subcategories: Subcategory[]; };
+type Seller = { name: string; rating: number; memberSince: string; phone?: string; isVerified?: boolean; };
+type PremiumFeature = { isActive: boolean; expiresAt: (string | null); isHighlighted: boolean; isFeatured: boolean; isUrgent: boolean; };
+type Listing = {
+  id: number;
+  title: string;
+  price: string;
+  location: string;
+  category: string;
+  subcategory: string;
+  description: string;
+  images?: string[];
+  image?: string; // (eski ilanlarda image kullanılıyor, images yoksa bu alan kullanılabilir)
+  date: string;
+  condition: string;
+  type?: (typeof listingTypes)[keyof typeof listingTypes];
+  status?: (typeof listingStatus)[keyof typeof listingStatus];
+  showPhone?: boolean;
+  isFavorite?: boolean;
+  views?: number;
+  favorites?: number;
+  seller: Seller;
+  premiumFeatures?: PremiumFeature;
+};
+
 // Kategoriler
 const categories = [
   {
@@ -426,29 +453,26 @@ const premiumFeatures = {
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [previewListing, setPreviewListing] = useState(null);
+  const [previewListing, setPreviewListing] = useState<Listing | null>(null);
 
-  const handleListingSubmit = (listing) => {
+  const handleListingSubmit = (listing: Listing) => {
     if (listing.type === listingTypes.PREMIUM) {
       setShowPremiumModal(true);
       setPreviewListing(listing);
     } else {
-      // Ücretsiz ilanı direkt yayınla
-      // API çağrısı yapılacak
+      // Ücretsiz ilanı direkt yayınla (API çağrısı yapılacak)
     }
   };
 
-  const handlePremiumPurchase = async (listing) => {
-    // Ödeme sayfasına yönlendir
-    // API çağrısı yapılacak
+  const handlePremiumPurchase = async (listing: Listing) => {
+    // Ödeme sayfasına yönlendir (API çağrısı yapılacak)
   };
 
-  const handleFavoriteToggle = (listingId) => {
-    // Favori ekleme/çıkarma işlemi
-    // API çağrısı yapılacak
+  const handleFavoriteToggle = (listingId: number) => {
+    // Favori ekleme/çıkarma işlemi (API çağrısı yapılacak)
   };
 
   return (
@@ -591,7 +615,7 @@ export default function HomePage() {
                 <h4 className="font-semibold">{previewListing.title}</h4>
                 <p className="text-gray-600">{previewListing.description}</p>
                 <div className="grid grid-cols-5 gap-2 mt-4">
-                  {previewListing.images.map((image, index) => (
+                  {previewListing.images?.map((image, index) => (
                     <img
                       key={index}
                       src={image}
