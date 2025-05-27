@@ -295,6 +295,22 @@ const categories = [
   },
   {
     id: 10,
+    name: 'Sporlar, Oyunlar ve Eğlenceler',
+    slug: 'sporlar-oyunlar-eglenceler',
+    icon: '🎮',
+    subCategories: [
+      { id: 'spor-ekipman', name: 'Spor Ekipmanları', slug: 'spor-ekipman' },
+      { id: 'takim-sporlari', name: 'Takım Sporları', slug: 'takim-sporlari' },
+      { id: 'bireysel-sporlar', name: 'Bireysel Sporlar', slug: 'bireysel-sporlar' },
+      { id: 'oyun-konsol', name: 'Oyun Konsolları', slug: 'oyun-konsol' },
+      { id: 'video-oyun', name: 'Video Oyunları', slug: 'video-oyun' },
+      { id: 'masa-oyun', name: 'Masa Oyunları', slug: 'masa-oyun' },
+      { id: 'eglence-hobi', name: 'Eğlence & Hobi', slug: 'eglence-hobi' },
+      { id: 'diger-spor-oyun', name: 'Diğer', slug: 'diger-spor-oyun' }
+    ]
+  },
+  {
+    id: 11,
     name: 'İş İlanları',
     slug: 'is-ilanlari',
     icon: '💼',
@@ -306,7 +322,7 @@ const categories = [
     ]
   },
   {
-    id: 11,
+    id: 12,
     name: 'Yedek Parça',
     slug: 'yedek-parca',
     icon: '🔧',
@@ -318,7 +334,7 @@ const categories = [
     ]
   },
   {
-    id: 12,
+    id: 13,
     name: 'Hizmetler',
     slug: 'hizmetler',
     icon: '🛠️',
@@ -333,7 +349,7 @@ const categories = [
     ]
   },
   {
-    id: 13,
+    id: 14,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',
