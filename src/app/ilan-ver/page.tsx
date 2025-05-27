@@ -90,6 +90,23 @@ const categories = [
   },
   {
     id: 7,
+    name: 'Moda ve Stil',
+    slug: 'moda-ve-stil',
+    icon: '👗',
+    subCategories: [
+      { id: 'kadin-giyim', name: 'Kadın Giyim', slug: 'kadin-giyim' },
+      { id: 'erkek-giyim', name: 'Erkek Giyim', slug: 'erkek-giyim' },
+      { id: 'cocuk-giyim', name: 'Çocuk Giyim', slug: 'cocuk-giyim' },
+      { id: 'ayakkabi', name: 'Ayakkabı', slug: 'ayakkabi' },
+      { id: 'canta', name: 'Çanta', slug: 'canta' },
+      { id: 'aksesuar', name: 'Aksesuar', slug: 'aksesuar' },
+      { id: 'takı', name: 'Takı', slug: 'taki' },
+      { id: 'gozluk', name: 'Gözlük', slug: 'gozluk' },
+      { id: 'diger-moda', name: 'Diğer', slug: 'diger-moda' }
+    ]
+  },
+  {
+    id: 8,
     name: 'İş İlanları',
     slug: 'is-ilanlari',
     icon: '💼',
@@ -101,7 +118,7 @@ const categories = [
     ]
   },
   {
-    id: 8,
+    id: 9,
     name: 'Yedek Parça',
     slug: 'yedek-parca',
     icon: '🔧',
@@ -113,7 +130,7 @@ const categories = [
     ]
   },
   {
-    id: 9,
+    id: 10,
     name: 'Hizmetler',
     slug: 'hizmetler',
     icon: '🛠️',
@@ -128,7 +145,7 @@ const categories = [
     ]
   },
   {
-    id: 10,
+    id: 11,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',
