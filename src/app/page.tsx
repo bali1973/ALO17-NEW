@@ -109,6 +109,16 @@ const featuredListings = [
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Arama işlemi burada yapılacak
+    const searchParams = new URLSearchParams();
+    if (searchQuery) searchParams.set('q', searchQuery);
+    if (selectedCategory) searchParams.set('category', selectedCategory);
+    window.location.href = `/ilanlar?${searchParams.toString()}`;
+  };
 
   return (
     <main className="min-h-screen bg-alo-light">
@@ -130,6 +140,43 @@ export default function HomePage() {
               Hemen İlan Ver
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Arama Bölümü */}
+      <div className="container mx-auto px-4 -mt-8 relative z-10">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Ne aramıştınız?"
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="w-full md:w-48">
+              <select
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="">Tüm Kategoriler</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.slug}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="submit"
+              className="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              İlan Ara
+            </button>
+          </form>
         </div>
       </div>
 
