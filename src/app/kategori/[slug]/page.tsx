@@ -108,6 +108,22 @@ const categories = [
   },
   {
     id: 8,
+    name: 'Ticaret ve Catering',
+    slug: 'ticaret-ve-catering',
+    icon: '🍽️',
+    subCategories: [
+      { id: 'restoran', name: 'Restoran', slug: 'restoran' },
+      { id: 'kafe', name: 'Kafe', slug: 'kafe' },
+      { id: 'pastane', name: 'Pastane', slug: 'pastane' },
+      { id: 'catering', name: 'Catering', slug: 'catering' },
+      { id: 'gida-urunleri', name: 'Gıda Ürünleri', slug: 'gida-urunleri' },
+      { id: 'mutfak-ekipman', name: 'Mutfak Ekipmanları', slug: 'mutfak-ekipman' },
+      { id: 'toplu-siparis', name: 'Toplu Sipariş', slug: 'toplu-siparis' },
+      { id: 'diger-ticaret', name: 'Diğer', slug: 'diger-ticaret' }
+    ]
+  },
+  {
+    id: 9,
     name: 'İş İlanları',
     slug: 'is-ilanlari',
     icon: '💼',
@@ -119,7 +135,7 @@ const categories = [
     ]
   },
   {
-    id: 9,
+    id: 10,
     name: 'Yedek Parça',
     slug: 'yedek-parca',
     icon: '🔧',
@@ -131,7 +147,7 @@ const categories = [
     ]
   },
   {
-    id: 10,
+    id: 11,
     name: 'Hizmetler',
     slug: 'hizmetler',
     icon: '🛠️',
@@ -146,7 +162,7 @@ const categories = [
     ]
   },
   {
-    id: 11,
+    id: 12,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',
