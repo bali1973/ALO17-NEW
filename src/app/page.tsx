@@ -2,6 +2,110 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+// Kategoriler
+const categories = [
+  {
+    id: 1,
+    name: 'Emlak',
+    icon: '🏠',
+    slug: 'emlak',
+  },
+  {
+    id: 2,
+    name: 'Vasıta',
+    icon: '🚗',
+    slug: 'vasita',
+  },
+  {
+    id: 3,
+    name: 'Elektronik',
+    icon: '📱',
+    slug: 'elektronik',
+  },
+  {
+    id: 4,
+    name: 'Ev Eşyaları',
+    icon: '🛋️',
+    slug: 'ev-esyalari',
+  },
+  {
+    id: 5,
+    name: 'Giyim',
+    icon: '👕',
+    slug: 'giyim',
+  },
+  {
+    id: 6,
+    name: 'Spor',
+    icon: '⚽',
+    slug: 'spor',
+  },
+  {
+    id: 7,
+    name: 'Hobi',
+    icon: '🎮',
+    slug: 'hobi',
+  },
+  {
+    id: 8,
+    name: 'Diğer',
+    icon: '📦',
+    slug: 'diger',
+  },
+];
+
+// Örnek veriler
+const featuredListings = [
+  {
+    id: 1,
+    title: 'iPhone 14 Pro Max',
+    price: '45.000',
+    location: 'Konak, İzmir',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max'
+  },
+  {
+    id: 2,
+    title: 'MacBook Pro M2',
+    price: '65.000',
+    location: 'Kadıköy, İstanbul',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=MacBook+Pro+M2'
+  },
+  {
+    id: 3,
+    title: 'Samsung 4K Smart TV',
+    price: '32.000',
+    location: 'Çankaya, Ankara',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Samsung+4K+TV'
+  },
+  {
+    id: 4,
+    title: 'Profesyonel Temizlik Hizmeti',
+    price: '500',
+    location: 'Karşıyaka, İzmir',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Temizlik+Hizmeti'
+  },
+  {
+    id: 5,
+    title: 'Özel Matematik Dersi',
+    price: '300',
+    location: 'Bornova, İzmir',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Matematik+Dersi'
+  },
+  {
+    id: 6,
+    title: 'Evden Eve Nakliyat',
+    price: '2.500',
+    location: 'İzmir',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Nakliyat+Hizmeti'
+  }
+];
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,33 +113,44 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-alo-light">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-alo-blue via-alo-light-blue to-alo-blue">
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="max-w-4xl mx-auto text-center text-white">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              ALO17.TR
+      <div className="relative h-[500px] bg-gradient-to-r from-blue-500 to-blue-600">
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative container mx-auto px-4 h-full flex items-center">
+          <div className="max-w-2xl text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              İkinci El Alışverişin Güvenilir Adresi
             </h1>
-            <p className="text-xl md:text-2xl mb-12 text-white/90">
-              Türkiye'nin En Büyük İlan Platformu
+            <p className="text-lg md:text-xl mb-8">
+              ALO17.TR ile güvenli alışverişin keyfini çıkarın
             </p>
-            
-            {/* Arama Kutusu */}
-            <div className="bg-white rounded-xl p-2 shadow-xl">
-              <div className="flex flex-col md:flex-row gap-2">
-                <input
-                  type="text"
-                  placeholder="Ne aramıştınız?"
-                  className="flex-1 px-6 py-4 rounded-lg text-alo-dark focus:outline-none focus:ring-2 focus:ring-alo-orange text-lg"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button className="bg-alo-orange hover:bg-alo-light-orange px-8 py-4 rounded-lg font-semibold transition-colors text-lg whitespace-nowrap text-white">
-                  İlan Ara
-                </button>
-              </div>
-            </div>
+            <Link
+              href="/ilan-ver"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+            >
+              Hemen İlan Ver
+            </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Kategoriler */}
+      <div className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">Kategoriler</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/kategori/${category.slug}`}
+              className="group"
+            >
+              <div className="bg-white rounded-lg shadow-md p-6 text-center transition-transform hover:scale-105">
+                <div className="text-4xl mb-4">{category.icon}</div>
+                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600">
+                  {category.name}
+                </h3>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -116,52 +231,6 @@ export default function HomePage() {
     </main>
   );
 } 
-
-// Örnek veriler
-const featuredListings = [
-  {
-    id: 1,
-    title: 'iPhone 14 Pro Max',
-    price: '45.000',
-    location: 'Konak, İzmir',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max'
-  },
-  {
-    id: 2,
-    title: 'MacBook Pro M2',
-    price: '65.000',
-    location: 'Kadıköy, İstanbul',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=MacBook+Pro+M2'
-  },
-  {
-    id: 3,
-    title: 'Samsung 4K Smart TV',
-    price: '32.000',
-    location: 'Çankaya, Ankara',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Samsung+4K+TV'
-  },
-  {
-    id: 4,
-    title: 'Profesyonel Temizlik Hizmeti',
-    price: '500',
-    location: 'Karşıyaka, İzmir',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Temizlik+Hizmeti'
-  },
-  {
-    id: 5,
-    title: 'Özel Matematik Dersi',
-    price: '300',
-    location: 'Bornova, İzmir',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Matematik+Dersi'
-  },
-  {
-    id: 6,
-    title: 'Evden Eve Nakliyat',
-    price: '2.500',
-    location: 'İzmir',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Nakliyat+Hizmeti'
-  }
-];
 
 const features = [
   {
