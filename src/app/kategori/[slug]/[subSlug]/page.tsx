@@ -7,7 +7,24 @@ import { useParams } from 'next/navigation';
 import { FunnelIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 
 // Örnek veri
-const listings = [
+type Listing = {
+  id: number;
+  title: string;
+  price: string;
+  location: string;
+  image: string;
+  category: string;
+  subCategory: string;
+  createdAt: string;
+  views: number;
+  condition: string;
+  brand: string;
+  model: string;
+  year: string;
+  favorites?: number;
+};
+
+const listings: Listing[] = [
   {
     id: 1,
     title: 'iPhone 14 Pro Max 256GB',
@@ -21,7 +38,8 @@ const listings = [
     condition: 'Yeni',
     brand: 'Apple',
     model: 'iPhone 14 Pro Max',
-    year: '2024'
+    year: '2024',
+    favorites: 12
   },
   {
     id: 2,
@@ -242,36 +260,59 @@ export default function SubCategoryPage() {
         )}
 
         {/* İlan Listesi */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${showFilters ? '3' : '4'} gap-6`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {listings.map((listing) => (
             <Link
               key={listing.id}
-              href={`/ilan/${listing.id}`}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+              href={`/listing/${listing.id}`}
+              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
             >
-              <div className="relative aspect-[4/3]">
+              <div className="relative h-48 bg-alo-light-blue">
                 <Image
                   src={listing.image}
                   alt={listing.title}
                   fill
-                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={false}
+                  className="object-cover transition-transform group-hover:scale-105"
+                  quality={85}
                 />
                 {listing.condition === 'Yeni' && (
-                  <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+                  <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
                     Yeni
                   </span>
                 )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
+                <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2 group-hover:text-alo-orange transition-colors">
+                  {listing.title}
+                </h3>
                 <p className="text-xl font-bold text-alo-red mb-2">{listing.price} TL</p>
                 <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{listing.location}</span>
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    {listing.location}
+                  </span>
                   <span>{new Date(listing.createdAt).toLocaleDateString('tr-TR')}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
-                  <span>{listing.brand}</span>
-                  <span>{listing.model}</span>
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    {listing.views} görüntülenme
+                  </span>
+                  <span className="flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    {listing.favorites || 0} favori
+                  </span>
                 </div>
               </div>
             </Link>
