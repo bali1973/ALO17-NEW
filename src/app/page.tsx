@@ -238,6 +238,21 @@ const categories = [
   },
   { 
     id: 7, 
+    name: 'Hizmetler', 
+    slug: 'hizmetler', 
+    icon: '🛠️',
+    subCategories: [
+      { id: 'tadilat', name: 'Tadilat & Dekorasyon', slug: 'tadilat' },
+      { id: 'nakliyat', name: 'Nakliyat', slug: 'nakliyat' },
+      { id: 'temizlik', name: 'Temizlik', slug: 'temizlik' },
+      { id: 'tamir', name: 'Tamir & Bakım', slug: 'tamir' },
+      { id: 'ozel-ders', name: 'Özel Ders', slug: 'ozel-ders' },
+      { id: 'organizasyon', name: 'Organizasyon', slug: 'organizasyon' },
+      { id: 'diger-hizmet', name: 'Diğer Hizmetler', slug: 'diger-hizmet' }
+    ]
+  },
+  { 
+    id: 8, 
     name: 'Diğer', 
     slug: 'diger', 
     icon: '📦',
