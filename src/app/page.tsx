@@ -19,9 +19,9 @@ const categories = [
   },
   {
     id: 2,
-    name: 'Ev Eşyaları',
-    icon: '🛋️',
-    slug: 'ev-esyalari',
+    name: 'Ev ve Bahçe',
+    icon: '🏡',
+    slug: 'ev-ve-bahce',
   },
   {
     id: 3,
