@@ -45,6 +45,20 @@ const categories = [
   },
   {
     id: 4,
+    name: 'Ev ve Bahçe',
+    slug: 'ev-ve-bahce',
+    icon: '🏡',
+    subCategories: [
+      { id: 'bahce-mobilya', name: 'Bahçe Mobilyası', slug: 'bahce-mobilya' },
+      { id: 'bahce-ekipman', name: 'Bahçe Ekipmanları', slug: 'bahce-ekipman' },
+      { id: 'bitki', name: 'Bitki & Tohum', slug: 'bitki' },
+      { id: 'havuz', name: 'Havuz & Spa', slug: 'havuz' },
+      { id: 'yapi-malzeme', name: 'Yapı Malzemeleri', slug: 'yapi-malzeme' },
+      { id: 'tamir-malzeme', name: 'Tamir Malzemeleri', slug: 'tamir-malzeme' }
+    ]
+  },
+  {
+    id: 5,
     name: 'İş İlanları',
     slug: 'is-ilanlari',
     icon: '💼',
@@ -56,7 +70,7 @@ const categories = [
     ]
   },
   {
-    id: 5,
+    id: 6,
     name: 'Yedek Parça',
     slug: 'yedek-parca',
     icon: '🔧',
@@ -68,7 +82,7 @@ const categories = [
     ]
   },
   {
-    id: 6,
+    id: 7,
     name: 'Hizmetler',
     slug: 'hizmetler',
     icon: '🛠️',
@@ -83,7 +97,7 @@ const categories = [
     ]
   },
   {
-    id: 7,
+    id: 8,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',
