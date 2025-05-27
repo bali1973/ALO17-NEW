@@ -17,6 +17,8 @@ const listing = {
   description: 'Sıfır, kutulu, garantili iPhone 14 Pro Max 256GB. Apple Türkiye garantisi devam ediyor. Faturalı, kutusu ve tüm aksesuarları mevcut. Pazarlık payı vardır.',
   category: 'Elektronik',
   subCategory: 'Telefon',
+  isPremium: true,
+  premiumUntil: '2024-04-20',
   features: [
     '256GB Depolama',
     'A15 Bionic İşlemci',
@@ -83,21 +85,49 @@ export default function ListingDetail() {
         <div className="lg:col-span-2 space-y-8">
           {/* İlan Başlığı ve Fiyat */}
           <div>
-            <h1 className="text-3xl font-bold text-alo-dark mb-4">{listing.title}</h1>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-3xl font-bold text-alo-dark">{listing.title}</h1>
+              {listing.isPremium && (
+                <div className="flex items-center bg-gradient-to-r from-alo-orange to-alo-light-orange text-white px-4 py-2 rounded-full">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                  <span className="font-semibold">Premium İlan</span>
+                </div>
+              )}
+            </div>
             <p className="text-2xl font-bold text-alo-red">{listing.price} TL</p>
+            {listing.isPremium && (
+              <p className="text-sm text-gray-500 mt-2">
+                Premium üyelik bitiş tarihi: {new Date(listing.premiumUntil).toLocaleDateString('tr-TR')}
+              </p>
+            )}
           </div>
 
           {/* Fotoğraf Galerisi */}
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+            {listing.isPremium && (
+              <div className="bg-gradient-to-r from-alo-orange to-alo-light-orange text-white px-4 py-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">Premium İlan Galerisi</span>
+                  <span className="text-sm">Yüksek Çözünürlüklü Fotoğraflar</span>
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 p-2">
               {listing.images.map((image, index) => (
-                <div key={index} className="relative aspect-square">
+                <div key={index} className="relative aspect-square group">
                   <Image
                     src={image}
                     alt={`${listing.title} - Fotoğraf ${index + 1}`}
                     fill
-                    className="object-cover"
+                    className="object-cover rounded-lg transition-transform group-hover:scale-105"
                   />
+                  {listing.isPremium && index === 0 && (
+                    <div className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs font-semibold">
+                      Kapak Fotoğrafı
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -108,9 +138,20 @@ export default function ListingDetail() {
             <div className="border-b border-gray-200 pb-4 mb-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-alo-dark">İlan Detayları</h2>
-                <div className="flex items-center text-sm text-gray-500">
-                  <ClockIcon className="w-4 h-4 mr-1" />
-                  {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
+                <div className="flex items-center space-x-4">
+                  {listing.isPremium && (
+                    <div className="flex items-center text-alo-orange">
+                      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span className="text-sm font-medium">{listing.views} görüntülenme</span>
+                    </div>
+                  )}
+                  <div className="flex items-center text-sm text-gray-500">
+                    <ClockIcon className="w-4 h-4 mr-1" />
+                    {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
+                  </div>
                 </div>
               </div>
             </div>

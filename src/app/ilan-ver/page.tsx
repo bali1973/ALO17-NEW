@@ -113,6 +113,7 @@ export default function AddListingPage() {
     year: '',
     phone: '',
     email: '',
+    isPremium: false,
   });
 
   // Seçili kategorinin alt kategorilerini bul
@@ -437,13 +438,76 @@ export default function AddListingPage() {
             </div>
           </div>
 
+          {/* Premium İlan Seçeneği */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-alo-dark mb-4">Premium İlan Seçenekleri</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="checkbox"
+                    id="premium"
+                    name="isPremium"
+                    checked={formData.isPremium}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isPremium: e.target.checked }))}
+                    className="h-5 w-5 text-alo-orange focus:ring-alo-orange border-gray-300 rounded"
+                  />
+                  <div>
+                    <label htmlFor="premium" className="text-lg font-medium text-alo-dark">
+                      Premium İlan
+                    </label>
+                    <p className="text-sm text-gray-500">
+                      İlanınızı öne çıkarın ve daha fazla görüntülenme elde edin
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-alo-orange">₺99<span className="text-sm text-gray-500">/ay</span></p>
+                  <p className="text-sm text-green-600">İlk 30 gün ücretsiz!</p>
+                </div>
+              </div>
+
+              {formData.isPremium && (
+                <div className="bg-alo-light rounded-lg p-4">
+                  <h3 className="font-semibold text-alo-dark mb-2">Premium İlan Avantajları:</h3>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center">
+                      <svg className="w-5 h-5 text-alo-orange mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      İlanınız kategori sayfasında en üstte gösterilir
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-5 h-5 text-alo-orange mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Arama sonuçlarında öne çıkarılır
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-5 h-5 text-alo-orange mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Premium rozeti ile güven artırın
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-5 h-5 text-alo-orange mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      İstatistik ve analiz raporlarına erişim
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Gönder Butonu */}
           <div className="flex justify-end">
             <button
               type="submit"
               className="bg-alo-orange hover:bg-alo-light-orange text-white px-8 py-3 rounded-lg font-semibold transition-colors"
             >
-              İlanı Yayınla
+              {formData.isPremium ? 'Premium İlanı Yayınla' : 'İlanı Yayınla'}
             </button>
           </div>
         </form>
