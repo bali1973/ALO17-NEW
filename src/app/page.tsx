@@ -162,14 +162,12 @@ export default function HomePage() {
 
 // Örnek veriler
 const categories = [
-  { id: 1, name: 'Emlak', slug: 'emlak', icon: '🏠' },
-  { id: 2, name: 'Vasıta', slug: 'vasita', icon: '🚗' },
-  { id: 3, name: 'Elektronik', slug: 'elektronik', icon: '📱' },
-  { id: 4, name: 'İş Makineleri', slug: 'is-makineleri', icon: '🚜' },
-  { id: 5, name: 'Ev Eşyaları', slug: 'ev-esyalari', icon: '🛋️' },
-  { id: 6, name: 'İş İlanları', slug: 'is-ilanlari', icon: '💼' },
-  { id: 7, name: 'Yedek Parça', slug: 'yedek-parca', icon: '🔧' },
-  { id: 8, name: 'Diğer', slug: 'diger', icon: '📦' },
+  { id: 1, name: 'Elektronik', slug: 'elektronik', icon: '📱' },
+  { id: 2, name: 'İş Makineleri', slug: 'is-makineleri', icon: '🚜' },
+  { id: 3, name: 'Ev Eşyaları', slug: 'ev-esyalari', icon: '🛋️' },
+  { id: 4, name: 'İş İlanları', slug: 'is-ilanlari', icon: '💼' },
+  { id: 5, name: 'Yedek Parça', slug: 'yedek-parca', icon: '🔧' },
+  { id: 6, name: 'Diğer', slug: 'diger', icon: '📦' },
 ];
 
 const featuredListings = [

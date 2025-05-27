@@ -9,8 +9,6 @@ const navigation = {
     { name: 'Yardım', href: '/yardim' },
   ],
   categories: [
-    { name: 'Emlak', href: '/kategori/emlak' },
-    { name: 'Vasıta', href: '/kategori/vasita' },
     { name: 'Elektronik', href: '/kategori/elektronik' },
     { name: 'İş Makineleri', href: '/kategori/is-makineleri' },
     { name: 'Ev Eşyaları', href: '/kategori/ev-esyalari' },
