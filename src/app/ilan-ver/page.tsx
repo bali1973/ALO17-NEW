@@ -13,12 +13,10 @@ const categories = [
     slug: 'elektronik',
     icon: '📱',
     subCategories: [
-      { id: 1, name: 'Telefon', slug: 'telefon' },
-      { id: 2, name: 'Bilgisayar', slug: 'bilgisayar' },
-      { id: 3, name: 'Tablet', slug: 'tablet' },
-      { id: 4, name: 'Televizyon', slug: 'televizyon' },
-      { id: 5, name: 'Kamera', slug: 'kamera' },
-      { id: 6, name: 'Oyun Konsolu', slug: 'oyun-konsolu' },
+      { id: 'telefon', name: 'Telefon', slug: 'telefon' },
+      { id: 'bilgisayar', name: 'Bilgisayar', slug: 'bilgisayar' },
+      { id: 'tv-ses', name: 'TV & Ses Sistemleri', slug: 'tv-ses' },
+      { id: 'fotograf', name: 'Fotoğraf & Kamera', slug: 'fotograf' }
     ]
   },
   {
@@ -27,23 +25,22 @@ const categories = [
     slug: 'is-makineleri',
     icon: '🚜',
     subCategories: [
-      { id: 1, name: 'Ekskavatör', slug: 'ekskavator' },
-      { id: 2, name: 'Beko Loder', slug: 'beko-loder' },
-      { id: 3, name: 'Forklift', slug: 'forklift' },
-      { id: 4, name: 'Kamyon', slug: 'kamyon' },
-      { id: 5, name: 'Kepçe', slug: 'kepce' },
+      { id: 'ekskavatör', name: 'Ekskavatör', slug: 'ekskavator' },
+      { id: 'forklift', name: 'Forklift', slug: 'forklift' },
+      { id: 'beton-pompa', name: 'Beton Pompa', slug: 'beton-pompa' },
+      { id: 'yükleyici', name: 'Yükleyici', slug: 'yukleyici' }
     ]
   },
   {
     id: 3,
     name: 'Ev Eşyaları',
     slug: 'ev-esyalari',
-    icon: '🏠',
+    icon: '🛋️',
     subCategories: [
-      { id: 1, name: 'Mobilya', slug: 'mobilya' },
-      { id: 2, name: 'Beyaz Eşya', slug: 'beyaz-esya' },
-      { id: 3, name: 'Mutfak Gereçleri', slug: 'mutfak-gerecleri' },
-      { id: 4, name: 'Dekorasyon', slug: 'dekorasyon' },
+      { id: 'mobilya', name: 'Mobilya', slug: 'mobilya' },
+      { id: 'ev-tekstili', name: 'Ev Tekstili', slug: 'ev-tekstili' },
+      { id: 'mutfak', name: 'Mutfak Gereçleri', slug: 'mutfak' },
+      { id: 'beyaz-esya', name: 'Beyaz Eşya', slug: 'beyaz-esya' }
     ]
   },
   {
@@ -52,10 +49,10 @@ const categories = [
     slug: 'is-ilanlari',
     icon: '💼',
     subCategories: [
-      { id: 1, name: 'Tam Zamanlı', slug: 'tam-zamanli' },
-      { id: 2, name: 'Yarı Zamanlı', slug: 'yarim-zamanli' },
-      { id: 3, name: 'Freelance', slug: 'freelance' },
-      { id: 4, name: 'Staj', slug: 'staj' },
+      { id: 'tam-zamanli', name: 'Tam Zamanlı', slug: 'tam-zamanli' },
+      { id: 'yarim-zamanli', name: 'Yarı Zamanlı', slug: 'yarim-zamanli' },
+      { id: 'freelance', name: 'Freelance', slug: 'freelance' },
+      { id: 'staj', name: 'Staj', slug: 'staj' }
     ]
   },
   {
@@ -64,22 +61,36 @@ const categories = [
     slug: 'yedek-parca',
     icon: '🔧',
     subCategories: [
-      { id: 1, name: 'Otomotiv', slug: 'otomotiv' },
-      { id: 2, name: 'İş Makinesi', slug: 'is-makinesi' },
-      { id: 3, name: 'Elektronik', slug: 'elektronik' },
-      { id: 4, name: 'Beyaz Eşya', slug: 'beyaz-esya' },
+      { id: 'otomotiv', name: 'Otomotiv', slug: 'otomotiv' },
+      { id: 'elektronik', name: 'Elektronik', slug: 'elektronik' },
+      { id: 'makine', name: 'Makine', slug: 'makine' },
+      { id: 'aksesuar', name: 'Aksesuar', slug: 'aksesuar' }
     ]
   },
   {
     id: 6,
+    name: 'Turizm & Konaklama',
+    slug: 'turizm-konaklama',
+    icon: '🏨',
+    subCategories: [
+      { id: 'otel', name: 'Otel', slug: 'otel' },
+      { id: 'pansiyon', name: 'Pansiyon', slug: 'pansiyon' },
+      { id: 'apart', name: 'Apart', slug: 'apart' },
+      { id: 'villa', name: 'Villa', slug: 'villa' },
+      { id: 'yurt', name: 'Yurt', slug: 'yurt' },
+      { id: 'kiralik-ev', name: 'Kiralık Ev', slug: 'kiralik-ev' }
+    ]
+  },
+  {
+    id: 7,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',
     subCategories: [
-      { id: 1, name: 'Koleksiyon', slug: 'koleksiyon' },
-      { id: 2, name: 'Hobi', slug: 'hobi' },
-      { id: 3, name: 'Spor', slug: 'spor' },
-      { id: 4, name: 'Bahçe', slug: 'bahce' },
+      { id: 'spor', name: 'Spor & Outdoor', slug: 'spor' },
+      { id: 'hobi', name: 'Hobi & Koleksiyon', slug: 'hobi' },
+      { id: 'sanat', name: 'Sanat & Antika', slug: 'sanat' },
+      { id: 'diger', name: 'Diğer', slug: 'diger' }
     ]
   }
 ];
