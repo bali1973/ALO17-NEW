@@ -59,6 +59,21 @@ const categories = [
   },
   {
     id: 5,
+    name: 'Sağlık ve Güzellik',
+    slug: 'saglik-ve-guzellik',
+    icon: '💅',
+    subCategories: [
+      { id: 'kozmetik', name: 'Kozmetik', slug: 'kozmetik' },
+      { id: 'parfum', name: 'Parfüm', slug: 'parfum' },
+      { id: 'cilt-bakim', name: 'Cilt Bakımı', slug: 'cilt-bakim' },
+      { id: 'sac-bakim', name: 'Saç Bakımı', slug: 'sac-bakim' },
+      { id: 'makyaj', name: 'Makyaj', slug: 'makyaj' },
+      { id: 'diyet', name: 'Diyet & Beslenme', slug: 'diyet' },
+      { id: 'spor-urunleri', name: 'Spor Ürünleri', slug: 'spor-urunleri' }
+    ]
+  },
+  {
+    id: 6,
     name: 'İş İlanları',
     slug: 'is-ilanlari',
     icon: '💼',
@@ -70,7 +85,7 @@ const categories = [
     ]
   },
   {
-    id: 6,
+    id: 7,
     name: 'Yedek Parça',
     slug: 'yedek-parca',
     icon: '🔧',
@@ -82,7 +97,7 @@ const categories = [
     ]
   },
   {
-    id: 7,
+    id: 8,
     name: 'Hizmetler',
     slug: 'hizmetler',
     icon: '🛠️',
@@ -97,7 +112,7 @@ const categories = [
     ]
   },
   {
-    id: 8,
+    id: 9,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',

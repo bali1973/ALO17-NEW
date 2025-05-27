@@ -162,10 +162,10 @@ export default function HomePage() {
 
 // Örnek veriler
 const categories = [
-  { 
-    id: 1, 
-    name: 'Elektronik', 
-    slug: 'elektronik', 
+  {
+    id: 1,
+    name: 'Elektronik',
+    slug: 'elektronik',
     icon: '📱',
     subCategories: [
       { id: 'telefon', name: 'Telefon', slug: 'telefon' },
@@ -174,10 +174,10 @@ const categories = [
       { id: 'fotograf', name: 'Fotoğraf & Kamera', slug: 'fotograf' }
     ]
   },
-  { 
-    id: 2, 
-    name: 'İş Makineleri', 
-    slug: 'is-makineleri', 
+  {
+    id: 2,
+    name: 'İş Makineleri',
+    slug: 'is-makineleri',
     icon: '🚜',
     subCategories: [
       { id: 'ekskavator', name: 'Ekskavatör', slug: 'ekskavator' },
@@ -186,10 +186,10 @@ const categories = [
       { id: 'yukleyici', name: 'Yükleyici', slug: 'yukleyici' }
     ]
   },
-  { 
-    id: 3, 
-    name: 'Ev Eşyaları', 
-    slug: 'ev-esyalari', 
+  {
+    id: 3,
+    name: 'Ev Eşyaları',
+    slug: 'ev-esyalari',
     icon: '🛋️',
     subCategories: [
       { id: 'mobilya', name: 'Mobilya', slug: 'mobilya' },
@@ -198,10 +198,39 @@ const categories = [
       { id: 'beyaz-esya', name: 'Beyaz Eşya', slug: 'beyaz-esya' }
     ]
   },
-  { 
-    id: 4, 
-    name: 'İş İlanları', 
-    slug: 'is-ilanlari', 
+  {
+    id: 4,
+    name: 'Ev ve Bahçe',
+    slug: 'ev-ve-bahce',
+    icon: '🏡',
+    subCategories: [
+      { id: 'bahce-mobilya', name: 'Bahçe Mobilyası', slug: 'bahce-mobilya' },
+      { id: 'bahce-ekipman', name: 'Bahçe Ekipmanları', slug: 'bahce-ekipman' },
+      { id: 'bitki', name: 'Bitki & Tohum', slug: 'bitki' },
+      { id: 'havuz', name: 'Havuz & Spa', slug: 'havuz' },
+      { id: 'yapi-malzeme', name: 'Yapı Malzemeleri', slug: 'yapi-malzeme' },
+      { id: 'tamir-malzeme', name: 'Tamir Malzemeleri', slug: 'tamir-malzeme' }
+    ]
+  },
+  {
+    id: 5,
+    name: 'Sağlık ve Güzellik',
+    slug: 'saglik-ve-guzellik',
+    icon: '💅',
+    subCategories: [
+      { id: 'kozmetik', name: 'Kozmetik', slug: 'kozmetik' },
+      { id: 'parfum', name: 'Parfüm', slug: 'parfum' },
+      { id: 'cilt-bakim', name: 'Cilt Bakımı', slug: 'cilt-bakim' },
+      { id: 'sac-bakim', name: 'Saç Bakımı', slug: 'sac-bakim' },
+      { id: 'makyaj', name: 'Makyaj', slug: 'makyaj' },
+      { id: 'diyet', name: 'Diyet & Beslenme', slug: 'diyet' },
+      { id: 'spor-urunleri', name: 'Spor Ürünleri', slug: 'spor-urunleri' }
+    ]
+  },
+  {
+    id: 6,
+    name: 'İş İlanları',
+    slug: 'is-ilanlari',
     icon: '💼',
     subCategories: [
       { id: 'tam-zamanli', name: 'Tam Zamanlı', slug: 'tam-zamanli' },
@@ -210,10 +239,10 @@ const categories = [
       { id: 'staj', name: 'Staj', slug: 'staj' }
     ]
   },
-  { 
-    id: 5, 
-    name: 'Yedek Parça', 
-    slug: 'yedek-parca', 
+  {
+    id: 7,
+    name: 'Yedek Parça',
+    slug: 'yedek-parca',
     icon: '🔧',
     subCategories: [
       { id: 'otomotiv', name: 'Otomotiv', slug: 'otomotiv' },
@@ -222,10 +251,10 @@ const categories = [
       { id: 'aksesuar', name: 'Aksesuar', slug: 'aksesuar' }
     ]
   },
-  { 
-    id: 6, 
-    name: 'Hizmetler', 
-    slug: 'hizmetler', 
+  {
+    id: 8,
+    name: 'Hizmetler',
+    slug: 'hizmetler',
     icon: '🛠️',
     subCategories: [
       { id: 'tadilat', name: 'Tadilat & Dekorasyon', slug: 'tadilat' },
@@ -237,10 +266,10 @@ const categories = [
       { id: 'diger-hizmet', name: 'Diğer Hizmetler', slug: 'diger-hizmet' }
     ]
   },
-  { 
-    id: 7, 
-    name: 'Diğer', 
-    slug: 'diger', 
+  {
+    id: 9,
+    name: 'Diğer',
+    slug: 'diger',
     icon: '📦',
     subCategories: [
       { id: 'spor', name: 'Spor & Outdoor', slug: 'spor' },
