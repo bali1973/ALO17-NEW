@@ -39,8 +39,8 @@ export default function ContactPage() {
               <div>
                 <h3 className="font-semibold text-gray-900">Adres</h3>
                 <p className="text-gray-600">
-                  Merkez Mahallesi, Teknoloji Caddesi No:123<br />
-                  Kadıköy, İstanbul
+                  Cevatpaşa Mahallesi, Bayrak Sokak No:4<br />
+                  Çanakkale
                 </p>
               </div>
             </div>
@@ -49,7 +49,7 @@ export default function ContactPage() {
               <div className="text-alo-orange text-2xl">📞</div>
               <div>
                 <h3 className="font-semibold text-gray-900">Telefon</h3>
-                <p className="text-gray-600">+90 (216) 123 45 67</p>
+                <p className="text-gray-600">0541 404 2 404</p>
               </div>
             </div>
 
@@ -57,7 +57,7 @@ export default function ContactPage() {
               <div className="text-alo-orange text-2xl">✉️</div>
               <div>
                 <h3 className="font-semibold text-gray-900">E-posta</h3>
-                <p className="text-gray-600">info@alo17.tr</p>
+                <p className="text-gray-600">destek@alo17.tr</p>
               </div>
             </div>
 

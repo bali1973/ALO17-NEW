@@ -108,9 +108,9 @@ export default function PrivacyPolicyPage() {
           </p>
           <div className="bg-alo-light rounded-lg p-6 mt-4">
             <p className="text-gray-600">
-              E-posta: privacy@alo17.tr<br />
-              Adres: Merkez Mahallesi, Teknoloji Caddesi No:123<br />
-              Kadıköy, İstanbul
+              E-posta: destek@alo17.tr<br />
+              Adres: Cevatpaşa Mahallesi, Bayrak Sokak No:4<br />
+              Çanakkale
             </p>
           </div>
         </section>
