@@ -6,85 +6,6 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FunnelIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 
-// Kategori yapısı
-const categories = [
-  {
-    id: 1,
-    name: 'Elektronik',
-    slug: 'elektronik',
-    icon: '📱',
-    subCategories: [
-      { id: 1, name: 'Telefon', slug: 'telefon' },
-      { id: 2, name: 'Bilgisayar', slug: 'bilgisayar' },
-      { id: 3, name: 'Tablet', slug: 'tablet' },
-      { id: 4, name: 'Televizyon', slug: 'televizyon' },
-      { id: 5, name: 'Kamera', slug: 'kamera' },
-      { id: 6, name: 'Oyun Konsolu', slug: 'oyun-konsolu' },
-    ]
-  },
-  {
-    id: 2,
-    name: 'İş Makineleri',
-    slug: 'is-makineleri',
-    icon: '🚜',
-    subCategories: [
-      { id: 1, name: 'Ekskavatör', slug: 'ekskavator' },
-      { id: 2, name: 'Beko Loder', slug: 'beko-loder' },
-      { id: 3, name: 'Forklift', slug: 'forklift' },
-      { id: 4, name: 'Kamyon', slug: 'kamyon' },
-      { id: 5, name: 'Kepçe', slug: 'kepce' },
-    ]
-  },
-  {
-    id: 3,
-    name: 'Ev Eşyaları',
-    slug: 'ev-esyalari',
-    icon: '🏠',
-    subCategories: [
-      { id: 1, name: 'Mobilya', slug: 'mobilya' },
-      { id: 2, name: 'Beyaz Eşya', slug: 'beyaz-esya' },
-      { id: 3, name: 'Mutfak Gereçleri', slug: 'mutfak-gerecleri' },
-      { id: 4, name: 'Dekorasyon', slug: 'dekorasyon' },
-    ]
-  },
-  {
-    id: 4,
-    name: 'İş İlanları',
-    slug: 'is-ilanlari',
-    icon: '💼',
-    subCategories: [
-      { id: 1, name: 'Tam Zamanlı', slug: 'tam-zamanli' },
-      { id: 2, name: 'Yarı Zamanlı', slug: 'yarim-zamanli' },
-      { id: 3, name: 'Freelance', slug: 'freelance' },
-      { id: 4, name: 'Staj', slug: 'staj' },
-    ]
-  },
-  {
-    id: 5,
-    name: 'Yedek Parça',
-    slug: 'yedek-parca',
-    icon: '🔧',
-    subCategories: [
-      { id: 1, name: 'Otomotiv', slug: 'otomotiv' },
-      { id: 2, name: 'İş Makinesi', slug: 'is-makinesi' },
-      { id: 3, name: 'Elektronik', slug: 'elektronik' },
-      { id: 4, name: 'Beyaz Eşya', slug: 'beyaz-esya' },
-    ]
-  },
-  {
-    id: 6,
-    name: 'Diğer',
-    slug: 'diger',
-    icon: '📦',
-    subCategories: [
-      { id: 1, name: 'Koleksiyon', slug: 'koleksiyon' },
-      { id: 2, name: 'Hobi', slug: 'hobi' },
-      { id: 3, name: 'Spor', slug: 'spor' },
-      { id: 4, name: 'Bahçe', slug: 'bahce' },
-    ]
-  }
-];
-
 // Örnek veri
 const listings = [
   {
@@ -140,7 +61,7 @@ const filters = {
   ],
 };
 
-export default function CategoryPage() {
+export default function SubCategoryPage() {
   const params = useParams();
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPriceRange, setSelectedPriceRange] = useState('all');
@@ -148,8 +69,9 @@ export default function CategoryPage() {
   const [selectedSort, setSelectedSort] = useState('newest');
 
   const categorySlug = params.slug as string;
+  const subCategorySlug = params.subSlug as string;
   
-  // Kategori ismini formatla
+  // Kategori ve alt kategori isimlerini formatla
   const formatSlug = (slug: string) => {
     return slug
       .split('-')
@@ -158,9 +80,7 @@ export default function CategoryPage() {
   };
 
   const categoryName = formatSlug(categorySlug);
-  
-  // Mevcut kategoriyi bul
-  const currentCategory = categories.find(cat => cat.slug === categorySlug);
+  const subCategoryName = formatSlug(subCategorySlug);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -168,13 +88,15 @@ export default function CategoryPage() {
       <div className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
         <Link href="/" className="hover:text-alo-orange">Ana Sayfa</Link>
         <span>/</span>
-        <span className="text-alo-dark font-medium">{categoryName}</span>
+        <Link href={`/kategori/${categorySlug}`} className="hover:text-alo-orange">{categoryName}</Link>
+        <span>/</span>
+        <span className="text-alo-dark font-medium">{subCategoryName}</span>
       </div>
 
       {/* Başlık ve Filtreler */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-alo-dark">{categoryName}</h1>
+          <h1 className="text-3xl font-bold text-alo-dark">{subCategoryName}</h1>
           <p className="text-gray-600 mt-1">{listings.length} ilan bulundu</p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
@@ -200,89 +122,67 @@ export default function CategoryPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Alt Kategoriler ve Filtreler Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="space-y-6">
-            {/* Alt Kategoriler */}
-            {currentCategory && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-alo-dark mb-4">Alt Kategoriler</h2>
-                <div className="space-y-2">
-                  {currentCategory.subCategories.map((subCat) => (
-                    <Link
-                      key={subCat.id}
-                      href={`/kategori/${categorySlug}/${subCat.slug}`}
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50"
-                    >
-                      <span className="text-gray-700">{subCat.name}</span>
-                      <span className="text-gray-400">→</span>
-                    </Link>
-                  ))}
-                </div>
+        {/* Filtreler Sidebar */}
+        {showFilters && (
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-alo-dark">Filtreler</h2>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="text-gray-500 hover:text-alo-red lg:hidden"
+                >
+                  <AdjustmentsHorizontalIcon className="w-5 h-5" />
+                </button>
               </div>
-            )}
 
-            {/* Filtreler */}
-            {showFilters && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-alo-dark">Filtreler</h2>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="text-gray-500 hover:text-alo-red lg:hidden"
-                  >
-                    <AdjustmentsHorizontalIcon className="w-5 h-5" />
-                  </button>
+              <div className="space-y-6">
+                {/* Fiyat Aralığı */}
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Fiyat Aralığı</h3>
+                  <div className="space-y-2">
+                    {filters.priceRange.map((range) => (
+                      <label key={range.value} className="flex items-center">
+                        <input
+                          type="radio"
+                          name="priceRange"
+                          value={range.value}
+                          checked={selectedPriceRange === range.value}
+                          onChange={(e) => setSelectedPriceRange(e.target.value)}
+                          className="w-4 h-4 text-alo-orange border-gray-300 focus:ring-alo-orange"
+                        />
+                        <span className="ml-2 text-gray-700">{range.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="space-y-6">
-                  {/* Fiyat Aralığı */}
-                  <div>
-                    <h3 className="font-medium text-gray-900 mb-3">Fiyat Aralığı</h3>
-                    <div className="space-y-2">
-                      {filters.priceRange.map((range) => (
-                        <label key={range.value} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="priceRange"
-                            value={range.value}
-                            checked={selectedPriceRange === range.value}
-                            onChange={(e) => setSelectedPriceRange(e.target.value)}
-                            className="w-4 h-4 text-alo-orange border-gray-300 focus:ring-alo-orange"
-                          />
-                          <span className="ml-2 text-gray-700">{range.label}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Durum */}
-                  <div>
-                    <h3 className="font-medium text-gray-900 mb-3">Durum</h3>
-                    <div className="space-y-2">
-                      {filters.condition.map((condition) => (
-                        <label key={condition.value} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="condition"
-                            value={condition.value}
-                            checked={selectedCondition === condition.value}
-                            onChange={(e) => setSelectedCondition(e.target.value)}
-                            className="w-4 h-4 text-alo-orange border-gray-300 focus:ring-alo-orange"
-                          />
-                          <span className="ml-2 text-gray-700">{condition.label}</span>
-                        </label>
-                      ))}
-                    </div>
+                {/* Durum */}
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Durum</h3>
+                  <div className="space-y-2">
+                    {filters.condition.map((condition) => (
+                      <label key={condition.value} className="flex items-center">
+                        <input
+                          type="radio"
+                          name="condition"
+                          value={condition.value}
+                          checked={selectedCondition === condition.value}
+                          onChange={(e) => setSelectedCondition(e.target.value)}
+                          className="w-4 h-4 text-alo-orange border-gray-300 focus:ring-alo-orange"
+                        />
+                        <span className="ml-2 text-gray-700">{condition.label}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* İlan Listesi */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${showFilters ? '3' : '4'} gap-6`}>
           {listings.map((listing) => (
             <Link
               key={listing.id}

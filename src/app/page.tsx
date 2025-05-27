@@ -162,12 +162,78 @@ export default function HomePage() {
 
 // Örnek veriler
 const categories = [
-  { id: 1, name: 'Elektronik', slug: 'elektronik', icon: '📱' },
-  { id: 2, name: 'İş Makineleri', slug: 'is-makineleri', icon: '🚜' },
-  { id: 3, name: 'Ev Eşyaları', slug: 'ev-esyalari', icon: '🛋️' },
-  { id: 4, name: 'İş İlanları', slug: 'is-ilanlari', icon: '💼' },
-  { id: 5, name: 'Yedek Parça', slug: 'yedek-parca', icon: '🔧' },
-  { id: 6, name: 'Diğer', slug: 'diger', icon: '📦' }
+  { 
+    id: 1, 
+    name: 'Elektronik', 
+    slug: 'elektronik', 
+    icon: '📱',
+    subCategories: [
+      { id: 'telefon', name: 'Telefon', slug: 'telefon' },
+      { id: 'bilgisayar', name: 'Bilgisayar', slug: 'bilgisayar' },
+      { id: 'tv-ses', name: 'TV & Ses Sistemleri', slug: 'tv-ses' },
+      { id: 'fotograf', name: 'Fotoğraf & Kamera', slug: 'fotograf' }
+    ]
+  },
+  { 
+    id: 2, 
+    name: 'İş Makineleri', 
+    slug: 'is-makineleri', 
+    icon: '🚜',
+    subCategories: [
+      { id: 'ekskavatör', name: 'Ekskavatör', slug: 'ekskavator' },
+      { id: 'forklift', name: 'Forklift', slug: 'forklift' },
+      { id: 'beton-pompa', name: 'Beton Pompa', slug: 'beton-pompa' },
+      { id: 'yükleyici', name: 'Yükleyici', slug: 'yukleyici' }
+    ]
+  },
+  { 
+    id: 3, 
+    name: 'Ev Eşyaları', 
+    slug: 'ev-esyalari', 
+    icon: '🛋️',
+    subCategories: [
+      { id: 'mobilya', name: 'Mobilya', slug: 'mobilya' },
+      { id: 'ev-tekstili', name: 'Ev Tekstili', slug: 'ev-tekstili' },
+      { id: 'mutfak', name: 'Mutfak Gereçleri', slug: 'mutfak' },
+      { id: 'beyaz-esya', name: 'Beyaz Eşya', slug: 'beyaz-esya' }
+    ]
+  },
+  { 
+    id: 4, 
+    name: 'İş İlanları', 
+    slug: 'is-ilanlari', 
+    icon: '💼',
+    subCategories: [
+      { id: 'tam-zamanli', name: 'Tam Zamanlı', slug: 'tam-zamanli' },
+      { id: 'yarim-zamanli', name: 'Yarı Zamanlı', slug: 'yarim-zamanli' },
+      { id: 'freelance', name: 'Freelance', slug: 'freelance' },
+      { id: 'staj', name: 'Staj', slug: 'staj' }
+    ]
+  },
+  { 
+    id: 5, 
+    name: 'Yedek Parça', 
+    slug: 'yedek-parca', 
+    icon: '🔧',
+    subCategories: [
+      { id: 'otomotiv', name: 'Otomotiv', slug: 'otomotiv' },
+      { id: 'elektronik', name: 'Elektronik', slug: 'elektronik' },
+      { id: 'makine', name: 'Makine', slug: 'makine' },
+      { id: 'aksesuar', name: 'Aksesuar', slug: 'aksesuar' }
+    ]
+  },
+  { 
+    id: 6, 
+    name: 'Diğer', 
+    slug: 'diger', 
+    icon: '📦',
+    subCategories: [
+      { id: 'spor', name: 'Spor & Outdoor', slug: 'spor' },
+      { id: 'hobi', name: 'Hobi & Koleksiyon', slug: 'hobi' },
+      { id: 'sanat', name: 'Sanat & Antika', slug: 'sanat' },
+      { id: 'diger', name: 'Diğer', slug: 'diger' }
+    ]
+  }
 ];
 
 const featuredListings = [
