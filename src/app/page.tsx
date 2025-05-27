@@ -43,6 +43,30 @@ const categories = [
   },
   {
     id: 6,
+    name: 'Mobilya',
+    icon: '🪑',
+    slug: 'mobilya',
+  },
+  {
+    id: 7,
+    name: 'Kozmetik',
+    icon: '💄',
+    slug: 'kozmetik',
+  },
+  {
+    id: 8,
+    name: 'Kitap',
+    icon: '📚',
+    slug: 'kitap',
+  },
+  {
+    id: 9,
+    name: 'Müzik',
+    icon: '🎵',
+    slug: 'muzik',
+  },
+  {
+    id: 10,
     name: 'Diğer',
     icon: '📦',
     slug: 'diger',
