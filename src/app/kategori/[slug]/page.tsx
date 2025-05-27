@@ -39,7 +39,7 @@ const categories = [
     id: 3,
     name: 'Ev Eşyaları',
     slug: 'ev-esyalari',
-    icon: '🏠',
+    icon: '🛋️',
     subCategories: [
       { id: 1, name: 'Mobilya', slug: 'mobilya' },
       { id: 2, name: 'Beyaz Eşya', slug: 'beyaz-esya' },
@@ -73,6 +73,20 @@ const categories = [
   },
   {
     id: 6,
+    name: 'Hizmetler',
+    slug: 'hizmetler',
+    icon: '🛠️',
+    subCategories: [
+      { id: 1, name: 'Temizlik', slug: 'temizlik' },
+      { id: 2, name: 'Nakliyat', slug: 'nakliyat' },
+      { id: 3, name: 'Özel Ders', slug: 'ozel-ders' },
+      { id: 4, name: 'Tadilat', slug: 'tadilat' },
+      { id: 5, name: 'Tamir', slug: 'tamir' },
+      { id: 6, name: 'Diğer', slug: 'diger' },
+    ]
+  },
+  {
+    id: 7,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',

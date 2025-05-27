@@ -180,10 +180,10 @@ const categories = [
     slug: 'is-makineleri', 
     icon: '🚜',
     subCategories: [
-      { id: 'ekskavatör', name: 'Ekskavatör', slug: 'ekskavator' },
+      { id: 'ekskavator', name: 'Ekskavatör', slug: 'ekskavator' },
       { id: 'forklift', name: 'Forklift', slug: 'forklift' },
       { id: 'beton-pompa', name: 'Beton Pompa', slug: 'beton-pompa' },
-      { id: 'yükleyici', name: 'Yükleyici', slug: 'yukleyici' }
+      { id: 'yukleyici', name: 'Yükleyici', slug: 'yukleyici' }
     ]
   },
   { 
@@ -224,20 +224,6 @@ const categories = [
   },
   { 
     id: 6, 
-    name: 'Turizm & Konaklama', 
-    slug: 'turizm-konaklama', 
-    icon: '🏨',
-    subCategories: [
-      { id: 'otel', name: 'Otel', slug: 'otel' },
-      { id: 'pansiyon', name: 'Pansiyon', slug: 'pansiyon' },
-      { id: 'apart', name: 'Apart', slug: 'apart' },
-      { id: 'villa', name: 'Villa', slug: 'villa' },
-      { id: 'yurt', name: 'Yurt', slug: 'yurt' },
-      { id: 'kiralik-ev', name: 'Kiralık Ev', slug: 'kiralik-ev' }
-    ]
-  },
-  { 
-    id: 7, 
     name: 'Hizmetler', 
     slug: 'hizmetler', 
     icon: '🛠️',
@@ -252,7 +238,7 @@ const categories = [
     ]
   },
   { 
-    id: 8, 
+    id: 7, 
     name: 'Diğer', 
     slug: 'diger', 
     icon: '📦',
