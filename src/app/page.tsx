@@ -128,10 +128,10 @@ export default function HomePage() {
         <div className="relative container mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl text-white">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              İkinci El Alışverişin Güvenilir Adresi
+              Herkesin Kolayca İlan Verebileceği Platform
             </h1>
             <p className="text-lg md:text-xl mb-8">
-              ALO17.TR ile güvenli alışverişin keyfini çıkarın
+              30 gün ücretsiz kullanım imkanıyla hayalinizdeki alıcı veya satıcıyı bulun.
             </p>
             <Link
               href="/ilan-ver"
