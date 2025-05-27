@@ -9,26 +9,15 @@ import { FunnelIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outli
 // Örnek veri
 const listings = [
   {
-    id: 1,
-    title: 'Sahibinden Satılık Lüks Daire',
-    price: '2.450.000',
-    location: 'Kadıköy, İstanbul',
-    image: '/images/listing1.jpg',
-    category: 'Emlak',
-    subCategory: 'Satılık Daire',
-    createdAt: '2024-02-20',
-    views: 1234,
-  },
-  {
-    id: 2,
-    title: '2019 Model BMW 320i',
-    price: '1.850.000',
-    location: 'Beşiktaş, İstanbul',
-    image: '/images/listing2.jpg',
-    category: 'Vasıta',
-    subCategory: 'Otomobil',
-    createdAt: '2024-02-19',
-    views: 856,
+    id: 3,
+    title: 'iPhone 14 Pro Max',
+    price: '45.000',
+    location: 'Konak, İzmir',
+    image: '/images/listing3.jpg',
+    category: 'Elektronik',
+    subCategory: 'Telefon',
+    createdAt: '2024-02-18',
+    views: 567,
   },
   // Daha fazla örnek ilan eklenebilir
 ];

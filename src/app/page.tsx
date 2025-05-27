@@ -167,24 +167,10 @@ const categories = [
   { id: 3, name: 'Ev Eşyaları', slug: 'ev-esyalari', icon: '🛋️' },
   { id: 4, name: 'İş İlanları', slug: 'is-ilanlari', icon: '💼' },
   { id: 5, name: 'Yedek Parça', slug: 'yedek-parca', icon: '🔧' },
-  { id: 6, name: 'Diğer', slug: 'diger', icon: '📦' },
+  { id: 6, name: 'Diğer', slug: 'diger', icon: '📦' }
 ];
 
 const featuredListings = [
-  {
-    id: 1,
-    title: 'Sahibinden Satılık Lüks Daire',
-    price: '2.450.000',
-    location: 'Kadıköy, İstanbul',
-    image: '/images/listing1.jpg'
-  },
-  {
-    id: 2,
-    title: '2020 Model Volkswagen Golf',
-    price: '850.000',
-    location: 'Çankaya, Ankara',
-    image: '/images/listing2.jpg'
-  },
   {
     id: 3,
     title: 'iPhone 14 Pro Max',
@@ -192,6 +178,20 @@ const featuredListings = [
     location: 'Konak, İzmir',
     image: '/images/listing3.jpg'
   },
+  {
+    id: 4,
+    title: 'MacBook Pro M2',
+    price: '65.000',
+    location: 'Kadıköy, İstanbul',
+    image: '/images/listing4.jpg'
+  },
+  {
+    id: 5,
+    title: 'Samsung 4K Smart TV',
+    price: '32.000',
+    location: 'Çankaya, Ankara',
+    image: '/images/listing5.jpg'
+  }
 ];
 
 const features = [
