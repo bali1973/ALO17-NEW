@@ -11,26 +11,26 @@ import { PhoneIcon, EnvelopeIcon, MapPinIcon, ClockIcon } from '@heroicons/react
 // Örnek veri
 const listing = {
   id: 1,
-  title: 'Sahibinden Satılık Lüks Daire',
-  price: '2.450.000',
-  location: 'Kadıköy, İstanbul',
-  description: '3+1, 160m², 2015 yapımı, deniz manzaralı, otoparklı, güvenlikli, merkezi ısıtmalı, eşyalı, kullanıma hazır, acil satılık.',
-  category: 'Emlak',
-  subCategory: 'Satılık Daire',
+  title: 'iPhone 14 Pro Max 256GB',
+  price: '45.000',
+  location: 'Konak, İzmir',
+  description: 'Sıfır, kutulu, garantili iPhone 14 Pro Max 256GB. Apple Türkiye garantisi devam ediyor. Faturalı, kutusu ve tüm aksesuarları mevcut. Pazarlık payı vardır.',
+  category: 'Elektronik',
+  subCategory: 'Telefon',
   features: [
-    '3+1',
-    '160m²',
-    '2015 Yapımı',
-    'Deniz Manzaralı',
-    'Otoparklı',
-    'Güvenlikli',
-    'Merkezi Isıtma',
-    'Eşyalı',
+    '256GB Depolama',
+    'A15 Bionic İşlemci',
+    '6.7 inç Super Retina XDR Ekran',
+    '48MP Ana Kamera',
+    '12MP Ultra Geniş Kamera',
+    '12MP Telefoto Kamera',
+    'Face ID',
+    '5G Desteği',
   ],
   images: [
-    '/images/listing1.jpg',
-    '/images/listing2.jpg',
-    '/images/listing3.jpg',
+    'https://placehold.co/800x600/e2e8f0/1e293b?text=iPhone+14+Pro+Max+1',
+    'https://placehold.co/800x600/e2e8f0/1e293b?text=iPhone+14+Pro+Max+2',
+    'https://placehold.co/800x600/e2e8f0/1e293b?text=iPhone+14+Pro+Max+3',
   ],
   seller: {
     name: 'Ahmet Yılmaz',
@@ -41,6 +41,10 @@ const listing = {
   },
   createdAt: '2024-02-20',
   views: 1234,
+  condition: 'Yeni',
+  brand: 'Apple',
+  model: 'iPhone 14 Pro Max',
+  year: '2024'
 };
 
 export default function ListingDetail() {
