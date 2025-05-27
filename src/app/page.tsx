@@ -109,96 +109,75 @@ const featuredListings = [
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Arama işlemi burada yapılacak
-    const searchParams = new URLSearchParams();
-    if (searchQuery) searchParams.set('q', searchQuery);
-    if (selectedCategory) searchParams.set('category', selectedCategory);
-    window.location.href = `/ilanlar?${searchParams.toString()}`;
-  };
 
   return (
     <main className="min-h-screen bg-alo-light">
       {/* Hero Section */}
-      <div className="relative h-[500px] bg-gradient-to-r from-blue-500 to-blue-600">
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative container mx-auto px-4 h-full flex items-center">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Herkesin Kolayca İlan Verebileceği Platform
+      <div className="relative bg-gradient-to-br from-alo-blue via-alo-light-blue to-alo-blue">
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="container mx-auto px-4 py-20 relative z-10">
+          <div className="max-w-4xl mx-auto text-center text-white">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+              ALO17.TR
             </h1>
-            <p className="text-lg md:text-xl mb-8">
-              30 gün ücretsiz kullanım imkanıyla hayalinizdeki alıcı veya satıcıyı bulun.
+            <p className="text-xl md:text-2xl mb-12 text-white/90">
+              Türkiye'nin En Büyük İlan Platformu
             </p>
-            <Link
-              href="/ilan-ver"
-              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-            >
-              Hemen İlan Ver
-            </Link>
+            
+            {/* Arama Kutusu */}
+            <div className="bg-white rounded-xl p-2 shadow-xl">
+              <div className="flex flex-col md:flex-row gap-2">
+                <input
+                  type="text"
+                  placeholder="Ne aramıştınız?"
+                  className="flex-1 px-6 py-4 rounded-lg text-alo-dark focus:outline-none focus:ring-2 focus:ring-alo-orange text-lg"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button className="bg-alo-orange hover:bg-alo-light-orange px-8 py-4 rounded-lg font-semibold transition-colors text-lg whitespace-nowrap text-white">
+                  İlan Ara
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Arama Bölümü */}
-      <div className="container mx-auto px-4 -mt-8 relative z-10">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Ne aramıştınız?"
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="w-full md:w-48">
-              <select
-                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="">Tüm Kategoriler</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.slug}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button
-              type="submit"
-              className="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              İlan Ara
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* Kategoriler */}
+      {/* Kategoriler Slider */}
       <div className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">Kategoriler</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <Swiper
+          modules={[Navigation, Pagination]}
+          spaceBetween={20}
+          slidesPerView={1}
+          navigation
+          pagination={{ clickable: true }}
+          breakpoints={{
+            640: {
+              slidesPerView: 2,
+            },
+            768: {
+              slidesPerView: 3,
+            },
+            1024: {
+              slidesPerView: 4,
+            },
+          }}
+          className="pb-12"
+        >
           {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/kategori/${category.slug}`}
-              className="group"
-            >
-              <div className="bg-white rounded-lg shadow-md p-6 text-center transition-transform hover:scale-105">
-                <div className="text-4xl mb-4">{category.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600">
-                  {category.name}
-                </h3>
-              </div>
-            </Link>
+            <SwiperSlide key={category.id}>
+              <Link href={`/kategori/${category.slug}`} className="block">
+                <div className="bg-white rounded-lg shadow-md p-6 text-center transition-transform hover:scale-105">
+                  <div className="text-4xl mb-4">{category.icon}</div>
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {category.name}
+                  </h3>
+                </div>
+              </Link>
+            </SwiperSlide>
           ))}
-        </div>
+        </Swiper>
       </div>
 
       {/* Öne Çıkan İlanlar */}
