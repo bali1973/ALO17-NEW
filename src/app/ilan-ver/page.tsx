@@ -74,6 +74,22 @@ const categories = [
   },
   {
     id: 6,
+    name: 'Eğitim ve Kurslar',
+    slug: 'egitim-ve-kurslar',
+    icon: '📚',
+    subCategories: [
+      { id: 'yabanci-dil', name: 'Yabancı Dil Kursları', slug: 'yabanci-dil' },
+      { id: 'bilgisayar', name: 'Bilgisayar Kursları', slug: 'bilgisayar-kurslari' },
+      { id: 'muzik', name: 'Müzik Kursları', slug: 'muzik' },
+      { id: 'spor', name: 'Spor Kursları', slug: 'spor-kurslari' },
+      { id: 'sanat', name: 'Sanat Kursları', slug: 'sanat' },
+      { id: 'mesleki', name: 'Mesleki Kurslar', slug: 'mesleki' },
+      { id: 'ozel-ders', name: 'Özel Dersler', slug: 'ozel-ders' },
+      { id: 'diger-kurs', name: 'Diğer Kurslar', slug: 'diger-kurs' }
+    ]
+  },
+  {
+    id: 7,
     name: 'İş İlanları',
     slug: 'is-ilanlari',
     icon: '💼',
@@ -85,7 +101,7 @@ const categories = [
     ]
   },
   {
-    id: 7,
+    id: 8,
     name: 'Yedek Parça',
     slug: 'yedek-parca',
     icon: '🔧',
@@ -97,7 +113,7 @@ const categories = [
     ]
   },
   {
-    id: 8,
+    id: 9,
     name: 'Hizmetler',
     slug: 'hizmetler',
     icon: '🛠️',
@@ -112,7 +128,7 @@ const categories = [
     ]
   },
   {
-    id: 9,
+    id: 10,
     name: 'Diğer',
     slug: 'diger',
     icon: '📦',
