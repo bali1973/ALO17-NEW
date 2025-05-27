@@ -115,10 +115,10 @@ export default function ListingDetail() {
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 p-2">
-              {listing.images.map((image, index) => (
+              {listing.images.map((imageUrl, index) => (
                 <div key={index} className="relative aspect-square group">
                   <Image
-                    src={image}
+                    src={imageUrl}
                     alt={`${listing.title} - Fotoğraf ${index + 1}`}
                     fill
                     className="object-cover rounded-lg transition-transform group-hover:scale-105"

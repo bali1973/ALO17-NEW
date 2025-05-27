@@ -16,7 +16,11 @@ const categories = [
       { id: 'telefon', name: 'Telefon', slug: 'telefon' },
       { id: 'bilgisayar', name: 'Bilgisayar', slug: 'bilgisayar' },
       { id: 'tv-ses', name: 'TV & Ses Sistemleri', slug: 'tv-ses' },
-      { id: 'fotograf', name: 'Fotoğraf & Kamera', slug: 'fotograf' }
+      { id: 'fotograf', name: 'Fotoğraf & Kamera', slug: 'fotograf' },
+      { id: 'tablet', name: 'Tablet', slug: 'tablet' },
+      { id: 'akilli-saat', name: 'Akıllı Saat & Bileklik', slug: 'akilli-saat' },
+      { id: 'aksesuarlar', name: 'Aksesuarlar', slug: 'aksesuarlar' },
+      { id: 'diger-elektronik', name: 'Diğer Elektronik', slug: 'diger-elektronik' }
     ]
   },
   {
@@ -28,7 +32,11 @@ const categories = [
       { id: 'ekskavator', name: 'Ekskavatör', slug: 'ekskavator' },
       { id: 'forklift', name: 'Forklift', slug: 'forklift' },
       { id: 'beton-pompa', name: 'Beton Pompa', slug: 'beton-pompa' },
-      { id: 'yukleyici', name: 'Yükleyici', slug: 'yukleyici' }
+      { id: 'yukleyici', name: 'Yükleyici', slug: 'yukleyici' },
+      { id: 'vinc', name: 'Vinç', slug: 'vinc' },
+      { id: 'dozer', name: 'Dozer', slug: 'dozer' },
+      { id: 'greyder', name: 'Greyder', slug: 'greyder' },
+      { id: 'diger-is-mak', name: 'Diğer İş Makineleri', slug: 'diger-is-mak' }
     ]
   },
   {
@@ -40,7 +48,11 @@ const categories = [
       { id: 'mobilya', name: 'Mobilya', slug: 'mobilya' },
       { id: 'ev-tekstili', name: 'Ev Tekstili', slug: 'ev-tekstili' },
       { id: 'mutfak', name: 'Mutfak Gereçleri', slug: 'mutfak' },
-      { id: 'beyaz-esya', name: 'Beyaz Eşya', slug: 'beyaz-esya' }
+      { id: 'beyaz-esya', name: 'Beyaz Eşya', slug: 'beyaz-esya' },
+      { id: 'aydinlatma', name: 'Aydınlatma', slug: 'aydinlatma' },
+      { id: 'hali-kilim', name: 'Halı & Kilim', slug: 'hali-kilim' },
+      { id: 'dekorasyon', name: 'Dekorasyon', slug: 'dekorasyon' },
+      { id: 'diger-ev-esya', name: 'Diğer Ev Eşyaları', slug: 'diger-ev-esya' }
     ]
   },
   {
@@ -54,7 +66,9 @@ const categories = [
       { id: 'bitki', name: 'Bitki & Tohum', slug: 'bitki' },
       { id: 'havuz', name: 'Havuz & Spa', slug: 'havuz' },
       { id: 'yapi-malzeme', name: 'Yapı Malzemeleri', slug: 'yapi-malzeme' },
-      { id: 'tamir-malzeme', name: 'Tamir Malzemeleri', slug: 'tamir-malzeme' }
+      { id: 'tamir-malzeme', name: 'Tamir Malzemeleri', slug: 'tamir-malzeme' },
+      { id: 'bahce-dekor', name: 'Bahçe Dekorasyonu', slug: 'bahce-dekor' },
+      { id: 'diger-ev-bahce', name: 'Diğer Ev ve Bahçe', slug: 'diger-ev-bahce' }
     ]
   },
   {
@@ -69,7 +83,9 @@ const categories = [
       { id: 'sac-bakim', name: 'Saç Bakımı', slug: 'sac-bakim' },
       { id: 'makyaj', name: 'Makyaj', slug: 'makyaj' },
       { id: 'diyet', name: 'Diyet & Beslenme', slug: 'diyet' },
-      { id: 'spor-urunleri', name: 'Spor Ürünleri', slug: 'spor-urunleri' }
+      { id: 'spor-urunleri', name: 'Spor Ürünleri', slug: 'spor-urunleri' },
+      { id: 'kisisel-bakim', name: 'Kişisel Bakım Aletleri', slug: 'kisisel-bakim' },
+      { id: 'diger-saglik', name: 'Diğer Sağlık & Güzellik', slug: 'diger-saglik' }
     ]
   },
   {
@@ -85,6 +101,7 @@ const categories = [
       { id: 'sanat', name: 'Sanat Kursları', slug: 'sanat' },
       { id: 'mesleki', name: 'Mesleki Kurslar', slug: 'mesleki' },
       { id: 'ozel-ders', name: 'Özel Dersler', slug: 'ozel-ders' },
+      { id: 'surucu', name: 'Sürücü Kursları', slug: 'surucu' },
       { id: 'diger-kurs', name: 'Diğer Kurslar', slug: 'diger-kurs' }
     ]
   },
@@ -100,9 +117,9 @@ const categories = [
       { id: 'ayakkabi', name: 'Ayakkabı', slug: 'ayakkabi' },
       { id: 'canta', name: 'Çanta', slug: 'canta' },
       { id: 'aksesuar', name: 'Aksesuar', slug: 'aksesuar' },
-      { id: 'takı', name: 'Takı', slug: 'taki' },
+      { id: 'taki', name: 'Takı', slug: 'taki' },
       { id: 'gozluk', name: 'Gözlük', slug: 'gozluk' },
-      { id: 'diger-moda', name: 'Diğer', slug: 'diger-moda' }
+      { id: 'diger-moda', name: 'Diğer Moda', slug: 'diger-moda' }
     ]
   },
   {
@@ -119,7 +136,7 @@ const categories = [
       { id: 'cocuk-ayakkabi', name: 'Çocuk Ayakkabı', slug: 'cocuk-ayakkabi' },
       { id: 'cocuk-aksesuar', name: 'Çocuk Aksesuar', slug: 'cocuk-aksesuar' },
       { id: 'anne-bebek', name: 'Anne & Bebek', slug: 'anne-bebek' },
-      { id: 'diger-cocuk', name: 'Diğer', slug: 'diger-cocuk' }
+      { id: 'diger-cocuk', name: 'Diğer Çocuk', slug: 'diger-cocuk' }
     ]
   },
   {
@@ -135,7 +152,7 @@ const categories = [
       { id: 'gida-urunleri', name: 'Gıda Ürünleri', slug: 'gida-urunleri' },
       { id: 'mutfak-ekipman', name: 'Mutfak Ekipmanları', slug: 'mutfak-ekipman' },
       { id: 'toplu-siparis', name: 'Toplu Sipariş', slug: 'toplu-siparis' },
-      { id: 'diger-ticaret', name: 'Diğer', slug: 'diger-ticaret' }
+      { id: 'diger-ticaret', name: 'Diğer Ticaret', slug: 'diger-ticaret' }
     ]
   },
   {
@@ -151,7 +168,8 @@ const categories = [
       { id: 'video-oyun', name: 'Video Oyunları', slug: 'video-oyun' },
       { id: 'masa-oyun', name: 'Masa Oyunları', slug: 'masa-oyun' },
       { id: 'eglence-hobi', name: 'Eğlence & Hobi', slug: 'eglence-hobi' },
-      { id: 'diger-spor-oyun', name: 'Diğer', slug: 'diger-spor-oyun' }
+      { id: 'outdoor', name: 'Outdoor Aktiviteler', slug: 'outdoor' },
+      { id: 'diger-spor-oyun', name: 'Diğer Spor & Eğlence', slug: 'diger-spor-oyun' }
     ]
   },
   {
@@ -163,7 +181,10 @@ const categories = [
       { id: 'tam-zamanli', name: 'Tam Zamanlı', slug: 'tam-zamanli' },
       { id: 'yarim-zamanli', name: 'Yarı Zamanlı', slug: 'yarim-zamanli' },
       { id: 'freelance', name: 'Freelance', slug: 'freelance' },
-      { id: 'staj', name: 'Staj', slug: 'staj' }
+      { id: 'staj', name: 'Staj', slug: 'staj' },
+      { id: 'gecici', name: 'Geçici İşler', slug: 'gecici' },
+      { id: 'yonetici', name: 'Yönetici Pozisyonları', slug: 'yonetici' },
+      { id: 'diger-is', name: 'Diğer İş İlanları', slug: 'diger-is' }
     ]
   },
   {
@@ -175,7 +196,10 @@ const categories = [
       { id: 'otomotiv', name: 'Otomotiv', slug: 'otomotiv' },
       { id: 'elektronik', name: 'Elektronik', slug: 'elektronik' },
       { id: 'makine', name: 'Makine', slug: 'makine' },
-      { id: 'aksesuar', name: 'Aksesuar', slug: 'aksesuar' }
+      { id: 'aksesuar', name: 'Aksesuar', slug: 'aksesuar' },
+      { id: 'beyaz-esya-parca', name: 'Beyaz Eşya Parçaları', slug: 'beyaz-esya-parca' },
+      { id: 'bisiklet-moto-parca', name: 'Bisiklet & Motosiklet Parçaları', slug: 'bisiklet-moto-parca' },
+      { id: 'diger-yedek', name: 'Diğer Yedek Parça', slug: 'diger-yedek' }
     ]
   },
   {
@@ -190,6 +214,8 @@ const categories = [
       { id: 'tamir', name: 'Tamir & Bakım', slug: 'tamir' },
       { id: 'ozel-ders', name: 'Özel Ders', slug: 'ozel-ders' },
       { id: 'organizasyon', name: 'Organizasyon', slug: 'organizasyon' },
+      { id: 'danismanlik', name: 'Danışmanlık', slug: 'danismanlik' },
+      { id: 'saglik-hizmet', name: 'Sağlık Hizmetleri', slug: 'saglik-hizmet' },
       { id: 'diger-hizmet', name: 'Diğer Hizmetler', slug: 'diger-hizmet' }
     ]
   },
@@ -476,7 +502,7 @@ export default function AddListingPage() {
                 {images.map((image, index) => (
                   <div key={index} className="relative aspect-square">
                     <Image
-                      src={image}
+                      src={previewUrls[index]}
                       alt={`İlan fotoğrafı ${index + 1}`}
                       fill
                       className="object-cover rounded-lg"
