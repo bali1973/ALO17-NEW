@@ -267,25 +267,46 @@ const categories = [
 
 const featuredListings = [
   {
-    id: 3,
+    id: 1,
     title: 'iPhone 14 Pro Max',
     price: '45.000',
     location: 'Konak, İzmir',
-    image: '/images/listing3.jpg'
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max'
   },
   {
-    id: 4,
+    id: 2,
     title: 'MacBook Pro M2',
     price: '65.000',
     location: 'Kadıköy, İstanbul',
-    image: '/images/listing4.jpg'
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=MacBook+Pro+M2'
   },
   {
-    id: 5,
+    id: 3,
     title: 'Samsung 4K Smart TV',
     price: '32.000',
     location: 'Çankaya, Ankara',
-    image: '/images/listing5.jpg'
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Samsung+4K+TV'
+  },
+  {
+    id: 4,
+    title: 'Profesyonel Temizlik Hizmeti',
+    price: '500',
+    location: 'Karşıyaka, İzmir',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Temizlik+Hizmeti'
+  },
+  {
+    id: 5,
+    title: 'Özel Matematik Dersi',
+    price: '300',
+    location: 'Bornova, İzmir',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Matematik+Dersi'
+  },
+  {
+    id: 6,
+    title: 'Evden Eve Nakliyat',
+    price: '2.500',
+    location: 'İzmir',
+    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=Nakliyat+Hizmeti'
   }
 ];
 
