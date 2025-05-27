@@ -13,48 +13,36 @@ import 'swiper/css/pagination';
 const categories = [
   {
     id: 1,
-    name: 'Emlak',
-    icon: '🏠',
-    slug: 'emlak',
-  },
-  {
-    id: 2,
-    name: 'Vasıta',
-    icon: '🚗',
-    slug: 'vasita',
-  },
-  {
-    id: 3,
     name: 'Elektronik',
     icon: '📱',
     slug: 'elektronik',
   },
   {
-    id: 4,
+    id: 2,
     name: 'Ev Eşyaları',
     icon: '🛋️',
     slug: 'ev-esyalari',
   },
   {
-    id: 5,
+    id: 3,
     name: 'Giyim',
     icon: '👕',
     slug: 'giyim',
   },
   {
-    id: 6,
+    id: 4,
     name: 'Spor',
     icon: '⚽',
     slug: 'spor',
   },
   {
-    id: 7,
+    id: 5,
     name: 'Hobi',
     icon: '🎮',
     slug: 'hobi',
   },
   {
-    id: 8,
+    id: 6,
     name: 'Diğer',
     icon: '📦',
     slug: 'diger',
