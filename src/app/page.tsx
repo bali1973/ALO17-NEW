@@ -212,6 +212,21 @@ const categories = [
   },
 ];
 
+// İlan Tipleri
+const listingTypes = {
+  FREE: 'free',
+  PREMIUM: 'premium',
+};
+
+// İlan Durumları
+const listingStatus = {
+  DRAFT: 'draft',
+  PENDING_PAYMENT: 'pending_payment',
+  ACTIVE: 'active',
+  EXPIRED: 'expired',
+  SOLD: 'sold',
+};
+
 // Örnek veriler
 const featuredListings = [
   {
@@ -222,13 +237,34 @@ const featuredListings = [
     category: 'Elektronik',
     subcategory: 'Telefon',
     description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max',
+    images: [
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max+1',
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max+2',
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max+3',
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max+4',
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=iPhone+14+Pro+Max+5',
+    ],
     date: '2024-03-20',
     condition: 'Sıfır',
+    type: listingTypes.PREMIUM,
+    status: listingStatus.ACTIVE,
+    showPhone: true,
+    isFavorite: false,
+    views: 245,
+    favorites: 12,
     seller: {
       name: 'Ahmet Yılmaz',
       rating: 4.8,
       memberSince: '2023-01-15',
+      phone: '0532 123 4567',
+      isVerified: true,
+    },
+    premiumFeatures: {
+      isActive: true,
+      expiresAt: '2024-04-20',
+      isHighlighted: true,
+      isFeatured: true,
+      isUrgent: false,
     },
   },
   {
@@ -239,13 +275,32 @@ const featuredListings = [
     category: 'Bilgisayarlar & Ofis Ekipmanları',
     subcategory: 'Dizüstü Bilgisayar',
     description: '2023 model MacBook Pro M2, 16GB RAM, 512GB SSD. Faturalı ve garantili.',
-    image: 'https://placehold.co/600x400/e2e8f0/1e293b?text=MacBook+Pro+M2',
+    images: [
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=MacBook+Pro+M2+1',
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=MacBook+Pro+M2+2',
+      'https://placehold.co/600x400/e2e8f0/1e293b?text=MacBook+Pro+M2+3',
+    ],
     date: '2024-03-19',
     condition: 'Sıfır',
+    type: listingTypes.FREE,
+    status: listingStatus.ACTIVE,
+    showPhone: false,
+    isFavorite: true,
+    views: 189,
+    favorites: 8,
     seller: {
       name: 'Mehmet Demir',
       rating: 4.9,
       memberSince: '2022-06-20',
+      phone: '0533 765 4321',
+      isVerified: true,
+    },
+    premiumFeatures: {
+      isActive: false,
+      expiresAt: null,
+      isHighlighted: false,
+      isFeatured: false,
+      isUrgent: false,
     },
   },
   {
@@ -352,8 +407,49 @@ const featuredListings = [
   },
 ];
 
+// Premium İlan Özellikleri
+const premiumFeatures = {
+  price: 149.00,
+  duration: 30, // gün
+  features: [
+    '5 adet resim yükleme',
+    'İlan öne çıkarma',
+    'Premium rozeti',
+    'Detaylı istatistikler',
+    'Favori sayısı görüntüleme',
+    'İlan görüntülenme sayısı',
+    'Telefon görünürlüğü kontrolü',
+    'Ön izleme özelliği',
+    '7/24 destek',
+  ],
+};
+
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [previewListing, setPreviewListing] = useState(null);
+
+  const handleListingSubmit = (listing) => {
+    if (listing.type === listingTypes.PREMIUM) {
+      setShowPremiumModal(true);
+      setPreviewListing(listing);
+    } else {
+      // Ücretsiz ilanı direkt yayınla
+      // API çağrısı yapılacak
+    }
+  };
+
+  const handlePremiumPurchase = async (listing) => {
+    // Ödeme sayfasına yönlendir
+    // API çağrısı yapılacak
+  };
+
+  const handleFavoriteToggle = (listingId) => {
+    // Favori ekleme/çıkarma işlemi
+    // API çağrısı yapılacak
+  };
 
   return (
     <main className="min-h-screen bg-alo-light">
@@ -428,9 +524,9 @@ export default function HomePage() {
             >
               <div className="h-48 bg-alo-light-blue relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                {listing.image && (
+                {listing.images && (
                   <img 
-                    src={listing.image} 
+                    src={listing.images[0]} 
                     alt={listing.title}
                     className="w-full h-full object-cover"
                   />
@@ -483,6 +579,65 @@ export default function HomePage() {
           </Link>
         </div>
       </div>
+
+      {/* Premium Modal */}
+      {showPremiumModal && previewListing && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 max-w-2xl w-full mx-4">
+            <h2 className="text-2xl font-bold mb-4">Premium İlan Özellikleri</h2>
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-2">İlan Önizleme</h3>
+              <div className="border rounded-lg p-4">
+                <h4 className="font-semibold">{previewListing.title}</h4>
+                <p className="text-gray-600">{previewListing.description}</p>
+                <div className="grid grid-cols-5 gap-2 mt-4">
+                  {previewListing.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`${previewListing.title} - ${index + 1}`}
+                      className="w-full h-20 object-cover rounded"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-2">Premium Özellikler</h3>
+              <ul className="space-y-2">
+                {premiumFeatures.features.map((feature, index) => (
+                  <li key={index} className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-2xl font-bold text-alo-orange">{premiumFeatures.price} TL</p>
+                <p className="text-sm text-gray-600">{premiumFeatures.duration} gün geçerli</p>
+              </div>
+              <div className="space-x-4">
+                <button
+                  onClick={() => setShowPremiumModal(false)}
+                  className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={() => handlePremiumPurchase(previewListing)}
+                  className="px-6 py-2 bg-alo-orange text-white rounded-lg hover:bg-alo-light-orange"
+                >
+                  Satın Al
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 } 
