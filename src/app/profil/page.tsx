@@ -168,10 +168,11 @@ export default function ProfilePage() {
                     <div className="flex flex-col md:flex-row">
                       <div className="relative w-full md:w-48 h-48">
                         <Image
-                          src={listing.image}
+                          src={listing.images[0]}
                           alt={listing.title}
-                          fill
-                          className="object-cover"
+                          width={200}
+                          height={150}
+                          className="object-cover rounded-lg"
                         />
                       </div>
                       <div className="flex-1 p-4">
