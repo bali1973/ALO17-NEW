@@ -13,6 +13,7 @@ import {
   TrashIcon,
   PlusIcon,
 } from '@heroicons/react/24/outline';
+import { listingTypes, listingStatus, Listing } from '@/types/listings';
 
 // Örnek veri
 const user = {
