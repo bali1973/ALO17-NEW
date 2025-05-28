@@ -15,6 +15,24 @@ export const listingStatus = {
 export type CategorySlug = 'elektronik' | 'spor' | 'ev-yasam' | 'hizmetler';
 export type SubCategorySlug = 'telefon' | 'bilgisayar' | 'fitness' | 'tenis' | 'mobilya' | 'beyaz-esya' | 'ozel-ders' | 'temizlik';
 
+// Satıcı tipi
+export type Seller = {
+  name: string;
+  rating: number;
+  memberSince: string;
+  phone?: string;
+  isVerified?: boolean;
+};
+
+// Premium özellikler tipi
+export type PremiumFeature = {
+  isActive: boolean;
+  expiresAt: string | null;
+  isHighlighted: boolean;
+  isFeatured: boolean;
+  isUrgent: boolean;
+};
+
 // İlan tipi
 export interface Listing {
   id: number;
@@ -33,20 +51,8 @@ export interface Listing {
   isFavorite: boolean;
   views: number;
   favorites: number;
-  seller: {
-    name: string;
-    rating: number;
-    memberSince: string;
-    phone: string;
-    isVerified: boolean;
-  };
-  premiumFeatures: {
-    isActive: boolean;
-    expiresAt: string | null;
-    isHighlighted: boolean;
-    isFeatured: boolean;
-    isUrgent: boolean;
-  };
+  seller: Seller;
+  premiumFeatures: PremiumFeature;
 }
 
 // Kategori Tipi
