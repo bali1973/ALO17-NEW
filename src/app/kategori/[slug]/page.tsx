@@ -6,6 +6,117 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FunnelIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 
+// İlan tipleri ve durumları
+export const listingTypes = {
+  FREE: 'free',
+  PREMIUM: 'premium'
+} as const;
+
+export const listingStatus = {
+  ACTIVE: 'active',
+  PENDING: 'pending',
+  SOLD: 'sold',
+  EXPIRED: 'expired'
+} as const;
+
+// Örnek veri tipi
+interface Listing {
+  id: number;
+  title: string;
+  price: string;
+  location: string;
+  category: string;
+  subcategory: string;
+  description: string;
+  images: string[];
+  date: string;
+  condition: string;
+  type: typeof listingTypes[keyof typeof listingTypes];
+  status: typeof listingStatus[keyof typeof listingStatus];
+  showPhone: boolean;
+  isFavorite: boolean;
+  views: number;
+  favorites: number;
+  seller: {
+    name: string;
+    rating: number;
+    memberSince: string;
+    phone: string;
+    isVerified: boolean;
+  };
+  premiumFeatures: {
+    isActive: boolean;
+    expiresAt: string | null;
+    isHighlighted: boolean;
+    isFeatured: boolean;
+    isUrgent: boolean;
+  };
+}
+
+// Kategori ve alt kategori tipleri
+type CategorySlug = 'elektronik' | 'spor' | 'ev-yasam' | 'hizmetler';
+type SubCategorySlug = 'telefon' | 'bilgisayar' | 'fitness' | 'tenis' | 'mobilya' | 'beyaz-esya' | 'ozel-ders' | 'temizlik';
+
+// Boş ilan listesi oluşturucu
+const createEmptyListings = (): Record<SubCategorySlug, Listing[]> => ({
+  telefon: [],
+  bilgisayar: [],
+  fitness: [],
+  tenis: [],
+  mobilya: [],
+  'beyaz-esya': [],
+  'ozel-ders': [],
+  temizlik: []
+});
+
+// Örnek veriler
+const categoryListings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
+  'elektronik': {
+    ...createEmptyListings(),
+    telefon: [
+      {
+        id: 1,
+        title: 'iPhone 14 Pro Max 256GB',
+        price: '45.000',
+        location: 'Konak, İzmir',
+        category: 'Elektronik',
+        subcategory: 'Telefon',
+        description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
+        images: [
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60'
+        ],
+        date: '2024-03-20',
+        condition: 'Sıfır',
+        type: listingTypes.PREMIUM,
+        status: listingStatus.ACTIVE,
+        showPhone: true,
+        isFavorite: false,
+        views: 245,
+        favorites: 12,
+        seller: {
+          name: 'Ahmet Yılmaz',
+          rating: 4.8,
+          memberSince: '2023-01-15',
+          phone: '',
+          isVerified: true,
+        },
+        premiumFeatures: {
+          isActive: true,
+          expiresAt: '2024-04-20',
+          isHighlighted: true,
+          isFeatured: true,
+          isUrgent: false,
+        },
+      }
+    ]
+  },
+  'spor': createEmptyListings(),
+  'ev-yasam': createEmptyListings(),
+  'hizmetler': createEmptyListings()
+};
+
 // Kategori yapısı
 const categories = [
   {
@@ -234,303 +345,6 @@ const categories = [
   }
 ];
 
-// Örnek veriler
-const listings = {
-  'elektronik': [
-    {
-      id: 1,
-      title: 'iPhone 14 Pro Max 256GB',
-      price: '45.000',
-      location: 'Konak, İzmir',
-      category: 'Elektronik',
-      subcategory: 'Telefon',
-      description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
-      images: [
-        '/images/listings/iphone-14-pro-max-1.jpg',
-        '/images/listings/iphone-14-pro-max-2.jpg',
-        '/images/listings/iphone-14-pro-max-3.jpg'
-      ],
-      date: '2024-03-20',
-      condition: 'Sıfır',
-      type: listingTypes.PREMIUM,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 245,
-      favorites: 12,
-      seller: {
-        name: 'Ahmet Yılmaz',
-        rating: 4.8,
-        memberSince: '2023-01-15',
-        phone: '0532 123 4567',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: true,
-        expiresAt: '2024-04-20',
-        isHighlighted: true,
-        isFeatured: true,
-        isUrgent: false,
-      },
-    },
-    {
-      id: 2,
-      title: 'Samsung Galaxy S24 Ultra',
-      price: '42.000',
-      location: 'Karşıyaka, İzmir',
-      category: 'Elektronik',
-      subcategory: 'Telefon',
-      description: 'Sıfır, kutusunda Samsung Galaxy S24 Ultra 512GB. Faturalı ve garantili.',
-      images: [
-        '/images/listings/samsung-s24-ultra-1.jpg',
-        '/images/listings/samsung-s24-ultra-2.jpg',
-        '/images/listings/samsung-s24-ultra-3.jpg'
-      ],
-      date: '2024-03-19',
-      condition: 'Sıfır',
-      type: listingTypes.PREMIUM,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 180,
-      favorites: 8,
-      seller: {
-        name: 'Mehmet Demir',
-        rating: 4.5,
-        memberSince: '2023-03-10',
-        phone: '0533 456 7890',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: true,
-        expiresAt: '2024-04-19',
-        isHighlighted: false,
-        isFeatured: false,
-        isUrgent: true,
-      },
-    }
-  ],
-  'spor': [
-    {
-      id: 3,
-      title: 'Profesyonel Fitness Ekipmanları Seti',
-      price: '25.000',
-      location: 'Karşıyaka, İzmir',
-      category: 'Spor',
-      subcategory: 'Fitness',
-      description: 'Tam donanımlı fitness ekipmanları seti. Dumbbell seti, bench press, squat rack ve ağırlık plakaları dahil.',
-      images: [
-        '/images/listings/fitness-set-1.jpg',
-        '/images/listings/fitness-set-2.jpg',
-        '/images/listings/fitness-set-3.jpg'
-      ],
-      date: '2024-03-19',
-      condition: 'İkinci El',
-      type: listingTypes.PREMIUM,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 180,
-      favorites: 8,
-      seller: {
-        name: 'Mehmet Demir',
-        rating: 4.5,
-        memberSince: '2023-03-10',
-        phone: '0533 456 7890',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: true,
-        expiresAt: '2024-04-19',
-        isHighlighted: false,
-        isFeatured: false,
-        isUrgent: true,
-      },
-    },
-    {
-      id: 4,
-      title: 'Profesyonel Tenis Raketi Seti',
-      price: '3.500',
-      location: 'Bornova, İzmir',
-      category: 'Spor',
-      subcategory: 'Tenis',
-      description: 'Wilson Pro Staff Tenis Raketi Seti. 2 adet raket, raket çantası ve 6 adet tenis topu dahil.',
-      images: [
-        '/images/listings/tenis-set-1.jpg',
-        '/images/listings/tenis-set-2.jpg'
-      ],
-      date: '2024-03-18',
-      condition: 'Yeni',
-      type: listingTypes.FREE,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 120,
-      favorites: 5,
-      seller: {
-        name: 'Ayşe Kaya',
-        rating: 4.9,
-        memberSince: '2023-02-01',
-        phone: '0535 789 1234',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: false,
-        expiresAt: null,
-        isHighlighted: false,
-        isFeatured: false,
-        isUrgent: false,
-      },
-    }
-  ],
-  'ev-yasam': [
-    {
-      id: 5,
-      title: 'Modern L Koltuk Takımı',
-      price: '12.000',
-      location: 'Bornova, İzmir',
-      category: 'Ev & Yaşam',
-      subcategory: 'Mobilya',
-      description: 'Yeni, kullanılmamış L koltuk takımı. Gri renk, modern tasarım. Faturalı ve garantili.',
-      images: [
-        '/images/listings/l-koltuk-1.jpg',
-        '/images/listings/l-koltuk-2.jpg',
-        '/images/listings/l-koltuk-3.jpg'
-      ],
-      date: '2024-03-18',
-      condition: 'Yeni',
-      type: listingTypes.PREMIUM,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 320,
-      favorites: 15,
-      seller: {
-        name: 'Ayşe Kaya',
-        rating: 4.9,
-        memberSince: '2023-02-01',
-        phone: '0535 789 1234',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: true,
-        expiresAt: '2024-04-18',
-        isHighlighted: true,
-        isFeatured: true,
-        isUrgent: false,
-      },
-    },
-    {
-      id: 6,
-      title: 'Beyaz Eşya Seti',
-      price: '35.000',
-      location: 'Çankaya, Ankara',
-      category: 'Ev & Yaşam',
-      subcategory: 'Beyaz Eşya',
-      description: 'Siemens beyaz eşya seti. Buzdolabı, çamaşır makinesi, bulaşık makinesi ve fırın dahil. Faturalı ve garantili.',
-      images: [
-        '/images/listings/beyaz-esya-1.jpg',
-        '/images/listings/beyaz-esya-2.jpg',
-        '/images/listings/beyaz-esya-3.jpg'
-      ],
-      date: '2024-03-17',
-      condition: 'Sıfır',
-      type: listingTypes.PREMIUM,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 280,
-      favorites: 12,
-      seller: {
-        name: 'Dr. Ali Yıldız',
-        rating: 5.0,
-        memberSince: '2023-01-01',
-        phone: '0536 123 4567',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: true,
-        expiresAt: '2024-04-17',
-        isHighlighted: false,
-        isFeatured: true,
-        isUrgent: true,
-      },
-    }
-  ],
-  'hizmetler': [
-    {
-      id: 7,
-      title: 'Özel Matematik Dersi',
-      price: '300',
-      location: 'Çankaya, Ankara',
-      category: 'Hizmetler',
-      subcategory: 'Özel Ders',
-      description: 'Üniversite öğrencilerine özel matematik dersi. Calculus, lineer cebir ve diferansiyel denklemler konularında uzman.',
-      images: [
-        '/images/listings/matematik-dersi-1.jpg',
-        '/images/listings/matematik-dersi-2.jpg'
-      ],
-      date: '2024-03-17',
-      condition: 'Hizmet',
-      type: listingTypes.FREE,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 150,
-      favorites: 5,
-      seller: {
-        name: 'Dr. Ali Yıldız',
-        rating: 5.0,
-        memberSince: '2023-01-01',
-        phone: '0536 123 4567',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: false,
-        expiresAt: null,
-        isHighlighted: false,
-        isFeatured: false,
-        isUrgent: false,
-      },
-    },
-    {
-      id: 8,
-      title: 'Profesyonel Temizlik Hizmeti',
-      price: '500',
-      location: 'Karşıyaka, İzmir',
-      category: 'Hizmetler',
-      subcategory: 'Temizlik',
-      description: 'Profesyonel temizlik hizmeti. Ev ve ofis temizliği. Referanslı ve deneyimli ekip.',
-      images: [
-        '/images/listings/temizlik-1.jpg',
-        '/images/listings/temizlik-2.jpg'
-      ],
-      date: '2024-03-16',
-      condition: 'Hizmet',
-      type: listingTypes.FREE,
-      status: listingStatus.ACTIVE,
-      showPhone: true,
-      isFavorite: false,
-      views: 200,
-      favorites: 8,
-      seller: {
-        name: 'Temizlik A.Ş.',
-        rating: 4.9,
-        memberSince: '2022-01-01',
-        phone: '0537 456 7890',
-        isVerified: true,
-      },
-      premiumFeatures: {
-        isActive: false,
-        expiresAt: null,
-        isHighlighted: false,
-        isFeatured: false,
-        isUrgent: false,
-      },
-    }
-  ]
-};
-
 const filters = {
   priceRange: [
     { label: 'Tümü', value: 'all' },
@@ -559,7 +373,7 @@ export default function CategoryPage() {
   const [selectedCondition, setSelectedCondition] = useState('all');
   const [selectedSort, setSelectedSort] = useState('newest');
 
-  const categorySlug = params.slug as string;
+  const categorySlug = params.slug as CategorySlug;
   
   // Kategori ismini formatla
   const formatSlug = (slug: string) => {
@@ -571,8 +385,9 @@ export default function CategoryPage() {
 
   const categoryName = formatSlug(categorySlug);
   
-  // Mevcut kategoriyi bul
-  const currentCategory = categories.find(cat => cat.slug === categorySlug);
+  // Mevcut kategorideki tüm ilanları birleştir
+  const currentListings = Object.values(categoryListings[categorySlug] || {}).flat();
+  const totalListings = currentListings.length;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -587,7 +402,7 @@ export default function CategoryPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-alo-dark">{categoryName}</h1>
-          <p className="text-gray-600 mt-1">{listings.length} ilan bulundu</p>
+          <p className="text-gray-600 mt-1">{totalListings} ilan bulundu</p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
           <button
@@ -616,11 +431,11 @@ export default function CategoryPage() {
         <div className="lg:col-span-1">
           <div className="space-y-6">
             {/* Alt Kategoriler */}
-            {currentCategory && (
+            {categories.find(cat => cat.slug === categorySlug) && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold text-alo-dark mb-4">Alt Kategoriler</h2>
                 <div className="space-y-2">
-                  {currentCategory.subCategories.map((subCat) => (
+                  {categories.find(cat => cat.slug === categorySlug)?.subCategories.map((subCat) => (
                     <Link
                       key={subCat.id}
                       href={`/kategori/${categorySlug}/${subCat.slug}`}
@@ -694,8 +509,8 @@ export default function CategoryPage() {
         </div>
 
         {/* İlan Listesi */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`}>
-          {listings.map((listing) => (
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${showFilters ? 'lg:col-span-3' : 'lg:col-span-4'}`}>
+          {currentListings.map((listing: Listing) => (
             <Link
               key={listing.id}
               href={`/ilan/${listing.id}`}
@@ -703,7 +518,7 @@ export default function CategoryPage() {
             >
               <div className="relative aspect-[4/3]">
                 <Image
-                  src={listing.image}
+                  src={listing.images[0]}
                   alt={listing.title}
                   fill
                   className="object-cover"
@@ -719,11 +534,10 @@ export default function CategoryPage() {
                 <p className="text-xl font-bold text-alo-red mb-2">{listing.price} TL</p>
                 <div className="flex items-center justify-between text-sm text-gray-500">
                   <span>{listing.location}</span>
-                  <span>{new Date(listing.createdAt).toLocaleDateString('tr-TR')}</span>
+                  <span>{new Date(listing.date).toLocaleDateString('tr-TR')}</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
-                  <span>{listing.brand}</span>
-                  <span>{listing.model}</span>
+                  <span>{listing.seller.name}</span>
                 </div>
               </div>
             </Link>
