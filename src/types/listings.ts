@@ -1,20 +1,22 @@
-// İlan Tipleri
+// İlan tipleri ve durumları
 export const listingTypes = {
   FREE: 'free',
-  PREMIUM: 'premium',
+  PREMIUM: 'premium'
 } as const;
 
-// İlan Durumları
 export const listingStatus = {
-  DRAFT: 'draft',
-  PENDING_PAYMENT: 'pending_payment',
   ACTIVE: 'active',
-  EXPIRED: 'expired',
+  PENDING: 'pending',
   SOLD: 'sold',
+  EXPIRED: 'expired'
 } as const;
 
-// İlan Tipi
-export type Listing = {
+// Kategori ve alt kategori tipleri
+export type CategorySlug = 'elektronik' | 'spor' | 'ev-yasam' | 'hizmetler';
+export type SubCategorySlug = 'telefon' | 'bilgisayar' | 'fitness' | 'tenis' | 'mobilya' | 'beyaz-esya' | 'ozel-ders' | 'temizlik';
+
+// İlan tipi
+export interface Listing {
   id: number;
   title: string;
   price: string;
@@ -45,7 +47,7 @@ export type Listing = {
     isFeatured: boolean;
     isUrgent: boolean;
   };
-};
+}
 
 // Kategori Tipi
 export type Category = {

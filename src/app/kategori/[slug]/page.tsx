@@ -5,57 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FunnelIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
-
-// İlan tipleri ve durumları
-export const listingTypes = {
-  FREE: 'free',
-  PREMIUM: 'premium'
-} as const;
-
-export const listingStatus = {
-  ACTIVE: 'active',
-  PENDING: 'pending',
-  SOLD: 'sold',
-  EXPIRED: 'expired'
-} as const;
-
-// Örnek veri tipi
-interface Listing {
-  id: number;
-  title: string;
-  price: string;
-  location: string;
-  category: string;
-  subcategory: string;
-  description: string;
-  images: string[];
-  date: string;
-  condition: string;
-  type: typeof listingTypes[keyof typeof listingTypes];
-  status: typeof listingStatus[keyof typeof listingStatus];
-  showPhone: boolean;
-  isFavorite: boolean;
-  views: number;
-  favorites: number;
-  seller: {
-    name: string;
-    rating: number;
-    memberSince: string;
-    phone: string;
-    isVerified: boolean;
-  };
-  premiumFeatures: {
-    isActive: boolean;
-    expiresAt: string | null;
-    isHighlighted: boolean;
-    isFeatured: boolean;
-    isUrgent: boolean;
-  };
-}
-
-// Kategori ve alt kategori tipleri
-type CategorySlug = 'elektronik' | 'spor' | 'ev-yasam' | 'hizmetler';
-type SubCategorySlug = 'telefon' | 'bilgisayar' | 'fitness' | 'tenis' | 'mobilya' | 'beyaz-esya' | 'ozel-ders' | 'temizlik';
+import { listingTypes, listingStatus, type Listing, type CategorySlug, type SubCategorySlug } from '@/types/listings';
 
 // Boş ilan listesi oluşturucu
 const createEmptyListings = (): Record<SubCategorySlug, Listing[]> => ({
