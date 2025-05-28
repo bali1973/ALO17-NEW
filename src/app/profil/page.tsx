@@ -30,20 +30,64 @@ const listings = [
     title: 'Sahibinden Satılık Lüks Daire',
     price: '2.450.000',
     location: 'Kadıköy, İstanbul',
-    image: '/images/listing1.jpg',
-    status: 'active',
+    category: 'Ev & Yaşam',
+    subcategory: 'Daire',
+    description: 'Sahibinden satılık lüks daire. 3+1, 180m², deniz manzaralı.',
+    images: ['/images/listing1.jpg'],
+    date: '2024-02-20',
+    condition: 'Yeni',
+    type: listingTypes.PREMIUM,
+    status: listingStatus.ACTIVE,
+    showPhone: true,
+    isFavorite: false,
     views: 1234,
-    createdAt: '2024-02-20',
+    favorites: 5,
+    seller: {
+      name: 'Ahmet Yılmaz',
+      rating: 4.8,
+      memberSince: '2023-01-15',
+      phone: '0532 123 4567',
+      isVerified: true,
+    },
+    premiumFeatures: {
+      isActive: true,
+      expiresAt: '2024-04-20',
+      isHighlighted: true,
+      isFeatured: true,
+      isUrgent: false,
+    },
   },
   {
     id: 2,
     title: '2019 Model BMW 320i',
     price: '1.850.000',
     location: 'Beşiktaş, İstanbul',
-    image: '/images/listing2.jpg',
-    status: 'pending',
+    category: 'Otomobil',
+    subcategory: 'BMW',
+    description: '2019 model BMW 320i. Otomatik, benzin, 45.000 km.',
+    images: ['/images/listing2.jpg'],
+    date: '2024-02-19',
+    condition: 'İkinci El',
+    type: listingTypes.PREMIUM,
+    status: listingStatus.PENDING,
+    showPhone: true,
+    isFavorite: false,
     views: 856,
-    createdAt: '2024-02-19',
+    favorites: 3,
+    seller: {
+      name: 'Ahmet Yılmaz',
+      rating: 4.8,
+      memberSince: '2023-01-15',
+      phone: '0532 123 4567',
+      isVerified: true,
+    },
+    premiumFeatures: {
+      isActive: true,
+      expiresAt: '2024-04-19',
+      isHighlighted: false,
+      isFeatured: false,
+      isUrgent: true,
+    },
   },
 ];
 
@@ -190,7 +234,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="flex items-center text-sm text-gray-500">
                               <span className="mr-4">
-                                {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
+                                {new Date(listing.date).toLocaleDateString('tr-TR')}
                               </span>
                               <span>{listing.views} görüntülenme</span>
                             </div>
