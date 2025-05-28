@@ -45,10 +45,23 @@ interface Listing {
 type CategorySlug = 'elektronik' | 'spor' | 'ev-yasam' | 'hizmetler';
 type SubCategorySlug = 'telefon' | 'bilgisayar' | 'fitness' | 'tenis' | 'mobilya' | 'beyaz-esya' | 'ozel-ders' | 'temizlik';
 
+// Boş ilan listesi oluşturucu
+const createEmptyListings = (): Record<SubCategorySlug, Listing[]> => ({
+  telefon: [],
+  bilgisayar: [],
+  fitness: [],
+  tenis: [],
+  mobilya: [],
+  'beyaz-esya': [],
+  'ozel-ders': [],
+  temizlik: []
+});
+
 // Örnek veriler
 const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
   'elektronik': {
-    'telefon': [
+    ...createEmptyListings(),
+    telefon: [
       {
         id: 1,
         title: 'iPhone 14 Pro Max 256GB',
@@ -122,7 +135,7 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         },
       }
     ],
-    'bilgisayar': [
+    bilgisayar: [
       {
         id: 3,
         title: 'MacBook Pro M3 Pro 16GB',
@@ -162,7 +175,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
     ]
   },
   'spor': {
-    'fitness': [
+    ...createEmptyListings(),
+    fitness: [
       {
         id: 4,
         title: 'Profesyonel Fitness Ekipmanları Seti',
@@ -200,7 +214,7 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         },
       }
     ],
-    'tenis': [
+    tenis: [
       {
         id: 5,
         title: 'Profesyonel Tenis Raketi Seti',
@@ -239,7 +253,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
     ]
   },
   'ev-yasam': {
-    'mobilya': [
+    ...createEmptyListings(),
+    mobilya: [
       {
         id: 6,
         title: 'Modern L Koltuk Takımı',
@@ -317,6 +332,7 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
     ]
   },
   'hizmetler': {
+    ...createEmptyListings(),
     'ozel-ders': [
       {
         id: 8,
@@ -354,7 +370,7 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         },
       }
     ],
-    'temizlik': [
+    temizlik: [
       {
         id: 9,
         title: 'Profesyonel Temizlik Hizmeti',
