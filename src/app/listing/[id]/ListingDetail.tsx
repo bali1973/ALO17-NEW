@@ -45,37 +45,110 @@ export type Listing = {
 
 // Örnek veri
 const featuredListings: Listing[] = [
+  // Elektronik - Telefon
   {
     id: '1',
     title: 'iPhone 14 Pro Max 256GB',
     price: 45000,
-    location: 'İstanbul',
+    location: 'Konak, İzmir',
     category: 'Elektronik',
     subcategory: 'Telefon',
-    description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Apple Türkiye garantili, faturası mevcut.',
+    description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
     images: [
-      '/images/listings/iphone-14-pro-max-1.jpg',
-      '/images/listings/iphone-14-pro-max-2.jpg',
-      '/images/listings/iphone-14-pro-max-3.jpg',
-      '/images/listings/iphone-14-pro-max-4.jpg',
-      '/images/listings/iphone-14-pro-max-5.jpg'
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60'
     ],
-    date: '2024-02-20',
+    date: '2024-03-20',
+    condition: 'Sıfır',
+    type: 'Satılık',
+    status: 'active',
+    showPhone: false,
+    isFavorite: false,
+    views: 245,
+    favorites: 12,
+    seller: {
+      id: '1',
+      name: 'Ahmet Yılmaz',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=60',
+      rating: 4.8,
+      memberSince: '2023-01-15',
+      location: 'İstanbul',
+      phone: ''
+    },
+    premiumFeatures: {
+      isFeatured: true,
+      isUrgent: false,
+      isVerified: true
+    }
+  },
+  // Spor - Fitness
+  {
+    id: '2',
+    title: 'Profesyonel Fitness Ekipmanları Seti',
+    price: 25000,
+    location: 'Karşıyaka, İzmir',
+    category: 'Spor',
+    subcategory: 'Fitness',
+    description: 'Tam donanımlı fitness ekipmanları seti. Dumbbell seti, bench press, squat rack ve ağırlık plakaları dahil.',
+    images: [
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60'
+    ],
+    date: '2024-03-19',
+    condition: 'İkinci El',
+    type: 'Satılık',
+    status: 'active',
+    showPhone: false,
+    isFavorite: false,
+    views: 180,
+    favorites: 8,
+    seller: {
+      id: '2',
+      name: 'Mehmet Demir',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=60',
+      rating: 4.5,
+      memberSince: '2023-03-10',
+      location: 'İzmir',
+      phone: ''
+    },
+    premiumFeatures: {
+      isFeatured: false,
+      isUrgent: true,
+      isVerified: true
+    }
+  },
+  // Ev & Yaşam - Mobilya
+  {
+    id: '3',
+    title: 'Modern L Koltuk Takımı',
+    price: 12000,
+    location: 'Bornova, İzmir',
+    category: 'Ev & Yaşam',
+    subcategory: 'Mobilya',
+    description: 'Yeni, kullanılmamış L koltuk takımı. Gri renk, modern tasarım. Faturalı ve garantili.',
+    images: [
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60'
+    ],
+    date: '2024-03-18',
     condition: 'Yeni',
     type: 'Satılık',
     status: 'active',
     showPhone: false,
     isFavorite: false,
-    views: 150,
-    favorites: 12,
+    views: 320,
+    favorites: 15,
     seller: {
-      id: '1',
-      name: 'Ahmet Yılmaz',
-      avatar: '/images/avatars/user1.jpg',
-      rating: 4.8,
-      memberSince: '2023-01-15',
-      location: 'İstanbul',
-      phone: '0532 123 4567'
+      id: '3',
+      name: 'Ayşe Kaya',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=60',
+      rating: 4.9,
+      memberSince: '2023-02-01',
+      location: 'Ankara',
+      phone: ''
     },
     premiumFeatures: {
       isFeatured: true,
@@ -90,6 +163,12 @@ export default function ListingDetail() {
   const [listing, setListing] = useState<Listing | null>(null);
   const [showPhone, setShowPhone] = useState(false);
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
+  const [showMessageForm, setShowMessageForm] = useState(false);
+  const [message, setMessage] = useState('');
+  const [senderName, setSenderName] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
+  const [messageSent, setMessageSent] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // URL'den ilan ID'sini al
@@ -115,6 +194,35 @@ export default function ListingDetail() {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = '/images/placeholder.jpg';
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!senderName.trim() || !senderEmail.trim() || !message.trim()) {
+      setError('Lütfen tüm alanları doldurun.');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) {
+      setError('Geçerli bir e-posta adresi girin.');
+      return;
+    }
+
+    try {
+      // Burada mesaj gönderme API'si çağrılacak
+      // Örnek olarak başarılı gönderim simüle ediyoruz
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setMessageSent(true);
+      setMessage('');
+      setSenderName('');
+      setSenderEmail('');
+      setShowMessageForm(false);
+    } catch (err) {
+      setError('Mesaj gönderilirken bir hata oluştu. Lütfen tekrar deneyin.');
+    }
   };
 
   return (
@@ -246,24 +354,100 @@ export default function ListingDetail() {
                 <span className="text-gray-600">Üyelik:</span>
                 <span className="font-medium">{listing.seller.memberSince}</span>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Telefon:</span>
-                {showPhone ? (
-                  <span className="font-medium">{listing.seller.phone}</span>
-                ) : (
-                  <button
-                    onClick={() => setShowPhone(true)}
-                    className="text-primary hover:text-primary-dark"
-                  >
-                    Telefonu Göster
-                  </button>
-                )}
-              </div>
+              {listing.showPhone && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Telefon:</span>
+                  {showPhone ? (
+                    <span className="font-medium">{listing.seller.phone}</span>
+                  ) : (
+                    <button
+                      onClick={() => setShowPhone(true)}
+                      className="text-primary hover:text-primary-dark"
+                    >
+                      Telefonu Göster
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
-            <button className="w-full mt-6 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors">
-              Mesaj Gönder
-            </button>
+            <div className="mt-6 space-y-4">
+              {!showMessageForm ? (
+                <button
+                  onClick={() => setShowMessageForm(true)}
+                  className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
+                >
+                  Mesaj Gönder
+                </button>
+              ) : (
+                <form onSubmit={handleSendMessage} className="space-y-4">
+                  {error && (
+                    <div className="text-red-500 text-sm">{error}</div>
+                  )}
+                  {messageSent && (
+                    <div className="text-green-500 text-sm">Mesajınız başarıyla gönderildi.</div>
+                  )}
+                  <div>
+                    <label htmlFor="senderName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Adınız Soyadınız
+                    </label>
+                    <input
+                      type="text"
+                      id="senderName"
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="Adınız Soyadınız"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="senderEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                      E-posta Adresiniz
+                    </label>
+                    <input
+                      type="email"
+                      id="senderEmail"
+                      value={senderEmail}
+                      onChange={(e) => setSenderEmail(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="ornek@email.com"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                      Mesajınız
+                    </label>
+                    <textarea
+                      id="message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="İlan sahibine mesajınızı yazın..."
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
+                    >
+                      Gönder
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMessageForm(false);
+                        setError('');
+                        setMessageSent(false);
+                      }}
+                      className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      İptal
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>
