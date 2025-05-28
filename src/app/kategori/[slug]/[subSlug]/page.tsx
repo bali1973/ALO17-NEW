@@ -5,30 +5,48 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FunnelIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
-import { Listing, listingTypes, listingStatus } from '@/types/listings';
+import { listingTypes, listingStatus } from '@/types/listings';
 
-// Örnek veri
-type Listing = {
+// Örnek veri tipi
+interface Listing {
   id: number;
   title: string;
   price: string;
   location: string;
-  image: string;
   category: string;
-  subCategory: string;
-  createdAt: string;
-  views: number;
+  subcategory: string;
+  description: string;
+  images: string[];
+  date: string;
   condition: string;
-  brand: string;
-  model: string;
-  year: string;
-  favorites?: number;
+  type: string;
+  status: string;
   showPhone: boolean;
   isFavorite: boolean;
-};
+  views: number;
+  favorites: number;
+  seller: {
+    name: string;
+    rating: number;
+    memberSince: string;
+    phone: string;
+    isVerified: boolean;
+  };
+  premiumFeatures: {
+    isActive: boolean;
+    expiresAt: string | null;
+    isHighlighted: boolean;
+    isFeatured: boolean;
+    isUrgent: boolean;
+  };
+}
+
+// Kategori ve alt kategori tipleri
+type CategorySlug = 'elektronik' | 'spor' | 'ev-yasam' | 'hizmetler';
+type SubCategorySlug = 'telefon' | 'bilgisayar' | 'fitness' | 'tenis' | 'mobilya' | 'beyaz-esya' | 'ozel-ders' | 'temizlik';
 
 // Örnek veriler
-const listings = {
+const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
   'elektronik': {
     'telefon': [
       {
@@ -419,7 +437,7 @@ export default function SubCategoryPage() {
   const subCategoryName = formatSlug(subCategorySlug);
 
   // Mevcut kategorideki ilanları al
-  const currentListings = listings[categorySlug]?.[subCategorySlug] || [];
+  const currentListings = (listings[categorySlug as CategorySlug]?.[subCategorySlug as SubCategorySlug] || []) as Listing[];
   const totalListings = currentListings.length;
 
   return (
