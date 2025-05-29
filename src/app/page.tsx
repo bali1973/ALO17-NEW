@@ -389,7 +389,9 @@ const featuredListings: Listing[] = [
     images: [
       'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
-      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy',
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=center',
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=focalpoint'
     ],
     date: '2024-03-21',
     condition: 'Reklam',
@@ -427,7 +429,9 @@ const featuredListings: Listing[] = [
     images: [
       'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
-      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=center',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=focalpoint'
     ],
     date: '2024-03-20',
     condition: 'Sıfır',
@@ -464,7 +468,9 @@ const featuredListings: Listing[] = [
     images: [
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
-      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80&crop=center',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80&crop=focalpoint'
     ],
     date: '2024-03-19',
     condition: 'İkinci El',
@@ -501,7 +507,9 @@ const featuredListings: Listing[] = [
     images: [
       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80&crop=center',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80&crop=focalpoint'
     ],
     date: '2024-03-18',
     condition: 'Yeni',
@@ -536,8 +544,11 @@ const featuredListings: Listing[] = [
     subcategory: 'Özel Ders',
     description: 'Üniversite öğrencilerine özel matematik dersi. Calculus, lineer cebir ve diferansiyel denklemler konularında uzman.',
     images: [
-      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=600&auto=format&fit=crop&q=80&crop=center',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=600&auto=format&fit=crop&q=80&crop=focalpoint'
     ],
     date: '2024-03-17',
     condition: 'Hizmet',

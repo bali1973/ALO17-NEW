@@ -34,7 +34,11 @@ const listing = {
   images: [
     'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
-    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy',
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=center',
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=focalpoint',
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=attention',
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=edges'
   ],
   seller: {
     name: 'Ahmet Yılmaz',
