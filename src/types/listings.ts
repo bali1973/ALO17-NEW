@@ -53,6 +53,7 @@ export interface Listing {
   favorites: number;
   seller: Seller;
   premiumFeatures: PremiumFeature;
+  externalLink?: string;
 }
 
 // Kategori Tipi

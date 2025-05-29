@@ -61,6 +61,48 @@ const categoryListings: Record<string, Record<string, Listing[]>> = {
         },
       }
     ]
+  },
+  'catering-ticaret': {
+    ...createEmptyListings(),
+    'icecek': [
+      {
+        id: 1001,
+        title: 'HemenAlgetir.com - Online Gıda ve İçecek Alışverişi',
+        price: '0',
+        location: 'Türkiye Geneli',
+        category: 'Catering & Ticaret',
+        subcategory: 'İçecek',
+        description: 'HemenAlgetir.com ile tüm gıda ve içecek ihtiyaçlarınızı online olarak sipariş edin! Geniş ürün yelpazesi, hızlı teslimat ve uygun fiyatlarla hizmetinizdeyiz. Taze meyve sebzeler, süt ürünleri, et ürünleri, içecekler ve daha fazlası için hemen sitemizi ziyaret edin!',
+        images: [
+          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=60',
+          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=60',
+          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=60'
+        ],
+        date: '2024-03-21',
+        condition: 'Reklam',
+        type: listingTypes.PREMIUM,
+        status: listingStatus.ACTIVE,
+        showPhone: true,
+        isFavorite: false,
+        views: 0,
+        favorites: 0,
+        seller: {
+          name: 'HemenAlgetir.com',
+          rating: 5.0,
+          memberSince: '2024-01-01',
+          phone: '',
+          isVerified: true,
+        },
+        premiumFeatures: {
+          isActive: true,
+          expiresAt: '2025-12-31',
+          isHighlighted: true,
+          isFeatured: true,
+          isUrgent: false,
+        },
+        externalLink: 'https://www.hemenalgetir.com',
+      }
+    ]
   }
 };
 
@@ -175,44 +217,85 @@ export default function CategoryPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedListings.map((listing) => (
             <div key={listing.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-              <Link href={`/ilan/${listing.id}`}>
-                <div className="relative aspect-[4/3]">
-                  {listing.images && listing.images.length > 0 ? (
-                    <Image
-                      src={listing.images[0]}
-                      alt={listing.title}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                      <span className="text-gray-400">Görsel yok</span>
+              {listing.externalLink ? (
+                <a href={listing.externalLink} target="_blank" rel="noopener noreferrer">
+                  <div className="relative aspect-[4/3]">
+                    {listing.images && listing.images.length > 0 ? (
+                      <Image
+                        src={listing.images[0]}
+                        alt={listing.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                        <span className="text-gray-400">Görsel yok</span>
+                      </div>
+                    )}
+                    {listing.condition === 'Reklam' && (
+                      <span className="absolute top-2 right-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
+                        Reklam
+                      </span>
+                    )}
+                    {listing.premiumFeatures?.isActive && (
+                      <span className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs">
+                        Premium
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
+                    <p className="text-xl font-bold text-alo-red mb-2">{listing.price === '0' ? 'Ücretsiz' : `${listing.price} TL`}</p>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>{listing.location}</span>
+                      <span>{new Date(listing.date).toLocaleDateString('tr-TR')}</span>
                     </div>
-                  )}
-                  {listing.condition === 'Yeni' && (
-                    <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
-                      Yeni
-                    </span>
-                  )}
-                  {listing.premiumFeatures?.isActive && (
-                    <span className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs">
-                      Premium
-                    </span>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
-                  <p className="text-xl font-bold text-alo-red mb-2">{listing.price} TL</p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{listing.location}</span>
-                    <span>{new Date(listing.date).toLocaleDateString('tr-TR')}</span>
+                    <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
+                      <span>{listing.seller.name}</span>
+                      <span className="text-blue-600">Siteye Git →</span>
+                    </div>
                   </div>
-                  <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
-                    <span>{listing.seller.name}</span>
-                    <span>{listing.views} görüntülenme</span>
+                </a>
+              ) : (
+                <Link href={`/ilan/${listing.id}`}>
+                  <div className="relative aspect-[4/3]">
+                    {listing.images && listing.images.length > 0 ? (
+                      <Image
+                        src={listing.images[0]}
+                        alt={listing.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                        <span className="text-gray-400">Görsel yok</span>
+                      </div>
+                    )}
+                    {listing.condition === 'Yeni' && (
+                      <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+                        Yeni
+                      </span>
+                    )}
+                    {listing.premiumFeatures?.isActive && (
+                      <span className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs">
+                        Premium
+                      </span>
+                    )}
                   </div>
-                </div>
-              </Link>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
+                    <p className="text-xl font-bold text-alo-red mb-2">{listing.price} TL</p>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>{listing.location}</span>
+                      <span>{new Date(listing.date).toLocaleDateString('tr-TR')}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
+                      <span>{listing.seller.name}</span>
+                      <span>{listing.views} görüntülenme</span>
+                    </div>
+                  </div>
+                </Link>
+              )}
             </div>
           ))}
         </div>
