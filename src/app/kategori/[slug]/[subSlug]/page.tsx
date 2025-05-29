@@ -57,6 +57,8 @@ const createEmptyListings = (): Record<SubCategorySlug, Listing[]> => ({
   temizlik: []
 });
 
+const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjQwMCIgeT0iMzAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Hw7Zyc2VsIFlvayA8L3RleHQ+PC9zdmc+';
+
 // Örnek veriler
 const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
   'elektronik': {
@@ -71,9 +73,9 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         subcategory: 'Telefon',
         description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
         images: [
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60&h=800',
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
         ],
         date: '2024-03-20',
         condition: 'Sıfır',
@@ -567,19 +569,30 @@ export default function SubCategoryPage() {
             >
               <Link href={`/listing/${listing.id}`} className="block">
                 <div className="relative h-48 bg-alo-light-blue">
-                  <Image
-                    src={listing.images[0]}
-                    alt={listing.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    priority={false}
-                    className="object-cover transition-transform group-hover:scale-105"
-                    quality={85}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/images/placeholder.jpg';
-                    }}
-                  />
+                  {listing.images && listing.images.length > 0 ? (
+                    <Image
+                      src={listing.images[0]}
+                      alt={listing.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform group-hover:scale-105"
+                      quality={85}
+                      priority={false}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = placeholderImage;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <Image
+                        src={placeholderImage}
+                        alt="Görsel yok"
+                        fill
+                        className="object-contain p-4"
+                      />
+                    </div>
+                  )}
                   {listing.condition === 'Yeni' && (
                     <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
                       Yeni

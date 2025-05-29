@@ -19,6 +19,8 @@ const createEmptyListings = (): Record<string, Listing[]> => {
   return emptyListings;
 };
 
+const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjQwMCIgeT0iMzAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Hw7Zyc2VsIFlvayA8L3RleHQ+PC9zdmc+';
+
 // Örnek veriler
 const categoryListings: Record<string, Record<string, Listing[]>> = {
   'elektronik': {
@@ -33,9 +35,9 @@ const categoryListings: Record<string, Record<string, Listing[]>> = {
         subcategory: 'Telefon',
         description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
         images: [
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
         ],
         date: '2024-03-20',
         condition: 'Sıfır',
@@ -74,9 +76,9 @@ const categoryListings: Record<string, Record<string, Listing[]>> = {
         subcategory: 'İçecek',
         description: 'HemenAlgetir.com ile tüm gıda ve içecek ihtiyaçlarınızı online olarak sipariş edin! Geniş ürün yelpazesi, hızlı teslimat ve uygun fiyatlarla hizmetinizdeyiz. Taze meyve sebzeler, süt ürünleri, et ürünleri, içecekler ve daha fazlası için hemen sitemizi ziyaret edin!',
         images: [
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
         ],
         date: '2024-03-21',
         condition: 'Reklam',
@@ -231,12 +233,17 @@ export default function CategoryPage() {
                         priority={false}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/images/placeholder.jpg';
+                          target.src = placeholderImage;
                         }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                        <span className="text-gray-400">Görsel yok</span>
+                        <Image
+                          src={placeholderImage}
+                          alt="Görsel yok"
+                          fill
+                          className="object-contain p-4"
+                        />
                       </div>
                     )}
                     {listing.condition === 'Reklam' && (
@@ -278,12 +285,17 @@ export default function CategoryPage() {
                         priority={false}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = '/images/placeholder.jpg';
+                          target.src = placeholderImage;
                         }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                        <span className="text-gray-400">Görsel yok</span>
+                        <Image
+                          src={placeholderImage}
+                          alt="Görsel yok"
+                          fill
+                          className="object-contain p-4"
+                        />
                       </div>
                     )}
                     {listing.condition === 'Yeni' && (
