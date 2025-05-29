@@ -225,7 +225,14 @@ export default function CategoryPage() {
                         src={listing.images[0]}
                         alt={listing.title}
                         fill
-                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform group-hover:scale-105"
+                        quality={85}
+                        priority={false}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/images/placeholder.jpg';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -242,6 +249,7 @@ export default function CategoryPage() {
                         Premium
                       </span>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
@@ -264,7 +272,14 @@ export default function CategoryPage() {
                         src={listing.images[0]}
                         alt={listing.title}
                         fill
-                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform group-hover:scale-105"
+                        quality={85}
+                        priority={false}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/images/placeholder.jpg';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -281,6 +296,7 @@ export default function CategoryPage() {
                         Premium
                       </span>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>

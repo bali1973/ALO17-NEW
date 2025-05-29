@@ -72,8 +72,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
         images: [
           'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-20',
         condition: 'Sıfır',
@@ -108,8 +108,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Sıfır, kutusunda Samsung Galaxy S24 Ultra 512GB. Faturalı ve garantili.',
         images: [
           'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-19',
         condition: 'Sıfır',
@@ -146,8 +146,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Sıfır, kutusunda MacBook Pro M3 Pro 16GB RAM, 512GB SSD. Faturalı ve garantili.',
         images: [
           'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-18',
         condition: 'Sıfır',
@@ -187,8 +187,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Tam donanımlı fitness ekipmanları seti. Dumbbell seti, bench press, squat rack ve ağırlık plakaları dahil.',
         images: [
           'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-19',
         condition: 'İkinci El',
@@ -225,7 +225,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Wilson Pro Staff Tenis Raketi Seti. 2 adet raket, raket çantası ve 6 adet tenis topu dahil.',
         images: [
           'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-18',
         condition: 'Yeni',
@@ -265,8 +266,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Yeni, kullanılmamış L koltuk takımı. Gri renk, modern tasarım. Faturalı ve garantili.',
         images: [
           'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-18',
         condition: 'Yeni',
@@ -303,8 +304,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Siemens beyaz eşya seti. Buzdolabı, çamaşır makinesi, bulaşık makinesi ve fırın dahil. Faturalı ve garantili.',
         images: [
           'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-17',
         condition: 'Sıfır',
@@ -344,7 +345,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Üniversite öğrencilerine özel matematik dersi. Calculus, lineer cebir ve diferansiyel denklemler konularında uzman.',
         images: [
           'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-17',
         condition: 'Hizmet',
@@ -381,7 +383,8 @@ const listings: Record<CategorySlug, Record<SubCategorySlug, Listing[]>> = {
         description: 'Profesyonel temizlik hizmeti. Ev ve ofis temizliği. Referanslı ve deneyimli ekip.',
         images: [
           'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=60',
-          'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=60'
+          'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=60&h=800',
+          'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&fit=crop&q=60&h=800&crop=faces'
         ],
         date: '2024-03-16',
         condition: 'Hizmet',
@@ -572,6 +575,10 @@ export default function SubCategoryPage() {
                     priority={false}
                     className="object-cover transition-transform group-hover:scale-105"
                     quality={85}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/images/placeholder.jpg';
+                    }}
                   />
                   {listing.condition === 'Yeni' && (
                     <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
