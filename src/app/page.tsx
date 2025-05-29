@@ -384,9 +384,9 @@ const featuredListings: Listing[] = [
     subcategory: 'Telefon',
     description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
     images: [
-      'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+1&font=roboto',
-      'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+2&font=roboto',
-      'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+3&font=roboto'
+      'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1663703841896',
+      'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1663703841896',
+      'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1663703841896'
     ],
     date: '2024-03-20',
     condition: 'Sıfır',
@@ -421,9 +421,9 @@ const featuredListings: Listing[] = [
     subcategory: 'Fitness',
     description: 'Tam donanımlı fitness ekipmanları seti. Dumbbell seti, bench press, squat rack ve ağırlık plakaları dahil.',
     images: [
-      'https://placehold.co/800x600/1e293b/ffffff?text=Fitness+Set+1&font=roboto',
-      'https://placehold.co/800x600/1e293b/ffffff?text=Fitness+Set+2&font=roboto',
-      'https://placehold.co/800x600/1e293b/ffffff?text=Fitness+Set+3&font=roboto'
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1000&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1000&auto=format&fit=crop'
     ],
     date: '2024-03-19',
     condition: 'İkinci El',
@@ -458,9 +458,9 @@ const featuredListings: Listing[] = [
     subcategory: 'Mobilya',
     description: 'Yeni, kullanılmamış L koltuk takımı. Gri renk, modern tasarım. Faturalı ve garantili.',
     images: [
-      'https://placehold.co/800x600/1e293b/ffffff?text=L+Koltuk+1&font=roboto',
-      'https://placehold.co/800x600/1e293b/ffffff?text=L+Koltuk+2&font=roboto',
-      'https://placehold.co/800x600/1e293b/ffffff?text=L+Koltuk+3&font=roboto'
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop'
     ],
     date: '2024-03-18',
     condition: 'Yeni',
@@ -495,8 +495,8 @@ const featuredListings: Listing[] = [
     subcategory: 'Özel Ders',
     description: 'Üniversite öğrencilerine özel matematik dersi. Calculus, lineer cebir ve diferansiyel denklemler konularında uzman.',
     images: [
-      'https://placehold.co/800x600/1e293b/ffffff?text=Matematik+Dersi+1&font=roboto',
-      'https://placehold.co/800x600/1e293b/ffffff?text=Matematik+Dersi+2&font=roboto'
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1000&auto=format&fit=crop'
     ],
     date: '2024-03-17',
     condition: 'Hizmet',
