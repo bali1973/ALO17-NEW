@@ -251,6 +251,7 @@ export default function AddListingPage() {
     phone: '',
     email: '',
     isPremium: false,
+    showPhone: true,
   });
 
   // Seçili kategorinin alt kategorilerini bul
@@ -542,35 +543,61 @@ export default function AddListingPage() {
           {/* İletişim Bilgileri */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-semibold text-alo-dark mb-4">İletişim Bilgileri</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Telefon *
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-alo-orange focus:border-alo-orange"
-                  placeholder="05XX XXX XX XX"
-                  required
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Telefon *
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-alo-orange focus:border-alo-orange"
+                    placeholder="05XX XXX XX XX"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    E-posta *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-alo-orange focus:border-alo-orange"
+                    placeholder="ornek@email.com"
+                    required
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  E-posta *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-alo-orange focus:border-alo-orange"
-                  placeholder="ornek@email.com"
-                  required
-                />
+              {/* Telefon Görünürlüğü Seçeneği */}
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg mt-4">
+                <div className="flex items-center space-x-4">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.showPhone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, showPhone: e.target.checked }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-alo-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-alo-orange"></div>
+                  </label>
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">Telefon Numarası Görünürlüğü</span>
+                    <p className="text-sm text-gray-500">Telefon numaranız ilan detay sayfasında görünsün mü?</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className={`text-sm font-medium ${formData.showPhone ? 'text-green-600' : 'text-gray-500'}`}>
+                    {formData.showPhone ? 'Görünür' : 'Gizli'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
