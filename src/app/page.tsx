@@ -18,6 +18,7 @@ import {
   type PremiumFeature 
 } from '@/types/listings';
 import { categories as categoryList } from '@/types/categories';
+import { useRouter } from 'next/navigation';
 
 // Kategoriler
 const categories: Category[] = [
@@ -598,6 +599,7 @@ export default function Home() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [previewListing, setPreviewListing] = useState<Listing | null>(null);
+  const router = useRouter();
 
   const handleListingSubmit = (listing: Listing) => {
     if (listing.type === listingTypes.PREMIUM) {
@@ -609,7 +611,13 @@ export default function Home() {
   };
 
   const handlePremiumPurchase = async (listing: Listing) => {
-    // Ödeme sayfasına yönlendir (API çağrısı yapılacak)
+    try {
+      // Ödeme sayfasına yönlendir
+      router.push(`/odeme?listingId=${listing.id}`);
+    } catch (error) {
+      console.error('Ödeme başlatma hatası:', error);
+      // Hata durumunda kullanıcıya bilgi ver
+    }
   };
 
   const handleFavoriteToggle = (listingId: number) => {
@@ -855,7 +863,7 @@ export default function Home() {
                   onClick={() => handlePremiumPurchase(previewListing)}
                   className="px-6 py-2 bg-alo-orange text-white rounded-lg hover:bg-alo-light-orange"
                 >
-                  Satın Al
+                  Ödemeye Geç
                 </button>
               </div>
             </div>
