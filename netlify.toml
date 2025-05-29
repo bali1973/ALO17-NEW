@@ -4,7 +4,17 @@
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+  NEXT_USE_NETLIFY_EDGE = "true"
+  NEXT_PRIVATE_TARGET = "server"
+
+[build.processing]
+  skip_processing = false
+  css = { bundle = true, minify = true }
+  js = { bundle = true, minify = true }
+  images = { compress = true }
+  html = { pretty_urls = true }
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -16,4 +26,5 @@
 
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild" 
+  node_bundler = "esbuild"
+  external_node_modules = ["@netlify/plugin-nextjs"] 
