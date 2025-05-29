@@ -17,6 +17,7 @@ import {
   type Seller,
   type PremiumFeature 
 } from '@/types/listings';
+import { categories as categoryList } from '@/types/categories';
 
 // Kategoriler
 const categories: Category[] = [
@@ -374,7 +375,6 @@ const categories: Category[] = [
 
 // Örnek veriler
 const featuredListings: Listing[] = [
-  // Elektronik - Telefon
   {
     id: 1,
     title: 'iPhone 14 Pro Max 256GB',
@@ -384,9 +384,9 @@ const featuredListings: Listing[] = [
     subcategory: 'Telefon',
     description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
     images: [
-      'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1663703841896',
-      'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1663703841896',
-      'https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-finish-select-202209-6-7inch-deeppurple?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1663703841896'
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60'
     ],
     date: '2024-03-20',
     condition: 'Sıfır',
@@ -400,7 +400,7 @@ const featuredListings: Listing[] = [
       name: 'Ahmet Yılmaz',
       rating: 4.8,
       memberSince: '2023-01-15',
-      phone: '0532 123 4567',
+      phone: '',
       isVerified: true,
     },
     premiumFeatures: {
@@ -540,7 +540,7 @@ const premiumFeatures = {
   ],
 };
 
-export default function HomePage() {
+export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
@@ -567,142 +567,178 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-alo-light">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-alo-blue via-alo-light-blue to-alo-blue">
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="max-w-4xl mx-auto text-center text-white">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              ALO17.TR
+      <section className="bg-gradient-to-r from-alo-blue to-alo-light-blue text-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              Alo17 ile Alışverişin Yeni Adresi
             </h1>
-            <p className="text-xl md:text-2xl mb-12 text-white/90">
-              Türkiye'nin En Büyük İlan Platformu
+            <p className="text-lg md:text-xl text-white/90 mb-8">
+              İkinci el alışverişin en güvenli ve kolay yolu. Binlerce ilan arasından size en uygun olanı bulun.
             </p>
-            
-            {/* Arama Kutusu */}
-            <div className="bg-white rounded-xl p-2 shadow-xl">
-              <div className="flex flex-col md:flex-row gap-2">
-                <input
-                  type="text"
-                  placeholder="Ne aramıştınız?"
-                  className="flex-1 px-6 py-4 rounded-lg text-alo-dark focus:outline-none focus:ring-2 focus:ring-alo-orange text-lg"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button className="bg-alo-orange hover:bg-alo-light-orange px-8 py-4 rounded-lg font-semibold transition-colors text-lg whitespace-nowrap text-white">
-                  İlan Ara
-                </button>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/ilan-ver"
+                className="bg-alo-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-alo-light-orange transition-colors text-center"
+              >
+                İlan Ver
+              </Link>
+              <Link
+                href="/kategoriler"
+                className="bg-white text-alo-blue px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-center"
+              >
+                Kategorileri Keşfet
+              </Link>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Kategoriler */}
-      <div className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Kategoriler</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/kategori/${category.slug}`}
-              className="group"
-            >
-              <div className="bg-white rounded-lg shadow-md p-6 text-center transition-transform hover:scale-105">
-                <div className="text-4xl mb-4">{category.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600">
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-alo-dark mb-8 text-center">Kategoriler</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {categoryList.map((category) => (
+              <Link
+                key={category.id}
+                href={`/kategori/${category.slug}`}
+                className="bg-white rounded-xl p-6 text-center hover:shadow-md transition-shadow group"
+              >
+                <span className="text-4xl mb-3 block group-hover:scale-110 transition-transform">
+                  {category.icon}
+                </span>
+                <h3 className="font-semibold text-alo-dark group-hover:text-alo-orange transition-colors">
                   {category.name}
                 </h3>
-              </div>
-            </Link>
-          ))}
+                <p className="text-sm text-gray-500 mt-1">
+                  {category.subcategories.length} alt kategori
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Öne Çıkan İlanlar */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-alo-dark">Öne Çıkan İlanlar</h2>
-          <Link 
-            href="/ilanlar" 
-            className="text-alo-orange hover:text-alo-light-orange font-semibold"
-          >
-            Tümünü Gör →
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredListings.map((listing) => (
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-              <Link href={`/listing/${listing.id}`}>
-                <div className="relative aspect-[4/3]">
-                  {listing.images && listing.images.length > 0 ? (
-                    <Image
-                      src={listing.images[0]}
-                      alt={listing.title}
-                      fill
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                      <span className="text-gray-400">Görsel yok</span>
-                    </div>
-                  )}
-                  {listing.condition === 'Yeni' && (
-                    <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
-                      Yeni
-                    </span>
-                  )}
-                  {listing.premiumFeatures?.isActive && (
-                    <span className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs">
-                      Premium
-                    </span>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
-                  <p className="text-xl font-bold text-alo-red mb-2">{listing.price} TL</p>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>{listing.location}</span>
-                    <span>{new Date(listing.date).toLocaleDateString('tr-TR')}</span>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
-                    <span>{listing.seller.name}</span>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Neden Biz */}
-      <div className="bg-alo-light py-16">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-alo-dark mb-12 text-center">Neden ALO17.TR?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature) => (
-              <div key={feature.id} className="bg-white p-6 rounded-xl shadow-md text-center">
-                <div className="text-4xl mb-4 text-alo-blue">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-alo-dark">Öne Çıkan İlanlar</h2>
+            <Link
+              href="/tum-ilanlar"
+              className="text-alo-orange hover:text-alo-light-orange font-semibold"
+            >
+              Tümünü Gör →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {featuredListings.map((listing) => (
+              <div key={listing.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <Link href={`/ilan/${listing.id}`}>
+                  <div className="relative aspect-[4/3]">
+                    {listing.images && listing.images.length > 0 ? (
+                      <Image
+                        src={listing.images[0]}
+                        alt={listing.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                        <span className="text-gray-400">Görsel yok</span>
+                      </div>
+                    )}
+                    {listing.condition === 'Yeni' && (
+                      <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+                        Yeni
+                      </span>
+                    )}
+                    {listing.premiumFeatures?.isActive && (
+                      <span className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs">
+                        Premium
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
+                    <p className="text-xl font-bold text-alo-red mb-2">{listing.price} TL</p>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>{listing.location}</span>
+                      <span>{new Date(listing.date).toLocaleDateString('tr-TR')}</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
+                      <span>{listing.seller.name}</span>
+                      <span>{listing.views} görüntülenme</span>
+                    </div>
+                  </div>
+                </Link>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Neden Alo17? */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-alo-dark mb-12 text-center">Neden Alo17?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-alo-light-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🔒</span>
+              </div>
+              <h3 className="font-semibold text-alo-dark mb-2">Güvenli Alışveriş</h3>
+              <p className="text-gray-600">
+                Doğrulanmış kullanıcılar ve güvenli ödeme seçenekleri ile güvenle alışveriş yapın.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-alo-light-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <h3 className="font-semibold text-alo-dark mb-2">Hızlı ve Kolay</h3>
+              <p className="text-gray-600">
+                Basit arayüz ve gelişmiş filtreleme özellikleri ile aradığınızı hızlıca bulun.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-alo-light-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">💎</span>
+              </div>
+              <h3 className="font-semibold text-alo-dark mb-2">Premium İlanlar</h3>
+              <p className="text-gray-600">
+                Premium ilanlar ile ürününüzü öne çıkarın ve daha fazla alıcıya ulaşın.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-alo-light-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📱</span>
+              </div>
+              <h3 className="font-semibold text-alo-dark mb-2">Mobil Uyumlu</h3>
+              <p className="text-gray-600">
+                Tüm cihazlardan kolayca erişin ve alışverişinizi mobil olarak yönetin.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-alo-orange to-alo-light-orange text-white py-20">
+      <section className="py-16 bg-alo-blue text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">İlanınızı Hemen Verin!</h2>
-          <p className="text-xl mb-8 text-white/90">Binlerce potansiyel alıcıya ulaşın</p>
+          <h2 className="text-3xl font-bold mb-4">Hemen İlan Verin!</h2>
+          <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+            Ürünlerinizi satışa çıkarın, binlerce potansiyel alıcıya ulaşın ve güvenle alışveriş yapın.
+          </p>
           <Link
             href="/ilan-ver"
-            className="bg-white text-alo-orange px-8 py-4 rounded-lg font-semibold hover:bg-alo-light transition-colors inline-block text-lg"
+            className="inline-block bg-alo-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-alo-light-orange transition-colors"
           >
             Ücretsiz İlan Ver
           </Link>
         </div>
-      </div>
+      </section>
 
       {/* Premium Modal */}
       {showPremiumModal && previewListing && (
@@ -765,24 +801,3 @@ export default function HomePage() {
     </main>
   );
 } 
-
-const features = [
-  {
-    id: 1,
-    icon: '🔒',
-    title: 'Güvenli Alışveriş',
-    description: 'Güvenli ödeme sistemi ve doğrulanmış ilanlar ile güvenle alışveriş yapın.',
-  },
-  {
-    id: 2,
-    icon: '⚡',
-    title: 'Hızlı İlan',
-    description: 'Birkaç dakika içinde ilanınızı oluşturun ve binlerce alıcıya ulaşın.',
-  },
-  {
-    id: 3,
-    icon: '📱',
-    title: 'Mobil Uyumlu',
-    description: 'Tüm cihazlardan kolayca erişin ve ilanlarınızı yönetin.',
-  },
-]; 
