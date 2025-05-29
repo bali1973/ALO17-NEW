@@ -373,8 +373,49 @@ const categories: Category[] = [
   },
 ];
 
+const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjQwMCIgeT0iMzAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Hw7Zyc2VsIFlvayA8L3RleHQ+PC9zdmc+';
+
 // Örnek veriler
 const featuredListings: Listing[] = [
+  // HemenAlgetir.com - İlk sırada göster
+  {
+    id: 1001,
+    title: 'HemenAlgetir.com - Online Gıda ve İçecek Alışverişi',
+    price: '0',
+    location: 'Türkiye Geneli',
+    category: 'Catering & Ticaret',
+    subcategory: 'İçecek',
+    description: 'HemenAlgetir.com ile tüm gıda ve içecek ihtiyaçlarınızı online olarak sipariş edin! Geniş ürün yelpazesi, hızlı teslimat ve uygun fiyatlarla hizmetinizdeyiz. Taze meyve sebzeler, süt ürünleri, et ürünleri, içecekler ve daha fazlası için hemen sitemizi ziyaret edin!',
+    images: [
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+      'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
+    ],
+    date: '2024-03-21',
+    condition: 'Reklam',
+    type: listingTypes.PREMIUM,
+    status: listingStatus.ACTIVE,
+    showPhone: true,
+    isFavorite: false,
+    views: 0,
+    favorites: 0,
+    seller: {
+      name: 'HemenAlgetir.com',
+      rating: 5.0,
+      memberSince: '2024-03-21',
+      phone: '',
+      isVerified: true,
+    },
+    premiumFeatures: {
+      isActive: true,
+      expiresAt: '2025-12-31',
+      isHighlighted: true,
+      isFeatured: true,
+      isUrgent: false,
+    },
+    externalLink: 'https://hemenalgetir.com'
+  },
+  // iPhone 14 Pro Max
   {
     id: 1,
     title: 'iPhone 14 Pro Max 256GB',
@@ -384,9 +425,9 @@ const featuredListings: Listing[] = [
     subcategory: 'Telefon',
     description: 'Sıfır, kutusunda iPhone 14 Pro Max 256GB. Faturalı ve garantili.',
     images: [
-      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
-      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60',
-      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&auto=format&fit=crop&q=60'
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+      'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
     ],
     date: '2024-03-20',
     condition: 'Sıfır',
@@ -411,7 +452,7 @@ const featuredListings: Listing[] = [
       isUrgent: false,
     },
   },
-  // Spor - Fitness
+  // Fitness Ekipmanları
   {
     id: 2,
     title: 'Profesyonel Fitness Ekipmanları Seti',
@@ -421,9 +462,9 @@ const featuredListings: Listing[] = [
     subcategory: 'Fitness',
     description: 'Tam donanımlı fitness ekipmanları seti. Dumbbell seti, bench press, squat rack ve ağırlık plakaları dahil.',
     images: [
-      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
     ],
     date: '2024-03-19',
     condition: 'İkinci El',
@@ -448,7 +489,7 @@ const featuredListings: Listing[] = [
       isUrgent: true,
     },
   },
-  // Ev & Yaşam - Mobilya
+  // L Koltuk Takımı
   {
     id: 3,
     title: 'Modern L Koltuk Takımı',
@@ -458,9 +499,9 @@ const featuredListings: Listing[] = [
     subcategory: 'Mobilya',
     description: 'Yeni, kullanılmamış L koltuk takımı. Gri renk, modern tasarım. Faturalı ve garantili.',
     images: [
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
     ],
     date: '2024-03-18',
     condition: 'Yeni',
@@ -642,11 +683,23 @@ export default function Home() {
                         src={listing.images[0]}
                         alt={listing.title}
                         fill
-                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform group-hover:scale-105"
+                        quality={85}
+                        priority={false}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = placeholderImage;
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                        <span className="text-gray-400">Görsel yok</span>
+                        <Image
+                          src={placeholderImage}
+                          alt="Görsel yok"
+                          fill
+                          className="object-contain p-4"
+                        />
                       </div>
                     )}
                     {listing.condition === 'Yeni' && (

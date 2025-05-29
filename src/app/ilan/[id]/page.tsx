@@ -8,6 +8,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
 
+const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjQwMCIgeT0iMzAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Hw7Zyc2VsIFlvayA8L3RleHQ+PC9zdmc+';
+
 // Örnek veri
 const listing = {
   id: 1,
@@ -30,9 +32,9 @@ const listing = {
     '5G Desteği',
   ],
   images: [
-    'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+1&font=roboto',
-    'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+2&font=roboto',
-    'https://placehold.co/800x600/1e293b/ffffff?text=iPhone+14+Pro+Max+3&font=roboto',
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=faces',
+    'https://images.unsplash.com/photo-1678652197831-2d1808eecd76?w=800&h=600&auto=format&fit=crop&q=80&crop=entropy'
   ],
   seller: {
     name: 'Ahmet Yılmaz',
@@ -121,7 +123,14 @@ export default function ListingDetail() {
                     src={imageUrl}
                     alt={`${listing.title} - Fotoğraf ${index + 1}`}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover rounded-lg transition-transform group-hover:scale-105"
+                    quality={85}
+                    priority={index === 0}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = placeholderImage;
+                    }}
                   />
                   {listing.isPremium && index === 0 && (
                     <div className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs font-semibold">
