@@ -9,7 +9,7 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const handler = NextAuth({
+const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -79,10 +79,12 @@ const handler = NextAuth({
       return token;
     }
   }
-});
+};
 
-// Next.js 13+ app router uyumlu export
-const GET = handler;
-const POST = handler;
+// Next.js 13+ app router uyumlu handler
+const handler = (req: Request, res: Response) => {
+  // @ts-expect-error NextAuth expects Node.js req/res, Next.js app router ise Web API kullanıyor
+  return NextAuth(authOptions)(req, res);
+};
 
-export { GET, POST }; 
+export { handler as GET, handler as POST }; 
