@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import NextAuth from "next-auth";
+import NextAuth, { DefaultSession, DefaultUser, Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -8,6 +9,18 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
+
+// Session ve User tiplerini genişlet
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+    } & DefaultSession["user"]
+  }
+  interface User extends DefaultUser {
+    id: string;
+  }
+}
 
 const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -66,15 +79,15 @@ const authOptions = {
     error: "/giris/hata",
   },
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        (session.user as any).id = token.sub!;
+        session.user.id = token.sub!;
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user: any }) {
       if (user) {
-        token.id = (user as any).id;
+        token.id = user.id;
       }
       return token;
     }
