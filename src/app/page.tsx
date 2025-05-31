@@ -637,13 +637,13 @@ export default function Home() {
               İkinci el alışverişin en güvenli ve kolay yolu. Binlerce ilan arasından size en uygun olanı bulun.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
+              <Link 
                 href="/ilan-ver"
                 className="bg-alo-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-alo-light-orange transition-colors text-center"
               >
                 İlan Ver
               </Link>
-              <Link
+              <Link 
                 href="/kategoriler"
                 className="bg-white text-alo-blue px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-center"
               >
@@ -660,7 +660,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-alo-dark mb-8 text-center">Kategoriler</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {categoryList.map((category) => (
-              <Link
+            <Link 
                 key={category.id}
                 href={`/kategori/${category.slug}`}
                 className="bg-white rounded-xl p-6 text-center hover:shadow-md transition-shadow group"
@@ -674,7 +674,7 @@ export default function Home() {
                 <p className="text-sm text-gray-500 mt-1">
                   {category.subcategories.length} alt kategori
                 </p>
-              </Link>
+            </Link>
             ))}
           </div>
         </div>
@@ -685,7 +685,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-alo-dark">Öne Çıkan İlanlar</h2>
-            <Link
+            <Link 
               href="/tum-ilanlar"
               className="text-alo-orange hover:text-alo-light-orange font-semibold"
             >
@@ -718,8 +718,8 @@ export default function Home() {
                           alt="Görsel yok"
                           fill
                           className="object-contain p-4"
-                        />
-                      </div>
+                  />
+                </div>
                     )}
                     {listing.condition === 'Yeni' && (
                       <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs">
@@ -728,22 +728,22 @@ export default function Home() {
                     )}
                     {listing.premiumFeatures?.isActive && (
                       <span className="absolute top-2 left-2 bg-alo-orange text-white px-2 py-1 rounded-full text-xs">
-                        Premium
+                  Premium
                       </span>
                     )}
-                  </div>
-                  <div className="p-4">
+              </div>
+              <div className="p-4">
                     <h3 className="font-semibold text-alo-dark line-clamp-2 mb-2">{listing.title}</h3>
                     <p className="text-xl font-bold text-alo-red mb-2">{listing.price} TL</p>
                     <div className="flex items-center justify-between text-sm text-gray-500">
                       <span>{listing.location}</span>
                       <span>{new Date(listing.date).toLocaleDateString('tr-TR')}</span>
-                    </div>
+              </div>
                     <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
                       <span>{listing.seller.name}</span>
                       <span>{listing.views} görüntülenme</span>
-                    </div>
-                  </div>
+                </div>
+              </div>
                 </Link>
               </div>
             ))}
@@ -803,13 +803,13 @@ export default function Home() {
           <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
             Ürünlerinizi satışa çıkarın, binlerce potansiyel alıcıya ulaşın ve güvenle alışveriş yapın.
           </p>
-          <Link
+              <Link 
             href="/ilan-ver"
             className="inline-block bg-alo-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-alo-light-orange transition-colors"
-          >
+              >
             Ücretsiz İlan Ver
-          </Link>
-        </div>
+              </Link>
+            </div>
       </section>
 
       {/* Premium Modal */}
@@ -848,10 +848,10 @@ export default function Home() {
               </ul>
             </div>
             <div className="flex justify-between items-center">
-              <div>
+            <div>
                 <p className="text-2xl font-bold text-alo-orange">{premiumFeatures.price} TL</p>
                 <p className="text-sm text-gray-600">{premiumFeatures.duration} gün geçerli</p>
-              </div>
+            </div>
               <div className="space-x-4">
                 <button
                   onClick={() => setShowPremiumModal(false)}
