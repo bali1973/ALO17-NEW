@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import NextAuth, { DefaultSession, DefaultUser, Session } from "next-auth";
+import NextAuth, { DefaultSession, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
@@ -17,8 +17,10 @@ declare module "next-auth" {
       id: string;
     } & DefaultSession["user"]
   }
-  interface User extends DefaultUser {
+  interface User {
     id: string;
+    email: string;
+    name?: string | null;
   }
 }
 
@@ -85,7 +87,7 @@ const authOptions = {
       }
       return session;
     },
-    async jwt({ token, user }: { token: JWT; user: any }) {
+    async jwt({ token, user }: { token: JWT; user: User | null }) {
       if (user) {
         token.id = user.id;
       }
