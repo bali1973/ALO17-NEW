@@ -81,7 +81,7 @@ export default function ListingDetail() {
             <div className="flex items-center">
               <span className="mx-2 text-gray-400">/</span>
               <span className="text-gray-500">{listing.title}</span>
-      </div>
+            </div>
           </li>
         </ol>
       </nav>
