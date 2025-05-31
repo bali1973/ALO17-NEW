@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     };
 
     // PayTR token oluştur
-    const hash_str = `${PAYTR_MERCHANT_ID}${user.ip}${merchant_oid}${user.email}${params.payment_amount}${user_basket}${params.no_installment}${params.max_installment}${params.currency}${params.test_mode}${PAYTR_MERCHANT_SALT}`;
+    const hash_str = `${PAYTR_MERCHANT_ID}${params.user_ip}${merchant_oid}${user.email}${params.payment_amount}${user_basket}${params.no_installment}${params.max_installment}${params.currency}${params.test_mode}${PAYTR_MERCHANT_SALT}`;
     const paytr_token = crypto.createHmac('sha256', PAYTR_MERCHANT_KEY).update(hash_str).digest('base64');
     
     params.paytr_token = paytr_token;
