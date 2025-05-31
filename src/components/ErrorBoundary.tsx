@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react'
 
 interface Props {
@@ -9,7 +11,7 @@ interface State {
   error?: Error
 }
 
-export default class ErrorBoundary extends React.Component<Props, State> {
+class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = { hasError: false }
@@ -36,7 +38,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+              className="w-full bg-alo-orange text-white py-2 px-4 rounded hover:bg-alo-light-orange transition-colors"
             >
               Sayfayı Yenile
             </button>
@@ -47,4 +49,6 @@ export default class ErrorBoundary extends React.Component<Props, State> {
 
     return this.props.children
   }
-} 
+}
+
+export default ErrorBoundary 
