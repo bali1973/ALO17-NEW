@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -136,79 +136,81 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto">
-          {/* Ödeme Özeti */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h1 className="text-2xl font-bold text-alo-dark mb-6">Ödeme Özeti</h1>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b">
-                <span className="text-gray-600">İlan Başlığı</span>
-                <span className="font-medium">{listing.title}</span>
-              </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            {/* Ödeme Özeti */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h1 className="text-2xl font-bold text-alo-dark mb-6">Ödeme Özeti</h1>
               
-              <div className="flex items-center justify-between py-3 border-b">
-                <span className="text-gray-600">Premium Üyelik</span>
-                <span className="font-medium">{listing.premiumFeatures.duration} Gün</span>
-              </div>
-              
-              <div className="flex items-center justify-between py-3 border-b">
-                <span className="text-gray-600">Premium Özellikler</span>
-                <ul className="text-right text-sm text-gray-600">
-                  <li>• 5 adet resim yükleme</li>
-                  <li>• İlan öne çıkarma</li>
-                  <li>• Premium rozeti</li>
-                  <li>• Detaylı istatistikler</li>
-                </ul>
-              </div>
-              
-              <div className="flex items-center justify-between py-3 border-b">
-                <span className="text-gray-600">Toplam Tutar</span>
-                <span className="text-xl font-bold text-alo-orange">{listing.premiumFeatures.price} TL</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Ödeme Formu */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-alo-dark mb-6">Ödeme Bilgileri</h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* PayTR iframe container */}
-              <div id="paytr-iframe-container" className="w-full h-[600px] border rounded-lg"></div>
-              
-              <div className="flex items-center justify-between pt-4 border-t">
-                <Link
-                  href="/"
-                  className="text-gray-600 hover:text-alo-orange"
-                >
-                  ← Vazgeç
-                </Link>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between py-3 border-b">
+                  <span className="text-gray-600">İlan Başlığı</span>
+                  <span className="font-medium">{listing.title}</span>
+                </div>
                 
-                <button
-                  type="submit"
-                  className="bg-alo-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-alo-light-orange transition-colors"
-                >
-                  Ödemeyi Tamamla
-                </button>
+                <div className="flex items-center justify-between py-3 border-b">
+                  <span className="text-gray-600">Premium Üyelik</span>
+                  <span className="font-medium">{listing.premiumFeatures.duration} Gün</span>
+                </div>
+                
+                <div className="flex items-center justify-between py-3 border-b">
+                  <span className="text-gray-600">Premium Özellikler</span>
+                  <ul className="text-right text-sm text-gray-600">
+                    <li>• 5 adet resim yükleme</li>
+                    <li>• İlan öne çıkarma</li>
+                    <li>• Premium rozeti</li>
+                    <li>• Detaylı istatistikler</li>
+                  </ul>
+                </div>
+                
+                <div className="flex items-center justify-between py-3 border-b">
+                  <span className="text-gray-600">Toplam Tutar</span>
+                  <span className="text-xl font-bold text-alo-orange">{listing.premiumFeatures.price} TL</span>
+                </div>
               </div>
-            </form>
-          </div>
-
-          {/* Güvenli Ödeme Bilgisi */}
-          <div className="mt-6 text-center text-sm text-gray-500">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span>256-bit SSL ile Güvenli Ödeme</span>
             </div>
-            <p>PayTR güvenli ödeme altyapısı kullanılmaktadır.</p>
+
+            {/* Ödeme Formu */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-semibold text-alo-dark mb-6">Ödeme Bilgileri</h2>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* PayTR iframe container */}
+                <div id="paytr-iframe-container" className="w-full h-[600px] border rounded-lg"></div>
+                
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <Link
+                    href="/"
+                    className="text-gray-600 hover:text-alo-orange"
+                  >
+                    ← Vazgeç
+                  </Link>
+                  
+                  <button
+                    type="submit"
+                    className="bg-alo-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-alo-light-orange transition-colors"
+                  >
+                    Ödemeyi Tamamla
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Güvenli Ödeme Bilgisi */}
+            <div className="mt-6 text-center text-sm text-gray-500">
+              <div className="flex items-center justify-center space-x-2 mb-2">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>256-bit SSL ile Güvenli Ödeme</span>
+              </div>
+              <p>PayTR güvenli ödeme altyapısı kullanılmaktadır.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 } 
