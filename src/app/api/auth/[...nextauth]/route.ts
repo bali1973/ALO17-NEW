@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
@@ -25,13 +26,15 @@ const handler = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Şifre", type: "password" }
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+      async authorize(credentials: Record<string, unknown> | undefined) {
+        const email = credentials?.email as string;
+        const password = credentials?.password as string;
+        if (!email || !password) {
           throw new Error("Email ve şifre gerekli");
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email }
         });
 
         if (!user || !user.password) {
@@ -39,7 +42,7 @@ const handler = NextAuth({
         }
 
         const isPasswordValid = await bcrypt.compare(
-          credentials.password,
+          password,
           user.password
         );
 
@@ -60,23 +63,25 @@ const handler = NextAuth({
   },
   pages: {
     signIn: "/giris",
-    signUp: "/kayit",
     error: "/giris/hata",
   },
   callbacks: {
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub!;
+        (session.user as any).id = token.sub!;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = (user as any).id;
       }
       return token;
     }
   }
 });
 
-export { handler as GET, handler as POST }; 
+const GET = handler;
+const POST = handler;
+
+export { GET, POST }; 
