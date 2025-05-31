@@ -25,12 +25,13 @@ export default function LoginPage() {
         email: formData.email,
         password: formData.password,
         redirect: false,
+        callbackUrl: '/',
       });
 
       if (result?.error) {
         setError(result.error);
-      } else {
-        router.push('/');
+      } else if (result?.url) {
+        router.push(result.url);
         router.refresh();
       }
     } catch (error) {
@@ -43,10 +44,12 @@ export default function LoginPage() {
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(true);
     try {
-      await signIn(provider, { callbackUrl: '/' });
+      await signIn(provider, { 
+        callbackUrl: '/',
+        redirect: true,
+      });
     } catch (error) {
       setError('Sosyal medya girişi sırasında bir hata oluştu.');
-    } finally {
       setIsLoading(false);
     }
   };
