@@ -40,7 +40,7 @@ export default function PaymentSuccessPage() {
         
         // İlanı yayınla
         if (data.verified) {
-          await fetch('/api/listings/publish', {
+          const publishResponse = await fetch('/api/listings/publish', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -50,6 +50,10 @@ export default function PaymentSuccessPage() {
               paymentId: merchant_oid,
             }),
           });
+
+          if (!publishResponse.ok) {
+            throw new Error('İlan yayınlanamadı');
+          }
         }
 
         setLoading(false);
@@ -60,7 +64,7 @@ export default function PaymentSuccessPage() {
     };
 
     verifyPayment();
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   if (loading) {
     return (
