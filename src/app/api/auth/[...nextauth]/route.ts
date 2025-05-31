@@ -81,6 +81,7 @@ const handler = NextAuth({
   }
 });
 
+// Next.js 13+ app router uyumlu export
 const GET = handler;
 const POST = handler;
 
