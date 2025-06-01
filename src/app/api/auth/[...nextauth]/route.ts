@@ -1,15 +1,12 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import NextAuth, { DefaultSession, Session, User } from "next-auth";
-import { JWT } from "next-auth/jwt";
-import GoogleProvider from "next-auth/providers/google";
-import AppleProvider from "next-auth/providers/apple";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { DefaultSession, NextAuthOptions } from 'next-auth';
+import NextAuth from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import AppleProvider from 'next-auth/providers/apple';
 import { compare } from 'bcryptjs';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { JWT } from 'next-auth/jwt';
 
 // Session ve User tiplerini genişlet
 declare module "next-auth" {
@@ -25,7 +22,7 @@ declare module "next-auth" {
   }
 }
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -78,25 +75,20 @@ const handler = NextAuth({
     error: '/login',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user: any }) {
       if (user) {
         token.id = user.id;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: JWT }) {
       if (session.user) {
         session.user.id = token.id as string;
       }
       return session;
     },
   },
-});
-
-// Next.js 13+ app router uyumlu handler
-const handler = (req: Request, res: Response) => {
-  // @ts-expect-error NextAuth expects Node.js req/res, Next.js app router ise Web API kullanıyor
-  return NextAuth(authOptions)(req, res);
 };
 
-export { handler as GET, handler as POST }; 
+// Next.js 13+ app router uyumlu handler
+export const { GET, POST } = NextAuth(authOptions); 
