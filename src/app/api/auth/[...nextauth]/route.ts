@@ -7,6 +7,7 @@ import AppleProvider from 'next-auth/providers/apple';
 import { compare } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { JWT } from 'next-auth/jwt';
+import { authOptions } from '@/lib/auth';
 
 // Session ve User tiplerini genişlet
 declare module "next-auth" {
@@ -22,7 +23,7 @@ declare module "next-auth" {
   }
 }
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -91,4 +92,5 @@ export const authOptions: NextAuthOptions = {
 };
 
 // Next.js 13+ app router uyumlu handler
-export const { GET, POST } = NextAuth(authOptions); 
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST }; 
