@@ -6,12 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  id        String         @id @default(cuid())
   email     String         @unique
   password  String
   name      String
@@ -23,7 +23,7 @@ model User {
 }
 
 model Listing {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  id          String         @id @default(cuid())
   title       String
   description String
   price       Float
@@ -36,15 +36,15 @@ model Listing {
   status      String         @default("active")
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  userId      String         @db.ObjectId
+  userId      String
   user        User           @relation(fields: [userId], references: [id])
   favoritedBy UserFavorite[]
 }
 
 model UserFavorite {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  listingId String   @db.ObjectId
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
   user      User     @relation(fields: [userId], references: [id])
   listing   Listing  @relation(fields: [listingId], references: [id])
   createdAt DateTime @default(now())
@@ -53,7 +53,7 @@ model UserFavorite {
 }
 
 model Category {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  id            String        @id @default(cuid())
   name          String        @unique
   slug          String        @unique
   subcategories SubCategory[]
@@ -62,10 +62,10 @@ model Category {
 }
 
 model SubCategory {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(cuid())
   name        String
   slug        String
-  categoryId  String   @db.ObjectId
+  categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
