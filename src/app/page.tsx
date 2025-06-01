@@ -19,6 +19,7 @@ import {
 } from '@/types/listings';
 import { categories as categoryList } from '@/types/categories';
 import { useRouter } from 'next/navigation';
+import { MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
 
 // Kategoriler
 const categories: Category[] = [
@@ -625,34 +626,61 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-alo-light">
+    <div className="min-h-screen bg-alo-light">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-alo-blue to-alo-light-blue text-white py-16">
-        <div className="container mx-auto px-4">
+      <div className="relative bg-alo-dark text-white">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/hero-bg.jpg"
+            alt="Hero Background"
+            fill
+            className="object-cover opacity-50"
+            priority
+          />
+        </div>
+        
+        <div className="relative container mx-auto px-4 py-16">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Alo17 ile Alışverişin Yeni Adresi
+              Alo17 ile İlan Ver, Alışveriş Yap
             </h1>
-            <p className="text-lg md:text-xl text-white/90 mb-8">
-              İkinci el alışverişin en güvenli ve kolay yolu. Binlerce ilan arasından size en uygun olanı bulun.
+            <p className="text-lg md:text-xl mb-8">
+              Türkiye'nin en güvenilir alışveriş platformunda ilan ver, alışveriş yap
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            
+            {/* Arama Çubuğu */}
+            <div className="flex items-center bg-white rounded-full p-2 mb-8">
+              <input
+                type="text"
+                placeholder="Ne aramıştınız?"
+                className="flex-1 px-4 py-2 text-gray-900 focus:outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button className="bg-alo-orange text-white px-6 py-2 rounded-full hover:bg-alo-dark-orange transition-colors">
+                <MagnifyingGlassIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Giriş ve Kayıt Butonları */}
+            <div className="flex items-center justify-center space-x-4">
               <Link 
-                href="/ilan-ver"
-                className="bg-alo-orange text-white px-8 py-3 rounded-lg font-semibold hover:bg-alo-light-orange transition-colors text-center"
+                href="/login" 
+                className="bg-alo-orange text-white px-8 py-3 rounded-full hover:bg-alo-dark-orange transition-colors flex items-center"
               >
-                İlan Ver
+                <UserIcon className="w-5 h-5 mr-2" />
+                Giriş Yap
               </Link>
               <Link 
-                href="/kategoriler"
-                className="bg-white text-alo-blue px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-center"
+                href="/register" 
+                className="bg-white text-alo-orange px-8 py-3 rounded-full hover:bg-gray-100 transition-colors"
               >
-                Kategorileri Keşfet
+                Kayıt Ol
               </Link>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Kategoriler */}
       <section className="py-16">
@@ -870,6 +898,6 @@ export default function Home() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 } 

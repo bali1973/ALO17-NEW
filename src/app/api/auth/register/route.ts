@@ -1,52 +1,25 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { hash } from 'bcryptjs';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email, password } = await req.json();
 
-    // Gerekli alanların kontrolü
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { message: 'Tüm alanlar zorunludur' },
-        { status: 400 }
-      );
-    }
-
-    // Email formatı kontrolü
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { message: 'Geçersiz email formatı' },
-        { status: 400 }
-      );
-    }
-
-    // Şifre uzunluğu kontrolü
-    if (password.length < 6) {
-      return NextResponse.json(
-        { message: 'Şifre en az 6 karakter olmalıdır' },
-        { status: 400 }
-      );
-    }
-
-    // Email benzersizlik kontrolü
+    // E-posta kontrolü
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { message: 'Bu email adresi zaten kullanımda' },
+        { message: 'Bu e-posta adresi zaten kullanılıyor' },
         { status: 400 }
       );
     }
 
     // Şifreyi hashle
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hash(password, 12);
 
     // Kullanıcıyı oluştur
     const user = await prisma.user.create({

@@ -1,31 +1,12 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import NextAuth, { DefaultSession, Session, User } from "next-auth";
-import { JWT } from "next-auth/jwt";
-import GoogleProvider from "next-auth/providers/google";
-import AppleProvider from "next-auth/providers/apple";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import AppleProvider from 'next-auth/providers/apple';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { prisma } from '@/lib/prisma';
 import { compare } from 'bcryptjs';
 
-const prisma = new PrismaClient();
-
-// Session ve User tiplerini genişlet
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-    } & DefaultSession["user"]
-  }
-  interface User {
-    id: string;
-    email: string;
-    name?: string | null;
-  }
-}
-
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -91,12 +72,4 @@ const handler = NextAuth({
       return session;
     },
   },
-});
-
-// Next.js 13+ app router uyumlu handler
-const handler = (req: Request, res: Response) => {
-  // @ts-expect-error NextAuth expects Node.js req/res, Next.js app router ise Web API kullanıyor
-  return NextAuth(authOptions)(req, res);
-};
-
-export { handler as GET, handler as POST }; 
+}; 
