@@ -23,6 +23,7 @@ model User {
   sessions      Session[]
   listings      Listing[]
   coupons       Coupon[]  @relation("UserCoupons")
+  favorites     UserFavorite[]
 }
 
 model Account {
@@ -81,14 +82,15 @@ model Listing {
   updatedAt   DateTime @updatedAt
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  favoritedBy UserFavorite[]
 }
 
 model UserFavorite {
   id        String   @id @default(cuid())
   userId    String
   listingId String
-  user      User     @relation(fields: [userId], references: [id])
-  listing   Listing  @relation(fields: [listingId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([userId, listingId])
