@@ -16,11 +16,10 @@ export async function POST(request: Request) {
     const updatedListing = await prisma.listing.update({
       where: { id: listingId },
       data: {
-        status: 'active',
+        // status: 'active',
         // Premium özellikleri örnek olarak ekleniyor
         // İsterseniz premium alanlarını şemaya ekleyebilirsiniz
         // isPremium: true,
-        // premiumExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         updatedAt: new Date(),
       },
     });
