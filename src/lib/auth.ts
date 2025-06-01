@@ -6,6 +6,7 @@ import AppleProvider from 'next-auth/providers/apple';
 import { compare } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { JWT } from 'next-auth/jwt';
+import NextAuth from 'next-auth';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -73,4 +74,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-}; 
+};
+
+export const { auth, signIn, signOut } = NextAuth(authOptions); 
