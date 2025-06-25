@@ -7,10 +7,11 @@ import { LatestAds } from '@/components/latest-ads'
 
 export default function SubCategoryPage() {
   const params = useParams()
-  const { slug, subslug } = params
+  const slug = params?.slug as string;
+  const subslug = params?.subslug as string;
 
   const category = categories.find(cat => cat.slug === slug)
-  const subcategory = category?.subcategories.find(sub => sub.slug === subslug)
+  const subcategory = category?.subcategories?.find(sub => sub.slug === subslug)
 
   if (!category || !subcategory) {
     return <div>Kategori bulunamadı</div>

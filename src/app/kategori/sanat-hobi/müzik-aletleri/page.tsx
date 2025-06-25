@@ -6,47 +6,42 @@ import { ListingCard } from '@/components/listing-card'
 import { useState } from 'react'
 
 export default function MusicalInstrumentsCategoryPage() {
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [priceRange, setPriceRange] = useState<string | null>(null)
-  const [category, setCategory] = useState<string | null>(null)
-  const [condition, setCondition] = useState<string | null>(null)
+  const [features, setFeatures] = useState<string[]>([])
 
-  // Müzik aletlerini filtrele
+  // Müzik aletleri ilanlarını filtrele
   const instrumentListings = listings.filter(listing => 
     listing.category === 'sanat-hobi' && 
     listing.subcategory === 'müzik-aletleri'
   )
 
-  // Markaları topla
-  const brands = Array.from(new Set(instrumentListings.map(listing => listing.brand)))
-
-  // Kategorileri topla
-  const categories = Array.from(new Set(instrumentListings.map(listing => listing.type)))
-
-  // Filtreleme fonksiyonu
+  // Filter listings based on selected filters
   const filteredListings = instrumentListings.filter(listing => {
-    if (selectedBrand && listing.brand !== selectedBrand) return false
-    if (category && listing.type !== category) return false
-    if (condition && listing.condition !== condition) return false
+    if (selectedLocation && listing.location !== selectedLocation) return false
+    if (features.length > 0 && !features.every(feature => listing.features.includes(feature))) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
       switch (priceRange) {
-        case '0-1000':
-          if (price > 1000) return false
+        case '0-500':
+          if (price > 500) return false
           break
-        case '1000-5000':
-          if (price < 1000 || price > 5000) return false
+        case '500-2000':
+          if (price < 500 || price > 2000) return false
           break
-        case '5000-10000':
-          if (price < 5000 || price > 10000) return false
+        case '2000-5000':
+          if (price < 2000 || price > 5000) return false
           break
-        case '10000+':
-          if (price < 10000) return false
+        case '5000+':
+          if (price < 5000) return false
           break
       }
     }
     return true
   })
+
+  // Get unique locations for filter
+  const locations = Array.from(new Set(instrumentListings.map(listing => listing.location)))
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -63,68 +58,19 @@ export default function MusicalInstrumentsCategoryPage() {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
             
-            {/* Marka Filtresi */}
+            {/* Location Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Marka</h3>
+              <h3 className="font-medium mb-2">Lokasyon</h3>
               <div className="space-y-2">
-                {brands.map(brand => (
-                  <label key={brand} className="flex items-center">
+                {locations.map(location => (
+                  <label key={location} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={selectedBrand === brand}
-                      onChange={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
+                      checked={selectedLocation === location}
+                      onChange={() => setSelectedLocation(selectedLocation === location ? '' : location)}
                     />
-                    <span>{brand}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Kategori Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Kategori</h3>
-              <div className="space-y-2">
-                {[
-                  'Gitar',
-                  'Piyano',
-                  'Davul',
-                  'Keman',
-                  'Flüt',
-                  'Saksafon',
-                  'Org',
-                  'Bateri',
-                  'Bağlama',
-                  'Ud',
-                  'Kanun',
-                  'Diğer'
-                ].map(cat => (
-                  <label key={cat} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={category === cat}
-                      onChange={() => setCategory(category === cat ? null : cat)}
-                    />
-                    <span>{cat}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Durum Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Durum</h3>
-              <div className="space-y-2">
-                {['Yeni', 'İkinci El'].map(status => (
-                  <label key={status} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={condition === status}
-                      onChange={() => setCondition(condition === status ? null : status)}
-                    />
-                    <span>{status}</span>
+                    <span>{location}</span>
                   </label>
                 ))}
               </div>
@@ -135,10 +81,10 @@ export default function MusicalInstrumentsCategoryPage() {
               <h3 className="font-medium mb-2">Fiyat Aralığı</h3>
               <div className="space-y-2">
                 {[
-                  { value: '0-1000', label: '0 - 1.000 TL' },
-                  { value: '1000-5000', label: '1.000 - 5.000 TL' },
-                  { value: '5000-10000', label: '5.000 - 10.000 TL' },
-                  { value: '10000+', label: '10.000 TL ve üzeri' }
+                  { value: '0-500', label: '0 - 500 TL' },
+                  { value: '500-2000', label: '500 - 2.000 TL' },
+                  { value: '2000-5000', label: '2.000 - 5.000 TL' },
+                  { value: '5000+', label: '5.000 TL ve üzeri' }
                 ].map(range => (
                   <label key={range.value} className="flex items-center">
                     <input

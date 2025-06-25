@@ -6,22 +6,20 @@ import { ListingCard } from '@/components/listing-card'
 import { useState } from 'react'
 
 export default function HobbyCoursesCategoryPage() {
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [priceRange, setPriceRange] = useState<string | null>(null)
-  const [location, setLocation] = useState<string | null>(null)
   const [features, setFeatures] = useState<string[]>([])
 
-  // Hobi kurslarını filtrele
-  const courseListings = listings.filter(listing => 
+  // Hobi kursları ilanlarını filtrele
+  const hobbyCourseListings = listings.filter(listing => 
     listing.category === 'sanat-hobi' && 
     listing.subcategory === 'hobi-kursları'
   )
 
-  // Filtreleme fonksiyonu
-  const filteredListings = courseListings.filter(listing => {
-    if (selectedType && listing.type !== selectedType) return false
-    if (location && listing.location !== location) return false
-    if (features.length > 0 && !features.every(feature => listing.features?.includes(feature))) return false
+  // Filter listings based on selected filters
+  const filteredListings = hobbyCourseListings.filter(listing => {
+    if (selectedLocation && listing.location !== selectedLocation) return false
+    if (features.length > 0 && !features.every(feature => listing.features.includes(feature))) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
       switch (priceRange) {
@@ -42,6 +40,9 @@ export default function HobbyCoursesCategoryPage() {
     return true
   })
 
+  // Get unique locations for filter
+  const locations = Array.from(new Set(hobbyCourseListings.map(listing => listing.location)))
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -57,32 +58,19 @@ export default function HobbyCoursesCategoryPage() {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
             
-            {/* Kurs Tipi Filtresi */}
+            {/* Konum Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Kurs Tipi</h3>
+              <h3 className="font-medium mb-2">Konum</h3>
               <div className="space-y-2">
-                {[
-                  'Resim Kursu',
-                  'Müzik Kursu',
-                  'El İşi Kursu',
-                  'Seramik Kursu',
-                  'Fotoğrafçılık',
-                  'Dans Kursu',
-                  'Yoga Kursu',
-                  'Dikiş Kursu',
-                  'Takı Tasarım',
-                  'Ebru Kursu',
-                  'Vitray Kursu',
-                  'Diğer'
-                ].map(type => (
-                  <label key={type} className="flex items-center">
+                {locations.map(city => (
+                  <label key={city} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={selectedType === type}
-                      onChange={() => setSelectedType(selectedType === type ? null : type)}
+                      checked={selectedLocation === city}
+                      onChange={() => setSelectedLocation(selectedLocation === city ? '' : city)}
                     />
-                    <span>{type}</span>
+                    <span>{city}</span>
                   </label>
                 ))}
               </div>
@@ -120,37 +108,6 @@ export default function HobbyCoursesCategoryPage() {
                       }}
                     />
                     <span>{feature}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Konum Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Konum</h3>
-              <div className="space-y-2">
-                {[
-                  'İstanbul',
-                  'Ankara',
-                  'İzmir',
-                  'Bursa',
-                  'Antalya',
-                  'Adana',
-                  'Konya',
-                  'Gaziantep',
-                  'Kayseri',
-                  'Mersin',
-                  'Diyarbakır',
-                  'Eskişehir'
-                ].map(city => (
-                  <label key={city} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={location === city}
-                      onChange={() => setLocation(location === city ? null : city)}
-                    />
-                    <span>{city}</span>
                   </label>
                 ))}
               </div>

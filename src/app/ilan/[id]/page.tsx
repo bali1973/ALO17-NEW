@@ -100,7 +100,7 @@ export default function IlanDetayPage() {
   const [imageError, setImageError] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
-  const listing = listings.find(l => l.id === params.id);
+  const listing = params ? listings.find(l => l.id === params.id) : undefined;
 
   useEffect(() => {
     if (listing) {

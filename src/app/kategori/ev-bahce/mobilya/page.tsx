@@ -24,7 +24,6 @@ export default function MobilyaCategoryPage() {
 
   // Filtreleme fonksiyonu
   const filteredListings = mobilyaListings.filter(listing => {
-    if (selectedSubcategory && listing.type !== selectedSubcategory) return false
     if (condition && listing.condition !== condition) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))

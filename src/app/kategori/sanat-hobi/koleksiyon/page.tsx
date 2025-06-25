@@ -5,23 +5,21 @@ import { listings } from '@/lib/listings'
 import { ListingCard } from '@/components/listing-card'
 import { useState } from 'react'
 
-export default function CollectionCategoryPage() {
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+export default function CollectionsCategoryPage() {
+  const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [priceRange, setPriceRange] = useState<string | null>(null)
-  const [condition, setCondition] = useState<string | null>(null)
-  const [era, setEra] = useState<string | null>(null)
+  const [features, setFeatures] = useState<string[]>([])
 
-  // Koleksiyon ürünlerini filtrele
+  // Koleksiyon ilanlarını filtrele
   const collectionListings = listings.filter(listing => 
     listing.category === 'sanat-hobi' && 
     listing.subcategory === 'koleksiyon'
   )
 
-  // Filtreleme fonksiyonu
+  // Filter listings based on selected filters
   const filteredListings = collectionListings.filter(listing => {
-    if (selectedType && listing.type !== selectedType) return false
-    if (condition && listing.condition !== condition) return false
-    if (era && listing.era !== era) return false
+    if (selectedLocation && listing.location !== selectedLocation) return false
+    if (features.length > 0 && !features.every(feature => listing.features.includes(feature))) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
       switch (priceRange) {
@@ -42,6 +40,9 @@ export default function CollectionCategoryPage() {
     return true
   })
 
+  // Get unique locations for filter
+  const locations = Array.from(new Set(collectionListings.map(listing => listing.location)))
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -57,87 +58,49 @@ export default function CollectionCategoryPage() {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
             
-            {/* Kategori Filtresi */}
+            {/* Location Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Kategori</h3>
+              <h3 className="font-medium mb-2">Location</h3>
               <div className="space-y-2">
-                {[
-                  'Pul',
-                  'Para',
-                  'Kart',
-                  'Madalya',
-                  'Rozet',
-                  'Oyuncak',
-                  'Kitap',
-                  'Plak',
-                  'Fotoğraf',
-                  'Gazete',
-                  'Dergi',
-                  'Diğer'
-                ].map(type => (
-                  <label key={type} className="flex items-center">
+                {locations.map(location => (
+                  <label key={location} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={selectedType === type}
-                      onChange={() => setSelectedType(selectedType === type ? null : type)}
+                      checked={selectedLocation === location}
+                      onChange={() => setSelectedLocation(selectedLocation === location ? '' : location)}
                     />
-                    <span>{type}</span>
+                    <span>{location}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Dönem Filtresi */}
+            {/* Features Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Dönem</h3>
+              <h3 className="font-medium mb-2">Features</h3>
               <div className="space-y-2">
                 {[
-                  'Antik',
-                  'Osmanlı',
-                  'Cumhuriyet Dönemi',
-                  '1950-1960',
-                  '1960-1970',
-                  '1970-1980',
-                  '1980-1990',
-                  '1990-2000',
-                  '2000-2010',
-                  '2010-2020',
-                  '2020 ve Sonrası'
-                ].map(period => (
-                  <label key={period} className="flex items-center">
+                  'Feature 1',
+                  'Feature 2',
+                  'Feature 3',
+                  'Feature 4',
+                  'Feature 5'
+                ].map(feature => (
+                  <label key={feature} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={era === period}
-                      onChange={() => setEra(era === period ? null : period)}
+                      checked={features.includes(feature)}
+                      onChange={() => {
+                        if (features.includes(feature)) {
+                          setFeatures(features.filter(f => f !== feature))
+                        } else {
+                          setFeatures([...features, feature])
+                        }
+                      }}
                     />
-                    <span>{period}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Durum Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Durum</h3>
-              <div className="space-y-2">
-                {[
-                  'Yeni',
-                  'İkinci El',
-                  'Antika',
-                  'Nadir',
-                  'Sınırlı Sayıda',
-                  'Özel Seri'
-                ].map(status => (
-                  <label key={status} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={condition === status}
-                      onChange={() => setCondition(condition === status ? null : status)}
-                    />
-                    <span>{status}</span>
+                    <span>{feature}</span>
                   </label>
                 ))}
               </div>

@@ -6,47 +6,42 @@ import { ListingCard } from '@/components/listing-card'
 import { useState } from 'react'
 
 export default function ArtSuppliesCategoryPage() {
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [priceRange, setPriceRange] = useState<string | null>(null)
-  const [category, setCategory] = useState<string | null>(null)
-  const [condition, setCondition] = useState<string | null>(null)
+  const [features, setFeatures] = useState<string[]>([])
 
-  // Resim malzemelerini filtrele
+  // Resim malzemeleri ilanlarını filtrele
   const artSuppliesListings = listings.filter(listing => 
     listing.category === 'sanat-hobi' && 
     listing.subcategory === 'resim-malzemeleri'
   )
 
-  // Markaları topla
-  const brands = Array.from(new Set(artSuppliesListings.map(listing => listing.brand)))
-
-  // Kategorileri topla
-  const categories = Array.from(new Set(artSuppliesListings.map(listing => listing.type)))
-
-  // Filtreleme fonksiyonu
+  // Filter listings based on selected filters
   const filteredListings = artSuppliesListings.filter(listing => {
-    if (selectedBrand && listing.brand !== selectedBrand) return false
-    if (category && listing.type !== category) return false
-    if (condition && listing.condition !== condition) return false
+    if (selectedLocation && listing.location !== selectedLocation) return false
+    if (features.length > 0 && !features.every(feature => listing.features.includes(feature))) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
       switch (priceRange) {
-        case '0-100':
-          if (price > 100) return false
+        case '0-50':
+          if (price > 50) return false
           break
-        case '100-500':
-          if (price < 100 || price > 500) return false
+        case '50-200':
+          if (price < 50 || price > 200) return false
           break
-        case '500-1000':
-          if (price < 500 || price > 1000) return false
+        case '200-500':
+          if (price < 200 || price > 500) return false
           break
-        case '1000+':
-          if (price < 1000) return false
+        case '500+':
+          if (price < 500) return false
           break
       }
     }
     return true
   })
+
+  // Get unique locations for filter
+  const locations = Array.from(new Set(artSuppliesListings.map(listing => listing.location)))
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -63,68 +58,19 @@ export default function ArtSuppliesCategoryPage() {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
             
-            {/* Marka Filtresi */}
+            {/* Location Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Marka</h3>
+              <h3 className="font-medium mb-2">Location</h3>
               <div className="space-y-2">
-                {brands.map(brand => (
-                  <label key={brand} className="flex items-center">
+                {locations.map(location => (
+                  <label key={location} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={selectedBrand === brand}
-                      onChange={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
+                      checked={selectedLocation === location}
+                      onChange={() => setSelectedLocation(selectedLocation === location ? '' : location)}
                     />
-                    <span>{brand}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Kategori Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Kategori</h3>
-              <div className="space-y-2">
-                {[
-                  'Yağlı Boya',
-                  'Akrilik Boya',
-                  'Suluboya',
-                  'Guaj Boya',
-                  'Pastel Boya',
-                  'Fırça',
-                  'Tuval',
-                  'Resim Kağıdı',
-                  'Kalem',
-                  'Mürekkep',
-                  'Palet',
-                  'Diğer'
-                ].map(cat => (
-                  <label key={cat} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={category === cat}
-                      onChange={() => setCategory(category === cat ? null : cat)}
-                    />
-                    <span>{cat}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Durum Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Durum</h3>
-              <div className="space-y-2">
-                {['Yeni', 'İkinci El'].map(status => (
-                  <label key={status} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={condition === status}
-                      onChange={() => setCondition(condition === status ? null : status)}
-                    />
-                    <span>{status}</span>
+                    <span>{location}</span>
                   </label>
                 ))}
               </div>
@@ -135,10 +81,10 @@ export default function ArtSuppliesCategoryPage() {
               <h3 className="font-medium mb-2">Fiyat Aralığı</h3>
               <div className="space-y-2">
                 {[
-                  { value: '0-100', label: '0 - 100 TL' },
-                  { value: '100-500', label: '100 - 500 TL' },
-                  { value: '500-1000', label: '500 - 1.000 TL' },
-                  { value: '1000+', label: '1.000 TL ve üzeri' }
+                  { value: '0-50', label: '0 - 50 TL' },
+                  { value: '50-200', label: '50 - 200 TL' },
+                  { value: '200-500', label: '200 - 500 TL' },
+                  { value: '500+', label: '500 TL ve üzeri' }
                 ].map(range => (
                   <label key={range.value} className="flex items-center">
                     <input

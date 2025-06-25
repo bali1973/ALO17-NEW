@@ -6,9 +6,8 @@ import { ListingCard } from '@/components/listing-card'
 import { useState } from 'react'
 
 export default function GuesthousesCategoryPage() {
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [priceRange, setPriceRange] = useState<string | null>(null)
-  const [location, setLocation] = useState<string | null>(null)
   const [features, setFeatures] = useState<string[]>([])
 
   // Pansiyon ilanlarını filtrele
@@ -17,13 +16,9 @@ export default function GuesthousesCategoryPage() {
     listing.subcategory === 'pansiyonlar'
   )
 
-  // Pansiyon tiplerini topla
-  const types = Array.from(new Set(guesthouseListings.map(listing => listing.type)))
-
-  // Filtreleme fonksiyonu
+  // Filter listings based on selected filters
   const filteredListings = guesthouseListings.filter(listing => {
-    if (selectedType && listing.type !== selectedType) return false
-    if (location && listing.location !== location) return false
+    if (selectedLocation && listing.location !== selectedLocation) return false
     if (features.length > 0 && !features.every(feature => listing.features.includes(feature))) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
@@ -45,6 +40,9 @@ export default function GuesthousesCategoryPage() {
     return true
   })
 
+  // Get unique locations for filter
+  const locations = Array.from(new Set(guesthouseListings.map(listing => listing.location)))
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -60,24 +58,6 @@ export default function GuesthousesCategoryPage() {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
             
-            {/* Pansiyon Tipi Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Pansiyon Tipi</h3>
-              <div className="space-y-2">
-                {types.map(type => (
-                  <label key={type} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={selectedType === type}
-                      onChange={() => setSelectedType(selectedType === type ? null : type)}
-                    />
-                    <span>{type}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
             {/* Özellikler Filtresi */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Özellikler</h3>
@@ -115,13 +95,13 @@ export default function GuesthousesCategoryPage() {
             <div className="mb-6">
               <h3 className="font-medium mb-2">Konum</h3>
               <div className="space-y-2">
-                {['Muğla', 'Aydın', 'İzmir', 'Antalya', 'Balıkesir'].map(city => (
+                {locations.map(city => (
                   <label key={city} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={location === city}
-                      onChange={() => setLocation(location === city ? null : city)}
+                      checked={selectedLocation === city}
+                      onChange={() => setSelectedLocation(selectedLocation === city ? '' : city)}
                     />
                     <span>{city}</span>
                   </label>

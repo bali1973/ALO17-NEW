@@ -17,29 +17,28 @@ export default function YaziciCategoryPage() {
   const [condition, setCondition] = useState<string | null>(null)
 
   // Yazıcı ilanlarını filtrele
-  const yaziciListings = listings.filter(listing => 
+  const printerListings = listings.filter(listing => 
     listing.category === 'elektronik' && 
     listing.subcategory === 'yazici'
   )
 
   // Filtreleme fonksiyonu
-  const filteredListings = yaziciListings.filter(listing => {
-    if (selectedSubcategory && listing.type !== selectedSubcategory) return false
+  const filteredListings = printerListings.filter(listing => {
     if (condition && listing.condition !== condition) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
       switch (priceRange) {
-        case '0-5000':
-          if (price > 5000) return false
+        case '0-1000':
+          if (price > 1000) return false
           break
-        case '5000-10000':
-          if (price < 5000 || price > 10000) return false
+        case '1000-3000':
+          if (price < 1000 || price > 3000) return false
           break
-        case '10000-20000':
-          if (price < 10000 || price > 20000) return false
+        case '3000-8000':
+          if (price < 3000 || price > 8000) return false
           break
-        case '20000+':
-          if (price < 20000) return false
+        case '8000+':
+          if (price < 8000) return false
           break
       }
     }
@@ -84,10 +83,10 @@ export default function YaziciCategoryPage() {
               <h3 className="font-medium mb-2">Fiyat Aralığı</h3>
               <div className="space-y-2">
                 {[
-                  { value: '0-5000', label: '0 - 5.000 TL' },
-                  { value: '5000-10000', label: '5.000 - 10.000 TL' },
-                  { value: '10000-20000', label: '10.000 - 20.000 TL' },
-                  { value: '20000+', label: '20.000 TL ve üzeri' }
+                  { value: '0-1000', label: '0 - 1.000 TL' },
+                  { value: '1000-3000', label: '1.000 - 3.000 TL' },
+                  { value: '3000-8000', label: '3.000 - 8.000 TL' },
+                  { value: '8000+', label: '8.000 TL ve üzeri' }
                 ].map(range => (
                   <label key={range.value} className="flex items-center">
                     <input
