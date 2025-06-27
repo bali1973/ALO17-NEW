@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Search, User, Bell, MessageCircle, LogOut, Settings } from "lucide-react"
+import { Search, User, Bell, MessageCircle, LogOut, Settings, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -47,6 +47,14 @@ export default function Header() {
 
           {/* User Actions */}
           <div className="flex items-center space-x-2 lg:space-x-4">
+            {/* Premium Link - Her zaman görünür */}
+            <Link href="/premium">
+              <Button variant="outline" className="hidden md:flex border-yellow-500 text-yellow-600 hover:bg-yellow-50">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Premium
+              </Button>
+            </Link>
+
             {/* İlan Ver Butonu - Her zaman görünür */}
             <Button className="bg-alo-yellow hover:bg-yellow-500 text-black font-medium">
               <span className="hidden sm:inline">+ İlan Ver</span>
@@ -91,6 +99,10 @@ export default function Header() {
                       <Link href="/profil/duzenle" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <Settings className="h-4 w-4 inline mr-2" />
                         Profili Düzenle
+                      </Link>
+                      <Link href="/premium" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <Sparkles className="h-4 w-4 inline mr-2" />
+                        Premium
                       </Link>
                       {(session?.user as any)?.role === 'admin' && (
                         <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
