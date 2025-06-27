@@ -9,8 +9,6 @@ import { Input } from "@/components/ui/input"
 
 export default function Header() {
   const { data: session } = useSession();
-  type SessionUser = typeof session.user & { role?: string };
-  const user = session?.user as SessionUser;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -94,7 +92,7 @@ export default function Header() {
                         <Settings className="h-4 w-4 inline mr-2" />
                         Profili Düzenle
                       </Link>
-                      {user?.role === 'admin' && (
+                      {(session?.user as any)?.role === 'admin' && (
                         <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                           <Settings className="h-4 w-4 inline mr-2" />
                           Admin Paneli
