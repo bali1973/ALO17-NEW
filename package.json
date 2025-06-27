@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3004",
     "build": "npm install && prisma generate && prisma db push && prisma db seed && next build",
-    "start": "node render-test.js",
-    "start:next": "next start",
+    "start": "node server.js",
     "lint": "next lint",
     "seed": "tsx prisma/seed.ts"
   },
