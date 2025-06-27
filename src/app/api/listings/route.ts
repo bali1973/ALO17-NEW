@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
         subcategory ? { subCategory: subcategory } : {},
         search ? {
           OR: [
-            { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
-            { description: { contains: search, mode: Prisma.QueryMode.insensitive } }
+            { title: { contains: search } },
+            { description: { contains: search } }
           ]
         } : {}
       ]
@@ -95,7 +95,8 @@ export async function POST(request: NextRequest) {
         subCategory: subcategory,
         condition,
         location,
-        images,
+        images: JSON.stringify(images),
+        features: JSON.stringify([]),
         userId: session.user.id
       },
       include: {

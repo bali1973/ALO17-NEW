@@ -14,14 +14,16 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
-  emailVerified DateTime?
   password      String?
+  emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  // Relations
+  listings      Listing[]
   accounts      Account[]
   sessions      Session[]
-  listings      Listing[]
   coupons       Coupon[]  @relation("UserCoupons")
   favorites     UserFavorite[]
 }
@@ -32,12 +34,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -61,16 +63,37 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Category {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  slug          String        @unique
+  subCategories SubCategory[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model SubCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([name, categoryId])
+}
+
 model Listing {
   id          String   @id @default(cuid())
   title       String
-  description String   @db.Text
+  description String
   price       Float
   location    String
   category    String
   subCategory String?
-  images      String[]
-  features    String[]
+  images      String
+  features    String
   condition   String
   brand       String?
   model       String?
@@ -89,32 +112,11 @@ model UserFavorite {
   id        String   @id @default(cuid())
   userId    String
   listingId String
+  createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
 
   @@unique([userId, listingId])
-}
-
-model Category {
-  id            String        @id @default(cuid())
-  name          String        @unique
-  slug          String        @unique
-  subcategories SubCategory[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-}
-
-model SubCategory {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([name, categoryId])
 }
 
 model Coupon {

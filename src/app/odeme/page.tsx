@@ -66,7 +66,7 @@ function PaymentPageContent() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            listingId: searchParams.get('listingId'),
+            listingId: searchParams?.get('listingId'),
             amount: listing.premiumFeatures.price,
             currency: 'TL',
           }),

@@ -24,7 +24,6 @@ export default function NetworkCategoryPage() {
 
   // Filtreleme fonksiyonu
   const filteredListings = networkListings.filter(listing => {
-    if (selectedSubcategory && listing.type !== selectedSubcategory) return false
     if (condition && listing.condition !== condition) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))

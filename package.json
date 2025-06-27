@@ -6,7 +6,8 @@
     "dev": "next dev -p 3004",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
@@ -40,6 +41,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "prisma": "^6.9.0",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }

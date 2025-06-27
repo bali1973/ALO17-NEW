@@ -1,6 +1,6 @@
 'use client'
 
-import { FaGamepad, FaHeadset, FaJoystick } from 'react-icons/fa'
+import { FaGamepad, FaHeadset } from 'react-icons/fa'
 import { useState } from 'react'
 import { listings } from '@/lib/listings'
 import { ListingCard } from '@/components/listing-card'
@@ -25,7 +25,6 @@ export default function OyunKonsoluCategoryPage() {
 
   // Filtreleme fonksiyonu
   const filteredListings = consoleListings.filter(listing => {
-    if (selectedSubcategory && listing.type !== selectedSubcategory) return false
     if (condition && listing.condition !== condition) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
@@ -33,14 +32,14 @@ export default function OyunKonsoluCategoryPage() {
         case '0-5000':
           if (price > 5000) return false
           break
-        case '5000-10000':
-          if (price < 5000 || price > 10000) return false
+        case '5000-15000':
+          if (price < 5000 || price > 15000) return false
           break
-        case '10000-20000':
-          if (price < 10000 || price > 20000) return false
+        case '15000-30000':
+          if (price < 15000 || price > 30000) return false
           break
-        case '20000+':
-          if (price < 20000) return false
+        case '30000+':
+          if (price < 30000) return false
           break
       }
     }
@@ -86,9 +85,9 @@ export default function OyunKonsoluCategoryPage() {
               <div className="space-y-2">
                 {[
                   { value: '0-5000', label: '0 - 5.000 TL' },
-                  { value: '5000-10000', label: '5.000 - 10.000 TL' },
-                  { value: '10000-20000', label: '10.000 - 20.000 TL' },
-                  { value: '20000+', label: '20.000 TL ve üzeri' }
+                  { value: '5000-15000', label: '5.000 - 15.000 TL' },
+                  { value: '15000-30000', label: '15.000 - 30.000 TL' },
+                  { value: '30000+', label: '30.000 TL ve üzeri' }
                 ].map(range => (
                   <label key={range.value} className="flex items-center">
                     <input

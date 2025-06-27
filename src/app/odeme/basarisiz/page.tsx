@@ -22,8 +22,8 @@ function PaymentFailedPageContent() {
   useEffect(() => {
     const handleFailedPayment = async () => {
       try {
-        const merchant_oid = searchParams.get('merchant_oid');
-        const failed_reason_msg = searchParams.get('failed_reason_msg');
+        const merchant_oid = searchParams?.get('merchant_oid');
+        const failed_reason_msg = searchParams?.get('failed_reason_msg');
 
         if (!merchant_oid) {
           throw new Error('Geçersiz ödeme yanıtı');

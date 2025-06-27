@@ -24,22 +24,21 @@ export default function DekorasyonCategoryPage() {
 
   // Filtreleme fonksiyonu
   const filteredListings = dekorasyonListings.filter(listing => {
-    if (selectedSubcategory && listing.type !== selectedSubcategory) return false
     if (condition && listing.condition !== condition) return false
     if (priceRange) {
       const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
       switch (priceRange) {
-        case '0-5000':
-          if (price > 5000) return false
+        case '0-1000':
+          if (price > 1000) return false
           break
-        case '5000-10000':
-          if (price < 5000 || price > 10000) return false
+        case '1000-5000':
+          if (price < 1000 || price > 5000) return false
           break
-        case '10000-20000':
-          if (price < 10000 || price > 20000) return false
+        case '5000-15000':
+          if (price < 5000 || price > 15000) return false
           break
-        case '20000+':
-          if (price < 20000) return false
+        case '15000+':
+          if (price < 15000) return false
           break
       }
     }
@@ -84,10 +83,10 @@ export default function DekorasyonCategoryPage() {
               <h3 className="font-medium mb-2">Fiyat Aralığı</h3>
               <div className="space-y-2">
                 {[
-                  { value: '0-5000', label: '0 - 5.000 TL' },
-                  { value: '5000-10000', label: '5.000 - 10.000 TL' },
-                  { value: '10000-20000', label: '10.000 - 20.000 TL' },
-                  { value: '20000+', label: '20.000 TL ve üzeri' }
+                  { value: '0-1000', label: '0 - 1.000 TL' },
+                  { value: '1000-5000', label: '1.000 - 5.000 TL' },
+                  { value: '5000-15000', label: '5.000 - 15.000 TL' },
+                  { value: '15000+', label: '15.000 TL ve üzeri' }
                 ].map(range => (
                   <label key={range.value} className="flex items-center">
                     <input

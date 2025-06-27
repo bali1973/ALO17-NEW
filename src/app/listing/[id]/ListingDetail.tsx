@@ -172,14 +172,14 @@ export default function ListingDetail() {
 
   useEffect(() => {
     // URL'den ilan ID'sini al
-    const listingId = params.id as string;
-    
+    const listingId = params?.id as string | undefined;
+    if (!listingId) return;
     // Örnek veriden ilanı bul
     const foundListing = featuredListings.find(l => l.id === listingId);
     if (foundListing) {
       setListing(foundListing);
     }
-  }, [params.id]);
+  }, [params]);
 
   if (!listing) {
     return (

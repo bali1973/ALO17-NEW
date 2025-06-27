@@ -22,8 +22,8 @@ const categoryColors = {
 
 export const Sidebar = () => {
   const pathname = usePathname()
-  const isCategoryPage = pathname.startsWith("/kategori/")
-  const currentPath = pathname.split("/").filter(Boolean)
+  const isCategoryPage = pathname?.startsWith("/kategori/") ?? false
+  const currentPath = pathname?.split("/").filter(Boolean) ?? []
   const currentCategory = currentPath[1]
   const currentSubcategory = currentPath[2]
 

@@ -3,7 +3,7 @@ import localFont from 'next/font/local'
 import './globals.css'
 import Providers from '@/components/Providers'
 import Header from '@/components/Header'
-import Footer from '@/components/footer'
+import Footer from '@/components/Footer'
 
 const inter = localFont({
   src: [
@@ -34,6 +34,10 @@ const inter = localFont({
 export const metadata: Metadata = {
   title: 'Alo17 - Ev Hizmetleri ve Daha Fazlası',
   description: 'Ev hizmetleri, eğitim, sağlık ve daha fazlası için güvenilir platform',
+  icons: {
+    icon: '/icon',
+    apple: '/apple-icon',
+  },
 }
 
 export default function RootLayout({
