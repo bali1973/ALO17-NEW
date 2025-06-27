@@ -325,7 +325,7 @@ export default function IlanDetayPage() {
                   onClick={() => setShowContact(!showContact)}
                   className="w-full bg-alo-orange text-white px-4 py-3 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-between"
                 >
-                  <span>İletişime Geç</span>
+                  <span>Mesaj Gönder</span>
                   <ChevronRight className="w-5 h-5" />
                 </button>
 
@@ -386,16 +386,6 @@ export default function IlanDetayPage() {
                     )}
                   </div>
                 </div>
-
-                <button className="w-full flex items-center justify-between px-4 py-3 bg-purple-100 text-purple-600 rounded-md hover:bg-purple-200 transition-colors">
-                  <span>İstatistikleri Görüntüle</span>
-                  <BarChart className="w-5 h-5" />
-                </button>
-
-                <button className="w-full flex items-center justify-between px-4 py-3 bg-yellow-100 text-yellow-600 rounded-md hover:bg-yellow-200 transition-colors">
-                  <span>İlanla İlgili Yorumlar</span>
-                  <MessageSquare className="w-5 h-5" />
-                </button>
 
                 <button className="w-full flex items-center justify-between px-4 py-3 bg-orange-100 text-orange-600 rounded-md hover:bg-orange-200 transition-colors">
                   <span>Bir Usulsüzlüğü Bildirin</span>
