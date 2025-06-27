@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { withAuth } from "next-auth/middleware";
 
 // Common redirects to prevent 404 errors
 const redirects = new Map([
@@ -56,6 +57,26 @@ const validSubcategories = {
   'anne-bebek': ['bebek-giyim', 'bebek-bakim', 'anne-urunleri'],
   'is': ['is-ariyorum', 'tam-zamanli']
 }
+
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+    const isAdmin = token?.role === "admin";
+    const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
+
+    // Admin sayfalarına erişim kontrolü
+    if (isAdminRoute && !isAdmin) {
+      return NextResponse.redirect(new URL("/giris", req.url));
+    }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+  }
+);
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -118,5 +139,7 @@ export const config = {
      * - apple-icon (apple touch icon)
      */
     '/((?!api|_next/static|_next/image|favicon.ico|icon|apple-icon).*)',
+    "/admin/:path*",
+    "/profil/:path*"
   ],
 } 

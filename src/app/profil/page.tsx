@@ -14,6 +14,7 @@ import {
   PlusIcon,
 } from '@heroicons/react/24/outline';
 import { listingTypes, listingStatus, Listing } from '@/types/listings';
+import MessagesBox from './mesajlar/MessagesBox';
 
 // Örnek veri
 const user = {
@@ -199,8 +200,8 @@ export default function ProfilePage() {
                   href="/ilan-ver"
                   className="flex items-center px-4 py-2 bg-alo-orange text-white rounded-lg hover:bg-alo-light-orange"
                 >
-                  <PlusIcon className="w-5 h-5 mr-2" />
-                  Yeni İlan
+                  <PlusIcon className="w-4 h-4 mr-2" />
+                  Yeni İlan Ver
                 </Link>
               </div>
 
@@ -284,10 +285,7 @@ export default function ProfilePage() {
 
           {/* Mesajlarım */}
           {activeTab === 'messages' && (
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-alo-dark mb-4">Mesajlarım</h3>
-              <p className="text-gray-500">Henüz mesajınız bulunmuyor.</p>
-            </div>
+            <MessagesBox />
           )}
         </div>
       </div>

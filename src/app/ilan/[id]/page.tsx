@@ -99,6 +99,12 @@ export default function IlanDetayPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showMessageForm, setShowMessageForm] = useState(false);
+  const [senderName, setSenderName] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [messageSent, setMessageSent] = useState(false);
+  const [error, setError] = useState('');
 
   const listing = params ? listings.find(l => l.id === params.id) : undefined;
 
@@ -159,6 +165,45 @@ export default function IlanDetayPage() {
   const getDefaultImage = () => {
     if (!listing) return placeholderImage;
     return `https://picsum.photos/seed/${listing.id}/500/300`;
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setMessageSent(false);
+    if (!senderName.trim() || !senderEmail.trim() || !message.trim()) {
+      setError('Lütfen tüm alanları doldurun.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) {
+      setError('Geçerli bir e-posta adresi girin.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiverId: listing?.seller.email,
+          listingId: listing?.id,
+          message,
+          senderName,
+          senderEmail,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessageSent(true);
+        setMessage('');
+        setSenderName('');
+        setSenderEmail('');
+        setShowMessageForm(false);
+      } else {
+        setError(data.error || 'Mesaj gönderilemedi.');
+      }
+    } catch (err) {
+      setError('Mesaj gönderilirken bir hata oluştu.');
+    }
   };
 
   if (!listing) {
@@ -322,12 +367,64 @@ export default function IlanDetayPage() {
 
               <div className="space-y-4">
                 <button
-                  onClick={() => setShowContact(!showContact)}
+                  onClick={() => setShowMessageForm(!showMessageForm)}
                   className="w-full bg-alo-orange text-white px-4 py-3 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-between"
                 >
                   <span>Mesaj Gönder</span>
                   <ChevronRight className="w-5 h-5" />
                 </button>
+                {showMessageForm && (
+                  <form onSubmit={handleSendMessage} className="space-y-3 bg-gray-50 p-4 rounded-lg mt-2">
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
+                    {messageSent && <div className="text-green-500 text-sm">Mesajınız başarıyla gönderildi.</div>}
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Adınız Soyadınız"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        value={senderName}
+                        onChange={e => setSenderName(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="email"
+                        placeholder="E-posta Adresiniz"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        value={senderEmail}
+                        onChange={e => setSenderEmail(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <textarea
+                        placeholder="Mesajınız"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        rows={4}
+                        value={message}
+                        onChange={e => setMessage(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        type="submit"
+                        className="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
+                      >
+                        Gönder
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowMessageForm(false);
+                          setError('');
+                          setMessageSent(false);
+                        }}
+                        className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                      >
+                        İptal
+                      </button>
+                    </div>
+                  </form>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <button

@@ -46,7 +46,14 @@ export default function GirisPage() {
         setError('Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.');
       } else if (result?.ok) {
         console.log('✅ Giriş başarılı, yönlendiriliyor...');
-        router.push(callbackUrl);
+        
+        // Kullanıcının role'üne göre yönlendirme
+        // Admin kullanıcıları admin sayfasına yönlendir
+        if (email === 'admin@alo17.com') {
+          router.push('/admin');
+        } else {
+          router.push(callbackUrl);
+        }
       } else {
         console.log('⚠️ Beklenmeyen sonuç:', result);
         setError('Beklenmeyen bir hata oluştu.');

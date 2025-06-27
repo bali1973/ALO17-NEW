@@ -30,6 +30,7 @@ async function main() {
         email: 'admin@alo17.com',
         name: 'Admin User',
         password: adminPassword,
+        role: 'admin',
       },
     })
 

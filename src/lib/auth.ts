@@ -59,6 +59,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
+            role: user.role,
           };
         } catch (error) {
           console.error('💥 Auth: Veritabanı hatası:', error);
@@ -81,6 +82,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }: { token: JWT; user: any }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
         console.log('🔄 JWT Callback: Token güncellendi');
       }
       return token;
@@ -88,6 +90,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: { session: any; token: JWT }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
         console.log('🔄 Session Callback: Session güncellendi');
       }
       return session;

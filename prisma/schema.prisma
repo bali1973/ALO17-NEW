@@ -15,6 +15,9 @@ model User {
   name          String?
   email         String    @unique
   password      String?
+  phone         String?
+  location      String?
+  role          String    @default("user") // "user" veya "admin"
   emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())
@@ -26,6 +29,8 @@ model User {
   sessions      Session[]
   coupons       Coupon[]  @relation("UserCoupons")
   favorites     UserFavorite[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
 }
 
 model Account {
@@ -106,6 +111,7 @@ model Listing {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   favoritedBy UserFavorite[]
+  messages    Message[]
 }
 
 model UserFavorite {
@@ -130,4 +136,22 @@ model Coupon {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   usedBy      User[]    @relation("UserCoupons")
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  senderName  String
+  senderEmail String
+  senderId    String   // Gönderen kullanıcının email'i
+  receiverId  String   // Alıcı kullanıcının email'i
+  listingId   String?  // İlan ID'si (opsiyonel)
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  listing     Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  sender      User     @relation("SentMessages", fields: [senderId], references: [email], onDelete: Cascade)
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [email], onDelete: Cascade)
 } 
