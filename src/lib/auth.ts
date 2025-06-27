@@ -1,8 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import AppleProvider from 'next-auth/providers/apple';
 import { compare } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { JWT } from 'next-auth/jwt';
@@ -20,11 +18,6 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         console.log('🔐 Auth: Giriş denemesi başladı');
-        console.log('🔍 Auth: Environment variables:', {
-          DATABASE_URL: process.env.DATABASE_URL ? 'Set' : 'Not set',
-          NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'Set' : 'Not set',
-          NEXTAUTH_URL: process.env.NEXTAUTH_URL ? 'Set' : 'Not set',
-        });
         
         if (!credentials?.email || !credentials?.password) {
           console.log('❌ Auth: Email veya şifre eksik');
@@ -69,31 +62,11 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error('💥 Auth: Veritabanı hatası:', error);
-          
-          // Daha spesifik hata mesajları
-          if (error instanceof Error) {
-            if (error.message.includes('Kullanıcı bulunamadı')) {
-              throw new Error('Kullanıcı bulunamadı');
-            } else if (error.message.includes('Geçersiz şifre')) {
-              throw new Error('Geçersiz şifre');
-            } else if (error.message.includes('Email ve şifre gerekli')) {
-              throw new Error('Email ve şifre gerekli');
-            }
-          }
-          
           throw new Error('Veritabanı hatası');
         } finally {
           await prisma.$disconnect();
         }
       },
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
-    AppleProvider({
-      clientId: process.env.APPLE_ID || '',
-      clientSecret: process.env.APPLE_SECRET || '',
     }),
   ],
   session: {
