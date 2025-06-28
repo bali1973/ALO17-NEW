@@ -8,7 +8,7 @@ import NextAuth from 'next-auth';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  debug: true,
+  debug: process.env.NODE_ENV === 'development',
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -17,43 +17,26 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        console.log('🔐 Auth: Giriş denemesi başladı');
-        
         if (!credentials?.email || !credentials?.password) {
-          console.log('❌ Auth: Email veya şifre eksik');
-          throw new Error('Email ve şifre gerekli');
+          return null;
         }
 
-        console.log('🔍 Auth: Kullanıcı aranıyor:', credentials.email);
-
         try {
-          // Veritabanı bağlantısını test et
           await prisma.$connect();
-          console.log('✅ Auth: Veritabanı bağlantısı başarılı');
-
+          
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
 
-          console.log('🔍 Auth: Kullanıcı bulundu mu:', !!user);
-
           if (!user || !user.password) {
-            console.log('❌ Auth: Kullanıcı bulunamadı veya şifre yok');
-            throw new Error('Kullanıcı bulunamadı');
+            return null;
           }
-
-          console.log('✅ Auth: Kullanıcı bulundu, şifre kontrol ediliyor');
 
           const isPasswordValid = await compare(credentials.password, user.password);
 
-          console.log('🔍 Auth: Şifre geçerli mi:', isPasswordValid);
-
           if (!isPasswordValid) {
-            console.log('❌ Auth: Şifre yanlış');
-            throw new Error('Geçersiz şifre');
+            return null;
           }
-
-          console.log('🎉 Auth: Giriş başarılı - Kullanıcı:', user.email);
 
           return {
             id: user.id,
@@ -62,8 +45,8 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
           };
         } catch (error) {
-          console.error('💥 Auth: Veritabanı hatası:', error);
-          throw new Error('Veritabanı hatası');
+          console.error('Auth error:', error);
+          return null;
         } finally {
           await prisma.$disconnect();
         }
@@ -79,19 +62,17 @@ export const authOptions: NextAuthOptions = {
     error: '/giris',
   },
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: any }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-        console.log('🔄 JWT Callback: Token güncellendi');
+        token.role = (user as any).role;
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: JWT }) {
+    async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        console.log('🔄 Session Callback: Session güncellendi');
+        (session.user as any).role = token.role as string;
       }
       return session;
     },
