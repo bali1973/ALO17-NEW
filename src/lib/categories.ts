@@ -957,6 +957,19 @@ export const categories: Category[] = [
     ]
   },
   {
+    name: "Hizmetler",
+    icon: Users,
+    slug: "hizmetler",
+    subcategories: [
+      { name: "Araç Hizmetleri", slug: "arac-hizmetleri", icon: "🚗" },
+      { name: "Ev Hizmetleri", slug: "ev-hizmetleri", icon: "🏠" },
+      { name: "Eğitim Hizmetleri", slug: "egitim-hizmetleri", icon: "🎓" },
+      { name: "Sağlık Hizmetleri", slug: "saglik-hizmetleri", icon: "💉" },
+      { name: "Tasarım Hizmetleri", slug: "tasarim-hizmetleri", icon: "🎨" },
+      { name: "Teknik Hizmetler", slug: "teknik-hizmetler", icon: "🔧" }
+    ]
+  },
+  {
     name: "Diğer",
     icon: MoreHorizontal,
     slug: "diger",
