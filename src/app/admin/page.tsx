@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -142,6 +144,8 @@ const premiumFeatures = [
 ];
 
 export default function AdminPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [premiumPlans, setPremiumPlans] = useState({
     '30days': { name: '30 Günlük Premium', price: 99, days: 30 },
@@ -150,6 +154,48 @@ export default function AdminPage() {
   });
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ name: '', price: 0, days: 0 });
+
+  // Admin kontrolü
+  useEffect(() => {
+    if (status === 'loading') return; // Hala yükleniyor
+
+    if (status === 'unauthenticated') {
+      console.log('❌ Kullanıcı giriş yapmamış, giriş sayfasına yönlendiriliyor...');
+      router.push('/giris');
+      return;
+    }
+
+    if (status === 'authenticated' && session?.user) {
+      const userRole = (session.user as any)?.role;
+      console.log('🔍 Kullanıcı role:', userRole);
+      
+      if (userRole !== 'admin') {
+        console.log('❌ Kullanıcı admin değil, ana sayfaya yönlendiriliyor...');
+        router.push('/');
+        return;
+      }
+      
+      console.log('✅ Admin kullanıcısı, admin sayfasına erişim veriliyor...');
+    }
+  }, [status, session, router]);
+
+  // Loading durumu
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Admin paneli yükleniyor...</p>
+          <p className="text-xs text-gray-500 mt-2">Yetki kontrol ediliyor</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin değilse veya giriş yapmamışsa boş div döndür (yönlendirme useEffect'te yapılacak)
+  if (status === 'unauthenticated' || (session?.user && (session.user as any)?.role !== 'admin')) {
+    return <div></div>;
+  }
 
   useEffect(() => {
     fetchPremiumPlans();

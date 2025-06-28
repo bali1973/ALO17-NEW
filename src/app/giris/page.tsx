@@ -28,13 +28,19 @@ export default function GirisPage() {
 
   // Eğer kullanıcı zaten giriş yapmışsa yönlendir
   useEffect(() => {
-    if (status === 'authenticated' && session) {
-      console.log('✅ Kullanıcı zaten giriş yapmış, yönlendiriliyor...', session.user);
+    if (status === 'authenticated' && session?.user) {
+      console.log('🔍 Kullanıcı zaten giriş yapmış, yönlendiriliyor...');
+      console.log('👤 Kullanıcı bilgileri:', session.user);
       
-      // Kullanıcının role'üne göre yönlendirme
-      if (session.user?.email === 'admin@alo17.com') {
+      // Admin kontrolü - session'dan role bilgisini kontrol et
+      const userRole = (session.user as any)?.role;
+      console.log('👑 Kullanıcı role:', userRole);
+      
+      if (userRole === 'admin') {
+        console.log('👑 Admin kullanıcısı, admin sayfasına yönlendiriliyor...');
         router.push('/admin');
       } else {
+        console.log('👤 Normal kullanıcı, ana sayfaya yönlendiriliyor...');
         router.push(callbackUrl);
       }
     } else if (status === 'unauthenticated') {
@@ -50,7 +56,7 @@ export default function GirisPage() {
     setError('');
 
     try {
-      console.log('🔐 Giriş denemesi başladı:', { email, callbackUrl });
+      console.log('🔐 Giriş denemesi:', email);
       
       const result = await signIn('credentials', {
         email,
@@ -64,17 +70,26 @@ export default function GirisPage() {
       if (result?.error) {
         console.error('❌ Giriş hatası:', result.error);
         if (result.error === 'CredentialsSignin') {
-          setError('Email veya şifre yanlış. Lütfen test kullanıcılarını kullanın veya npm run seed komutunu çalıştırın.');
+          setError('Email veya şifre yanlış. Lütfen bilgilerinizi kontrol edin.');
         } else {
-          setError(`Giriş yapılamadı: ${result.error}. Lütfen email ve şifrenizi kontrol edin.`);
+          setError(`Giriş yapılamadı: ${result.error}`);
         }
       } else if (result?.ok) {
         console.log('✅ Giriş başarılı, yönlendiriliyor...');
         
-        // Kullanıcının role'üne göre yönlendirme
-        if (email === 'admin@alo17.com') {
+        // Session'ı yenile ve role bilgisini al
+        const session = await fetch('/api/auth/session').then(res => res.json());
+        console.log('📋 Session bilgisi:', session);
+        
+        const userRole = session?.user?.role;
+        console.log('👑 Kullanıcı role:', userRole);
+        
+        // Role'e göre yönlendirme
+        if (userRole === 'admin') {
+          console.log('👑 Admin kullanıcısı, admin sayfasına yönlendiriliyor...');
           router.push('/admin');
         } else {
+          console.log('👤 Normal kullanıcı, callback URL\'e yönlendiriliyor...');
           router.push(callbackUrl);
         }
       } else {
@@ -120,10 +135,19 @@ export default function GirisPage() {
       } else if (result?.ok) {
         console.log('✅ Test giriş başarılı, yönlendiriliyor...');
         
-        // Kullanıcının role'üne göre yönlendirme
-        if (testUser.email === 'admin@alo17.com') {
+        // Session'ı yenile ve role bilgisini al
+        const session = await fetch('/api/auth/session').then(res => res.json());
+        console.log('📋 Test session bilgisi:', session);
+        
+        const userRole = session?.user?.role;
+        console.log('👑 Test kullanıcı role:', userRole);
+        
+        // Role'e göre yönlendirme
+        if (userRole === 'admin') {
+          console.log('👑 Admin test kullanıcısı, admin sayfasına yönlendiriliyor...');
           router.push('/admin');
         } else {
+          console.log('👤 Normal test kullanıcısı, callback URL\'e yönlendiriliyor...');
           router.push(callbackUrl);
         }
       } else {
