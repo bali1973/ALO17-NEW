@@ -18,6 +18,7 @@ const categoryColors = {
   "sanat-hobi": "text-violet-500",
   "is": "text-emerald-600",
   "ucretsiz-gel-al": "text-lime-500",
+  "hizmetler": "text-green-600",
   diger: "text-slate-500"
 }
 
