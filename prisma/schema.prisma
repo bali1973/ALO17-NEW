@@ -97,7 +97,7 @@ model Listing {
   location    String
   category    String
   subCategory String?
-  images      String
+  images      String   // JSON array - maksimum 5 resim
   features    String
   condition   String
   brand       String?
@@ -105,6 +105,7 @@ model Listing {
   year        String?
   isPremium   Boolean  @default(false)
   premiumUntil DateTime?
+  premiumPlan String?  // "30days", "90days", "365days"
   views       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

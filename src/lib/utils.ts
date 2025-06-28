@@ -34,4 +34,44 @@ export function getPremiumStatusText(premiumUntil: Date | null): string {
   } else {
     return "Premium Aktif";
   }
+}
+
+// Premium plan sürelerini hesaplayan fonksiyon
+export function calculatePremiumEndDate(plan: string): Date {
+  const now = new Date();
+  const endDate = new Date(now);
+  
+  switch (plan) {
+    case '30days':
+      endDate.setDate(now.getDate() + 30);
+      break;
+    case '90days':
+      endDate.setDate(now.getDate() + 90);
+      break;
+    case '365days':
+      endDate.setDate(now.getDate() + 365);
+      break;
+    default:
+      endDate.setDate(now.getDate() + 30); // Varsayılan 30 gün
+  }
+  
+  return endDate;
+}
+
+// Premium plan fiyatları
+export const PREMIUM_PLANS = {
+  '30days': { name: '30 Gün', price: 29.99, days: 30 },
+  '90days': { name: '90 Gün', price: 79.99, days: 90 },
+  '365days': { name: '1 Yıl', price: 299.99, days: 365 }
+};
+
+// Resim sayısını kontrol eden fonksiyon
+export function validateImageCount(images: string[]): boolean {
+  return images.length <= 5;
+}
+
+// Resim sayısı metni
+export function getImageCountText(images: string[]): string {
+  const count = images.length;
+  return `${count}/5 resim`;
 } 
