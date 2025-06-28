@@ -230,36 +230,6 @@ export default function IlanVerPage() {
       <div className="max-w-6xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-gray-900">Yeni İlan Ver</h1>
         <p className="text-gray-600 mt-2">İlanınızı yayınlamak için aşağıdaki formu doldurun</p>
-        
-        {/* Önizleme ve Yayınlama Butonları */}
-        <div className="flex justify-end gap-4 mb-4">
-          <button
-            type="button"
-            onClick={handlePreview}
-            className="px-6 py-2 border border-alo-orange text-alo-orange rounded-md hover:bg-orange-50 transition-colors flex items-center gap-2"
-          >
-            <Eye className="w-4 h-4" />
-            Önizle
-          </button>
-          <button
-            type="button"
-            onClick={handlePublish}
-            disabled={isPublishing}
-            className="px-6 py-2 bg-alo-orange text-white rounded-md hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isPublishing ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Yayınlanıyor...
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                İlanı Yayınla
-              </>
-            )}
-          </button>
-        </div>
 
         {/* Önizleme Modu */}
         {previewMode && (
@@ -462,6 +432,36 @@ export default function IlanVerPage() {
                   <label htmlFor="terms" className="ml-2 text-sm text-gray-700">
                     <a href="/kullanim-kosullari" className="text-alo-orange hover:underline">Kullanım koşullarını</a> kabul ediyorum
                   </label>
+                </div>
+
+                {/* Önizleme ve Yayınlama Butonları - Form Altında */}
+                <div className="flex justify-end gap-4 pt-6 border-t">
+                  <button
+                    type="button"
+                    onClick={handlePreview}
+                    className="px-6 py-3 border border-alo-orange text-alo-orange rounded-md hover:bg-orange-50 transition-colors flex items-center gap-2 font-medium"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Önizle
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePublish}
+                    disabled={isPublishing}
+                    className="px-8 py-3 bg-alo-orange text-white rounded-md hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  >
+                    {isPublishing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Yayınlanıyor...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        İlanı Yayınla
+                      </>
+                    )}
+                  </button>
                 </div>
               </form>
             </div>
