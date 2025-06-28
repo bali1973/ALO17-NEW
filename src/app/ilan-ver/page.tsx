@@ -4,7 +4,7 @@ import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Upload, X, Eye, Send } from 'lucide-react';
-import { PREMIUM_PLANS } from '@/lib/utils';
+import { getPremiumPlans } from '@/lib/utils';
 
 const OPTIONAL_FEATURES = [
   { key: 'featured', label: 'Öne Çıkan', price: 50 },
@@ -33,12 +33,24 @@ export default function IlanVerPage() {
   const [previewMode, setPreviewMode] = useState(false);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [premiumPlans, setPremiumPlans] = useState<Record<string, { name: string; price: number; days: number }>>({});
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/giris?callbackUrl=/ilan-ver');
+    } else if (status === 'authenticated') {
+      fetchPremiumPlans();
     }
   }, [status, router]);
+
+  const fetchPremiumPlans = async () => {
+    try {
+      const plans = await getPremiumPlans();
+      setPremiumPlans(plans);
+    } catch (error) {
+      console.error('Premium planları getirme hatası:', error);
+    }
+  };
 
   if (status === 'loading') {
     return (
@@ -69,7 +81,7 @@ export default function IlanVerPage() {
   // Seçili premium planın fiyatını hesapla
   const getSelectedPlanPrice = () => {
     if (selectedPremiumPlan === 'free') return 0;
-    return PREMIUM_PLANS[selectedPremiumPlan as keyof typeof PREMIUM_PLANS]?.price || 0;
+    return premiumPlans[selectedPremiumPlan]?.price || 0;
   };
 
   // Özellik toplam fiyatı
@@ -100,7 +112,8 @@ export default function IlanVerPage() {
     
     if (selectedPremiumPlan !== 'free') {
       const planPrice = getSelectedPlanPrice();
-      const confirmPremium = confirm(`${PREMIUM_PLANS[selectedPremiumPlan as keyof typeof PREMIUM_PLANS]?.name} premium plan için ${planPrice}₺ ödeme yapılacak. Devam etmek istiyor musunuz?`);
+      const planName = premiumPlans[selectedPremiumPlan]?.name || selectedPremiumPlan;
+      const confirmPremium = confirm(`${planName} premium plan için ${planPrice}₺ ödeme yapılacak. Devam etmek istiyor musunuz?`);
       if (!confirmPremium) return;
     }
     
@@ -125,7 +138,7 @@ export default function IlanVerPage() {
 
       if (response.ok) {
         const listing = await response.json();
-        alert('İlan başarıyla yayınlandı!');
+        alert('İlan başarıyla yayınlandı! Onay için bekliyor.');
         // Anasayfaya yönlendir
         router.push('/');
       } else {
@@ -502,7 +515,7 @@ export default function IlanVerPage() {
               </div>
 
               {/* Premium Planlar */}
-              {Object.entries(PREMIUM_PLANS).map(([key, plan]) => (
+              {Object.entries(premiumPlans).map(([key, plan]) => (
                 <div key={key} className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all ${
                   selectedPremiumPlan === key 
                     ? 'border-alo-orange bg-orange-50' 

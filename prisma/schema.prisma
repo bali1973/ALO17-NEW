@@ -103,6 +103,7 @@ model Listing {
   brand       String?
   model       String?
   year        String?
+  status      String   @default("pending") // "pending", "approved", "rejected"
   isPremium   Boolean  @default(false)
   premiumUntil DateTime?
   premiumPlan String?  // "30days", "90days", "365days"
@@ -155,4 +156,12 @@ model Message {
   listing     Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
   sender      User     @relation("SentMessages", fields: [senderId], references: [email], onDelete: Cascade)
   receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [email], onDelete: Cascade)
+}
+
+model PremiumPlan {
+  id    String  @id @default(cuid())
+  name  String
+  key   String  @unique
+  price Float
+  days  Int
 } 
