@@ -56,10 +56,12 @@ export default function Header() {
             </Link>
 
             {/* İlan Ver Butonu - Her zaman görünür */}
-            <Button className="bg-alo-yellow hover:bg-yellow-500 text-black font-medium">
-              <span className="hidden sm:inline">+ İlan Ver</span>
-              <span className="sm:hidden">+</span>
-            </Button>
+            <Link href="/ilan-ver">
+              <Button className="bg-alo-yellow hover:bg-yellow-500 text-black font-medium">
+                <span className="hidden sm:inline">+ İlan Ver</span>
+                <span className="sm:hidden">+</span>
+              </Button>
+            </Link>
 
             {session ? (
               // Giriş yapmış kullanıcılar için
