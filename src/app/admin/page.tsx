@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -16,6 +16,10 @@ import {
   SparklesIcon,
   CreditCardIcon,
   ArrowTrendingUpIcon,
+  CheckIcon,
+  XMarkIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 
 // Örnek veri
@@ -31,12 +35,51 @@ const stats = {
   premiumRevenue: 45600,
 };
 
-const recentListings = [
+const pendingListings = [
   {
     id: 1,
     title: 'Sahibinden Satılık Lüks Daire',
     user: 'Ahmet Yılmaz',
     status: 'pending',
+    createdAt: '2024-02-20',
+    isPremium: true,
+    premiumFeatures: ['featured', 'urgent', 'highlighted'],
+    category: 'Emlak',
+    price: '2.500.000',
+    description: '3+1 lüks daire, merkezi konumda...',
+  },
+  {
+    id: 2,
+    title: '2019 Model BMW 320i',
+    user: 'Mehmet Demir',
+    status: 'pending',
+    createdAt: '2024-02-19',
+    isPremium: false,
+    premiumFeatures: [],
+    category: 'Vasıta',
+    price: '850.000',
+    description: 'Düşük km, temiz araç...',
+  },
+  {
+    id: 3,
+    title: 'iPhone 14 Pro Max - Yeni',
+    user: 'Ayşe Kaya',
+    status: 'pending',
+    createdAt: '2024-02-18',
+    isPremium: true,
+    premiumFeatures: ['featured', 'highlighted'],
+    category: 'Elektronik',
+    price: '45.000',
+    description: 'Garantili, kutusunda...',
+  },
+];
+
+const recentListings = [
+  {
+    id: 1,
+    title: 'Sahibinden Satılık Lüks Daire',
+    user: 'Ahmet Yılmaz',
+    status: 'active',
     createdAt: '2024-02-20',
     isPremium: true,
     premiumFeatures: ['featured', 'urgent', 'highlighted'],
@@ -100,6 +143,115 @@ const premiumFeatures = [
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [premiumPlans, setPremiumPlans] = useState({
+    '30days': { name: '30 Günlük Premium', price: 99, days: 30 },
+    '90days': { name: '90 Günlük Premium', price: 249, days: 90 },
+    '365days': { name: '365 Günlük Premium', price: 799, days: 365 },
+  });
+  const [editingPlan, setEditingPlan] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState({ name: '', price: 0, days: 0 });
+
+  useEffect(() => {
+    fetchPremiumPlans();
+  }, []);
+
+  const fetchPremiumPlans = async () => {
+    try {
+      const response = await fetch('/api/premium-plans');
+      if (response.ok) {
+        const plans = await response.json();
+        setPremiumPlans(plans);
+      }
+    } catch (error) {
+      console.error('Premium planları getirme hatası:', error);
+    }
+  };
+
+  const handleApproveListing = async (listingId: number) => {
+    try {
+      const response = await fetch(`/api/listings/${listingId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // İlanı listeden kaldır
+        const updatedListings = pendingListings.filter(listing => listing.id !== listingId);
+        // Burada state güncellemesi yapılacak
+        alert('İlan onaylandı!');
+      }
+    } catch (error) {
+      console.error('İlan onaylama hatası:', error);
+      alert('İlan onaylanırken hata oluştu!');
+    }
+  };
+
+  const handleRejectListing = async (listingId: number) => {
+    try {
+      const response = await fetch(`/api/listings/${listingId}/reject`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // İlanı listeden kaldır
+        const updatedListings = pendingListings.filter(listing => listing.id !== listingId);
+        // Burada state güncellemesi yapılacak
+        alert('İlan reddedildi!');
+      }
+    } catch (error) {
+      console.error('İlan reddetme hatası:', error);
+      alert('İlan reddedilirken hata oluştu!');
+    }
+  };
+
+  const handleEditPlan = (planKey: string) => {
+    const plan = premiumPlans[planKey as keyof typeof premiumPlans];
+    setEditingPlan(planKey);
+    setEditValues({
+      name: plan.name,
+      price: plan.price,
+      days: plan.days,
+    });
+  };
+
+  const handleSavePlan = async () => {
+    if (!editingPlan) return;
+
+    try {
+      const response = await fetch('/api/premium-plans', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planKey: editingPlan,
+          ...editValues,
+        }),
+      });
+
+      if (response.ok) {
+        setPremiumPlans(prev => ({
+          ...prev,
+          [editingPlan]: editValues,
+        }));
+        setEditingPlan(null);
+        alert('Premium plan güncellendi!');
+      }
+    } catch (error) {
+      console.error('Premium plan güncelleme hatası:', error);
+      alert('Premium plan güncellenirken hata oluştu!');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPlan(null);
+    setEditValues({ name: '', price: 0, days: 0 });
+  };
 
   return (
     <div className="min-h-screen bg-alo-light">
@@ -152,6 +304,22 @@ export default function AdminPage() {
                 >
                   <HomeIcon className="w-5 h-5 mr-3" />
                   Dashboard
+                </button>
+                <button
+                  onClick={() => setActiveTab('pending')}
+                  className={`flex items-center w-full px-4 py-2 text-sm font-medium rounded-lg ${
+                    activeTab === 'pending'
+                      ? 'bg-alo-orange text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <ClipboardDocumentListIcon className="w-5 h-5 mr-3" />
+                  Onay Bekleyen İlanlar
+                  {pendingListings.length > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                      {pendingListings.length}
+                    </span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab('users')}
@@ -255,11 +423,11 @@ export default function AdminPage() {
                   <div className="bg-white rounded-xl shadow-sm p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-500">Premium Kullanıcı</p>
-                        <p className="text-2xl font-bold text-alo-dark">{stats.premiumUsers}</p>
+                        <p className="text-sm font-medium text-gray-500">Onay Bekleyen</p>
+                        <p className="text-2xl font-bold text-yellow-600">{stats.pendingListings}</p>
                       </div>
                       <div className="p-3 bg-yellow-500 bg-opacity-10 rounded-lg">
-                        <SparklesIcon className="w-6 h-6 text-yellow-500" />
+                        <ClipboardDocumentListIcon className="w-6 h-6 text-yellow-500" />
                       </div>
                     </div>
                   </div>
@@ -372,6 +540,74 @@ export default function AdminPage() {
               </div>
             )}
 
+            {/* Onay Bekleyen İlanlar */}
+            {activeTab === 'pending' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm">
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-alo-dark">Onay Bekleyen İlanlar ({pendingListings.length})</h2>
+                  </div>
+                  <div className="divide-y divide-gray-200">
+                    {pendingListings.map((listing) => (
+                      <div key={listing.id} className="p-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h3 className="font-medium text-alo-dark">{listing.title}</h3>
+                              {listing.isPremium && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                  <SparklesIcon className="w-3 h-3 mr-1" />
+                                  Premium
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500 mb-2">
+                              <strong>Kullanıcı:</strong> {listing.user} • <strong>Kategori:</strong> {listing.category} • <strong>Fiyat:</strong> {listing.price} ₺
+                            </p>
+                            <p className="text-sm text-gray-600 mb-2">{listing.description}</p>
+                            <p className="text-xs text-gray-400">
+                              {new Date(listing.createdAt).toLocaleDateString('tr-TR')} tarihinde oluşturuldu
+                            </p>
+                            {listing.isPremium && listing.premiumFeatures.length > 0 && (
+                              <div className="flex space-x-2 mt-2">
+                                {listing.premiumFeatures.map((feature) => (
+                                  <span key={feature} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {feature === 'featured' && 'Öne Çıkan'}
+                                    {feature === 'urgent' && 'Acil'}
+                                    {feature === 'highlighted' && 'Vurgulanmış'}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2 ml-4">
+                            <button
+                              onClick={() => handleApproveListing(listing.id)}
+                              className="flex items-center px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                            >
+                              <CheckIcon className="w-4 h-4 mr-1" />
+                              Onayla
+                            </button>
+                            <button
+                              onClick={() => handleRejectListing(listing.id)}
+                              className="flex items-center px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                              <XMarkIcon className="w-4 h-4 mr-1" />
+                              Reddet
+                            </button>
+                            <button className="flex items-center px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                              <EyeIcon className="w-4 h-4 mr-1" />
+                              Görüntüle
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Premium Yönetimi */}
             {activeTab === 'premium' && (
               <div className="space-y-6">
@@ -408,6 +644,74 @@ export default function AdminPage() {
                       <div className="p-3 bg-green-500 bg-opacity-10 rounded-lg">
                         <ArrowTrendingUpIcon className="w-6 h-6 text-green-500" />
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Premium Plan Fiyatları */}
+                <div className="bg-white rounded-xl shadow-sm">
+                  <div className="p-6 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-alo-dark">Premium Plan Fiyatları</h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {Object.entries(premiumPlans).map(([planKey, plan]) => (
+                        <div key={planKey} className="border border-gray-200 rounded-lg p-4">
+                          {editingPlan === planKey ? (
+                            <div className="space-y-3">
+                              <input
+                                type="text"
+                                value={editValues.name}
+                                onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-alo-orange focus:border-alo-orange"
+                                placeholder="Plan Adı"
+                              />
+                              <input
+                                type="number"
+                                value={editValues.price}
+                                onChange={(e) => setEditValues({ ...editValues, price: parseInt(e.target.value) })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-alo-orange focus:border-alo-orange"
+                                placeholder="Fiyat"
+                              />
+                              <input
+                                type="number"
+                                value={editValues.days}
+                                onChange={(e) => setEditValues({ ...editValues, days: parseInt(e.target.value) })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-alo-orange focus:border-alo-orange"
+                                placeholder="Gün Sayısı"
+                              />
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={handleSavePlan}
+                                  className="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
+                                >
+                                  Kaydet
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors"
+                                >
+                                  İptal
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-medium text-alo-dark">{plan.name}</h3>
+                                <span className="text-lg font-bold text-green-600">{plan.price} ₺</span>
+                              </div>
+                              <p className="text-sm text-gray-600 mb-4">{plan.days} gün premium özellikler</p>
+                              <button
+                                onClick={() => handleEditPlan(planKey)}
+                                className="w-full bg-alo-orange text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors"
+                              >
+                                Fiyat Düzenle
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -479,7 +783,7 @@ export default function AdminPage() {
             )}
 
             {/* Diğer sekmeler için içerikler */}
-            {activeTab !== 'dashboard' && activeTab !== 'premium' && (
+            {activeTab !== 'dashboard' && activeTab !== 'premium' && activeTab !== 'pending' && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold text-alo-dark mb-4">
                   {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
