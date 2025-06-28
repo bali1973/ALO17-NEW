@@ -1,11 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Zap, Crown, Shield } from 'lucide-react';
-import { PREMIUM_PLANS } from '@/lib/utils';
+import { getPremiumPlans } from '@/lib/utils';
 
 export default function PremiumPage() {
   const [selectedPlan, setSelectedPlan] = useState<string>('30days');
+  const [premiumPlans, setPremiumPlans] = useState<Record<string, { name: string; price: number; days: number }>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPremiumPlans();
+  }, []);
+
+  const fetchPremiumPlans = async () => {
+    try {
+      const plans = await getPremiumPlans();
+      setPremiumPlans(plans);
+    } catch (error) {
+      console.error('Premium planları getirme hatası:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const features = [
     {
@@ -45,7 +62,9 @@ export default function PremiumPage() {
   };
 
   const handlePurchase = () => {
-    const plan = PREMIUM_PLANS[selectedPlan as keyof typeof PREMIUM_PLANS];
+    const plan = premiumPlans[selectedPlan];
+    if (!plan) return;
+    
     const confirmPurchase = confirm(
       `${plan.name} premium plan için ${plan.price}₺ ödeme yapılacak. Devam etmek istiyor musunuz?`
     );
@@ -55,6 +74,17 @@ export default function PremiumPage() {
       alert('Ödeme sayfasına yönlendiriliyorsunuz...');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-alo-orange mx-auto"></div>
+          <p className="mt-4 text-gray-600">Premium planlar yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -118,7 +148,7 @@ export default function PremiumPage() {
           </div>
 
           {/* Premium Planlar */}
-          {Object.entries(PREMIUM_PLANS).map(([key, plan]) => (
+          {Object.entries(premiumPlans).map(([key, plan]) => (
             <div key={key} className={`bg-white rounded-lg shadow-sm p-6 border-2 transition-all ${
               selectedPlan === key 
                 ? 'border-alo-orange shadow-lg' 
@@ -178,15 +208,15 @@ export default function PremiumPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Seçili Plan: {PREMIUM_PLANS[selectedPlan as keyof typeof PREMIUM_PLANS]?.name}
+                  Seçili Plan: {premiumPlans[selectedPlan]?.name}
                 </h3>
                 <p className="text-gray-600">
-                  {PREMIUM_PLANS[selectedPlan as keyof typeof PREMIUM_PLANS]?.days} gün premium özellikler
+                  {premiumPlans[selectedPlan]?.days} gün premium özellikler
                 </p>
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-alo-orange">
-                  {PREMIUM_PLANS[selectedPlan as keyof typeof PREMIUM_PLANS]?.price}₺
+                  {premiumPlans[selectedPlan]?.price}₺
                 </div>
                 <button
                   onClick={handlePurchase}
@@ -204,36 +234,20 @@ export default function PremiumPage() {
           <h2 className="text-2xl font-bold text-center mb-8">Sık Sorulan Sorular</h2>
           <div className="space-y-6">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Premium plan ne kadar sürer?
-              </h3>
-              <p className="text-gray-600">
-                Premium planlar 30 gün, 90 gün veya 1 yıl süreyle geçerlidir. Plan süreniz dolduğunda otomatik olarak normal plana geçersiniz.
-              </p>
+              <h3 className="font-semibold text-gray-900 mb-2">Premium plan ne zaman aktif olur?</h3>
+              <p className="text-gray-600">Ödeme tamamlandıktan hemen sonra premium özellikleriniz aktif hale gelir.</p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Kaç resim yükleyebilirim?
-              </h3>
-              <p className="text-gray-600">
-                Tüm planlarda maksimum 5 resim yükleyebilirsiniz. Bu, ilanınızın daha detaylı görünmesini sağlar.
-              </p>
+              <h3 className="font-semibold text-gray-900 mb-2">Premium sürem dolduğunda ne olur?</h3>
+              <p className="text-gray-600">Premium süreniz dolduğunda ilanlarınız normal ilanlar olarak devam eder, ancak premium özellikler kaybolur.</p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Premium özellikler nelerdir?
-              </h3>
-              <p className="text-gray-600">
-                Premium özellikler arasında öne çıkan rozet, öncelikli sıralama, daha fazla görüntülenme, premium satıcı rozeti ve özel destek bulunur.
-              </p>
+              <h3 className="font-semibold text-gray-900 mb-2">Premium planı iptal edebilir miyim?</h3>
+              <p className="text-gray-600">Premium planlar otomatik yenilenmez. Süreniz dolduğunda manuel olarak yeniden satın almanız gerekir.</p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Plan değiştirebilir miyim?
-              </h3>
-              <p className="text-gray-600">
-                Evet, mevcut planınız bitmeden önce yeni bir plan satın alabilirsiniz. Yeni plan mevcut planınızın üzerine eklenir.
-              </p>
+              <h3 className="font-semibold text-gray-900 mb-2">Kaç tane premium ilan verebilirim?</h3>
+              <p className="text-gray-600">Premium planınız aktif olduğu sürece sınırsız sayıda premium ilan verebilirsiniz.</p>
             </div>
           </div>
         </div>

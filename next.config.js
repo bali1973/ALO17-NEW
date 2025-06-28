@@ -12,7 +12,7 @@ const nextConfig = {
   output: 'standalone',
   // Experimental özellikleri kapat
   experimental: {
-    serverComponentsExternalPackages: [],
+    serverExternalPackages: [],
   },
   // Webpack optimizasyonu
   webpack: (config, { isServer }) => {
