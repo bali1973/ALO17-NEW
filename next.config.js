@@ -8,6 +8,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Render için output ayarı
+  output: 'standalone',
 }
 
 module.exports = nextConfig 
