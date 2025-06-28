@@ -86,6 +86,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 30 gün sonrası için tarih hesapla
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
     const listing = await prisma.listing.create({
       data: {
         title,
@@ -97,7 +101,10 @@ export async function POST(request: NextRequest) {
         location,
         images: JSON.stringify(images),
         features: JSON.stringify([]),
-        userId: session.user.id
+        userId: session.user.id,
+        // 30 gün ücretsiz premium özelliği
+        isPremium: true,
+        premiumUntil: thirtyDaysFromNow
       },
       include: {
         user: {

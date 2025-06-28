@@ -16,6 +16,7 @@ const categoryColors = {
   "turizm-gecelemeler": "text-teal-500",
   "saglik-guzellik": "text-rose-500",
   "sanat-hobi": "text-violet-500",
+  "is": "text-emerald-600",
   "ucretsiz-gel-al": "text-lime-500",
   diger: "text-slate-500"
 }

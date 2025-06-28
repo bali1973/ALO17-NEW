@@ -47,7 +47,11 @@ import {
   Theater,
   PartyPopper,
   Tent,
-  BikeIcon
+  BikeIcon,
+  Briefcase,
+  Building2,
+  Users,
+  UserCheck
 } from "lucide-react"
 
 export interface Category {
@@ -839,6 +843,84 @@ export const categories: Category[] = [
         name: "Diğer",
         slug: "diger",
         icon: "🎭"
+      }
+    ]
+  },
+  {
+    name: "İş & Kariyer",
+    icon: Briefcase,
+    slug: "is",
+    subcategories: [
+      {
+        name: "İş Arıyorum",
+        slug: "is-ariyorum",
+        icon: "💼",
+        subcategories: [
+          {
+            name: "Tam Zamanlı",
+            slug: "tam-zamanli",
+            icon: "⏰"
+          },
+          {
+            name: "Yarı Zamanlı",
+            slug: "yari-zamanli",
+            icon: "⏰"
+          },
+          {
+            name: "Freelance",
+            slug: "freelance",
+            icon: "💻"
+          },
+          {
+            name: "Staj",
+            slug: "staj",
+            icon: "🎓"
+          }
+        ]
+      },
+      {
+        name: "Eleman Arıyorum",
+        slug: "eleman-ariyorum",
+        icon: "👥",
+        subcategories: [
+          {
+            name: "Deneyimli Eleman",
+            slug: "deneyimli-eleman",
+            icon: "👨‍💼"
+          },
+          {
+            name: "Yeni Mezun",
+            slug: "yeni-mezun",
+            icon: "🎓"
+          },
+          {
+            name: "Öğrenci",
+            slug: "ogrenci",
+            icon: "📚"
+          }
+        ]
+      },
+      {
+        name: "İş Danışmanlığı",
+        slug: "is-danismanligi",
+        icon: "📋",
+        subcategories: [
+          {
+            name: "CV Hazırlama",
+            slug: "cv-hazirlama",
+            icon: "📄"
+          },
+          {
+            name: "Mülakat Hazırlığı",
+            slug: "mulakat-hazirligi",
+            icon: "🎯"
+          },
+          {
+            name: "Kariyer Planlama",
+            slug: "kariyer-planlama",
+            icon: "📈"
+          }
+        ]
       }
     ]
   },
