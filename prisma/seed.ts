@@ -139,14 +139,20 @@ async function main() {
     })
 
     // Premium Planlar
-    await prisma.premiumPlan.createMany({
-      data: [
-        { name: 'Ücretsiz Plan', key: 'free', price: 0, days: 30 },
-        { name: '30 Gün Premium', key: '30days', price: 99, days: 30 },
-        { name: '90 Gün Premium', key: '90days', price: 249, days: 90 },
-        { name: '365 Gün Premium', key: '365days', price: 799, days: 365 },
-      ]
-    })
+    const premiumPlans = [
+      { name: 'Ücretsiz Plan', key: 'free', price: 0, days: 30 },
+      { name: '30 Gün Premium', key: '30days', price: 99, days: 30 },
+      { name: '90 Gün Premium', key: '90days', price: 249, days: 90 },
+      { name: '365 Gün Premium', key: '365days', price: 799, days: 365 },
+    ];
+
+    for (const plan of premiumPlans) {
+      await prisma.premiumPlan.upsert({
+        where: { key: plan.key },
+        update: plan,
+        create: plan,
+      });
+    }
 
     console.log('✅ Database seeded successfully!')
     console.log('')

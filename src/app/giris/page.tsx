@@ -29,7 +29,7 @@ export default function GirisPage() {
   // Eğer kullanıcı zaten giriş yapmışsa yönlendir
   useEffect(() => {
     if (status === 'authenticated' && session) {
-      console.log('✅ Kullanıcı zaten giriş yapmış, yönlendiriliyor...');
+      console.log('✅ Kullanıcı zaten giriş yapmış, yönlendiriliyor...', session.user);
       
       // Kullanıcının role'üne göre yönlendirme
       if (session.user?.email === 'admin@alo17.com') {
@@ -37,6 +37,10 @@ export default function GirisPage() {
       } else {
         router.push(callbackUrl);
       }
+    } else if (status === 'unauthenticated') {
+      console.log('❌ Kullanıcı giriş yapmamış');
+    } else if (status === 'loading') {
+      console.log('⏳ Session yükleniyor...');
     }
   }, [status, session, router, callbackUrl]);
 
@@ -59,7 +63,11 @@ export default function GirisPage() {
 
       if (result?.error) {
         console.error('❌ Giriş hatası:', result.error);
-        setError('Giriş yapılamadı. Lütfen email ve şifrenizi kontrol edin.');
+        if (result.error === 'CredentialsSignin') {
+          setError('Email veya şifre yanlış. Lütfen test kullanıcılarını kullanın veya npm run seed komutunu çalıştırın.');
+        } else {
+          setError(`Giriş yapılamadı: ${result.error}. Lütfen email ve şifrenizi kontrol edin.`);
+        }
       } else if (result?.ok) {
         console.log('✅ Giriş başarılı, yönlendiriliyor...');
         
@@ -88,16 +96,46 @@ export default function GirisPage() {
     { email: 'user@alo17.com', password: 'user123', label: 'User' },
   ];
 
-  const handleTestLogin = (testUser: typeof testUsers[0]) => {
+  const handleTestLogin = async (testUser: typeof testUsers[0]) => {
     setEmail(testUser.email);
     setPassword(testUser.password);
-    // Otomatik giriş yap
-    setTimeout(() => {
-      const form = document.querySelector('form');
-      if (form) {
-        form.dispatchEvent(new Event('submit', { bubbles: true }));
+    setLoading(true);
+    setError('');
+
+    try {
+      console.log('🔐 Test giriş denemesi:', testUser.email);
+      
+      const result = await signIn('credentials', {
+        email: testUser.email,
+        password: testUser.password,
+        redirect: false,
+        callbackUrl,
+      });
+
+      console.log('📋 Test giriş sonucu:', result);
+
+      if (result?.error) {
+        console.error('❌ Test giriş hatası:', result.error);
+        setError(`Test giriş yapılamadı: ${result.error}. Lütfen veritabanını kontrol edin.`);
+      } else if (result?.ok) {
+        console.log('✅ Test giriş başarılı, yönlendiriliyor...');
+        
+        // Kullanıcının role'üne göre yönlendirme
+        if (testUser.email === 'admin@alo17.com') {
+          router.push('/admin');
+        } else {
+          router.push(callbackUrl);
+        }
+      } else {
+        console.log('⚠️ Test giriş beklenmeyen sonuç:', result);
+        setError('Test girişinde beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.');
       }
-    }, 100);
+    } catch (error) {
+      console.error('💥 Test giriş exception:', error);
+      setError('Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Client-side yüklenene kadar loading göster
@@ -106,7 +144,8 @@ export default function GirisPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Yükleniyor...</p>
+          <p className="mt-4 text-gray-600">Sayfa yükleniyor...</p>
+          <p className="text-xs text-gray-500 mt-2">Lütfen bekleyin</p>
         </div>
       </div>
     );
@@ -119,6 +158,7 @@ export default function GirisPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Giriş kontrol ediliyor...</p>
+          <p className="text-xs text-gray-500 mt-2">Oturum durumu kontrol ediliyor</p>
         </div>
       </div>
     );
@@ -149,18 +189,48 @@ export default function GirisPage() {
               <button
                 key={user.email}
                 onClick={() => handleTestLogin(user)}
-                className="w-full text-left text-xs text-blue-700 hover:text-blue-900 p-2 rounded border border-blue-200 hover:bg-blue-100 transition-colors"
+                disabled={loading}
+                className="w-full text-left text-xs text-blue-700 hover:text-blue-900 p-2 rounded border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <strong>{user.label}:</strong> {user.email}
+                <strong>{user.label}:</strong> {user.email} / {user.password}
               </button>
             ))}
+          </div>
+          <p className="text-xs text-blue-600 mt-2">
+            Test kullanıcıları ile hızlı giriş yapabilirsiniz. Bu kullanıcılar veritabanında mevcuttur.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={() => {
+                setError('');
+                setEmail('');
+                setPassword('');
+              }}
+              className="text-xs text-blue-600 hover:text-blue-800 underline"
+            >
+              Formu Temizle
+            </button>
+            <span className="text-xs text-gray-500">|</span>
+            <span className="text-xs text-gray-500">
+              Giriş yapılamıyorsa: npm run seed
+            </span>
+          </div>
+          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+            <strong>Not:</strong> Test kullanıcıları veritabanında mevcut olmalıdır. 
+            Giriş yapılamıyorsa terminal'de "npm run seed" komutunu çalıştırın.
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative flex items-center">
-            <AlertCircle className="h-5 w-5 mr-2" />
-            <span>{error}</span>
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative flex items-start">
+            <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+            <div>
+              <div className="font-medium">Giriş Hatası:</div>
+              <div className="text-sm mt-1">{error}</div>
+              <div className="text-xs text-red-500 mt-2">
+                <strong>Çözüm:</strong> npm run seed komutunu çalıştırın ve tekrar deneyin.
+              </div>
+            </div>
           </div>
         )}
 

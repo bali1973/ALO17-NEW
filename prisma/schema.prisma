@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,26 +8,24 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  password      String?
-  phone         String?
-  location      String?
-  role          String    @default("user") // "user" veya "admin"
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relations
-  listings      Listing[]
-  accounts      Account[]
-  sessions      Session[]
-  coupons       Coupon[]  @relation("UserCoupons")
-  favorites     UserFavorite[]
-  sentMessages     Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
+  id               String         @id @default(cuid())
+  name             String?
+  email            String         @unique
+  password         String?
+  phone            String?
+  location         String?
+  role             String         @default("user")
+  emailVerified    DateTime?
+  image            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  accounts         Account[]
+  listings         Listing[]
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  sentMessages     Message[]      @relation("SentMessages")
+  sessions         Session[]
+  favorites        UserFavorite[]
+  coupons          Coupon[]       @relation("UserCoupons")
 }
 
 model Account {
@@ -46,8 +41,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -72,48 +66,48 @@ model Category {
   id            String        @id @default(cuid())
   name          String        @unique
   slug          String        @unique
-  subCategories SubCategory[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  subCategories SubCategory[]
 }
 
 model SubCategory {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  name       String
+  slug       String
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id])
 
   @@unique([name, categoryId])
 }
 
 model Listing {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  price       Float
-  location    String
-  category    String
-  subCategory String?
-  images      String   // JSON array - maksimum 5 resim
-  features    String
-  condition   String
-  brand       String?
-  model       String?
-  year        String?
-  status      String   @default("pending") // "pending", "approved", "rejected"
-  isPremium   Boolean  @default(false)
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  price        Float
+  location     String
+  category     String
+  subCategory  String?
+  images       String
+  features     String
+  condition    String
+  brand        String?
+  model        String?
+  year         String?
+  status       String         @default("pending")
+  isPremium    Boolean        @default(false)
   premiumUntil DateTime?
-  premiumPlan String?  // "30days", "90days", "365days"
-  views       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  favoritedBy UserFavorite[]
-  messages    Message[]
+  premiumPlan  String?
+  views        Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     Message[]
+  favoritedBy  UserFavorite[]
 }
 
 model UserFavorite {
@@ -121,23 +115,23 @@ model UserFavorite {
   userId    String
   listingId String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, listingId])
 }
 
 model Coupon {
-  id          String    @id @default(cuid())
-  code        String    @unique
-  discount    Float     // İndirim yüzdesi (0-100 arası)
-  maxUses     Int?      // Maksimum kullanım sayısı
-  usedCount   Int       @default(0)
-  expiresAt   DateTime?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  usedBy      User[]    @relation("UserCoupons")
+  id        String    @id @default(cuid())
+  code      String    @unique
+  discount  Float
+  maxUses   Int?
+  usedCount Int       @default(0)
+  expiresAt DateTime?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  usedBy    User[]    @relation("UserCoupons")
 }
 
 model Message {
@@ -145,23 +139,21 @@ model Message {
   content     String
   senderName  String
   senderEmail String
-  senderId    String   // Gönderen kullanıcının email'i
-  receiverId  String   // Alıcı kullanıcının email'i
-  listingId   String?  // İlan ID'si (opsiyonel)
+  senderId    String
+  receiverId  String
+  listingId   String?
   isRead      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  listing     Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
-  sender      User     @relation("SentMessages", fields: [senderId], references: [email], onDelete: Cascade)
   receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [email], onDelete: Cascade)
+  sender      User     @relation("SentMessages", fields: [senderId], references: [email], onDelete: Cascade)
+  listing     Listing? @relation(fields: [listingId], references: [id])
 }
 
 model PremiumPlan {
-  id    String  @id @default(cuid())
+  id    String @id @default(cuid())
   name  String
-  key   String  @unique
+  key   String @unique
   price Float
   days  Int
-} 
+}

@@ -10,10 +10,6 @@ const nextConfig = {
   },
   // Render için output ayarı
   output: 'standalone',
-  // Experimental özellikleri kapat
-  experimental: {
-    serverExternalPackages: [],
-  },
   // Webpack optimizasyonu
   webpack: (config, { isServer }) => {
     if (!isServer) {

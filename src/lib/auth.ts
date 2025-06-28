@@ -18,26 +18,36 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log('❌ Credentials eksik:', { email: !!credentials?.email, password: !!credentials?.password });
           return null;
         }
 
         try {
-          await prisma.$connect();
+          console.log('🔍 Kullanıcı aranıyor:', credentials.email);
           
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
 
-          if (!user || !user.password) {
+          if (!user) {
+            console.log('❌ Kullanıcı bulunamadı:', credentials.email);
             return null;
           }
 
+          if (!user.password) {
+            console.log('❌ Kullanıcının şifresi yok:', credentials.email);
+            return null;
+          }
+
+          console.log('🔐 Şifre kontrol ediliyor...');
           const isPasswordValid = await compare(credentials.password, user.password);
 
           if (!isPasswordValid) {
+            console.log('❌ Şifre yanlış:', credentials.email);
             return null;
           }
 
+          console.log('✅ Giriş başarılı:', credentials.email);
           return {
             id: user.id,
             email: user.email,
@@ -45,16 +55,15 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
           };
         } catch (error) {
-          console.error('Auth error:', error);
+          console.error('💥 Auth error:', error);
           return null;
-        } finally {
-          await prisma.$disconnect();
         }
       },
     }),
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 gün
   },
   pages: {
     signIn: '/giris',
@@ -86,6 +95,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 24 * 60 * 60, // 30 gün
       },
     },
   },
