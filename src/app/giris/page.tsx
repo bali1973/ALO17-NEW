@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import { AlertCircle } from 'lucide-react';
 
 export default function GirisPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const [callbackUrl, setCallbackUrl] = useState('/');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,13 +18,27 @@ export default function GirisPage() {
 
   useEffect(() => {
     setIsClient(true);
+    
     // URL'den callbackUrl'i al
-    const urlParams = new URLSearchParams(window.location.search);
-    const callback = urlParams.get('callbackUrl');
+    const callback = searchParams.get('callbackUrl');
     if (callback) {
       setCallbackUrl(callback);
     }
-  }, []);
+  }, [searchParams]);
+
+  // Eğer kullanıcı zaten giriş yapmışsa yönlendir
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      console.log('✅ Kullanıcı zaten giriş yapmış, yönlendiriliyor...');
+      
+      // Kullanıcının role'üne göre yönlendirme
+      if (session.user?.email === 'admin@alo17.com') {
+        router.push('/admin');
+      } else {
+        router.push(callbackUrl);
+      }
+    }
+  }, [status, session, router, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +46,7 @@ export default function GirisPage() {
     setError('');
 
     try {
-      console.log('🔐 Giriş denemesi başladı:', { email });
+      console.log('🔐 Giriş denemesi başladı:', { email, callbackUrl });
       
       const result = await signIn('credentials', {
         email,
@@ -43,12 +59,11 @@ export default function GirisPage() {
 
       if (result?.error) {
         console.error('❌ Giriş hatası:', result.error);
-        setError('Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.');
+        setError('Giriş yapılamadı. Lütfen email ve şifrenizi kontrol edin.');
       } else if (result?.ok) {
         console.log('✅ Giriş başarılı, yönlendiriliyor...');
         
         // Kullanıcının role'üne göre yönlendirme
-        // Admin kullanıcıları admin sayfasına yönlendir
         if (email === 'admin@alo17.com') {
           router.push('/admin');
         } else {
@@ -56,7 +71,7 @@ export default function GirisPage() {
         }
       } else {
         console.log('⚠️ Beklenmeyen sonuç:', result);
-        setError('Beklenmeyen bir hata oluştu.');
+        setError('Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.');
       }
     } catch (error) {
       console.error('💥 Giriş exception:', error);
@@ -97,6 +112,18 @@ export default function GirisPage() {
     );
   }
 
+  // Eğer kullanıcı zaten giriş yapmışsa loading göster
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Giriş kontrol ediliyor...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -107,6 +134,11 @@ export default function GirisPage() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Test kullanıcıları ile hızlı giriş yapabilirsiniz
           </p>
+          {callbackUrl !== '/' && (
+            <p className="mt-2 text-center text-xs text-blue-600">
+              Giriş yaptıktan sonra {callbackUrl} sayfasına yönlendirileceksiniz
+            </p>
+          )}
         </div>
 
         {/* Test Kullanıcıları */}
