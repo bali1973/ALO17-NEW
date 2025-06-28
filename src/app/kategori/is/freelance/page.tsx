@@ -1,6 +1,6 @@
 'use client'
 
-import { FaLaptop, FaCode, FaPen, FaCamera, FaPalette, FaGlobe, FaMoneyBillWave, FaClock, FaStar, FaCheckCircle } from 'react-icons/fa'
+import { FaLaptop, FaCode, FaPen, FaCamera, FaPalette, FaGlobe, FaMoneyBillWave, FaClock, FaStar, FaCheckCircle, FaBuilding } from 'react-icons/fa'
 import { useState } from 'react'
 import { Sparkles, Star, Clock, TrendingUp } from 'lucide-react'
 

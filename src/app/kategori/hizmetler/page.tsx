@@ -1,6 +1,6 @@
 'use client'
 
-import { FaTools, FaCar, FaHome, FaGraduationCap, FaHeartbeat, FaPalette, FaLaptop, FaHandshake, FaWrench, FaShieldAlt, FaLeaf, FaCamera, FaMusic, FaUtensils, FaPlane, FaTruck, FaCalculator, FaUserTie, FaDesktop, FaUsers } from 'react-icons/fa'
+import { FaTools, FaCar, FaHome, FaGraduationCap, FaHeartbeat, FaPalette, FaLaptop, FaHandshake, FaWrench, FaShieldAlt, FaLeaf, FaCamera, FaMusic, FaUtensils, FaPlane, FaTruck, FaCalculator, FaUserTie, FaDesktop, FaUsers, FaGlobeAmericas } from 'react-icons/fa'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -20,7 +20,7 @@ const subcategories = [
   // Teknoloji Hizmetleri
   { id: 'bilgisayar-hizmetleri', name: 'Bilgisayar Hizmetleri', icon: <FaDesktop className="inline mr-2 text-blue-600" />, type: 'computer' },
   { id: 'yazilim-hizmetleri', name: 'Yazılım Hizmetleri', icon: <FaLaptop className="inline mr-2 text-indigo-600" />, type: 'software' },
-  { id: 'web-hizmetleri', name: 'Web Hizmetleri', icon: <FaGlobe className="inline mr-2 text-cyan-500" />, type: 'web' },
+  { id: 'web-hizmetleri', name: 'Web Hizmetleri', icon: <FaGlobeAmericas className="inline mr-2 text-cyan-500" />, type: 'web' },
   
   // Yaratıcı Hizmetler
   { id: 'tasarim-hizmetleri', name: 'Tasarım Hizmetleri', icon: <FaPalette className="inline mr-2 text-pink-500" />, type: 'design' },
@@ -54,7 +54,7 @@ export default function HizmetlerKategoriPage() {
     { id: 'consulting', name: 'Danışmanlık Hizmetleri', icon: <FaUserTie className="w-4 h-4" /> },
     { id: 'computer', name: 'Bilgisayar Hizmetleri', icon: <FaDesktop className="w-4 h-4" /> },
     { id: 'software', name: 'Yazılım Hizmetleri', icon: <FaLaptop className="w-4 h-4" /> },
-    { id: 'web', name: 'Web Hizmetleri', icon: <FaGlobe className="w-4 h-4" /> },
+    { id: 'web', name: 'Web Hizmetleri', icon: <FaGlobeAmericas className="w-4 h-4" /> },
     { id: 'design', name: 'Tasarım Hizmetleri', icon: <FaPalette className="w-4 h-4" /> },
     { id: 'photography', name: 'Fotoğraf Hizmetleri', icon: <FaCamera className="w-4 h-4" /> },
     { id: 'music', name: 'Müzik Hizmetleri', icon: <FaMusic className="w-4 h-4" /> },
