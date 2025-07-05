@@ -1,21 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useAuth } from '@/components/Providers';
 
 export default function MessagesBox() {
-  const { data: session, status } = useSession();
+  const { session, isLoading } = useAuth();
   const [tab, setTab] = useState<'received' | 'sent'>('received');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (session) {
       fetchMessages(tab);
     }
     // eslint-disable-next-line
-  }, [tab, status]);
+  }, [tab, session]);
 
   const fetchMessages = async (type: 'received' | 'sent') => {
     setLoading(true);
@@ -34,10 +34,10 @@ export default function MessagesBox() {
     setLoading(false);
   };
 
-  if (status === "loading") {
+  if (isLoading) {
     return <div className="p-8 text-center">Yükleniyor...</div>;
   }
-  if (status !== "authenticated") {
+  if (!session) {
     return <div className="p-8 text-center text-red-500">Mesajlarınızı görüntülemek için giriş yapmalısınız.</div>;
   }
 

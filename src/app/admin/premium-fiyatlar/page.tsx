@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/Providers';
 import { useRouter } from 'next/navigation';
 import { Save, DollarSign, Calendar, Package } from 'lucide-react';
 
@@ -14,7 +14,7 @@ interface PremiumPlan {
 }
 
 export default function PremiumFiyatlarPage() {
-  const { data: session, status } = useSession();
+  const { session, isLoading } = useAuth();
   const router = useRouter();
   const [plans, setPlans] = useState<PremiumPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,14 +22,14 @@ export default function PremiumFiyatlarPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!session) {
       router.push('/giris?callbackUrl=/admin/premium-fiyatlar');
-    } else if (status === 'authenticated' && (session?.user as any)?.role !== 'admin') {
+    } else if (session.user.role !== 'admin') {
       router.push('/');
-    } else if (status === 'authenticated') {
+    } else {
       fetchPlans();
     }
-  }, [status, session, router]);
+  }, [session, router]);
 
   const fetchPlans = async () => {
     try {
@@ -85,7 +85,7 @@ export default function PremiumFiyatlarPage() {
     }
   };
 
-  if (status === 'loading' || loading) {
+  if (isLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

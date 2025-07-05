@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/Providers';
 import { Heart, Phone, Mail, Share2, Facebook, Twitter, Instagram, MessageCircle, ChevronRight, Eye, BarChart, MessageSquare, AlertTriangle, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -93,7 +93,7 @@ const listings = [
 
 export default function IlanDetayPage() {
   const params = useParams();
-  const { data: session } = useSession();
+  const { session } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);

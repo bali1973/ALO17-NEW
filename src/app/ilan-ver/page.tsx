@@ -2,7 +2,7 @@
 
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/Providers';
 import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Upload, X, Eye, Send } from 'lucide-react';
 import { getPremiumPlans } from '@/lib/utils';
 
@@ -14,7 +14,7 @@ const OPTIONAL_FEATURES = [
 ];
 
 export default function IlanVerPage() {
-  const { data: session, status } = useSession();
+  const { session, isLoading } = useAuth();
   const router = useRouter();
   const [showPhone, setShowPhone] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,12 +36,12 @@ export default function IlanVerPage() {
   const [premiumPlans, setPremiumPlans] = useState<Record<string, { name: string; price: number; days: number }>>({});
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!session) {
       router.push('/giris?callbackUrl=/ilan-ver');
-    } else if (status === 'authenticated') {
+    } else {
       fetchPremiumPlans();
     }
-  }, [status, router]);
+  }, [session, router]);
 
   const fetchPremiumPlans = async () => {
     try {
@@ -52,7 +52,7 @@ export default function IlanVerPage() {
     }
   };
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

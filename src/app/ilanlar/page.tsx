@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/Providers';
 import { Search, Filter, MapPin, Sparkles, Star, Clock, TrendingUp } from 'lucide-react';
 
 export default function IlanlarPage() {
-  const { data: session } = useSession();
+  const { session } = useAuth();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
