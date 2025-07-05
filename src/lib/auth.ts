@@ -1,13 +1,10 @@
 import { NextAuthOptions } from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import { JWT } from 'next-auth/jwt';
 import NextAuth from 'next-auth';
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   debug: true,
   providers: [
     CredentialsProvider({
@@ -20,7 +17,7 @@ export const authOptions: NextAuthOptions = {
         console.log('🔐 Auth başladı - credentials:', { email: credentials?.email, hasPassword: !!credentials?.password });
         
         if (!credentials?.email || !credentials?.password) {
-          console.log('❌ Credentials eksik:', { email: !!credentials?.email, password: !!credentials?.password });
+          console.log('❌ Credentials eksik');
           return null;
         }
 
@@ -53,14 +50,12 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log('✅ Giriş başarılı:', credentials.email);
-          const userData = {
+          return {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
           };
-          console.log('📋 Döndürülen kullanıcı verisi:', userData);
-          return userData;
         } catch (error) {
           console.error('💥 Auth error:', error);
           return null;
@@ -93,19 +88,6 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).role = token.role as string;
       }
       return session;
-    },
-  },
-  useSecureCookies: false,
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: false,
-        maxAge: 30 * 24 * 60 * 60, // 30 gün
-      },
     },
   },
 };
