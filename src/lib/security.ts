@@ -72,8 +72,7 @@ export class SecurityMiddleware {
       return { error: 'Unauthorized', status: 401 };
     }
     
-    // JWT token validation would go here
-    // For now, we'll rely on NextAuth session
+    // For now, we'll rely on client-side session management
     return { success: true };
   }
 

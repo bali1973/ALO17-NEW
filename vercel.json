@@ -8,8 +8,6 @@
   ],
   "env": {
     "DATABASE_URL": "file:./dev.db",
-    "NEXTAUTH_SECRET": "alo17-super-secret-key-2025-more-secure-key-2025",
-    "NEXTAUTH_URL": "https://alo17backup2025-06-1716-49-55-j9sqqqd7i-balis-projects-49521e17.vercel.app",
     "NODE_ENV": "production"
   },
   "functions": {
