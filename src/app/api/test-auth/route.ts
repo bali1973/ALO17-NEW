@@ -1,24 +1,36 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+
+// Hardcoded kullanıcılar
+const hardcodedUsers = [
+  {
+    id: '1',
+    email: 'admin@alo17.com',
+    name: 'Admin User',
+    role: 'admin'
+  },
+  {
+    id: '2',
+    email: 'user@alo17.com',
+    name: 'Normal User',
+    role: 'user'
+  },
+  {
+    id: '3',
+    email: 'test@alo17.com',
+    name: 'Test User',
+    role: 'user'
+  }
+];
 
 export async function GET() {
   try {
-    // Veritabanı bağlantısını test et
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-      }
-    });
-
     return NextResponse.json({
       success: true,
-      message: 'Auth test başarılı',
-      users: users,
-      totalUsers: users.length,
-      timestamp: new Date().toISOString()
+      message: 'Auth test başarılı - Hardcoded kullanıcılar',
+      users: hardcodedUsers,
+      totalUsers: hardcodedUsers.length,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
     console.error('Auth test hatası:', error);
