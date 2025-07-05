@@ -1,7 +1,9 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
+import { ReactNode } from 'react';
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+// Bu bileşen artık sadece bir wrapper olarak kullanılıyor
+// Gerçek auth logic Providers.tsx'te
+export function AuthProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 } 

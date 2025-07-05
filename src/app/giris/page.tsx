@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
+import { useAuth } from '@/components/Providers';
 
 // Basit client-side auth sistemi
 const hardcodedUsers = [
@@ -32,6 +33,7 @@ const hardcodedUsers = [
 export default function GirisPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setSession } = useAuth();
   const [callbackUrl, setCallbackUrl] = useState('/');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -68,7 +70,7 @@ export default function GirisPage() {
 
       console.log('✅ Giriş başarılı:', user.email);
       
-      // Session'ı localStorage'a kaydet
+      // Session'ı oluştur ve context'e kaydet
       const session = {
         user: {
           id: user.id,
@@ -79,7 +81,7 @@ export default function GirisPage() {
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
       };
       
-      localStorage.setItem('alo17-session', JSON.stringify(session));
+      setSession(session);
       
       // Role'e göre yönlendirme
       if (user.role === 'admin') {
@@ -124,7 +126,7 @@ export default function GirisPage() {
 
       console.log('✅ Test giriş başarılı:', user.email);
       
-      // Session'ı localStorage'a kaydet
+      // Session'ı oluştur ve context'e kaydet
       const session = {
         user: {
           id: user.id,
@@ -135,7 +137,7 @@ export default function GirisPage() {
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
       };
       
-      localStorage.setItem('alo17-session', JSON.stringify(session));
+      setSession(session);
       
       // Role'e göre yönlendirme
       if (user.role === 'admin') {

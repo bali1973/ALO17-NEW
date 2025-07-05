@@ -1,40 +1,47 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Search, User, Bell, MessageCircle, LogOut, Settings, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useAuth } from './Providers'
 
 export default function Header() {
-  const [session, setSession] = useState<any>(null);
+  const { session, setSession, isLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    // localStorage'dan session'ı al
-    const savedSession = localStorage.getItem('alo17-session');
-    if (savedSession) {
-      try {
-        const sessionData = JSON.parse(savedSession);
-        // Session'ın süresi dolmuş mu kontrol et
-        if (new Date(sessionData.expires) > new Date()) {
-          setSession(sessionData);
-        } else {
-          localStorage.removeItem('alo17-session');
-        }
-      } catch (error) {
-        localStorage.removeItem('alo17-session');
-      }
-    }
-  }, []);
-
   const handleSignOut = () => {
-    localStorage.removeItem('alo17-session');
     setSession(null);
     setIsProfileMenuOpen(false);
     window.location.href = '/';
   };
+
+  // Loading durumunda basit bir header göster
+  if (isLoading) {
+    return (
+      <header className="bg-white border-b shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-alo-blue rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">A</span>
+                </div>
+                <span className="text-2xl font-bold">
+                  <span className="text-alo-blue">alo</span>
+                  <span className="text-alo-blue">17</span>
+                  <span className="text-orange-500">.tr</span>
+                </span>
+              </Link>
+            </div>
+            <div className="animate-pulse bg-gray-200 h-8 w-32 rounded"></div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-white border-b shadow-sm sticky top-0 z-50">
