@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { withAuth } from "next-auth/middleware";
 import { SecurityMiddleware } from '@/lib/security';
 
 // Common redirects to prevent 404 errors
@@ -60,117 +59,101 @@ const validSubcategories = {
   'hizmetler': ['ev-hizmetleri', 'arac-hizmetleri', 'teknik-hizmetler', 'egitim-hizmetleri', 'saglik-hizmetleri', 'tasarim-hizmetleri', 'hukuki-hizmetler', 'muhasebe-hizmetleri', 'danismanlik-hizmetleri', 'bilgisayar-hizmetleri', 'yazilim-hizmetleri', 'web-hizmetleri', 'fotograf-hizmetleri', 'muzik-hizmetleri', 'temizlik-hizmetleri', 'yemek-hizmetleri', 'ulasim-hizmetleri', 'seyahat-hizmetleri', 'organizasyon-hizmetleri']
 }
 
-export default withAuth(
-  function middleware(req) {
-    // Add security headers to all responses
-    const response = NextResponse.next();
-    SecurityMiddleware.addCorsHeaders(
-      SecurityMiddleware.addCSPHeaders(response)
-    );
+export function middleware(req: NextRequest) {
+  // Add security headers to all responses
+  const response = NextResponse.next();
+  SecurityMiddleware.addCorsHeaders(
+    SecurityMiddleware.addCSPHeaders(response)
+  );
 
-    const token = req.nextauth.token;
-    const isAdmin = token?.role === "admin";
-    const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
-    const { pathname } = req.nextUrl;
+  const { pathname } = req.nextUrl;
 
-    // Admin sayfalarına erişim kontrolü
-    if (isAdminRoute && !isAdmin) {
-      return NextResponse.redirect(new URL("/giris", req.url));
-    }
+  // Public routes that don't require authentication
+  const publicRoutes = [
+    '/',
+    '/giris',
+    '/kayit',
+    '/ilanlar',
+    '/hakkimizda',
+    '/iletisim',
+    '/sss',
+    '/yardim',
+    '/premium',
+    '/cerez-politikasi',
+    '/gizlilik',
+    '/gizlilik-politikasi',
+    '/kullanim-kosullari',
+    '/kullanim-sartlari',
+    '/kvkk',
+    '/privacy',
+    '/kampanyalar',
+    '/yeni-urunler',
+    '/api',
+    '/_next',
+    '/favicon.ico',
+    '/icon',
+    '/apple-icon'
+  ];
 
-    // Check for exact redirects
-    const redirect = redirects.get(pathname)
-    if (redirect && redirect !== pathname) {
-      return NextResponse.redirect(new URL(redirect, req.url))
-    }
-    
-    // Handle trailing slashes
-    if (pathname.length > 1 && pathname.endsWith('/')) {
-      const url = req.nextUrl.clone()
-      url.pathname = pathname.slice(0, -1)
-      return NextResponse.redirect(url)
-    }
-    
-    // Handle category pages
-    if (pathname.startsWith('/kategori/')) {
-      const pathParts = pathname.split('/')
-      
-      // /kategori/[slug] format
-      if (pathParts.length === 3) {
-        const category = pathParts[2]
-        if (!validCategories.includes(category)) {
-          return NextResponse.redirect(new URL('/kategori/elektronik', req.url))
-        }
-      }
-      
-      // /kategori/[slug]/[subSlug] format
-      if (pathParts.length === 4) {
-        const category = pathParts[2]
-        const subcategory = pathParts[3]
-        
-        // Check if category is valid
-        if (!validCategories.includes(category)) {
-          return NextResponse.redirect(new URL('/kategori/elektronik', req.url))
-        }
-        
-        // Check if subcategory is valid for this category
-        const validSubs = validSubcategories[category as keyof typeof validSubcategories]
-        if (validSubs && !validSubs.includes(subcategory)) {
-          return NextResponse.redirect(new URL(`/kategori/${category}`, req.url))
-        }
-      }
-    }
+  const isPublicRoute = publicRoutes.some(route => 
+    pathname === route || 
+    pathname.startsWith('/kategori/') ||
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/')
+  );
 
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        // Public routes that don't require authentication
-        const publicRoutes = [
-          '/',
-          '/giris',
-          '/kayit',
-          '/ilanlar',
-          '/hakkimizda',
-          '/iletisim',
-          '/sss',
-          '/yardim',
-          '/premium',
-          '/cerez-politikasi',
-          '/gizlilik',
-          '/gizlilik-politikasi',
-          '/kullanim-kosullari',
-          '/kullanim-sartlari',
-          '/kvkk',
-          '/privacy',
-          '/kampanyalar',
-          '/yeni-urunler',
-          '/api',
-          '/_next',
-          '/favicon.ico',
-          '/icon',
-          '/apple-icon'
-        ];
-
-        const isPublicRoute = publicRoutes.some(route => 
-          req.nextUrl.pathname === route || 
-          req.nextUrl.pathname.startsWith('/kategori/') ||
-          req.nextUrl.pathname.startsWith('/api/') ||
-          req.nextUrl.pathname.startsWith('/_next/')
-        );
-
-        // If it's a public route, allow access
-        if (isPublicRoute) {
-          return true;
-        }
-
-        // For protected routes, require authentication
-        return !!token;
-      },
-    },
+  // Admin sayfalarına erişim kontrolü - client-side'da yapılacak
+  const isAdminRoute = pathname.startsWith("/admin");
+  if (isAdminRoute) {
+    // Admin route'ları için client-side auth kontrolü yapılacak
+    // Burada sadece redirect yapmıyoruz, client-side'da kontrol edilecek
   }
-);
+
+  // Check for exact redirects
+  const redirect = redirects.get(pathname)
+  if (redirect && redirect !== pathname) {
+    return NextResponse.redirect(new URL(redirect, req.url))
+  }
+  
+  // Handle trailing slashes
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    const url = req.nextUrl.clone()
+    url.pathname = pathname.slice(0, -1)
+    return NextResponse.redirect(url)
+  }
+  
+  // Handle category pages
+  if (pathname.startsWith('/kategori/')) {
+    const pathParts = pathname.split('/')
+    
+    // /kategori/[slug] format
+    if (pathParts.length === 3) {
+      const category = pathParts[2]
+      if (!validCategories.includes(category)) {
+        return NextResponse.redirect(new URL('/kategori/elektronik', req.url))
+      }
+    }
+    
+    // /kategori/[slug]/[subSlug] format
+    if (pathParts.length === 4) {
+      const category = pathParts[2]
+      const subcategory = pathParts[3]
+      
+      // Check if category is valid
+      if (!validCategories.includes(category)) {
+        return NextResponse.redirect(new URL('/kategori/elektronik', req.url))
+      }
+      
+      // Check if subcategory is valid for this category
+      const validSubs = validSubcategories[category as keyof typeof validSubcategories]
+      if (validSubs && !validSubs.includes(subcategory)) {
+        return NextResponse.redirect(new URL(`/kategori/${category}`, req.url))
+      }
+    }
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

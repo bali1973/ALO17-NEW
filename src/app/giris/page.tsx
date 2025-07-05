@@ -4,43 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '@/components/Providers';
-
-// Basit client-side auth sistemi
-const hardcodedUsers = [
-  {
-    id: '1',
-    email: 'admin@alo17.com',
-    name: 'Admin User',
-    password: 'admin123',
-    role: 'admin'
-  },
-  {
-    id: '2',
-    email: 'user@alo17.com',
-    name: 'Normal User',
-    password: 'user123',
-    role: 'user'
-  },
-  {
-    id: '3',
-    email: 'test@alo17.com',
-    name: 'Test User',
-    password: 'test123',
-    role: 'user'
-  }
-];
-
-// localStorage'dan kayıtlı kullanıcıları al
-const getStoredUsers = () => {
-  if (typeof window === 'undefined') return [];
-  const stored = localStorage.getItem('alo17-users');
-  return stored ? JSON.parse(stored) : [];
-};
-
-// Tüm kullanıcıları birleştir (hardcoded + localStorage)
-const getAllUsers = () => {
-  return [...hardcodedUsers, ...getStoredUsers()];
-};
+import { signIn, hardcodedUsers } from '@/lib/auth';
 
 export default function GirisPage() {
   const router = useRouter();
@@ -71,32 +35,22 @@ export default function GirisPage() {
     try {
       console.log('🔐 Giriş denemesi:', email);
       
-      // Hardcoded kullanıcılardan ara
-      const user = getAllUsers().find(u => u.email === email && u.password === password);
+      // Yeni auth sistemi ile giriş yap
+      const session = await signIn(email, password);
 
-      if (!user) {
+      if (!session) {
         console.log('❌ Kullanıcı bulunamadı veya şifre yanlış');
         setError('Email veya şifre yanlış. Lütfen bilgilerinizi kontrol edin.');
         return;
       }
 
-      console.log('✅ Giriş başarılı:', user.email);
+      console.log('✅ Giriş başarılı:', session.user.email);
       
-      // Session'ı oluştur ve context'e kaydet
-      const session = {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        },
-        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
-      };
-      
+      // Context'e session'ı kaydet
       setSession(session);
       
       // Role'e göre yönlendirme
-      if (user.role === 'admin') {
+      if (session.user.role === 'admin') {
         console.log('👑 Admin kullanıcısı, admin sayfasına yönlendiriliyor...');
         router.push('/admin');
       } else {
@@ -127,32 +81,22 @@ export default function GirisPage() {
     try {
       console.log('🔐 Test giriş denemesi:', testUser.email);
       
-      // Hardcoded kullanıcılardan ara
-      const user = getAllUsers().find(u => u.email === testUser.email && u.password === testUser.password);
+      // Yeni auth sistemi ile test girişi yap
+      const session = await signIn(testUser.email, testUser.password);
 
-      if (!user) {
+      if (!session) {
         console.log('❌ Test kullanıcısı bulunamadı');
         setError('Test kullanıcısı bulunamadı. Lütfen veritabanını kontrol edin.');
         return;
       }
 
-      console.log('✅ Test giriş başarılı:', user.email);
+      console.log('✅ Test giriş başarılı:', session.user.email);
       
-      // Session'ı oluştur ve context'e kaydet
-      const session = {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        },
-        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
-      };
-      
+      // Context'e session'ı kaydet
       setSession(session);
       
       // Role'e göre yönlendirme
-      if (user.role === 'admin') {
+      if (session.user.role === 'admin') {
         console.log('👑 Admin test kullanıcısı, admin sayfasına yönlendiriliyor...');
         router.push('/admin');
       } else {

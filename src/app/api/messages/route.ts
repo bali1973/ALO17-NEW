@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+
+// Client-side auth için basit session kontrolü
+const getClientSession = (request: NextRequest) => {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  
+  try {
+    const token = authHeader.substring(7);
+    const session = JSON.parse(token);
+    return session;
+  } catch {
+    return null;
+  }
+};
 
 // Mesaj gönderme
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = getClientSession(request);
     
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Oturum açmanız gerekiyor' }, { status: 401 });
@@ -46,7 +60,7 @@ export async function POST(request: NextRequest) {
 // Mesajları listeleme
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = getClientSession(request);
     
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Oturum açmanız gerekiyor' }, { status: 401 });
