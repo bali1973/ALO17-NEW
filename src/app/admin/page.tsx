@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/Providers';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -144,7 +144,7 @@ const premiumFeatures = [
 ];
 
 export default function AdminPage() {
-  const { data: session, status } = useSession();
+  const { session, isLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [premiumPlans, setPremiumPlans] = useState({
@@ -157,16 +157,16 @@ export default function AdminPage() {
 
   // Admin kontrolü
   useEffect(() => {
-    if (status === 'loading') return; // Hala yükleniyor
+    if (isLoading) return; // Hala yükleniyor
 
-    if (status === 'unauthenticated') {
+    if (!session) {
       console.log('❌ Kullanıcı giriş yapmamış, giriş sayfasına yönlendiriliyor...');
       router.push('/giris');
       return;
     }
 
-    if (status === 'authenticated' && session?.user) {
-      const userRole = (session.user as any)?.role;
+    if (session?.user) {
+      const userRole = session.user.role;
       console.log('🔍 Kullanıcı role:', userRole);
       
       if (userRole !== 'admin') {
@@ -177,10 +177,10 @@ export default function AdminPage() {
       
       console.log('✅ Admin kullanıcısı, admin sayfasına erişim veriliyor...');
     }
-  }, [status, session, router]);
+  }, [isLoading, session, router]);
 
   // Loading durumu
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -193,7 +193,7 @@ export default function AdminPage() {
   }
 
   // Admin değilse veya giriş yapmamışsa boş div döndür (yönlendirme useEffect'te yapılacak)
-  if (status === 'unauthenticated' || (session?.user && (session.user as any)?.role !== 'admin')) {
+  if (!session || session.user.role !== 'admin') {
     return <div></div>;
   }
 
