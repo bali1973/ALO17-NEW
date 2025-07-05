@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/components/Providers';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { PencilIcon, CameraIcon } from '@heroicons/react/24/outline';
 
 export default function EditProfilePage() {
-  const { data: session, status } = useSession();
+  const { session, isLoading } = useAuth();
   const router = useRouter();
   
   const [formData, setFormData] = useState({
@@ -22,7 +22,7 @@ export default function EditProfilePage() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
+    if (session?.user) {
       // Mevcut kullanıcı bilgilerini yükle
       setFormData({
         name: session.user.name || '',
@@ -30,9 +30,9 @@ export default function EditProfilePage() {
         phone: '', // Session'da telefon yok, API'den alınacak
         location: '', // Session'da konum yok, API'den alınacak
       });
-      setAvatar(session.user.image || '/images/placeholder.jpg');
+      setAvatar('/images/placeholder.jpg');
     }
-  }, [session, status]);
+  }, [session]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -92,11 +92,11 @@ export default function EditProfilePage() {
     }
   };
 
-  if (status === 'loading') {
+  if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
   }
 
-  if (status !== 'authenticated') {
+  if (!session) {
     router.push('/giris');
     return null;
   }
