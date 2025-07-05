@@ -1,6 +1,5 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { compare } from 'bcryptjs';
 import NextAuth from 'next-auth';
 
 // Vercel için hardcoded kullanıcılar (SQLite yerine)
@@ -9,21 +8,21 @@ const hardcodedUsers = [
     id: '1',
     email: 'admin@alo17.com',
     name: 'Admin User',
-    password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8i', // admin123
+    password: 'admin123', // Plain text for demo
     role: 'admin'
   },
   {
     id: '2',
     email: 'user@alo17.com',
     name: 'Normal User',
-    password: '$2a$12$8K1p/a0dL1LXMIgoEDFrwOfgqwAGcwZQh3UPHz9pLr8Tp9VHhqK8i', // user123
+    password: 'user123', // Plain text for demo
     role: 'user'
   },
   {
     id: '3',
     email: 'test@alo17.com',
     name: 'Test User',
-    password: '$2a$12$9K1p/a0dL1LXMIgoEDFrwOfgqwAGcwZQh3UPHz9pLr8Tp9VHhqK8i', // test123
+    password: 'test123', // Plain text for demo
     role: 'user'
   }
 ];
@@ -59,7 +58,8 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log('🔐 Şifre kontrol ediliyor...');
-          const isPasswordValid = await compare(credentials.password, user.password);
+          // Plain text password comparison for demo
+          const isPasswordValid = credentials.password === user.password;
           console.log('🔐 Şifre kontrol sonucu:', isPasswordValid);
 
           if (!isPasswordValid) {
