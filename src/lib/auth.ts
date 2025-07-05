@@ -8,7 +8,7 @@ import NextAuth from 'next-auth';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  debug: process.env.NODE_ENV === 'development',
+  debug: true,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -17,6 +17,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        console.log('🔐 Auth başladı - credentials:', { email: credentials?.email, hasPassword: !!credentials?.password });
+        
         if (!credentials?.email || !credentials?.password) {
           console.log('❌ Credentials eksik:', { email: !!credentials?.email, password: !!credentials?.password });
           return null;
@@ -28,6 +30,8 @@ export const authOptions: NextAuthOptions = {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
+
+          console.log('📋 Bulunan kullanıcı:', user ? { id: user.id, email: user.email, hasPassword: !!user.password } : 'null');
 
           if (!user) {
             console.log('❌ Kullanıcı bulunamadı:', credentials.email);
@@ -41,6 +45,7 @@ export const authOptions: NextAuthOptions = {
 
           console.log('🔐 Şifre kontrol ediliyor...');
           const isPasswordValid = await compare(credentials.password, user.password);
+          console.log('🔐 Şifre kontrol sonucu:', isPasswordValid);
 
           if (!isPasswordValid) {
             console.log('❌ Şifre yanlış:', credentials.email);
@@ -48,12 +53,14 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log('✅ Giriş başarılı:', credentials.email);
-          return {
+          const userData = {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
           };
+          console.log('📋 Döndürülen kullanıcı verisi:', userData);
+          return userData;
         } catch (error) {
           console.error('💥 Auth error:', error);
           return null;
@@ -72,6 +79,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
+      console.log('🔄 JWT callback:', { tokenId: token.id, userId: user?.id, userRole: (user as any)?.role });
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
@@ -79,6 +87,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      console.log('🔄 Session callback:', { sessionUserId: session.user?.id, tokenId: token.id, tokenRole: token.role });
       if (session.user) {
         session.user.id = token.id as string;
         (session.user as any).role = token.role as string;
@@ -86,7 +95,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  useSecureCookies: process.env.NODE_ENV === 'production',
+  useSecureCookies: false,
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
@@ -94,7 +103,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
         maxAge: 30 * 24 * 60 * 60, // 30 gün
       },
     },
