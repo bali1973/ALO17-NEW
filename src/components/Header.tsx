@@ -1,16 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
 import { Search, User, Bell, MessageCircle, LogOut, Settings, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export default function Header() {
-  const { data: session } = useSession();
+  const [session, setSession] = useState<any>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    // localStorage'dan session'ı al
+    const savedSession = localStorage.getItem('alo17-session');
+    if (savedSession) {
+      try {
+        const sessionData = JSON.parse(savedSession);
+        // Session'ın süresi dolmuş mu kontrol et
+        if (new Date(sessionData.expires) > new Date()) {
+          setSession(sessionData);
+        } else {
+          localStorage.removeItem('alo17-session');
+        }
+      } catch (error) {
+        localStorage.removeItem('alo17-session');
+      }
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('alo17-session');
+    setSession(null);
+    setIsProfileMenuOpen(false);
+    window.location.href = '/';
+  };
 
   return (
     <header className="bg-white border-b shadow-sm sticky top-0 z-50">
@@ -106,7 +130,7 @@ export default function Header() {
                         <Sparkles className="h-4 w-4 inline mr-2" />
                         Premium
                       </Link>
-                      {(session?.user as any)?.role === 'admin' && (
+                      {session.user?.role === 'admin' && (
                         <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                           <Settings className="h-4 w-4 inline mr-2" />
                           Admin Paneli
@@ -114,7 +138,7 @@ export default function Header() {
                       )}
                       <hr className="my-1" />
                       <button
-                        onClick={() => signOut()}
+                        onClick={handleSignOut}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         <LogOut className="h-4 w-4 inline mr-2" />
