@@ -30,6 +30,18 @@ const hardcodedUsers = [
   }
 ];
 
+// localStorage'dan kayıtlı kullanıcıları al
+const getStoredUsers = () => {
+  if (typeof window === 'undefined') return [];
+  const stored = localStorage.getItem('alo17-users');
+  return stored ? JSON.parse(stored) : [];
+};
+
+// Tüm kullanıcıları birleştir (hardcoded + localStorage)
+const getAllUsers = () => {
+  return [...hardcodedUsers, ...getStoredUsers()];
+};
+
 export default function GirisPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -60,7 +72,7 @@ export default function GirisPage() {
       console.log('🔐 Giriş denemesi:', email);
       
       // Hardcoded kullanıcılardan ara
-      const user = hardcodedUsers.find(u => u.email === email && u.password === password);
+      const user = getAllUsers().find(u => u.email === email && u.password === password);
 
       if (!user) {
         console.log('❌ Kullanıcı bulunamadı veya şifre yanlış');
@@ -116,7 +128,7 @@ export default function GirisPage() {
       console.log('🔐 Test giriş denemesi:', testUser.email);
       
       // Hardcoded kullanıcılardan ara
-      const user = hardcodedUsers.find(u => u.email === testUser.email && u.password === testUser.password);
+      const user = getAllUsers().find(u => u.email === testUser.email && u.password === testUser.password);
 
       if (!user) {
         console.log('❌ Test kullanıcısı bulunamadı');
