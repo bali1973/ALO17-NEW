@@ -1,94 +1,188 @@
 'use client'
 
 import { FaUtensils, FaCoffee, FaGlassMartini, FaStar, FaMapMarkerAlt, FaFilter, FaSearch } from 'react-icons/fa'
-import Link from 'next/link'
 import { useState } from 'react'
-import { Sparkles, Star, Clock, TrendingUp, MapPin, Building, DollarSign } from 'lucide-react'
+import { Sparkles, Star, Clock, TrendingUp } from 'lucide-react'
+
+// Gerçek yemek-icecek ilanları
+const foodListings = [
+  {
+    id: 1,
+    title: 'Lezzetli Türk Mutfağı - Özel Menü',
+    price: '150',
+    location: 'İstanbul',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'restoranlar',
+    cuisine: 'Türk Mutfağı',
+    createdAt: '2024-03-20',
+    isPremium: true,
+    premiumFeatures: ['featured', 'urgent', 'highlighted'],
+    views: 245,
+    isUrgent: true,
+    isFeatured: true,
+    rating: 4.8,
+    delivery: true,
+    takeaway: true
+  },
+  {
+    id: 2,
+    title: 'İtalyan Restoranı - Pizza & Pasta',
+    price: '200',
+    location: 'Ankara',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'restoranlar',
+    cuisine: 'İtalyan Mutfağı',
+    createdAt: '2024-03-19',
+    isPremium: false,
+    premiumFeatures: [],
+    views: 89,
+    isUrgent: false,
+    isFeatured: false,
+    rating: 4.5,
+    delivery: true,
+    takeaway: false
+  },
+  {
+    id: 3,
+    title: 'Kahve Dükkanı - Özel Kahve Çeşitleri',
+    price: '45',
+    location: 'İzmir',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'kafeler',
+    cuisine: 'Kahve',
+    createdAt: '2024-03-18',
+    isPremium: true,
+    premiumFeatures: ['featured', 'highlighted'],
+    views: 156,
+    isUrgent: false,
+    isFeatured: true,
+    rating: 4.7,
+    delivery: false,
+    takeaway: true
+  },
+  {
+    id: 4,
+    title: 'Sushi Bar - Taze Deniz Ürünleri',
+    price: '350',
+    location: 'Bursa',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'restoranlar',
+    cuisine: 'Japon Mutfağı',
+    createdAt: '2024-03-17',
+    isPremium: true,
+    premiumFeatures: ['urgent', 'top'],
+    views: 312,
+    isUrgent: true,
+    isFeatured: false,
+    rating: 4.9,
+    delivery: true,
+    takeaway: true
+  },
+  {
+    id: 5,
+    title: 'Ev Yapımı Tatlılar - Özel Tarifler',
+    price: '80',
+    location: 'Antalya',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'tatli-pastane',
+    cuisine: 'Tatlı',
+    createdAt: '2024-03-16',
+    isPremium: false,
+    premiumFeatures: [],
+    views: 67,
+    isUrgent: false,
+    isFeatured: false,
+    rating: 4.6,
+    delivery: true,
+    takeaway: true
+  },
+  {
+    id: 6,
+    title: 'Cocktail Bar - Özel İçecekler',
+    price: '120',
+    location: 'İstanbul',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'icecekler',
+    cuisine: 'İçecek',
+    createdAt: '2024-03-15',
+    isPremium: true,
+    premiumFeatures: ['featured', 'urgent', 'top'],
+    views: 423,
+    isUrgent: true,
+    isFeatured: true,
+    rating: 4.8,
+    delivery: false,
+    takeaway: false
+  },
+  {
+    id: 7,
+    title: 'Fast Food - Burger & Pizza',
+    price: '75',
+    location: 'Ankara',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'fast-food',
+    cuisine: 'Fast Food',
+    createdAt: '2024-03-14',
+    isPremium: false,
+    premiumFeatures: [],
+    views: 134,
+    isUrgent: false,
+    isFeatured: false,
+    rating: 4.3,
+    delivery: true,
+    takeaway: true
+  },
+  {
+    id: 8,
+    title: 'Organik Smoothie Bar',
+    price: '55',
+    location: 'İzmir',
+    image: '/images/listings/iphone-14-pro-max-1.jpg',
+    category: 'yemek-icecek',
+    subcategory: 'icecekler',
+    cuisine: 'Sağlıklı İçecek',
+    createdAt: '2024-03-13',
+    isPremium: true,
+    premiumFeatures: ['featured'],
+    views: 98,
+    isUrgent: false,
+    isFeatured: true,
+    rating: 4.7,
+    delivery: true,
+    takeaway: true
+  }
+]
 
 const subcategories = [
-  { 
-    id: 'restoranlar', 
-    name: 'Restoranlar', 
-    icon: <FaUtensils className="inline mr-2 text-yellow-500" />,
-    description: 'Türk, İtalyan, Uzak Doğu ve daha birçok mutfak türünde restoranlar',
-    count: 156,
-    isPremium: true,
-    rating: 4.7,
-    location: 'İstanbul',
-    price: '150 - 300'
-  },
-  { 
-    id: 'kafeler', 
-    name: 'Kafeler', 
-    icon: <FaCoffee className="inline mr-2 text-brown-500" />,
-    description: 'Kahve, tatlı ve atıştırmalıklar için en iyi kafeler',
-    count: 89,
-    isPremium: false,
-    rating: 4.5,
-    location: 'Ankara',
-    price: '50 - 120'
-  },
-  { 
-    id: 'icecekler', 
-    name: 'İçecekler', 
-    icon: <FaGlassMartini className="inline mr-2 text-blue-500" />,
-    description: 'Alkollü, alkolsüz, kahve ve sağlıklı içecek çeşitleri',
-    count: 234,
-    isPremium: true,
-    rating: 4.8,
-    location: 'İzmir',
-    price: '200 - 500'
-  },
-  { 
-    id: 'fast-food', 
-    name: 'Fast Food', 
-    icon: <FaUtensils className="inline mr-2 text-red-500" />,
-    description: 'Hızlı ve lezzetli fast food seçenekleri',
-    count: 67,
-    isPremium: false,
-    rating: 4.3,
-    location: 'Bursa',
-    price: '50 - 100'
-  },
-  { 
-    id: 'ozel-yemekler', 
-    name: 'Özel Yemekler', 
-    icon: <FaUtensils className="inline mr-2 text-green-500" />,
-    description: 'Özel tarifler ve ev yapımı lezzetler',
-    count: 45,
-    isPremium: false,
-    rating: 4.6,
-    location: 'Antalya',
-    price: '80 - 150'
-  },
-  { 
-    id: 'tatli-pastane', 
-    name: 'Tatlı & Pastane', 
-    icon: <FaUtensils className="inline mr-2 text-pink-500" />,
-    description: 'Tatlılar, pastalar ve özel ikramlar',
-    count: 78,
-    isPremium: false,
-    rating: 4.4,
-    location: 'İstanbul',
-    price: '30 - 80'
-  },
+  { id: 'restoranlar', name: 'Restoranlar', icon: <FaUtensils className="inline mr-2 text-yellow-500" /> },
+  { id: 'kafeler', name: 'Kafeler', icon: <FaCoffee className="inline mr-2 text-brown-500" /> },
+  { id: 'icecekler', name: 'İçecekler', icon: <FaGlassMartini className="inline mr-2 text-blue-500" /> },
+  { id: 'fast-food', name: 'Fast Food', icon: <FaUtensils className="inline mr-2 text-red-500" /> },
+  { id: 'tatli-pastane', name: 'Tatlı & Pastane', icon: <FaUtensils className="inline mr-2 text-pink-500" /> },
 ]
 
 export default function YemekIcecekPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [priceRange, setPriceRange] = useState<string | null>(null)
-  const [location, setLocation] = useState<string | null>(null)
+  const [cuisine, setCuisine] = useState<string | null>(null)
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
 
   // Filtreleme ve sıralama
-  const filteredListings = subcategories
+  const filteredListings = foodListings
     .filter(listing => {
       if (showPremiumOnly && !listing.isPremium) return false
-      if (selectedSubcategory && listing.id !== selectedSubcategory) return false
-      if (location && listing.location !== location) return false
+      if (selectedSubcategory && listing.subcategory !== selectedSubcategory) return false
+      if (cuisine && listing.cuisine !== cuisine) return false
       if (priceRange) {
-        const price = parseInt(listing.price.split('-')[0].replace(/[^0-9]/g, ''))
+        const price = parseInt(listing.price)
         switch (priceRange) {
           case '0-50':
             if (price > 50) return false
@@ -109,19 +203,19 @@ export default function YemekIcecekPage() {
     .sort((a, b) => {
       switch (sortBy) {
         case 'newest':
-          return b.count - a.count
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         case 'oldest':
-          return a.count - b.count
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         case 'price-low':
-          return parseInt(a.price.split('-')[0].replace(/[^0-9]/g, '')) - parseInt(b.price.split('-')[0].replace(/[^0-9]/g, ''))
+          return parseInt(a.price) - parseInt(b.price)
         case 'price-high':
-          return parseInt(b.price.split('-')[0].replace(/[^0-9]/g, '')) - parseInt(a.price.split('-')[0].replace(/[^0-9]/g, ''))
+          return parseInt(b.price) - parseInt(a.price)
         case 'rating':
           return b.rating - a.rating
         case 'premium-first':
           if (a.isPremium && !b.isPremium) return -1
           if (!a.isPremium && b.isPremium) return 1
-          return b.count - a.count
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         default:
           return 0
       }
@@ -183,13 +277,13 @@ export default function YemekIcecekPage() {
                   className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
                 />
                 <Sparkles className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm">Sadece Premium Kategoriler</span>
+                <span className="text-sm">Sadece Premium İlanlar</span>
               </label>
             </div>
 
-            {/* Alt Kategori Filtresi */}
+            {/* Alt Kategoriler */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Kategori Türü</h3>
+              <h3 className="font-medium mb-2">Kategori</h3>
               <div className="space-y-2">
                 {subcategories.map(subcategory => (
                   <label key={subcategory.id} className="flex items-center">
@@ -205,19 +299,19 @@ export default function YemekIcecekPage() {
               </div>
             </div>
 
-            {/* Konum Filtresi */}
+            {/* Mutfak Türü Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Konum</h3>
+              <h3 className="font-medium mb-2">Mutfak Türü</h3>
               <div className="space-y-2">
-                {['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya'].map(city => (
-                  <label key={city} className="flex items-center">
+                {['Türk Mutfağı', 'İtalyan Mutfağı', 'Japon Mutfağı', 'Kahve', 'İçecek', 'Fast Food', 'Tatlı', 'Sağlıklı İçecek'].map(cuisineType => (
+                  <label key={cuisineType} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={location === city}
-                      onChange={() => setLocation(location === city ? null : city)}
+                      checked={cuisine === cuisineType}
+                      onChange={() => setCuisine(cuisine === cuisineType ? null : cuisineType)}
                     />
-                    <span>{city}</span>
+                    <span>{cuisineType}</span>
                   </label>
                 ))}
               </div>
@@ -225,7 +319,7 @@ export default function YemekIcecekPage() {
 
             {/* Fiyat Aralığı Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Ortalama Fiyat</h3>
+              <h3 className="font-medium mb-2">Fiyat Aralığı</h3>
               <div className="space-y-2">
                 {[
                   { value: '0-50', label: '0 - 50 TL' },
@@ -254,10 +348,10 @@ export default function YemekIcecekPage() {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">
-                {filteredListings.length} kategori bulundu
+                {filteredListings.length} ilan bulundu
                 {showPremiumOnly && (
                   <span className="ml-2 text-yellow-600 font-medium">
-                    (Premium kategoriler)
+                    (Premium ilanlar)
                   </span>
                 )}
               </span>
@@ -267,8 +361,8 @@ export default function YemekIcecekPage() {
                 className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
                 aria-label="Sıralama seçenekleri"
               >
-                <option value="newest">En Popüler</option>
-                <option value="oldest">En Az Popüler</option>
+                <option value="newest">En Yeni</option>
+                <option value="oldest">En Eski</option>
                 <option value="price-low">Fiyat (Düşükten Yükseğe)</option>
                 <option value="price-high">Fiyat (Yüksekten Düşüğe)</option>
                 <option value="rating">Puana Göre</option>
@@ -277,75 +371,103 @@ export default function YemekIcecekPage() {
             </div>
           </div>
 
-          {/* Kategoriler */}
+          {/* İlanlar */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredListings.map((listing) => (
-              <Link
+              <div
                 key={listing.id}
-                href={`/kategori/yemek-icecek/${listing.id}`}
-                className={`block bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 ${
+                className={`bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 ${
                   listing.isPremium ? 'ring-2 ring-yellow-200 hover:ring-yellow-300' : ''
-                }`}
+                } ${listing.isUrgent ? 'border-l-4 border-red-500' : ''}`}
               >
-                <div className="p-4">
+                <div className="relative h-48">
+                  <img
+                    src={listing.image}
+                    alt={listing.title}
+                    className="w-full h-full object-cover"
+                  />
+                  
                   {/* Premium Rozetleri */}
-                  <div className="flex flex-wrap gap-1 mb-3">
+                  <div className="absolute top-2 left-2 flex flex-wrap gap-1">
                     {listing.isPremium && (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                         <Sparkles className="w-3 h-3 mr-1" />
                         Premium
                       </span>
                     )}
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {listing.count} ilan
+                    {listing.isUrgent && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Acil
+                      </span>
+                    )}
+                    {listing.isFeatured && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <Star className="w-3 h-3 mr-1" />
+                        Öne Çıkan
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Görüntülenme Sayısı */}
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
+                    {listing.views} görüntülenme
+                  </div>
+                </div>
+                
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold mb-2 line-clamp-2">{listing.title}</h3>
+                  <p className="text-xl font-bold text-alo-orange mb-2">
+                    {parseInt(listing.price).toLocaleString('tr-TR')} ₺
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-gray-500 mb-2">
+                    <div className="flex items-center">
+                      <span className="text-sm">{listing.location}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FaStar className="w-3 h-3 text-yellow-500 mr-1" />
+                      <span className="text-xs">{listing.rating}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center text-gray-500 mb-2">
+                    <span className="text-xs bg-gray-100 px-2 py-1 rounded mr-2">{listing.cuisine}</span>
+                    <span className="text-xs">
+                      {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-semibold mb-2 line-clamp-2">{listing.name}</h3>
-                  
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{listing.location}</span>
+                  {/* Teslimat Bilgileri */}
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {listing.delivery && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Teslimat
+                      </span>
+                    )}
+                    {listing.takeaway && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Paket Servis
+                      </span>
+                    )}
                   </div>
-                  
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <DollarSign className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-medium text-alo-orange">{listing.price} ₺</span>
-                  </div>
-
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <FaStar className="w-4 h-4 mr-1 text-yellow-500" />
-                    <span className="text-sm">{listing.rating} / 5.0</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-gray-500 mb-3">
-                    <div className="flex items-center">
-                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">{listing.icon} Kategori</span>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">{listing.description}</p>
 
                   {/* Premium Özellikler */}
-                  {listing.isPremium && (
+                  {listing.premiumFeatures.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                        {getPremiumFeatureIcon('featured')}
-                        <span className="ml-1">Öne Çıkan</span>
-                      </span>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                        {getPremiumFeatureIcon('top')}
-                        <span className="ml-1">Popüler</span>
-                      </span>
+                      {listing.premiumFeatures.map((feature, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+                        >
+                          {getPremiumFeatureIcon(feature)}
+                          <span className="ml-1">{getPremiumFeatureText(feature)}</span>
+                        </span>
+                      ))}
                     </div>
                   )}
-
-                  {/* İncele Butonu */}
-                  <div className="mt-3 text-xs text-gray-500">
-                    <span className="text-alo-orange font-medium">İncele →</span>
-                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
 
@@ -354,16 +476,16 @@ export default function YemekIcecekPage() {
             <div className="text-center py-12">
               <FaUtensils className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Kategori Bulunamadı
+                İlan Bulunamadı
               </h3>
               <p className="text-gray-600 mb-4">
-                Seçtiğiniz kriterlere uygun kategori bulunamadı. Lütfen filtreleri değiştirerek tekrar deneyin.
+                Seçtiğiniz kriterlere uygun ilan bulunamadı. Lütfen filtreleri değiştirerek tekrar deneyin.
               </p>
               <button
                 onClick={() => {
                   setSelectedSubcategory(null)
                   setPriceRange(null)
-                  setLocation(null)
+                  setCuisine(null)
                   setShowPremiumOnly(false)
                   setSortBy('newest')
                 }}
@@ -373,29 +495,6 @@ export default function YemekIcecekPage() {
               </button>
             </div>
           )}
-
-          {/* İstatistikler */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-semibold mb-4">Yemek & İçecek Kategorisi İstatistikleri</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-alo-orange">669</div>
-                <div className="text-sm text-gray-600">Toplam İlan</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">156</div>
-                <div className="text-sm text-gray-600">Restoran</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">89</div>
-                <div className="text-sm text-gray-600">Kafe</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">234</div>
-                <div className="text-sm text-gray-600">İçecek</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
