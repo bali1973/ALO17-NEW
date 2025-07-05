@@ -3,6 +3,7 @@ import './globals.css'
 import Providers from '@/components/Providers'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { ToastProvider } from '@/components/ui/toast'
 
 export const metadata: Metadata = {
   title: 'Alo17 - Ev Hizmetleri ve Daha Fazlası',
@@ -22,13 +23,15 @@ export default function RootLayout({
     <html lang="tr">
       <body className="font-sans">
         <Providers>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <ToastProvider>
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </ToastProvider>
         </Providers>
       </body>
     </html>

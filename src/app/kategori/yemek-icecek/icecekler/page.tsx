@@ -1,131 +1,131 @@
 'use client'
 
-import { FaUtensils, FaWineGlass, FaMusic, FaStar, FaMapMarkerAlt, FaClock } from 'react-icons/fa'
+import { FaGlassMartini, FaCoffee, FaWineGlass, FaBeer, FaStar, FaMapMarkerAlt } from 'react-icons/fa'
 import { useState } from 'react'
 import { Sparkles, Star, Clock, TrendingUp, MapPin, Building, DollarSign } from 'lucide-react'
 
 const subcategories = [
-  { id: 'turk-mutfagi', name: 'Türk Mutfağı', icon: <FaUtensils className="inline mr-2 text-red-500" /> },
-  { id: 'italyan', name: 'İtalyan', icon: <FaUtensils className="inline mr-2 text-green-500" /> },
-  { id: 'uzak-dogu', name: 'Uzak Doğu', icon: <FaUtensils className="inline mr-2 text-orange-500" /> },
-  { id: 'fast-food', name: 'Fast Food', icon: <FaUtensils className="inline mr-2 text-yellow-500" /> },
-  { id: 'deniz-urunleri', name: 'Deniz Ürünleri', icon: <FaUtensils className="inline mr-2 text-blue-500" /> },
-  { id: 'et-restorani', name: 'Et Restoranı', icon: <FaUtensils className="inline mr-2 text-purple-500" /> },
+  { id: 'alkollu-icecekler', name: 'Alkollü İçecekler', icon: <FaWineGlass className="inline mr-2 text-red-500" /> },
+  { id: 'alkolsuz-icecekler', name: 'Alkolsüz İçecekler', icon: <FaGlassMartini className="inline mr-2 text-blue-500" /> },
+  { id: 'kahve-cesitleri', name: 'Kahve Çeşitleri', icon: <FaCoffee className="inline mr-2 text-brown-500" /> },
+  { id: 'bira-cesitleri', name: 'Bira Çeşitleri', icon: <FaBeer className="inline mr-2 text-yellow-500" /> },
+  { id: 'kokteyl', name: 'Kokteyl', icon: <FaGlassMartini className="inline mr-2 text-purple-500" /> },
+  { id: 'saglikli-icecekler', name: 'Sağlıklı İçecekler', icon: <FaGlassMartini className="inline mr-2 text-green-500" /> },
 ]
 
-// Restoran ilanları
-const restaurantListings = [
+// İçecek ilanları
+const drinkListings = [
   {
     id: 1,
-    title: 'Osmanlı Saray Mutfağı - Geleneksel Türk Lezzetleri',
-    company: 'Osmanlı Restoran',
+    title: 'Premium Şarap Koleksiyonu - Dünya Çapında Seçkin Şaraplar',
+    company: 'Şarap Evi',
     location: 'İstanbul',
-    price: '150 - 300',
-    type: 'Türk Mutfağı',
+    price: '200 - 500',
+    type: 'Alkollü İçecekler',
     rating: 4.8,
-    description: 'Geleneksel Osmanlı mutfağının en seçkin lezzetlerini sunan lüks restoran.',
+    description: 'Dünya çapında seçkin şarap markalarının en kaliteli ürünleri.',
     createdAt: '2024-03-20',
     isPremium: true,
     premiumFeatures: ['featured', 'urgent'],
     views: 245,
     isUrgent: true,
     isFeatured: true,
-    category: 'turk-mutfagi',
-    features: ['Açık Hava', 'Teras', 'Canlı Müzik', 'Alkol Servisi', 'Kahvaltı']
+    category: 'alkollu-icecekler',
+    features: ['Premium Kalite', 'Dünya Markaları', 'Uzman Danışmanlık', 'Teslimat']
   },
   {
     id: 2,
-    title: 'Pizza Roma - Otantik İtalyan Mutfağı',
-    company: 'Pizza Roma',
+    title: 'Taze Meyve Suları - Doğal ve Sağlıklı',
+    company: 'Meyve Suyu Bar',
     location: 'Ankara',
-    price: '80 - 150',
-    type: 'İtalyan',
+    price: '15 - 35',
+    type: 'Alkolsüz İçecekler',
     rating: 4.6,
-    description: 'Gerçek İtalyan pizzası ve makarnaları ile unutulmaz lezzetler.',
+    description: 'Günlük taze meyvelerden sıkılan doğal meyve suları.',
     createdAt: '2024-03-19',
     isPremium: false,
     premiumFeatures: [],
     views: 89,
     isUrgent: false,
     isFeatured: false,
-    category: 'italyan',
-    features: ['Açık Hava', 'Wi-Fi', 'Alkol Servisi']
+    category: 'alkolsuz-icecekler',
+    features: ['Taze Meyve', 'Doğal', 'Sağlıklı', 'Vegan']
   },
   {
     id: 3,
-    title: 'Sushi Master - Premium Japon Mutfağı',
-    company: 'Sushi Master',
+    title: 'Özel Kahve Çeşitleri - Barista Kalitesi',
+    company: 'Kahve Ustası',
     location: 'İzmir',
-    price: '200 - 400',
-    type: 'Uzak Doğu',
-    rating: 4.9,
-    description: 'Japon mutfağının en taze ve kaliteli malzemelerle hazırlanan lezzetleri.',
+    price: '25 - 60',
+    type: 'Kahve Çeşitleri',
+    rating: 4.7,
+    description: 'Uzman barista tarafından hazırlanan özel kahve çeşitleri.',
     createdAt: '2024-03-18',
     isPremium: true,
     premiumFeatures: ['featured'],
     views: 156,
     isUrgent: false,
     isFeatured: true,
-    category: 'uzak-dogu',
-    features: ['Açık Hava', 'Alkol Servisi', 'Özel Menü', 'Vegan Seçenekler']
+    category: 'kahve-cesitleri',
+    features: ['Barista Kalitesi', 'Özel Çekirdekler', 'Latte Art', 'Sıcak/Soğuk']
   },
   {
     id: 4,
-    title: 'Burger House - Premium Fast Food',
-    company: 'Burger House',
+    title: 'Craft Bira Koleksiyonu - Yerel ve İthal',
+    company: 'Bira Evi',
     location: 'Bursa',
-    price: '50 - 100',
-    type: 'Fast Food',
-    rating: 4.3,
-    description: 'Kaliteli malzemelerle hazırlanan premium burger ve fast food lezzetleri.',
+    price: '30 - 80',
+    type: 'Bira Çeşitleri',
+    rating: 4.5,
+    description: 'Yerel craft biralar ve dünya çapında seçkin bira markaları.',
     createdAt: '2024-03-17',
     isPremium: true,
     premiumFeatures: ['urgent', 'top'],
     views: 312,
     isUrgent: true,
     isFeatured: false,
-    category: 'fast-food',
-    features: ['Açık Hava', 'Wi-Fi', 'Glutensiz Seçenekler']
+    category: 'bira-cesitleri',
+    features: ['Craft Bira', 'Yerel Üretim', 'İthal Markalar', 'Özel Koleksiyon']
   },
   {
     id: 5,
-    title: 'Balıkçı Ahmet - Taze Deniz Ürünleri',
-    company: 'Balıkçı Ahmet',
+    title: 'Signature Kokteyller - Uzman Mixolog',
+    company: 'Kokteyl Bar',
     location: 'Antalya',
-    price: '120 - 250',
-    type: 'Deniz Ürünleri',
-    rating: 4.7,
-    description: 'Günlük taze balık ve deniz ürünleri ile hazırlanan özel menüler.',
+    price: '80 - 150',
+    type: 'Kokteyl',
+    rating: 4.9,
+    description: 'Uzman mixolog tarafından hazırlanan özel kokteyl çeşitleri.',
     createdAt: '2024-03-16',
     isPremium: false,
     premiumFeatures: [],
     views: 67,
     isUrgent: false,
     isFeatured: false,
-    category: 'deniz-urunleri',
-    features: ['Açık Hava', 'Teras', 'Alkol Servisi']
+    category: 'kokteyl',
+    features: ['Uzman Mixolog', 'Özel Tarifler', 'Premium Malzemeler', 'Canlı Hazırlama']
   },
   {
     id: 6,
-    title: 'Et Evi - Premium Et Restoranı',
-    company: 'Et Evi',
+    title: 'Detoks İçecekleri - Sağlık ve Zindelik',
+    company: 'Sağlık İçecekleri',
     location: 'İstanbul',
-    price: '180 - 350',
-    type: 'Et Restoranı',
+    price: '40 - 90',
+    type: 'Sağlıklı İçecekler',
     rating: 4.8,
-    description: 'En kaliteli etlerle hazırlanan steak ve ızgara çeşitleri.',
+    description: 'Doğal malzemelerle hazırlanan detoks ve sağlık içecekleri.',
     createdAt: '2024-03-15',
     isPremium: true,
     premiumFeatures: ['featured', 'urgent', 'top'],
     views: 423,
     isUrgent: true,
     isFeatured: true,
-    category: 'et-restorani',
-    features: ['Açık Hava', 'Teras', 'Canlı Müzik', 'Alkol Servisi', 'Özel Menü']
+    category: 'saglikli-icecekler',
+    features: ['Detoks', 'Organik', 'Vegan', 'Glutensiz', 'Şekersiz']
   }
 ]
 
-export default function RestaurantsCategoryPage() {
+export default function DrinksCategoryPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [priceRange, setPriceRange] = useState<string | null>(null)
   const [location, setLocation] = useState<string | null>(null)
@@ -134,7 +134,7 @@ export default function RestaurantsCategoryPage() {
   const [features, setFeatures] = useState<string[]>([])
 
   // Filtreleme ve sıralama
-  const filteredListings = restaurantListings
+  const filteredListings = drinkListings
     .filter(listing => {
       if (showPremiumOnly && !listing.isPremium) return false
       if (selectedSubcategory && listing.category !== selectedSubcategory) return false
@@ -143,17 +143,17 @@ export default function RestaurantsCategoryPage() {
       if (priceRange) {
         const price = parseInt(listing.price.split('-')[0].replace(/[^0-9]/g, ''))
         switch (priceRange) {
-          case '0-100':
-            if (price > 100) return false
+          case '0-50':
+            if (price > 50) return false
             break
-          case '100-200':
-            if (price < 100 || price > 200) return false
+          case '50-150':
+            if (price < 50 || price > 150) return false
             break
-          case '200-400':
-            if (price < 200 || price > 400) return false
+          case '150-300':
+            if (price < 150 || price > 300) return false
             break
-          case '400+':
-            if (price < 400) return false
+          case '300+':
+            if (price < 300) return false
             break
         }
       }
@@ -213,9 +213,9 @@ export default function RestaurantsCategoryPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Restoranlar</h1>
+        <h1 className="text-3xl font-bold text-gray-900">İçecekler</h1>
         <p className="text-gray-600 mt-2">
-          Türk, İtalyan, Uzak Doğu ve daha birçok mutfak türünde restoranları keşfedin.
+          Alkollü, alkolsüz, kahve ve sağlıklı içecek çeşitlerini keşfedin.
         </p>
       </div>
       
@@ -240,9 +240,9 @@ export default function RestaurantsCategoryPage() {
               </label>
             </div>
 
-            {/* Mutfak Türü Filtresi */}
+            {/* İçecek Türü Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Mutfak Türü</h3>
+              <h3 className="font-medium mb-2">İçecek Türü</h3>
               <div className="space-y-2">
                 {subcategories.map(subcategory => (
                   <label key={subcategory.id} className="flex items-center">
@@ -263,15 +263,16 @@ export default function RestaurantsCategoryPage() {
               <h3 className="font-medium mb-2">Özellikler</h3>
               <div className="space-y-2">
                 {[
-                  'Açık Hava',
-                  'Teras',
-                  'Canlı Müzik',
-                  'Alkol Servisi',
-                  'Kahvaltı',
-                  'Özel Menü',
-                  'Vegan Seçenekler',
-                  'Glutensiz Seçenekler',
-                  'Wi-Fi'
+                  'Premium Kalite',
+                  'Doğal',
+                  'Organik',
+                  'Vegan',
+                  'Glutensiz',
+                  'Şekersiz',
+                  'Taze Meyve',
+                  'Barista Kalitesi',
+                  'Craft Bira',
+                  'Uzman Danışmanlık'
                 ].map(feature => (
                   <label key={feature} className="flex items-center">
                     <input
@@ -312,13 +313,13 @@ export default function RestaurantsCategoryPage() {
 
             {/* Fiyat Aralığı Filtresi */}
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Ortalama Kişi Başı</h3>
+              <h3 className="font-medium mb-2">Fiyat Aralığı</h3>
               <div className="space-y-2">
                 {[
-                  { value: '0-100', label: '0 - 100 TL' },
-                  { value: '100-200', label: '100 - 200 TL' },
-                  { value: '200-400', label: '200 - 400 TL' },
-                  { value: '400+', label: '400 TL ve üzeri' }
+                  { value: '0-50', label: '0 - 50 TL' },
+                  { value: '50-150', label: '50 - 150 TL' },
+                  { value: '150-300', label: '150 - 300 TL' },
+                  { value: '300+', label: '300 TL ve üzeri' }
                 ].map(range => (
                   <label key={range.value} className="flex items-center">
                     <input
@@ -341,7 +342,7 @@ export default function RestaurantsCategoryPage() {
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">
-                {filteredListings.length} restoran bulundu
+                {filteredListings.length} içecek bulundu
                 {showPremiumOnly && (
                   <span className="ml-2 text-yellow-600 font-medium">
                     (Premium ilanlar)
@@ -473,12 +474,12 @@ export default function RestaurantsCategoryPage() {
           {/* Sonuç Bulunamadı */}
           {filteredListings.length === 0 && (
             <div className="text-center py-12">
-              <FaUtensils className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <FaGlassMartini className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Restoran Bulunamadı
+                İçecek Bulunamadı
               </h3>
               <p className="text-gray-600 mb-4">
-                Seçtiğiniz kriterlere uygun restoran bulunamadı. Lütfen filtreleri değiştirerek tekrar deneyin.
+                Seçtiğiniz kriterlere uygun içecek bulunamadı. Lütfen filtreleri değiştirerek tekrar deneyin.
               </p>
               <button
                 onClick={() => {

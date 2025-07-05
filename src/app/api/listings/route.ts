@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { SecurityMiddleware, validateData, validationSchemas } from '@/lib/security';
+import { sanitizeInput } from '@/lib/sanitize';
 
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResult = await SecurityMiddleware.rateLimitMiddleware(request, 100, 15 * 60 * 1000);
+    if (!rateLimitResult) {
+      return NextResponse.json(
+        { message: 'Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.' },
+        { status: 429 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get('category');
     const subcategory = searchParams.get('subcategory');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search') || '';
+    const search = sanitizeInput(searchParams.get('search') || '');
     const sort = searchParams.get('sort') || 'createdAt';
     const order = searchParams.get('order') || 'desc';
 
@@ -50,11 +61,16 @@ export async function GET(request: NextRequest) {
       prisma.listing.count({ where })
     ]);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       listings,
       total,
       pages: Math.ceil(total / limit)
     });
+
+    // Add security headers
+    return SecurityMiddleware.addCorsHeaders(
+      SecurityMiddleware.addCSPHeaders(response)
+    );
   } catch (error) {
     console.error('İlanlar getirme hatası:', error);
     return NextResponse.json(
@@ -66,6 +82,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResult = await SecurityMiddleware.rateLimitMiddleware(request, 10, 60 * 1000); // 10 requests per minute
+    if (!rateLimitResult) {
+      return NextResponse.json(
+        { message: 'Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.' },
+        { status: 429 }
+      );
+    }
+
     const session = await auth();
 
     if (!session?.user) {
@@ -75,12 +100,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = await request.json();
+    const rawData = await request.json();
+    const data = SecurityMiddleware.sanitizeData(rawData);
     const { title, description, price, category, subcategory, images, condition, location, premiumPlan, features } = data;
 
-    if (!title || !description || !price || !category || !condition || !location) {
+    // Validate input data
+    const validation = validateData(data, validationSchemas.listing);
+    if (!validation.valid) {
       return NextResponse.json(
-        { message: 'Tüm alanları doldurun' },
+        { message: 'Geçersiz veri', errors: validation.errors },
         { status: 400 }
       );
     }

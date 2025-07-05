@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { withAuth } from "next-auth/middleware";
+import { SecurityMiddleware } from '@/lib/security';
 
 // Common redirects to prevent 404 errors
 const redirects = new Map([
@@ -61,6 +62,12 @@ const validSubcategories = {
 
 export default withAuth(
   function middleware(req) {
+    // Add security headers to all responses
+    const response = NextResponse.next();
+    SecurityMiddleware.addCorsHeaders(
+      SecurityMiddleware.addCSPHeaders(response)
+    );
+
     const token = req.nextauth.token;
     const isAdmin = token?.role === "admin";
     const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
