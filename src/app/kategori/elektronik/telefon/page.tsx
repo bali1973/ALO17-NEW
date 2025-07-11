@@ -1,115 +1,88 @@
 'use client'
 
 import { FaMobile, FaTabletAlt, FaHeadphones } from 'react-icons/fa'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, Star, Clock, TrendingUp } from 'lucide-react'
 import { listings } from '@/lib/listings'
 import { ListingCard } from '@/components/listing-card'
 
-const subcategories = [
-  { id: 'akilli-telefon', name: 'Akıllı Telefon', icon: <FaMobile className="inline mr-2 text-blue-500" /> },
-  { id: 'tablet', name: 'Tablet', icon: <FaTabletAlt className="inline mr-2 text-blue-500" /> },
-  { id: 'aksesuar', name: 'Aksesuar', icon: <FaHeadphones className="inline mr-2 text-blue-500" /> },
-]
-
-// Premium özelliklerle genişletilmiş telefon ilanları
-const phoneListings = [
+// Örnek telefon ilanları listesi
+const phoneListings: any[] = [
   {
-    id: 1,
-    title: 'iPhone 14 Pro Max - 256GB - Yeni Gibi',
-    price: '45.000',
-    location: 'İstanbul',
-    image: '/images/listings/iphone-14-pro-max-1.jpg',
-    category: 'elektronik',
-    subcategory: 'telefon',
-    condition: 'İkinci El',
-    createdAt: '2024-03-20',
+    id: '1',
+    title: 'iPhone 13 Pro Max 256GB',
+    price: '32000',
+    image: 'https://dummyimage.com/400x300/cccccc/000000&text=iPhone+13+Pro+Max',
+    location: 'İstanbul, Kadıköy',
+    createdAt: '2024-06-10T12:00:00Z',
     isPremium: true,
-    premiumFeatures: ['featured', 'urgent', 'highlighted'],
-    views: 245,
-    isUrgent: true,
-    isFeatured: true
-  },
-  {
-    id: 2,
-    title: 'Samsung Galaxy S23 Ultra - 512GB',
-    price: '38.000',
-    location: 'Ankara',
-    image: '/images/listings/iphone-14-pro-max-1.jpg',
-    category: 'elektronik',
-    subcategory: 'telefon',
-    condition: 'Yeni',
-    createdAt: '2024-03-19',
-    isPremium: false,
-    premiumFeatures: [],
-    views: 89,
     isUrgent: false,
-    isFeatured: false
-  },
-  {
-    id: 3,
-    title: 'Xiaomi Redmi Note 12 Pro - 128GB',
-    price: '12.500',
-    location: 'İzmir',
-    image: '/images/listings/iphone-14-pro-max-1.jpg',
-    category: 'elektronik',
-    subcategory: 'telefon',
-    condition: 'İkinci El',
-    createdAt: '2024-03-18',
-    isPremium: true,
+    isFeatured: true,
+    condition: 'Yeni',
+    views: 123,
     premiumFeatures: ['featured', 'highlighted'],
-    views: 156,
-    isUrgent: false,
-    isFeatured: true
+    subcategory: 'akilli-telefon',
   },
   {
-    id: 4,
-    title: 'Huawei P50 Pro - 256GB - Temiz',
-    price: '28.000',
-    location: 'Bursa',
-    image: '/images/listings/iphone-14-pro-max-1.jpg',
-    category: 'elektronik',
-    subcategory: 'telefon',
-    condition: 'İkinci El',
-    createdAt: '2024-03-17',
-    isPremium: true,
-    premiumFeatures: ['urgent', 'top'],
-    views: 312,
-    isUrgent: true,
-    isFeatured: false
-  },
-  {
-    id: 5,
-    title: 'OnePlus 11 - 256GB - Garantili',
-    price: '32.000',
-    location: 'Antalya',
-    image: '/images/listings/iphone-14-pro-max-1.jpg',
-    category: 'elektronik',
-    subcategory: 'telefon',
-    condition: 'Yeni',
-    createdAt: '2024-03-16',
+    id: '2',
+    title: 'Samsung Galaxy S22 Ultra',
+    price: '28000',
+    image: 'https://dummyimage.com/400x300/cccccc/000000&text=Galaxy+S22+Ultra',
+    location: 'Ankara, Çankaya',
+    createdAt: '2024-06-12T09:30:00Z',
     isPremium: false,
-    premiumFeatures: [],
-    views: 67,
-    isUrgent: false,
-    isFeatured: false
+    isUrgent: true,
+    isFeatured: false,
+    condition: 'İkinci El',
+    views: 87,
+    premiumFeatures: ['urgent'],
+    subcategory: 'akilli-telefon',
   },
   {
-    id: 6,
-    title: 'Google Pixel 7 Pro - 128GB',
-    price: '35.000',
-    location: 'Çanakkale',
-    image: '/images/listings/iphone-14-pro-max-1.jpg',
-    category: 'elektronik',
-    subcategory: 'telefon',
-    condition: 'İkinci El',
-    createdAt: '2024-03-15',
+    id: '3',
+    title: 'iPad Pro 11" 2022',
+    price: '25000',
+    image: 'https://dummyimage.com/400x300/cccccc/000000&text=iPad+Pro+11',
+    location: 'İzmir, Bornova',
+    createdAt: '2024-06-15T15:45:00Z',
     isPremium: true,
-    premiumFeatures: ['featured', 'urgent', 'top'],
-    views: 423,
-    isUrgent: true,
-    isFeatured: true
-  }
+    isUrgent: false,
+    isFeatured: false,
+    condition: 'Yeni',
+    views: 45,
+    premiumFeatures: ['top'],
+    subcategory: 'tablet',
+  },
+  {
+    id: '4',
+    title: 'Xiaomi Redmi Note 12',
+    price: '9000',
+    image: 'https://dummyimage.com/400x300/cccccc/000000&text=Redmi+Note+12',
+    location: 'Bursa, Nilüfer',
+    createdAt: '2024-06-14T18:20:00Z',
+    isPremium: false,
+    isUrgent: false,
+    isFeatured: false,
+    condition: 'İkinci El',
+    views: 62,
+    premiumFeatures: [],
+    subcategory: 'akilli-telefon',
+  },
+  {
+    id: '5',
+    title: 'AirPods Pro 2. Nesil',
+    price: '6000',
+    image: 'https://dummyimage.com/400x300/cccccc/000000&text=AirPods+Pro+2',
+    location: 'Antalya, Muratpaşa',
+    createdAt: '2024-06-13T11:10:00Z',
+    isPremium: false,
+    isUrgent: false,
+    isFeatured: false,
+    condition: 'Yeni',
+    views: 30,
+    premiumFeatures: [],
+    subcategory: 'aksesuar',
+  },
 ]
 
 export default function TelefonCategoryPage() {
@@ -118,12 +91,41 @@ export default function TelefonCategoryPage() {
   const [condition, setCondition] = useState<string | null>(null)
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
+  const [search, setSearch] = useState("")
+  const [subcategories, setSubcategories] = useState<any[]>([])
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false)
+  const [subcategoryError, setSubcategoryError] = useState("")
+
+  useEffect(() => {
+    async function fetchSubcategories() {
+      setLoadingSubcategories(true)
+      setSubcategoryError("")
+      try {
+        const res = await fetch('/categories.json')
+        const data = await res.json()
+        // Elektronik kategorisini bul
+        const elektronik = data.find((cat: any) => cat.slug === 'elektronik')
+        setSubcategories(elektronik?.subCategories || [])
+        console.log('API /categories.json yanıtı:', data)
+        console.log('Elektronik alt kategoriler:', elektronik?.subCategories)
+      } catch (err) {
+        setSubcategoryError('Alt kategoriler yüklenemedi')
+      }
+      setLoadingSubcategories(false)
+    }
+    fetchSubcategories()
+  }, [])
+
+  useEffect(() => {
+    console.log('subcategories state:', subcategories)
+  }, [subcategories])
 
   // Filtreleme ve sıralama
   const filteredListings = phoneListings
     .filter(listing => {
       if (showPremiumOnly && !listing.isPremium) return false
       if (condition && listing.condition !== condition) return false
+      if (selectedSubcategory && listing.subcategory !== selectedSubcategory) return false
       if (priceRange) {
         const price = parseInt(listing.price.replace(/[^0-9]/g, ''))
         switch (priceRange) {
@@ -140,6 +142,12 @@ export default function TelefonCategoryPage() {
             if (price < 30000) return false
             break
         }
+      }
+      if (search && !(
+        listing.title.toLowerCase().includes(search.toLowerCase()) ||
+        (listing.description && listing.description.toLowerCase().includes(search.toLowerCase()))
+      )) {
+        return false;
       }
       return true
     })
@@ -199,12 +207,21 @@ export default function TelefonCategoryPage() {
         <p className="text-gray-600 mt-2">
           Akıllı telefonlar, tabletler ve aksesuarlar
         </p>
+        <div className="mt-4">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Başlık veya açıklamada ara..."
+            className="border rounded px-3 py-2 w-full max-w-md"
+          />
+        </div>
       </div>
       
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Sol Sidebar - Filtreler */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="w-full lg:w-64 flex-shrink-0 order-2 lg:order-1">
+          <div className="bg-white rounded-lg shadow-sm p-4 mb-4 lg:mb-0">
             <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
             
             {/* Premium Filtresi */}
@@ -225,19 +242,25 @@ export default function TelefonCategoryPage() {
             {/* Alt Kategoriler */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Tür</h3>
+              {loadingSubcategories ? (
+                <div>Yükleniyor...</div>
+              ) : subcategoryError ? (
+                <div className="text-red-500">{subcategoryError}</div>
+              ) : (
               <div className="space-y-2">
                 {subcategories.map(subcategory => (
                   <label key={subcategory.id} className="flex items-center">
                     <input
                       type="checkbox"
                       className="mr-2"
-                      checked={selectedSubcategory === subcategory.id}
-                      onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.id ? null : subcategory.id)}
+                        checked={selectedSubcategory === subcategory.slug}
+                        onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.slug ? null : subcategory.slug)}
                     />
-                    <span>{subcategory.icon}{subcategory.name}</span>
+                      <span>{subcategory.name}</span>
                   </label>
                 ))}
               </div>
+              )}
             </div>
 
             {/* Fiyat Aralığı Filtresi */}
@@ -284,10 +307,10 @@ export default function TelefonCategoryPage() {
         </div>
 
         {/* Ana İçerik */}
-        <div className="flex-1 space-y-8">
+        <div className="flex-1 space-y-8 order-1 lg:order-2">
           {/* Sıralama ve Sonuç Sayısı */}
           <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <span className="text-gray-600">
                 {filteredListings.length} ilan bulundu
                 {showPremiumOnly && (
@@ -312,7 +335,7 @@ export default function TelefonCategoryPage() {
           </div>
 
           {/* İlanlar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredListings.map((listing) => (
               <div
                 key={listing.id}
@@ -373,7 +396,7 @@ export default function TelefonCategoryPage() {
                   {/* Premium Özellikler */}
                   {listing.premiumFeatures.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {listing.premiumFeatures.map((feature, index) => (
+                      {listing.premiumFeatures.map((feature: string, index: number) => (
                         <span
                           key={index}
                           className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"

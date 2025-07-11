@@ -32,6 +32,11 @@ export default function EditProfilePage() {
       });
       setAvatar('/images/placeholder.jpg');
     }
+    // DEBUG: Session ve expires logla
+    console.log('Session:', session);
+    if (session) {
+      console.log('Session expires:', session.expires, 'Şu an:', new Date().toISOString());
+    }
   }, [session]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

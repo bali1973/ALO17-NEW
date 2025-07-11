@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { ToastProvider } from './ToastProvider'
 
 // Session context type
 interface Session {
@@ -62,8 +63,10 @@ export default function Providers({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, setSession: handleSetSession, isLoading }}>
-      {children}
-    </AuthContext.Provider>
+    <ToastProvider>
+      <AuthContext.Provider value={{ session, setSession: handleSetSession, isLoading }}>
+        {children}
+      </AuthContext.Provider>
+    </ToastProvider>
   )
 } 

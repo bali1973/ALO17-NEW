@@ -1,169 +1,44 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { SecurityMiddleware, validateData, validationSchemas } from '@/lib/security';
-import { sanitizeInput } from '@/lib/sanitize';
+import { NextResponse } from 'next/server';
+import { promises as fs } from 'fs';
+import path from 'path';
 
-export const runtime = 'nodejs';
+const LISTINGS_PATH = path.join(process.cwd(), 'public', 'listings.json');
 
-export async function GET(request: NextRequest) {
+async function readListings() {
   try {
-    // Rate limiting
-    const rateLimitResult = await SecurityMiddleware.rateLimitMiddleware(request, 100, 15 * 60 * 1000);
-    if (!rateLimitResult) {
-      return NextResponse.json(
-        { message: 'Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.' },
-        { status: 429 }
-      );
-    }
-
-    const searchParams = request.nextUrl.searchParams;
-    const category = searchParams.get('category');
-    const subcategory = searchParams.get('subcategory');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const search = sanitizeInput(searchParams.get('search') || '');
-    const sort = searchParams.get('sort') || 'createdAt';
-    const order = searchParams.get('order') || 'desc';
-
-    const where: any = {
-      AND: [
-        { isPremium: true },
-        category ? { category } : {},
-        subcategory ? { subCategory: subcategory } : {},
-        search ? {
-          OR: [
-            { title: { contains: search } },
-            { description: { contains: search } }
-          ]
-        } : {}
-      ]
-    };
-
-    const [listings, total] = await Promise.all([
-      prisma.listing.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              image: true
-            }
-          }
-        },
-        orderBy: {
-          [sort]: order
-        },
-        skip: (page - 1) * limit,
-        take: limit
-      }),
-      prisma.listing.count({ where })
-    ]);
-
-    const response = NextResponse.json({
-      listings,
-      total,
-      pages: Math.ceil(total / limit)
-    });
-
-    // Add security headers
-    return SecurityMiddleware.addCorsHeaders(
-      SecurityMiddleware.addCSPHeaders(response)
-    );
-  } catch (error) {
-    console.error('İlanlar getirme hatası:', error);
-    return NextResponse.json(
-      { message: 'İlanlar getirilirken bir hata oluştu' },
-      { status: 500 }
-    );
+    const data = await fs.readFile(LISTINGS_PATH, 'utf-8');
+    return JSON.parse(data);
+  } catch {
+    return [];
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    // Rate limiting
-    const rateLimitResult = await SecurityMiddleware.rateLimitMiddleware(request, 10, 60 * 1000); // 10 requests per minute
-    if (!rateLimitResult) {
-      return NextResponse.json(
-        { message: 'Çok fazla istek gönderdiniz. Lütfen daha sonra tekrar deneyin.' },
-        { status: 429 }
-      );
-    }
+async function writeListings(listings: any[]) {
+  await fs.writeFile(LISTINGS_PATH, JSON.stringify(listings, null, 2), 'utf-8');
+}
 
-    const rawData = await request.json();
-    const data = SecurityMiddleware.sanitizeData(rawData);
-    const { title, description, price, category, subcategory, images, condition, location, premiumPlan, features } = data;
+export async function GET() {
+  const listings = await readListings();
+  return NextResponse.json(listings);
+}
 
-    // Validate input data
-    const validation = validateData(data, validationSchemas.listing);
-    if (!validation.valid) {
-      return NextResponse.json(
-        { message: 'Geçersiz veri', errors: validation.errors },
-        { status: 400 }
-      );
-    }
-
-    // Resim sayısını kontrol et (maksimum 5)
-    if (images && images.length > 5) {
-      return NextResponse.json(
-        { message: 'Maksimum 5 resim yükleyebilirsiniz' },
-        { status: 400 }
-      );
-    }
-
-    // Premium plan varsa süreyi hesapla, yoksa 30 gün ücretsiz
-    let premiumUntil = null;
-    let isPremium = false;
-    let planType = null;
-
-    if (premiumPlan && premiumPlan !== 'free') {
-      // Premium plan seçilmişse
-      const { calculatePremiumEndDate } = await import('@/lib/utils');
-      premiumUntil = calculatePremiumEndDate(premiumPlan);
-      isPremium = true;
-      planType = premiumPlan;
-    } else {
-      // Normal ilan - 30 gün ücretsiz premium
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-      premiumUntil = thirtyDaysFromNow;
-      isPremium = true;
-      planType = 'free';
-    }
-
-    const listing = await prisma.listing.create({
-      data: {
-        title,
-        description,
-        price: parseFloat(price),
-        category,
-        subCategory: subcategory,
-        condition,
-        location,
-        images: JSON.stringify(images || []),
-        features: JSON.stringify(features || []),
-        userId: session.user.id,
-        isPremium,
-        premiumUntil,
-        premiumPlan: planType
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true
-          }
-        }
-      }
-    });
-
-    return NextResponse.json(listing);
-  } catch (error) {
-    console.error('İlan oluşturma hatası:', error);
-    return NextResponse.json(
-      { message: 'İlan oluşturulurken bir hata oluştu' },
-      { status: 500 }
-    );
-  }
+export async function POST(req: Request) {
+  const body = await req.json();
+  // Simulate session: get user role from header (in real app, use auth middleware)
+  const role = req.headers.get('x-user-role') || 'user';
+  const listings = await readListings();
+  const newId = listings.length > 0 ? Math.max(...listings.map((l: any) => Number(l.id) || 0)) + 1 : 1;
+  const now = new Date().toISOString();
+  const newListing = {
+    ...body,
+    id: newId,
+    createdAt: now,
+    status: role === 'admin' ? 'active' : 'pending',
+    views: 0,
+    isPremium: !!body.isPremium,
+    premiumFeatures: body.premiumFeatures || [],
+  };
+  listings.push(newListing);
+  await writeListings(listings);
+  return NextResponse.json(newListing, { status: 201 });
 } 

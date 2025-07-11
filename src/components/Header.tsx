@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, User, Bell, MessageCircle, LogOut, Settings, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,16 @@ export default function Header() {
   const { session, setSession, isLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [unreadBadge, setUnreadBadge] = useState(0);
+
+  useEffect(() => {
+    // Sayfa yüklendiğinde badge'i localStorage'dan al
+    setUnreadBadge(Number(localStorage.getItem('unreadBadge') || '0'));
+    // Badge güncellenirse event dinle
+    const handler = () => setUnreadBadge(Number(localStorage.getItem('unreadBadge') || '0'));
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   const handleSignOut = () => {
     setSession(null);
@@ -105,9 +115,14 @@ export default function Header() {
 
                 {/* Mesajlarım */}
                 <Link href="/profil/mesajlar">
-                  <Button variant="outline" className="hidden md:flex border-alo-blue text-alo-blue hover:bg-alo-blue hover:text-white">
+                  <Button variant="outline" className="hidden md:flex border-alo-blue text-alo-blue hover:bg-alo-blue hover:text-white relative">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Mesajlarım
+                    {unreadBadge > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                        {unreadBadge}
+                      </span>
+                    )}
                   </Button>
                 </Link>
 

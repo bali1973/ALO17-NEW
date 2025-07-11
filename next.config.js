@@ -8,8 +8,17 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Render için output ayarı
-  output: 'standalone',
+  // Image optimization için remote patterns ayarları
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
   // Webpack optimizasyonu
   webpack: (config, { isServer }) => {
     if (!isServer) {

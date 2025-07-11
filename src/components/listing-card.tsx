@@ -1,9 +1,30 @@
-import { Listing } from "@/lib/listings"
 import Link from "next/link"
 import { useState } from "react"
 import { OptimizedImage } from "@/components/optimized-image"
 import { Heart, Eye, Clock, Star, MapPin, Tag } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+interface Listing {
+  id: number
+  title: string
+  price: string | number
+  location: string
+  description: string
+  category: string
+  subcategory: string
+  isPremium: boolean
+  imageUrl: string
+  createdAt: Date
+  views: number
+  condition: string
+  brand?: string
+  model?: string
+  year?: number | null
+  seller?: {
+    name: string
+    email: string
+  }
+}
 
 interface ListingCardProps {
   listing: Listing
@@ -13,23 +34,63 @@ export function ListingCard({ listing }: ListingCardProps) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
 
-  const formatPrice = (price: string) => {
-    const num = parseFloat(price.replace(/[^\d.-]/g, ''))
+  const formatPrice = (price: string | number) => {
+    const num = typeof price === 'string' ? parseFloat(price.replace(/[^\d.-]/g, '')) : price
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'TRY'
     }).format(num)
   }
 
-  const getTimeAgo = (date: string) => {
+  const getTimeAgo = (date: Date | string) => {
     const now = new Date()
-    const created = new Date(date)
-    const diffInHours = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60))
+    let targetDate: Date
+    
+    if (date instanceof Date) {
+      targetDate = date
+    } else if (typeof date === 'string') {
+      targetDate = new Date(date)
+    } else {
+      return 'Bilinmeyen tarih'
+    }
+    
+    // Geçersiz tarih kontrolü
+    if (isNaN(targetDate.getTime())) {
+      return 'Bilinmeyen tarih'
+    }
+    
+    const diffInHours = Math.floor((now.getTime() - targetDate.getTime()) / (1000 * 60 * 60))
     
     if (diffInHours < 1) return 'Az önce'
     if (diffInHours < 24) return `${diffInHours} saat önce`
     if (diffInHours < 48) return 'Dün'
     return `${Math.floor(diffInHours / 24)} gün önce`
+  }
+
+  // Image URL'yi güvenli şekilde işle
+  const getImageUrl = (imageUrl: string) => {
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return '/images/placeholder.jpg';
+    }
+    
+    const trimmedUrl = imageUrl.trim();
+    if (trimmedUrl === '') {
+      return '/images/placeholder.jpg';
+    }
+    
+    // Eğer JSON string ise parse et (fallback için)
+    if (trimmedUrl.startsWith('[') && trimmedUrl.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmedUrl);
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '/images/placeholder.jpg';
+      } catch (error) {
+        console.error('Image URL parse hatası:', error);
+        return '/images/placeholder.jpg';
+      }
+    }
+    
+    // Normal string ise direkt kullan
+    return trimmedUrl;
   }
 
   return (
@@ -44,7 +105,7 @@ export function ListingCard({ listing }: ListingCardProps) {
       <Link href={`/ilan/${listing.id}`}>
         <div className="relative h-48 overflow-hidden">
           <OptimizedImage
-            src={listing.imageUrl}
+            src={getImageUrl(listing.imageUrl)}
             alt={listing.title}
             width={400}
             height={192}
@@ -97,7 +158,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             </div>
             <div className="flex items-center">
               <Clock className="w-3 h-3 mr-1" />
-              {getTimeAgo(listing.createdAt.toString())}
+              {getTimeAgo(listing.createdAt)}
             </div>
           </div>
 

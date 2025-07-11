@@ -1,160 +1,31 @@
 'use client'
 
-import { FaBriefcase, FaUserTie, FaGraduationCap, FaClock, FaLaptop, FaUsers, FaChartLine, FaCogs, FaCalculator, FaUserFriends, FaDesktop, FaHeadset, FaIndustry, FaTruck, FaChalkboardTeacher, FaHeartbeat, FaSearch, FaUserPlus, FaUserCheck, FaUserGraduate, FaUserCog, FaUserShield, FaUserEdit, FaUserClock, FaUserTie as FaUserTieAlt, FaMapMarkerAlt, FaMoneyBillWave, FaStar, FaSparkles } from 'react-icons/fa'
+import { FaBriefcase, FaUserTie, FaGraduationCap, FaClock, FaLaptop, FaUsers, FaChartLine, FaCogs, FaCalculator, FaUserFriends, FaDesktop, FaHeadset, FaIndustry, FaTruck, FaChalkboardTeacher, FaHeartbeat, FaSearch, FaUserPlus, FaUserCheck, FaUserGraduate, FaUserCog, FaUserShield, FaUserEdit, FaUserClock, FaUserTie as FaUserTieAlt, FaMapMarkerAlt, FaMoneyBillWave, FaStar } from 'react-icons/fa'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Sparkles, Star, Clock, TrendingUp } from 'lucide-react'
+import { Star, Clock, TrendingUp } from 'lucide-react'
+import { useCategories } from '@/lib/useCategories'
 
-// Örnek iş ilanları
-const jobListings = [
-  {
-    id: 1,
-    title: 'Yazılım Geliştirici (React/Node.js)',
-    company: 'Tech Solutions A.Ş.',
-    location: 'İstanbul',
-    salary: '25.000 - 35.000',
-    type: 'Tam Zamanlı',
-    experience: '3-5 yıl',
-    description: 'React ve Node.js teknolojilerinde deneyimli yazılım geliştirici arıyoruz.',
-    createdAt: '2024-03-20',
-    isPremium: true,
-    premiumFeatures: ['featured', 'urgent'],
-    views: 245,
-    isUrgent: true,
-    isFeatured: true
-  },
-  {
-    id: 2,
-    title: 'Satış Temsilcisi',
-    company: 'ABC Şirketi',
-    location: 'Ankara',
-    salary: '8.000 - 12.000',
-    type: 'Tam Zamanlı',
-    experience: '1-3 yıl',
-    description: 'Dinamik ve sonuç odaklı satış temsilcisi arıyoruz.',
-    createdAt: '2024-03-19',
-    isPremium: false,
-    premiumFeatures: [],
-    views: 89,
-    isUrgent: false,
-    isFeatured: false
-  },
-  {
-    id: 3,
-    title: 'Muhasebe Uzmanı',
-    company: 'Finans Ltd. Şti.',
-    location: 'İzmir',
-    salary: '15.000 - 20.000',
-    type: 'Tam Zamanlı',
-    experience: '5-7 yıl',
-    description: 'Muhasebe ve finans alanında deneyimli uzman arıyoruz.',
-    createdAt: '2024-03-18',
-    isPremium: true,
-    premiumFeatures: ['featured'],
-    views: 156,
-    isUrgent: false,
-    isFeatured: true
-  },
-  {
-    id: 4,
-    title: 'Freelance Web Tasarımcı',
-    company: 'Dijital Ajans',
-    location: 'Uzaktan',
-    salary: 'Proje Bazlı',
-    type: 'Freelance',
-    experience: '2-4 yıl',
-    description: 'Yaratıcı ve deneyimli web tasarımcı arıyoruz.',
-    createdAt: '2024-03-17',
-    isPremium: true,
-    premiumFeatures: ['urgent', 'top'],
-    views: 312,
-    isUrgent: true,
-    isFeatured: false
-  },
-  {
-    id: 5,
-    title: 'İnsan Kaynakları Uzmanı',
-    company: 'HR Solutions',
-    location: 'Bursa',
-    salary: '18.000 - 25.000',
-    type: 'Tam Zamanlı',
-    experience: '3-5 yıl',
-    description: 'İnsan kaynakları süreçlerinde deneyimli uzman arıyoruz.',
-    createdAt: '2024-03-16',
-    isPremium: false,
-    premiumFeatures: [],
-    views: 67,
-    isUrgent: false,
-    isFeatured: false
-  },
-  {
-    id: 6,
-    title: 'Stajyer Mühendis',
-    company: 'Mühendislik A.Ş.',
-    location: 'Antalya',
-    salary: '5.000 - 7.000',
-    type: 'Staj',
-    experience: 'Öğrenci',
-    description: 'Mühendislik öğrencileri için staj imkanı.',
-    createdAt: '2024-03-15',
-    isPremium: true,
-    premiumFeatures: ['featured', 'urgent', 'top'],
-    views: 423,
-    isUrgent: true,
-    isFeatured: true
-  }
-]
-
-const subcategories = [
-  // İş Arama Kategorileri
-  { id: 'is-ariyorum', name: 'İş Arıyorum', icon: <FaSearch className="inline mr-2 text-red-500" />, type: 'job-seeker' },
-  { id: 'eleman-ariyorum', name: 'Eleman Arıyorum', icon: <FaUserPlus className="inline mr-2 text-blue-500" />, type: 'employer' },
-  
-  // Çalışma Türleri
-  { id: 'tam-zamanli', name: 'Tam Zamanlı', icon: <FaBriefcase className="inline mr-2 text-blue-500" />, type: 'work-type' },
-  { id: 'yari-zamanli', name: 'Yarı Zamanlı', icon: <FaClock className="inline mr-2 text-green-500" />, type: 'work-type' },
-  { id: 'freelance', name: 'Freelance', icon: <FaLaptop className="inline mr-2 text-purple-500" />, type: 'work-type' },
-  { id: 'staj', name: 'Staj', icon: <FaGraduationCap className="inline mr-2 text-orange-500" />, type: 'work-type' },
-  { id: 'gecici-is', name: 'Geçici İş', icon: <FaClock className="inline mr-2 text-red-500" />, type: 'work-type' },
-  { id: 'uzaktan-calisma', name: 'Uzaktan Çalışma', icon: <FaDesktop className="inline mr-2 text-indigo-500" />, type: 'work-type' },
-  
-  // Pozisyon Türleri
-  { id: 'yonetici', name: 'Yönetici', icon: <FaUserTie className="inline mr-2 text-indigo-500" />, type: 'position' },
-  { id: 'uzman', name: 'Uzman', icon: <FaChartLine className="inline mr-2 text-teal-500" />, type: 'position' },
-  { id: 'muhendis', name: 'Mühendis', icon: <FaCogs className="inline mr-2 text-gray-700" />, type: 'position' },
-  { id: 'teknisyen', name: 'Teknisyen', icon: <FaCogs className="inline mr-2 text-yellow-600" />, type: 'position' },
-  { id: 'operator', name: 'Operatör', icon: <FaCogs className="inline mr-2 text-blue-600" />, type: 'position' },
-  { id: 'satis-pazarlama', name: 'Satış & Pazarlama', icon: <FaChartLine className="inline mr-2 text-green-600" />, type: 'position' },
-  { id: 'muhasebe-finans', name: 'Muhasebe & Finans', icon: <FaCalculator className="inline mr-2 text-red-600" />, type: 'position' },
-  { id: 'insan-kaynaklari', name: 'İnsan Kaynakları', icon: <FaUserFriends className="inline mr-2 text-pink-600" />, type: 'position' },
-  { id: 'bilgi-teknolojileri', name: 'Bilgi Teknolojileri', icon: <FaDesktop className="inline mr-2 text-blue-700" />, type: 'position' },
-  { id: 'musteri-hizmetleri', name: 'Müşteri Hizmetleri', icon: <FaHeadset className="inline mr-2 text-green-700" />, type: 'position' },
-  { id: 'uretim-imalat', name: 'Üretim & İmalat', icon: <FaIndustry className="inline mr-2 text-gray-800" />, type: 'position' },
-  { id: 'lojistik-depo', name: 'Lojistik & Depo', icon: <FaTruck className="inline mr-2 text-orange-700" />, type: 'position' },
-  { id: 'egitim-ogretim', name: 'Eğitim & Öğretim', icon: <FaChalkboardTeacher className="inline mr-2 text-purple-700" />, type: 'position' },
-  { id: 'saglik-bakim', name: 'Sağlık & Bakım', icon: <FaHeartbeat className="inline mr-2 text-red-700" />, type: 'position' },
-  
-  // Eleman Türleri
-  { id: 'deneyimli-eleman', name: 'Deneyimli Eleman', icon: <FaUserCheck className="inline mr-2 text-green-600" />, type: 'employee' },
-  { id: 'yeni-mezun', name: 'Yeni Mezun', icon: <FaUserGraduate className="inline mr-2 text-blue-600" />, type: 'employee' },
-  { id: 'part-time-eleman', name: 'Part-Time Eleman', icon: <FaUserClock className="inline mr-2 text-orange-600" />, type: 'employee' },
-  { id: 'sezonluk-eleman', name: 'Sezonluk Eleman', icon: <FaUserEdit className="inline mr-2 text-purple-600" />, type: 'employee' },
-  { id: 'güvenlik-elemani', name: 'Güvenlik Elemanı', icon: <FaUserShield className="inline mr-2 text-red-600" />, type: 'employee' },
-  { id: 'teknik-eleman', name: 'Teknik Eleman', icon: <FaUserCog className="inline mr-2 text-gray-600" />, type: 'employee' },
-  { id: 'ofis-elemani', name: 'Ofis Elemanı', icon: <FaUserTieAlt className="inline mr-2 text-indigo-600" />, type: 'employee' },
-]
+// Boş iş ilanları listesi
+const jobListings: any[] = []
 
 export default function IsKategoriPage() {
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
 
+  // Ana kategori olarak 'is' veya 'is-kariyer' slug'ını bul
+  const mainCategory = categories.find(cat => cat.slug === 'is' || cat.slug === 'is-kariyer');
+  const subcategories = mainCategory?.subCategories || [];
+
+  // Eğer alt kategorilerde type varsa, filtrele (yoksa hepsini göster)
   const filteredSubcategories = selectedType 
-    ? subcategories.filter(cat => cat.type === selectedType)
+    ? subcategories.filter((cat: any) => cat.type === selectedType)
     : subcategories
 
-  // İlanları filtrele ve sırala
+  // İlanları filtrele ve sırala (örnek, gerçek ilanlar için API'den çekilebilir)
   const filteredListings = jobListings
     .filter(listing => {
       if (showPremiumOnly && !listing.isPremium) return false
@@ -183,14 +54,14 @@ export default function IsKategoriPage() {
     { id: 'employee', name: 'Eleman Türleri', icon: <FaUsers className="w-4 h-4" /> },
   ]
 
-  const getPremiumFeatureIcon = (feature: string) => {
+  const getPremiumFeatureIcon = (feature: any) => {
     switch (feature) {
       case 'featured':
         return <Star className="w-3 h-3 text-yellow-500" />
       case 'urgent':
         return <Clock className="w-3 h-3 text-red-500" />
       case 'highlighted':
-        return <Sparkles className="w-3 h-3 text-blue-500" />
+        return <Star className="w-3 h-3 text-blue-500" />
       case 'top':
         return <TrendingUp className="w-3 h-3 text-green-500" />
       default:
@@ -198,7 +69,7 @@ export default function IsKategoriPage() {
     }
   }
 
-  const getPremiumFeatureText = (feature: string) => {
+  const getPremiumFeatureText = (feature: any) => {
     switch (feature) {
       case 'featured':
         return 'Öne Çıkan'
@@ -212,6 +83,9 @@ export default function IsKategoriPage() {
         return ''
     }
   }
+
+  if (categoriesLoading) return <div>Kategoriler yükleniyor...</div>;
+  if (categoriesError) return <div>{categoriesError}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -238,7 +112,7 @@ export default function IsKategoriPage() {
                   onChange={(e) => setShowPremiumOnly(e.target.checked)}
                   className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
                 />
-                <Sparkles className="w-4 h-4 text-yellow-500" />
+                <Star className="w-4 h-4 text-yellow-500" />
                 <span className="text-sm">Sadece Premium İlanlar</span>
               </label>
             </div>
@@ -270,14 +144,14 @@ export default function IsKategoriPage() {
             <div className="mb-6">
               <h3 className="font-medium mb-2">Alt Kategoriler</h3>
               <div className="space-y-2">
-                {filteredSubcategories.map(subcategory => (
+                {filteredSubcategories.map((subcategory: any) => (
                   <Link
                     key={subcategory.id}
-                    href={`/kategori/is/${subcategory.id}`}
-                    className={`block px-3 py-2 rounded-md hover:bg-gray-50 transition-colors ${selectedSubcategory === subcategory.id ? 'bg-gray-100 font-medium' : ''}`}
-                    onClick={() => setSelectedSubcategory(subcategory.id)}
+                    href={`/kategori/is/${subcategory.slug}`}
+                    className={`block px-3 py-2 rounded-md hover:bg-gray-50 transition-colors ${selectedSubcategory === subcategory.slug ? 'bg-gray-100 font-medium' : ''}`}
+                    onClick={() => setSelectedSubcategory(subcategory.slug)}
                   >
-                    {subcategory.icon}{subcategory.name}
+                    {subcategory.name}
                   </Link>
                 ))}
               </div>
@@ -325,9 +199,9 @@ export default function IsKategoriPage() {
 
           {/* İlanlar */}
           <div className="space-y-6">
-            {filteredListings.map((listing) => (
+            {filteredListings.map((listing: any, index: number) => (
               <div
-                key={listing.id}
+                key={listing.id || index}
                 className={`bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 ${
                   listing.isPremium ? 'ring-2 ring-yellow-200 hover:ring-yellow-300' : ''
                 } ${listing.isUrgent ? 'border-l-4 border-red-500' : ''}`}
@@ -340,7 +214,7 @@ export default function IsKategoriPage() {
                         <div className="flex flex-wrap gap-1">
                           {listing.isPremium && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                              <Sparkles className="w-3 h-3 mr-1" />
+                              <Star className="w-3 h-3 mr-1" />
                               Premium
                             </span>
                           )}

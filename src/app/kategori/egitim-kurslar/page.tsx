@@ -5,18 +5,17 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { listings } from '@/lib/listings'
 import { ListingCard } from '@/components/listing-card'
-
-const subcategories = [
-  { id: 'universite', name: 'Üniversite', icon: <FaGraduationCap className="inline mr-2 text-blue-500" /> },
-  { id: 'kurs', name: 'Kurs', icon: <FaBook className="inline mr-2 text-green-500" /> },
-  { id: 'ozel-ders', name: 'Özel Ders', icon: <FaChalkboardTeacher className="inline mr-2 text-purple-500" /> },
-  { id: 'dil-egitimi', name: 'Dil Eğitimi', icon: <FaLanguage className="inline mr-2 text-red-500" /> },
-]
+import { useCategories } from '@/lib/useCategories'
 
 export default function EgitimKurslarPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [priceRange, setPriceRange] = useState<string | null>(null)
   const [condition, setCondition] = useState<string | null>(null)
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories()
+
+  // Eğitim & Kurslar ana kategorisini bul
+  const mainCategory = categories.find(cat => cat.slug === 'egitim-kurslar')
+  const subcategories = (mainCategory?.subCategories || []).sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
 
   // Eğitim ve Kurslar ilanlarını filtrele
   const egitimKurslarListings = listings.filter(listing => 
@@ -64,19 +63,25 @@ export default function EgitimKurslarPage() {
             {/* Alt Kategoriler */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Tür</h3>
-              <div className="space-y-2">
-                {subcategories.map(subcategory => (
-                  <label key={subcategory.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={selectedSubcategory === subcategory.id}
-                      onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.id ? null : subcategory.id)}
-                    />
-                    <span>{subcategory.icon}{subcategory.name}</span>
-                  </label>
-                ))}
-              </div>
+              {categoriesLoading ? (
+                <div>Yükleniyor...</div>
+              ) : categoriesError ? (
+                <div className="text-red-500">{categoriesError}</div>
+              ) : (
+                <div className="space-y-2">
+                  {subcategories.map(subcategory => (
+                    <label key={subcategory.id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={selectedSubcategory === subcategory.slug}
+                        onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.slug ? null : subcategory.slug)}
+                      />
+                      <span>{subcategory.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Fiyat Aralığı Filtresi */}

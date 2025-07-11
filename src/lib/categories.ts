@@ -58,9 +58,12 @@ export interface Category {
   name: string
   icon: LucideIcon | string
   slug: string
-  subcategories?: Category[]
+  subCategories?: Category[]
 }
 
+// Statik kategoriler kaldırıldı. Artık sadece dinamik API kullanılacak.
+
+// (Varsa ikon map/fonksiyonlar burada kalabilir) 
 export const categories: Category[] = [
   {
     name: "Elektronik",
@@ -243,6 +246,28 @@ export const categories: Category[] = [
             name: "Diğer",
             slug: "diger-saat",
             icon: "⌚"
+          }
+        ]
+      },
+      {
+        name: "Ağ Ürünleri",
+        slug: "ag-urunleri",
+        icon: "🌐",
+        subcategories: [
+          {
+            name: "Router",
+            slug: "router",
+            icon: "🌐"
+          },
+          {
+            name: "Switch",
+            slug: "switch",
+            icon: "🔌"
+          },
+          {
+            name: "Modem",
+            slug: "modem",
+            icon: "📡"
           }
         ]
       },

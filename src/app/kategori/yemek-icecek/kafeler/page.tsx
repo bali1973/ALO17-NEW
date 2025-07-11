@@ -138,27 +138,27 @@ export default function CafesCategoryPage() {
     .filter(listing => {
       if (showPremiumOnly && !listing.isPremium) return false
       if (selectedSubcategory && listing.category !== selectedSubcategory) return false
-      if (location && listing.location !== location) return false
-      if (features.length > 0 && !features.every(feature => listing.features.includes(feature))) return false
-      if (priceRange) {
+    if (location && listing.location !== location) return false
+    if (features.length > 0 && !features.every(feature => listing.features.includes(feature))) return false
+    if (priceRange) {
         const price = parseInt(listing.price.split('-')[0].replace(/[^0-9]/g, ''))
-        switch (priceRange) {
+      switch (priceRange) {
           case '0-50':
             if (price > 50) return false
-            break
+          break
           case '50-100':
             if (price < 50 || price > 100) return false
-            break
+          break
           case '100-150':
             if (price < 100 || price > 150) return false
-            break
+          break
           case '150+':
             if (price < 150) return false
-            break
-        }
+          break
       }
-      return true
-    })
+    }
+    return true
+  })
     .sort((a, b) => {
       switch (sortBy) {
         case 'newest':
@@ -239,7 +239,7 @@ export default function CafesCategoryPage() {
                 <span className="text-sm">Sadece Premium İlanlar</span>
               </label>
             </div>
-
+            
             {/* Kafe Türü Filtresi */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Kafe Türü</h3>

@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from '@/components/Providers';
+import { useRouter } from 'next/navigation';
 
 export default function MessagesBox() {
   const { session, isLoading } = useAuth();
+  const router = useRouter();
   const [tab, setTab] = useState<'received' | 'sent'>('received');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -21,7 +23,17 @@ export default function MessagesBox() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/messages?type=${type}`);
+      const token = typeof window !== 'undefined' ? localStorage.getItem('alo17-session') : null;
+      let authHeader = {};
+      if (token) {
+        authHeader = { Authorization: `Bearer ${token}` };
+      }
+      const res = await fetch(`/api/messages?type=${type}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeader,
+        },
+      });
       const data = await res.json();
       if (res.ok) {
         setMessages(data.messages);
@@ -65,7 +77,14 @@ export default function MessagesBox() {
       )}
       <ul className="space-y-4">
         {messages.map((msg: any) => (
-          <li key={msg.id} className="bg-white rounded shadow p-4">
+          <li
+            key={msg.id}
+            className="bg-white rounded shadow p-4 cursor-pointer hover:bg-blue-50"
+            onClick={() => {
+              const otherId = tab === 'received' ? (msg.senderId || msg.sender?.id) : (msg.receiverId || msg.receiver?.id);
+              router.push(`/profil/mesajlar/MessageDetail?recipientId=${otherId}`);
+            }}
+          >
             <div className="flex justify-between items-center mb-2">
               <span className="font-semibold">
                 {tab === 'received' ? (msg.senderName || msg.sender?.name || msg.senderId) : (msg.receiver?.name || msg.receiverId)}

@@ -2,6 +2,8 @@ export type Subcategory = {
   id: number;
   name: string;
   slug: string;
+  icon?: string;
+  subCategories?: Subcategory[];
 };
 
 export type Category = {
@@ -9,7 +11,7 @@ export type Category = {
   name: string;
   icon: string;
   slug: string;
-  subcategories: Subcategory[];
+  subCategories: Subcategory[];
 };
 
 export const categories: Category[] = [
@@ -18,7 +20,7 @@ export const categories: Category[] = [
     name: 'Elektronik',
     icon: '📱',
     slug: 'elektronik',
-    subcategories: [
+    subCategories: [
       { id: 101, name: 'Telefon', slug: 'telefon' },
       { id: 102, name: 'Tablet', slug: 'tablet' },
       { id: 103, name: 'Bilgisayar', slug: 'bilgisayar' },
@@ -37,7 +39,7 @@ export const categories: Category[] = [
     name: 'Ev ve Bahçe',
     icon: '🏡',
     slug: 'ev-ve-bahce',
-    subcategories: [
+    subCategories: [
       { id: 201, name: 'Mobilya', slug: 'mobilya' },
       { id: 202, name: 'Ev Tekstili', slug: 'ev-tekstili' },
       { id: 203, name: 'Bahçe', slug: 'bahce' },
@@ -55,7 +57,7 @@ export const categories: Category[] = [
     name: 'Hobi & Sanat',
     icon: '🎨',
     slug: 'hobi-sanat',
-    subcategories: [
+    subCategories: [
       { id: 301, name: 'Müzik Aletleri', slug: 'muzik-aletleri' },
       { id: 302, name: 'Sanat Malzemeleri', slug: 'sanat-malzemeleri' },
       { id: 303, name: 'Koleksiyon', slug: 'koleksiyon' },
@@ -83,7 +85,7 @@ export const categories: Category[] = [
     name: 'Turizm & Konaklama',
     icon: '🏨',
     slug: 'turizm-konaklama',
-    subcategories: [
+    subCategories: [
       { id: 401, name: 'Otel', slug: 'otel' },
       { id: 402, name: 'Apart', slug: 'apart' },
       { id: 403, name: 'Pansiyon', slug: 'pansiyon' },
@@ -111,7 +113,7 @@ export const categories: Category[] = [
     name: 'Hizmetler',
     icon: '🛠️',
     slug: 'hizmetler',
-    subcategories: [
+    subCategories: [
       { id: 501, name: 'Temizlik', slug: 'temizlik' },
       { id: 502, name: 'Nakliyat', slug: 'nakliyat' },
       { id: 503, name: 'Tadilat', slug: 'tadilat' },
@@ -128,7 +130,7 @@ export const categories: Category[] = [
     name: 'Sağlık & Güzellik',
     icon: '💆‍♀️',
     slug: 'saglik-guzellik',
-    subcategories: [
+    subCategories: [
       { id: 601, name: 'Kozmetik', slug: 'kozmetik' },
       { id: 602, name: 'Parfüm', slug: 'parfum' },
       { id: 603, name: 'Cilt Bakımı', slug: 'cilt-bakimi' },
@@ -156,7 +158,7 @@ export const categories: Category[] = [
     name: 'Eğitim & Kurslar',
     icon: '📝',
     slug: 'egitim-kurslar',
-    subcategories: [
+    subCategories: [
       { id: 701, name: 'Yabancı Dil', slug: 'yabanci-dil' },
       { id: 702, name: 'Müzik', slug: 'muzik' },
       { id: 703, name: 'Dans', slug: 'dans' },
@@ -184,7 +186,7 @@ export const categories: Category[] = [
     name: 'Moda & Stil',
     icon: '👗',
     slug: 'moda-stil',
-    subcategories: [
+    subCategories: [
       { id: 801, name: 'Kadın Giyim', slug: 'kadin-giyim' },
       { id: 802, name: 'Erkek Giyim', slug: 'erkek-giyim' },
       { id: 803, name: 'Çocuk Giyim', slug: 'cocuk-giyim' },
@@ -212,7 +214,7 @@ export const categories: Category[] = [
     name: 'Çocuk Dünyası',
     icon: '🧸',
     slug: 'cocuk-dunyasi',
-    subcategories: [
+    subCategories: [
       { id: 901, name: 'Oyuncak', slug: 'oyuncak' },
       { id: 902, name: 'Bebek Giyim', slug: 'bebek-giyim' },
       { id: 903, name: 'Bebek Arabası', slug: 'bebek-arabasi' },
@@ -240,7 +242,7 @@ export const categories: Category[] = [
     name: 'Catering & Ticaret',
     icon: '🍽️',
     slug: 'catering-ticaret',
-    subcategories: [
+    subCategories: [
       { id: 1001, name: 'Restoran', slug: 'restoran' },
       { id: 1002, name: 'Kafe', slug: 'kafe' },
       { id: 1003, name: 'Pastane', slug: 'pastane' },
@@ -256,7 +258,7 @@ export const categories: Category[] = [
     name: 'İş',
     icon: '💼',
     slug: 'is',
-    subcategories: [
+    subCategories: [
       { id: 1101, name: 'İş Arıyorum', slug: 'is-ariyorum' },
       { id: 1102, name: 'Tam Zamanlı', slug: 'tam-zamanli' },
       { id: 1103, name: 'Yarı Zamanlı', slug: 'yari-zamanli' },
@@ -285,7 +287,7 @@ export const categories: Category[] = [
     name: 'Ücretsiz Gel Al',
     icon: '🎁',
     slug: 'ucretsiz-gel-al',
-    subcategories: [
+    subCategories: [
       { id: 1201, name: 'Mobilya', slug: 'mobilya' },
       { id: 1202, name: 'Elektronik', slug: 'elektronik' },
       { id: 1203, name: 'Giyim', slug: 'giyim' },
@@ -301,7 +303,7 @@ export const categories: Category[] = [
     name: 'Diğer',
     icon: '📦',
     slug: 'diger',
-    subcategories: [
+    subCategories: [
       { id: 1301, name: 'Diğer', slug: 'diger' },
     ],
   },

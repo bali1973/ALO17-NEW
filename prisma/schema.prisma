@@ -26,6 +26,8 @@ model User {
   sessions         Session[]
   favorites        UserFavorite[]
   coupons          Coupon[]       @relation("UserCoupons")
+  reports          Report[]
+  pushToken        String?
 }
 
 model Account {
@@ -69,6 +71,8 @@ model Category {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   subCategories SubCategory[]
+  order         Int           @default(0)
+  icon          String?
 }
 
 model SubCategory {
@@ -79,7 +83,8 @@ model SubCategory {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   category   Category @relation(fields: [categoryId], references: [id])
-
+  order      Int      @default(0)
+  icon       String?
   @@unique([name, categoryId])
 }
 
@@ -99,15 +104,19 @@ model Listing {
   year         String?
   status       String         @default("pending")
   isPremium    Boolean        @default(false)
+  premiumFeatures String?
   premiumUntil DateTime?
   premiumPlan  String?
   views        Int            @default(0)
+  approvedAt   DateTime?
+  rejectedAt   DateTime?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   userId       String
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages     Message[]
   favoritedBy  UserFavorite[]
+  reports      Report[]
 }
 
 model UserFavorite {
@@ -156,4 +165,14 @@ model PremiumPlan {
   key   String @unique
   price Float
   days  Int
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  listingId  String
+  userId     String?
+  message    String
+  createdAt  DateTime @default(now())
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

@@ -178,7 +178,7 @@ export default function Login() {
         </div>
       </div>
     );
-  }
+    }
 
   return (
     <div className="min-h-screen bg-alo-light flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -236,15 +236,15 @@ export default function Login() {
           </div>
         </div>
 
-        {error && (
+          {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative flex items-start">
             <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
             <div>
               <div className="font-medium">Giriş Hatası:</div>
               <div className="text-sm mt-1">{error}</div>
             </div>
-          </div>
-        )}
+            </div>
+          )}
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/Providers';
 import { signIn, hardcodedUsers } from '@/lib/auth';
 
@@ -16,6 +16,7 @@ export default function GirisPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -125,151 +126,164 @@ export default function GirisPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Hesabınıza giriş yapın
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Test kullanıcıları ile hızlı giriş yapabilirsiniz
-          </p>
-          {callbackUrl !== '/' && (
-            <p className="mt-2 text-center text-xs text-blue-600">
-              Giriş yaptıktan sonra {callbackUrl} sayfasına yönlendirileceksiniz
-            </p>
-          )}
-        </div>
-
-        {/* Test Kullanıcıları */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Test Kullanıcıları:</h3>
-          <div className="space-y-2">
-            {testUsers.map((user) => (
-              <button
-                key={user.email}
-                onClick={() => handleTestLogin(user)}
-                disabled={loading}
-                className="w-full text-left text-xs text-blue-700 hover:text-blue-900 p-2 rounded border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <strong>{user.label}:</strong> {user.email} / {user.password}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-blue-600 mt-2">
-            Test kullanıcıları ile hızlı giriş yapabilirsiniz. Bu kullanıcılar hardcoded olarak tanımlanmıştır.
-          </p>
-          <div className="mt-2 flex gap-2">
-            <button
-              onClick={() => {
-                setError('');
-                setEmail('');
-                setPassword('');
-              }}
-              className="text-xs text-blue-600 hover:text-blue-800 underline"
-            >
-              Formu Temizle
-            </button>
-            <span className="text-xs text-gray-500">|</span>
-            <span className="text-xs text-gray-500">
-              Client-side auth sistemi
-            </span>
-          </div>
-          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
-            <strong>✅ Çalışıyor:</strong> Bu sistem Vercel API sorunlarını bypass eder ve client-side çalışır.
-          </div>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative flex items-start">
-            <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-            <div>
-              <div className="font-medium">Giriş Hatası:</div>
-              <div className="text-sm mt-1">{error}</div>
-            </div>
-          </div>
-        )}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email adresi
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email adresi"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Şifre
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Şifre"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Beni hatırla
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <a href="/sifremi-unuttum" className="font-medium text-blue-600 hover:text-blue-500">
-                Şifremi unuttum
-              </a>
-            </div>
-          </div>
-
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
           <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Giriş yapılıyor...
-                </div>
-              ) : (
-                'Giriş Yap'
-              )}
-            </button>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Hesabınıza giriş yapın
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Test kullanıcıları ile hızlı giriş yapabilirsiniz
+            </p>
+            {callbackUrl !== '/' && (
+              <p className="mt-2 text-center text-xs text-blue-600">
+                Giriş yaptıktan sonra {callbackUrl} sayfasına yönlendirileceksiniz
+              </p>
+            )}
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Hesabınız yok mu?{' '}
-              <a href="/kayit" className="font-medium text-blue-600 hover:text-blue-500">
-                Kayıt olun
-              </a>
+          {/* Test Kullanıcıları */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-blue-900 mb-2">Test Kullanıcıları:</h3>
+            <div className="space-y-2">
+              {testUsers.map((user) => (
+                <button
+                  key={user.email}
+                  onClick={() => handleTestLogin(user)}
+                  disabled={loading}
+                  className="w-full text-left text-xs text-blue-700 hover:text-blue-900 p-2 rounded border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <strong>{user.label}:</strong> {user.email} / {user.password}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-blue-600 mt-2">
+              Test kullanıcıları ile hızlı giriş yapabilirsiniz. Bu kullanıcılar hardcoded olarak tanımlanmıştır.
             </p>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => {
+                  setError('');
+                  setEmail('');
+                  setPassword('');
+                }}
+                className="text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Formu Temizle
+              </button>
+              <span className="text-xs text-gray-500">|</span>
+              <span className="text-xs text-gray-500">
+                Client-side auth sistemi
+              </span>
+            </div>
+            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
+              <strong>✅ Çalışıyor:</strong> Bu sistem Vercel API sorunlarını bypass eder ve client-side çalışır.
+            </div>
           </div>
-        </form>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative flex items-start">
+              <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="font-medium">Giriş Hatası:</div>
+                <div className="text-sm mt-1">{error}</div>
+              </div>
+            </div>
+          )}
+
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div className="rounded-md shadow-sm -space-y-px">
+              <div>
+                <label htmlFor="email" className="sr-only">
+                  Email adresi
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  placeholder="Email adresi"
+                />
+              </div>
+              <div className="mt-4 relative">
+                <label htmlFor="password" className="sr-only">
+                  Şifre
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm pr-10"
+                  placeholder="Şifre"
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  Beni hatırla
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <a href="/sifremi-unuttum" className="font-medium text-blue-600 hover:text-blue-500">
+                  Şifremi unuttum
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Giriş yapılıyor...
+                  </div>
+                ) : (
+                  'Giriş Yap'
+                )}
+              </button>
+            </div>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Hesabınız yok mu?{' '}
+                <a href="/kayit" className="font-medium text-blue-600 hover:text-blue-500">
+                  Kayıt olun
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

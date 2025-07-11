@@ -1,17 +1,13 @@
 'use client'
 
-import { FaHeartbeat, FaSpa, FaUserMd } from 'react-icons/fa'
 import Link from 'next/link'
 import { useState } from 'react'
-
-const subcategories = [
-  { id: 'kisisel-bakim', name: 'Kişisel Bakım', icon: <FaSpa className="inline mr-2 text-red-500" /> },
-  { id: 'saglik-urunleri', name: 'Sağlık Ürünleri', icon: <FaHeartbeat className="inline mr-2 text-red-500" /> },
-  { id: 'kozmetik', name: 'Kozmetik', icon: <FaUserMd className="inline mr-2 text-red-500" /> },
-]
+import { useCategories } from '@/lib/useCategories'
 
 export default function SaglikGuzellikCategoryPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const saglik = categories.find(cat => cat.slug === 'saglik-guzellik');
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -29,19 +25,28 @@ export default function SaglikGuzellikCategoryPage() {
             {/* Alt Kategoriler */}
             <div className="mb-6">
               <h2 className="text-lg font-semibold mb-4">Kategoriler</h2>
-              <div className="space-y-2">
-                {subcategories.map(subcategory => (
-                  <Link
-                    key={subcategory.id}
-                    href={`/kategori/saglik-guzellik/${subcategory.id}`}
-                    className={`block px-3 py-2 rounded-md hover:bg-gray-100 ${
-                      selectedSubcategory === subcategory.id ? 'bg-gray-100 font-medium' : ''
-                    }`}
-                  >
-                    {subcategory.icon}{subcategory.name}
-                  </Link>
-                ))}
-              </div>
+              {categoriesLoading ? (
+                <div>Kategoriler yükleniyor...</div>
+              ) : categoriesError ? (
+                <div className="text-red-600">{categoriesError}</div>
+              ) : saglik && saglik.subCategories && saglik.subCategories.length > 0 ? (
+                <div className="space-y-2">
+                  {saglik.subCategories.map(subcategory => (
+                    <Link
+                      key={subcategory.id}
+                      href={`/kategori/saglik-guzellik/${subcategory.slug}`}
+                      className={`block px-3 py-2 rounded-md hover:bg-gray-100 ${
+                        selectedSubcategory === subcategory.slug ? 'bg-gray-100 font-medium' : ''
+                      }`}
+                      onClick={() => setSelectedSubcategory(subcategory.slug)}
+                    >
+                      {subcategory.name}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div>Alt kategori bulunamadı.</div>
+              )}
             </div>
           </div>
         </div>

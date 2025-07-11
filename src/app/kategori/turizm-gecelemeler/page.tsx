@@ -1,17 +1,13 @@
 'use client'
 
-import { FaPlane, FaHotel, FaMapMarkedAlt } from 'react-icons/fa'
 import Link from 'next/link'
 import { useState } from 'react'
-
-const subcategories = [
-  { id: 'otel', name: 'Oteller', icon: <FaHotel className="inline mr-2 text-green-500" /> },
-  { id: 'tatil', name: 'Tatil Paketleri', icon: <FaPlane className="inline mr-2 text-green-500" /> },
-  { id: 'gezi', name: 'Gezi ve Turlar', icon: <FaMapMarkedAlt className="inline mr-2 text-green-500" /> },
-]
+import { useCategories } from '@/lib/useCategories'
 
 export default function TurizmGecelemelerCategoryPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const turizm = categories.find(cat => cat.slug === 'turizm-gecelemeler');
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -29,20 +25,28 @@ export default function TurizmGecelemelerCategoryPage() {
             {/* Alt Kategoriler */}
             <div className="mb-6">
               <h2 className="text-lg font-semibold mb-4">Kategoriler</h2>
-              <div className="space-y-2">
-                {subcategories.map(subcategory => (
-                  <Link
-                    key={subcategory.id}
-                    href={`/kategori/turizm-gecelemeler/${subcategory.id}`}
-                    onClick={() => setSelectedSubcategory(subcategory.id)}
-                    className={`block px-3 py-2 rounded-md hover:bg-gray-100 ${
-                      selectedSubcategory === subcategory.id ? 'bg-gray-100 font-medium' : ''
-                    }`}
-                  >
-                    {subcategory.icon}{subcategory.name}
-                  </Link>
-                ))}
-              </div>
+              {categoriesLoading ? (
+                <div>Kategoriler yükleniyor...</div>
+              ) : categoriesError ? (
+                <div className="text-red-600">{categoriesError}</div>
+              ) : turizm && turizm.subCategories && turizm.subCategories.length > 0 ? (
+                <div className="space-y-2">
+                  {turizm.subCategories.map(subcategory => (
+                    <Link
+                      key={subcategory.id}
+                      href={`/kategori/turizm-gecelemeler/${subcategory.slug}`}
+                      onClick={() => setSelectedSubcategory(subcategory.slug)}
+                      className={`block px-3 py-2 rounded-md hover:bg-gray-100 ${
+                        selectedSubcategory === subcategory.slug ? 'bg-gray-100 font-medium' : ''
+                      }`}
+                    >
+                      {subcategory.name}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div>Alt kategori bulunamadı.</div>
+              )}
             </div>
           </div>
         </div>

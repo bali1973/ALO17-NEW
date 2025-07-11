@@ -1,6 +1,5 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { prisma } from "./prisma"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -38,7 +37,7 @@ export function getPremiumStatusText(premiumUntil: Date | null): string {
 }
 
 // Premium plan sürelerini hesaplayan fonksiyon
-export function calculatePremiumEndDate(plan: string): Date {
+export function calculatePremiumEndDate(plan: '30days' | '90days' | '365days'): Date {
   const now = new Date();
   const endDate = new Date(now);
   
@@ -59,33 +58,15 @@ export function calculatePremiumEndDate(plan: string): Date {
   return endDate;
 }
 
-// Premium planları veritabanından çeken fonksiyon
+// Premium planları veritabanından çeken fonksiyon (server-side only)
 export async function getPremiumPlans() {
-  try {
-    const plans = await prisma.premiumPlan.findMany({
-      orderBy: { days: 'asc' }
-    });
-    
-    // Planları key-value objesi olarak döndür
-    const plansObj: Record<string, { name: string; price: number; days: number }> = {};
-    plans.forEach(plan => {
-      plansObj[plan.key] = {
-        name: plan.name,
-        price: plan.price,
-        days: plan.days
-      };
-    });
-    
-    return plansObj;
-  } catch (error) {
-    console.error('Premium planları getirme hatası:', error);
-    // Fallback olarak varsayılan planları döndür
-    return {
-      '30days': { name: '30 Gün', price: 99, days: 30 },
-      '90days': { name: '90 Gün', price: 249, days: 90 },
-      '365days': { name: '365 Gün', price: 799, days: 365 }
-    };
-  }
+  // Bu fonksiyon sadece server-side'da kullanılmalı
+  // Client-side'da kullanılmak istenirse API endpoint'i kullanılmalı
+  return {
+    '30days': { name: '30 Gün', price: 99, days: 30 },
+    '90days': { name: '90 Gün', price: 249, days: 90 },
+    '365days': { name: '365 Gün', price: 799, days: 365 }
+  };
 }
 
 // Resim sayısını kontrol eden fonksiyon

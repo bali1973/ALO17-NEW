@@ -1,8 +1,9 @@
 'use client'
 
-import { FaUtensils, FaCoffee, FaGlassMartini, FaStar, FaMapMarkerAlt, FaFilter, FaSearch } from 'react-icons/fa'
+import { FaStar, FaMapMarkerAlt, FaFilter, FaSearch } from 'react-icons/fa'
 import { useState } from 'react'
 import { Sparkles, Star, Clock, TrendingUp } from 'lucide-react'
+import { useCategories } from '@/lib/useCategories'
 
 // Gerçek yemek-icecek ilanları
 const foodListings = [
@@ -160,20 +161,14 @@ const foodListings = [
   }
 ]
 
-const subcategories = [
-  { id: 'restoranlar', name: 'Restoranlar', icon: <FaUtensils className="inline mr-2 text-yellow-500" /> },
-  { id: 'kafeler', name: 'Kafeler', icon: <FaCoffee className="inline mr-2 text-brown-500" /> },
-  { id: 'icecekler', name: 'İçecekler', icon: <FaGlassMartini className="inline mr-2 text-blue-500" /> },
-  { id: 'fast-food', name: 'Fast Food', icon: <FaUtensils className="inline mr-2 text-red-500" /> },
-  { id: 'tatli-pastane', name: 'Tatlı & Pastane', icon: <FaUtensils className="inline mr-2 text-pink-500" /> },
-]
-
 export default function YemekIcecekPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [priceRange, setPriceRange] = useState<string | null>(null)
   const [cuisine, setCuisine] = useState<string | null>(null)
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const yemekIcecek = categories.find(cat => cat.slug === 'yemek-icecek');
 
   // Filtreleme ve sıralama
   const filteredListings = foodListings
@@ -263,7 +258,7 @@ export default function YemekIcecekPage() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sol Sidebar - Filtreler */}
         <div className="w-full md:w-64 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="bg-white rounded-lg shadow-sm p-4">
             <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
             
             {/* Premium Filtresi */}
@@ -284,18 +279,22 @@ export default function YemekIcecekPage() {
             {/* Alt Kategoriler */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Kategori</h3>
-              <div className="space-y-2">
-                {subcategories.map(subcategory => (
-                  <label key={subcategory.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={selectedSubcategory === subcategory.id}
-                      onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.id ? null : subcategory.id)}
-                    />
-                    <span>{subcategory.icon}{subcategory.name}</span>
-                  </label>
-                ))}
+        <div className="space-y-2">
+          {categoriesLoading ? <div>Kategoriler yükleniyor...</div> : categoriesError ? <div className="text-red-600">{categoriesError}</div> : yemekIcecek && yemekIcecek.subCategories && yemekIcecek.subCategories.length > 0 ? (
+            <div className="space-y-2">
+              {yemekIcecek.subCategories.map(subcategory => (
+                <label key={subcategory.id} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={selectedSubcategory === subcategory.slug}
+                    onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.slug ? null : subcategory.slug)}
+                  />
+                  <span>{subcategory.name}</span>
+                </label>
+              ))}
+            </div>
+          ) : <div>Alt kategori bulunamadı.</div>}
               </div>
             </div>
 

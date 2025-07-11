@@ -19,6 +19,24 @@ interface OptimizedImageProps {
   onError?: () => void;
 }
 
+// URL'nin geçerli olup olmadığını kontrol eden fonksiyon
+const isValidUrl = (url: string): boolean => {
+  if (!url || typeof url !== 'string') return false;
+  
+  try {
+    // Eğer relative URL ise (http/https ile başlamıyorsa) geçerli kabul et
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return url.startsWith('/') || url.startsWith('./') || url.startsWith('../');
+    }
+    
+    // Absolute URL için URL constructor kullan
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export function OptimizedImage({
   src,
   alt,
@@ -33,15 +51,41 @@ export function OptimizedImage({
   onError,
   ...props
 }: OptimizedImageProps) {
-  const [imageSrc, setImageSrc] = useState(src);
+  // Güvenli src değeri - URL kontrolü ile
+  const getSafeSrc = (inputSrc: string) => {
+    if (!inputSrc || typeof inputSrc !== 'string') return fallbackSrc;
+    
+    const trimmedSrc = inputSrc.trim();
+    if (trimmedSrc === '') return fallbackSrc;
+    
+    // JSON string kontrolü
+    if (trimmedSrc.startsWith('[') && trimmedSrc.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmedSrc);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const firstImage = parsed[0];
+          return isValidUrl(firstImage) ? firstImage : fallbackSrc;
+        }
+      } catch (error) {
+        console.error('Image URL JSON parse hatası:', error);
+        return fallbackSrc;
+      }
+    }
+    
+    // Normal string kontrolü
+    return isValidUrl(trimmedSrc) ? trimmedSrc : fallbackSrc;
+  };
+  
+  const [imageSrc, setImageSrc] = useState(getSafeSrc(src));
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    setImageSrc(src);
+    const newSafeSrc = getSafeSrc(src);
+    setImageSrc(newSafeSrc);
     setIsLoading(true);
     setHasError(false);
-  }, [src]);
+  }, [src, fallbackSrc]);
 
   const handleLoad = () => {
     setIsLoading(false);

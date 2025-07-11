@@ -423,12 +423,12 @@ export default function MusteriHizmetleriPage() {
 
           {/* Sonuç Bulunamadı */}
           {filteredListings.length === 0 && (
-            <div className="text-center py-12">
-              <FaHeadset className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <div className="text-center py-12">
+          <FaHeadset className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 İlan Bulunamadı
-              </h3>
-              <p className="text-gray-600 mb-4">
+          </h3>
+          <p className="text-gray-600 mb-4">
                 Seçtiğiniz kriterlere uygun müşteri hizmetleri ilanı bulunamadı. Lütfen filtreleri değiştirerek tekrar deneyin.
               </p>
               <button

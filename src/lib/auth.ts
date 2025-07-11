@@ -1,6 +1,9 @@
 // Client-side authentication utilities
 // Bu dosya artık NextAuth kullanmıyor, sadece client-side auth için yardımcı fonksiyonlar içeriyor
 
+import { prisma } from './prisma'
+import { compare } from 'bcryptjs'
+
 // Hardcoded test kullanıcıları
 export const hardcodedUsers = [
   {
@@ -83,25 +86,40 @@ export const clearSession = (): void => {
 export const signIn = async (email: string, password: string): Promise<Session | null> => {
   // Hardcoded kullanıcılardan ara
   const user = hardcodedUsers.find(u => u.email === email && u.password === password);
-  
-  if (!user) {
-    return null;
+  if (user) {
+    // Session oluştur
+    const session: Session = {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      },
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
+    };
+    setSession(session);
+    return session;
   }
-  
+
+  // Veritabanında kullanıcıyı ara
+  const dbUser = await prisma.user.findUnique({ where: { email } });
+  if (!dbUser || !dbUser.password) return null;
+
+  // Şifreyi karşılaştır
+  const isPasswordValid = await compare(password, dbUser.password);
+  if (!isPasswordValid) return null;
+
   // Session oluştur
   const session: Session = {
     user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role
+      id: dbUser.id,
+      email: dbUser.email,
+      name: dbUser.name,
+      role: String(dbUser.role || 'user'),
     },
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
   };
-  
-  // Session'ı kaydet
   setSession(session);
-  
   return session;
 };
 

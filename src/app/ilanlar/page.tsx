@@ -1,9 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/Providers';
 import { Search, Filter, MapPin, Sparkles, Star, Clock, TrendingUp } from 'lucide-react';
+import { useCategories } from '@/lib/useCategories';
+
+// İlan tipi
+interface Ilan {
+  id: string;
+  title: string;
+  price: number | string;
+  location: string;
+  imageUrl?: string;
+  images?: string;
+  category: string;
+  subcategory?: string;
+  isPremium?: boolean;
+  premiumFeatures?: string[];
+  views?: number;
+  isUrgent?: boolean;
+  isFeatured?: boolean;
+  createdAt: string;
+  condition?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+}
 
 export default function IlanlarPage() {
   const { session } = useAuth();
@@ -12,120 +35,48 @@ export default function IlanlarPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showPremiumOnly, setShowPremiumOnly] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Örnek ilan verileri - premium özelliklerle
-  const ilanlar = [
-    {
-      id: 1,
-      title: 'Sahibinden Satılık Lüks Daire',
-      price: '2.500.000',
-      location: 'Çanakkale',
-      image: '/images/listings/iphone-14-pro-max-1.jpg',
-      category: 'emlak',
-      createdAt: '2024-03-20',
-      isPremium: true,
-      premiumFeatures: ['featured', 'urgent', 'highlighted'],
-      views: 245,
-      isUrgent: true,
-      isFeatured: true
-    },
-    {
-      id: 2,
-      title: '2019 Model BMW 320i - Temiz',
-      price: '850.000',
-      location: 'İstanbul',
-      image: '/images/listings/iphone-14-pro-max-1.jpg',
-      category: 'arac',
-      createdAt: '2024-03-19',
-      isPremium: false,
-      premiumFeatures: [],
-      views: 89,
-      isUrgent: false,
-      isFeatured: false
-    },
-    {
-      id: 3,
-      title: 'iPhone 14 Pro Max - Yeni Gibi',
-      price: '45.000',
-      location: 'Ankara',
-      image: '/images/listings/iphone-14-pro-max-1.jpg',
-      category: 'elektronik',
-      createdAt: '2024-03-18',
-      isPremium: true,
-      premiumFeatures: ['featured', 'highlighted'],
-      views: 156,
-      isUrgent: false,
-      isFeatured: true
-    },
-    {
-      id: 4,
-      title: 'Villa Kiralık - Deniz Manzaralı',
-      price: '15.000',
-      location: 'İzmir',
-      image: '/images/listings/iphone-14-pro-max-1.jpg',
-      category: 'emlak',
-      createdAt: '2024-03-17',
-      isPremium: true,
-      premiumFeatures: ['urgent', 'top'],
-      views: 312,
-      isUrgent: true,
-      isFeatured: false
-    },
-    {
-      id: 5,
-      title: 'MacBook Pro M2 - 16GB RAM',
-      price: '65.000',
-      location: 'Bursa',
-      image: '/images/listings/iphone-14-pro-max-1.jpg',
-      category: 'elektronik',
-      createdAt: '2024-03-16',
-      isPremium: false,
-      premiumFeatures: [],
-      views: 67,
-      isUrgent: false,
-      isFeatured: false
-    },
-    {
-      id: 6,
-      title: 'Audi A4 2.0 TDI - 2020 Model',
-      price: '1.200.000',
-      location: 'Antalya',
-      image: '/images/listings/iphone-14-pro-max-1.jpg',
-      category: 'arac',
-      createdAt: '2024-03-15',
-      isPremium: true,
-      premiumFeatures: ['featured', 'urgent', 'top'],
-      views: 423,
-      isUrgent: true,
-      isFeatured: true
-    }
-  ];
-
-  const categories = [
-    { id: 'arac', name: 'Araç' },
-    { id: 'emlak', name: 'Emlak' },
-    { id: 'elektronik', name: 'Elektronik' },
-    { id: 'diger', name: 'Diğer' }
-  ];
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/listings')
+      .then(res => {
+        if (!res.ok) throw new Error('API Hatası');
+        return res.json();
+      })
+      .then(data => {
+        // Only show active listings to regular users
+        const activeListings = data.filter((listing: any) => listing.status === 'active');
+        setIlanlar(activeListings);
+        setLoading(false);
+      })
+      .catch(e => {
+        setError('İlanlar yüklenemedi.');
+        setLoading(false);
+      });
+  }, []);
 
   // Filtreleme ve sıralama
   const filteredAndSortedIlanlar = ilanlar
-    .filter(ilan => {
+    .filter((ilan: Ilan) => {
       if (showPremiumOnly && !ilan.isPremium) return false;
       if (selectedCategory && ilan.category !== selectedCategory) return false;
       if (searchQuery && !ilan.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       return true;
     })
-    .sort((a, b) => {
+    .sort((a: Ilan, b: Ilan) => {
       switch (sortBy) {
         case 'newest':
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'oldest':
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case 'price-low':
-          return parseInt(a.price.replace(/[^0-9]/g, '')) - parseInt(b.price.replace(/[^0-9]/g, ''));
+          return parseInt(b.price as string) - parseInt(a.price as string);
         case 'price-high':
-          return parseInt(b.price.replace(/[^0-9]/g, '')) - parseInt(a.price.replace(/[^0-9]/g, ''));
+          return parseInt(a.price as string) - parseInt(b.price as string);
         case 'premium-first':
           if (a.isPremium && !b.isPremium) return -1;
           if (!a.isPremium && b.isPremium) return 1;
@@ -134,6 +85,13 @@ export default function IlanlarPage() {
           return 0;
       }
     });
+
+  if (loading) {
+    return <div className="text-center py-12">İlanlar yükleniyor...</div>;
+  }
+  if (error) {
+    return <div className="text-center py-12 text-red-600">{error}</div>;
+  }
 
   const handleIlanClick = (ilanId: number) => {
     router.push(`/ilan/${ilanId}`);
@@ -191,7 +149,7 @@ export default function IlanlarPage() {
 
       {/* Arama ve Filtreler */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-8">
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4 items-end md:items-center">
           <div className="flex-1">
             <div className="relative">
               <input
@@ -199,39 +157,46 @@ export default function IlanlarPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="İlan ara..."
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent h-12"
               />
-              <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
             </div>
           </div>
-          <div className="flex gap-4">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
-            >
-              <option value="">Tüm Kategoriler</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
-            >
-              <option value="newest">En Yeni</option>
-              <option value="oldest">En Eski</option>
-              <option value="price-low">Fiyat (Düşükten Yükseğe)</option>
-              <option value="price-high">Fiyat (Yüksekten Düşüğe)</option>
-              <option value="premium-first">Premium Önce</option>
-            </select>
-            <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-              <Filter className="w-5 h-5" />
-              <span>Filtreler</span>
-            </button>
+          <div className="flex flex-1 gap-4">
+            <div className="flex-1">
+              <label className="block mb-1 font-medium">Kategori</label>
+              <select
+                value={selectedCategory}
+                onChange={e => setSelectedCategory(e.target.value)}
+                className="border rounded px-3 py-2 w-full min-w-[150px] h-12"
+                disabled={categoriesLoading}
+              >
+                <option value="">Tümü</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.slug}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="block mb-1 font-medium">Sırala</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent w-full min-w-[150px] h-12"
+              >
+                <option value="newest">En Yeni</option>
+                <option value="oldest">En Eski</option>
+                <option value="price-low">Fiyat (Düşükten Yükseğe)</option>
+                <option value="price-high">Fiyat (Yüksekten Düşüğe)</option>
+                <option value="premium-first">Premium Önce</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 h-12">
+                <Filter className="w-5 h-5" />
+                <span>Filtreler</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -263,18 +228,18 @@ export default function IlanlarPage() {
       </div>
 
       {/* İlan Listesi */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         {filteredAndSortedIlanlar.map((ilan) => (
           <div
             key={ilan.id}
-            onClick={() => handleIlanClick(ilan.id)}
-            className={`bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 ${
+            onClick={() => handleIlanClick(parseInt(ilan.id))}
+            className={`bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 flex flex-col h-full ${
               ilan.isPremium ? 'ring-2 ring-yellow-200 hover:ring-yellow-300' : ''
             } ${ilan.isUrgent ? 'border-l-4 border-red-500' : ''}`}
           >
             <div className="relative h-48">
               <img
-                src={ilan.image}
+                src={ilan.imageUrl || ilan.images?.[0]}
                 alt={ilan.title}
                 className="w-full h-full object-cover"
               />
@@ -310,7 +275,7 @@ export default function IlanlarPage() {
             <div className="p-4">
               <h2 className="text-xl font-semibold mb-2 line-clamp-2">{ilan.title}</h2>
               <p className="text-2xl font-bold text-alo-orange mb-2">
-                {parseInt(ilan.price).toLocaleString('tr-TR')} ₺
+                {parseInt(ilan.price as string).toLocaleString('tr-TR')} ₺
               </p>
               
               <div className="flex items-center justify-between text-gray-500 mb-2">
@@ -324,7 +289,7 @@ export default function IlanlarPage() {
               </div>
 
               {/* Premium Özellikler */}
-              {ilan.premiumFeatures.length > 0 && (
+              {ilan.premiumFeatures && ilan.premiumFeatures.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-2">
                   {ilan.premiumFeatures.map((feature, index) => (
                     <span

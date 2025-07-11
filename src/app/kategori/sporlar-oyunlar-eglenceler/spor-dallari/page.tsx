@@ -3,20 +3,22 @@
 import { FaFutbol, FaSwimmingPool, FaRunning, FaDumbbell, FaMountain, FaSnowflake, FaCar } from 'react-icons/fa'
 import { GiTennisBall, GiBoxingGlove } from 'react-icons/gi'
 import Link from 'next/link'
-
-const categories = [
-  { id: 'takim-sporlari', name: 'Takım Sporları', icon: <FaFutbol className="text-green-500" /> },
-  { id: 'raket-sporlari', name: 'Raket Sporları', icon: <GiTennisBall className="text-yellow-500" /> },
-  { id: 'su-sporlari', name: 'Su Sporları', icon: <FaSwimmingPool className="text-blue-500" /> },
-  { id: 'atletizm', name: 'Atletizm & Koşu', icon: <FaRunning className="text-red-500" /> },
-  { id: 'fitness', name: 'Fitness & Vücut Geliştirme', icon: <FaDumbbell className="text-gray-700" /> },
-  { id: 'doga-sporlari', name: 'Doğa Sporları', icon: <FaMountain className="text-green-700" /> },
-  { id: 'kis-sporlari', name: 'Kış Sporları', icon: <FaSnowflake className="text-blue-300" /> },
-  { id: 'dovus-sporlari', name: 'Dövüş Sporları', icon: <GiBoxingGlove className="text-red-700" /> },
-  { id: 'motorsporlari', name: 'Motorsporları', icon: <FaCar className="text-gray-900" /> }
-]
+import { useCategories } from '@/lib/useCategories'
 
 export default function SporDallariPage() {
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  // Ana kategori ve alt kategorileri bul
+  const mainCategory = categories.find(cat => cat.slug === 'sporlar-oyunlar-eglenceler');
+  const subCategory = mainCategory?.subCategories?.find(sub => sub.slug === 'spor-dallari');
+  const subSubCategories = subCategory?.subCategories || [];
+
+  if (categoriesLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Kategoriler yükleniyor...</div>;
+  }
+  if (categoriesError) {
+    return <div className="min-h-screen flex items-center justify-center text-red-600">{categoriesError}</div>;
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -27,16 +29,14 @@ export default function SporDallariPage() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map(category => (
+        {subSubCategories.map(category => (
           <Link
-            key={category.id}
-            href={`/kategori/sporlar-oyunlar-eglenceler/spor-dallari/${category.id}`}
+            key={category.slug}
+            href={`/kategori/sporlar-oyunlar-eglenceler/spor-dallari/${category.slug}`}
             className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center space-x-4">
-              <div className="text-2xl">
-                {category.icon}
-              </div>
+              {/* İkon desteği isterseniz ekleyebilirsiniz */}
               <h2 className="text-lg font-semibold text-gray-900">
                 {category.name}
               </h2>

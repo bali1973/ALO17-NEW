@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "iPhone 14 Pro Max",
+    "user": "Admin User",
+    "email": "admin@alo17.com",
+    "status": "active",
+    "createdAt": "2024-06-13T11:10:00Z",
+    "isPremium": true,
+    "premiumFeatures": ["featured"],
+    "category": "Elektronik",
+    "subcategory": "Telefonlar",
+    "price": "25000",
+    "location": "İstanbul",
+    "views": 150,
+    "description": "Mükemmel durumda, kutulu, garantili iPhone 14 Pro Max."
+  },
+  {
+    "id": 2,
+    "title": "MacBook Pro M2",
+    "user": "Admin User",
+    "email": "admin@alo17.com",
+    "status": "active",
+    "createdAt": "2024-06-12T10:00:00Z",
+    "isPremium": false,
+    "premiumFeatures": [],
+    "category": "Elektronik",
+    "subcategory": "Bilgisayarlar",
+    "price": "45000",
+    "location": "Ankara",
+    "views": 89,
+    "description": "Çok az kullanılmış, garantili MacBook Pro M2."
+  },
+  {
+    "id": 3,
+    "title": "Ev için Koltuk Takımı",
+    "user": "Admin User",
+    "email": "admin@alo17.com",
+    "status": "active",
+    "createdAt": "2024-06-10T09:00:00Z",
+    "isPremium": false,
+    "premiumFeatures": [],
+    "category": "Ev ve Bahçe",
+    "subcategory": "Mobilya",
+    "price": "12000",
+    "location": "İzmir",
+    "views": 45,
+    "description": "Modern ve rahat koltuk takımı."
+  }
+] 
