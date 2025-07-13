@@ -1,0 +1,80 @@
+# Development files
+.env.local
+.env.development
+.env.test
+
+# Build artifacts
+.next/cache
+.next/server/chunks
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Prisma files (not needed for Netlify)
+prisma/dev.db
+prisma/dev.db-journal
+prisma/migrations/
+
+# Test files
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Documentation
+*.md
+!README.md
+!NETLIFY_DEPLOYMENT.md
+
+# Scripts
+*.sh
+*.bat
+*.js
+!next.config.js
+!postcss.config.js
+!tailwind.config.js 

@@ -83,7 +83,8 @@ export default function AdminIlanlarPage() {
       price: "1000",
       location: "Çanakkale",
       views: 0,
-      description: "Bu bir örnek ilandır."
+      description: "Bu bir örnek ilandır.",
+      userRole: "admin"
     },
     {
       id: "mock-2",
@@ -743,13 +744,13 @@ export default function AdminIlanlarPage() {
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="h-6 w-6 bg-yellow-500 rounded"></div>
+                <div className="h-6 w-6 bg-blue-500 rounded"></div>
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Bekleyen İlan</dt>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Toplam İlan</dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {listings.filter(l => l.status === 'pending').length}
+                    {listings.length}
                   </dd>
                 </dl>
               </div>
@@ -797,10 +798,8 @@ export default function AdminIlanlarPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="all">Tüm Durumlar</option>
-            <option value="pending">Beklemede</option>
+            <option value="all">Tüm İlanlar</option>
             <option value="active">Aktif</option>
-            <option value="rejected">Reddedildi</option>
           </select>
 
           {/* Category Filter */}
@@ -942,24 +941,20 @@ export default function AdminIlanlarPage() {
                     <td className="p-2 whitespace-nowrap">{l.status}</td>
                     <td className="p-2 whitespace-nowrap">{l.user || "-"}</td>
                     <td className="p-2 flex gap-2 whitespace-nowrap">
-                      {l.status === 'pending' && (
-                        <>
-                          <button
-                            className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded mr-2"
-                            onClick={() => handleApprove(l.id)}
-                            disabled={actionLoading === l.id}
-                          >
-                            Onayla
-                          </button>
-                          <button
-                            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
-                            onClick={() => handleReject(l.id)}
-                            disabled={actionLoading === l.id}
-                          >
-                            Reddet
-                          </button>
-                        </>
-                      )}
+                      <button
+                        onClick={() => handleEdit(l)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mr-2"
+                        title="Düzenle"
+                      >
+                        Düzenle
+                      </button>
+                      <button
+                        onClick={() => handleDelete(l.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                        title="Sil"
+                      >
+                        Sil
+                      </button>
                     </td>
                   </tr>
                 ))}

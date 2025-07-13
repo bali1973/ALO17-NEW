@@ -196,8 +196,6 @@ export default function IlanVerPage() {
 
   // İlan yayınlama işlevi
   const handlePublish = async () => {
-    console.log('Yayınlama için gönderilen veri:', JSON.stringify(formData, null, 2));
-    alert('Yayınlama için gönderilen veri:\n' + JSON.stringify(formData, null, 2));
     if (!acceptedTerms) {
       alert('Kullanım koşullarını kabul etmeniz gerekiyor.');
       return;
@@ -217,8 +215,10 @@ export default function IlanVerPage() {
       return;
     }
     
-    // Admin ise ödeme popup'ı gösterme
+    // Admin kontrolü
     const isAdmin = session?.user?.role === 'admin';
+    
+    // Admin değilse premium plan kontrolü
     if (!isAdmin && selectedPremiumPlan !== 'free') {
       const planPrice = getSelectedPlanPrice();
       const planName = premiumPlans[selectedPremiumPlan]?.name || selectedPremiumPlan;
@@ -233,6 +233,7 @@ export default function IlanVerPage() {
       const imageUrls = images
         .map(img => img ? URL.createObjectURL(img) : null)
         .filter(Boolean);
+      
       const payload = {
         ...formData,
         price: parseFloat(formData.price),
@@ -240,7 +241,11 @@ export default function IlanVerPage() {
         premiumPlan: selectedPremiumPlan,
         features: selectedFeatures,
         subcategory: formData.subcategory || null,
+        user: session?.user?.name || 'Anonim',
+        email: session?.user?.email || '',
+        userRole: session?.user?.role || 'user',
       };
+      
       const sessionToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-session') : null;
       const response = await fetch('/api/listings', {
         method: 'POST',
@@ -250,24 +255,23 @@ export default function IlanVerPage() {
         },
         body: JSON.stringify(payload),
       });
-      if (response.ok) {
-        localStorage.removeItem('ilanTaslak');
-        localStorage.removeItem('ilanImagePreviews');
-        const listing = await response.json();
-        alert('İlan başarıyla yayınlandı! Onay için bekliyor.');
-        if (listing && listing.id) {
-          router.push(`/ilan/${listing.id}`);
-        } else {
+      
+              if (response.ok) {
+          localStorage.removeItem('ilanTaslak');
+          localStorage.removeItem('ilanImagePreviews');
+          const listing = await response.json();
+          
+          alert('İlan başarıyla yayınlandı! Ana sayfada görünür.');
           router.push('/');
+        } else {
+          const error = await response.json();
+          console.error('API Hatası:', error);
+          alert(error.error || error.message || 'İlan yayınlanırken bir hata oluştu');
         }
-      } else {
-        const error = await response.json();
-        alert(error.message || 'İlan yayınlanırken bir hata oluştu');
-      }
-    } catch (error) {
-      console.error('İlan yayınlama hatası:', error);
-      alert('İlan yayınlanırken bir hata oluştu');
-    } finally {
+      } catch (error) {
+        console.error('İlan yayınlama hatası:', error);
+        alert('İlan yayınlanırken bir hata oluştu. Lütfen tekrar deneyin.');
+      } finally {
       setIsPublishing(false);
     }
   };

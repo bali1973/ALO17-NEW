@@ -8,8 +8,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Netlify için output ayarları
+  output: 'standalone',
   // Image optimization için remote patterns ayarları
   images: {
+    unoptimized: true, // Netlify için optimize edilmemiş
     remotePatterns: [
       {
         protocol: 'https',
@@ -25,10 +28,14 @@ const nextConfig = {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
+        path: false,
+        os: false,
       };
     }
     return config;
   },
+  // Netlify için server external packages ayarları
+  serverExternalPackages: ['@prisma/client'],
 }
 
 module.exports = nextConfig 

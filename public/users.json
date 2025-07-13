@@ -1,0 +1,42 @@
+[
+  {
+    "id": "user1",
+    "name": "Ahmet Yılmaz",
+    "email": "ahmet@example.com",
+    "phone": "+90 555 123 4567",
+    "location": "İstanbul",
+    "role": "user",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "user2",
+    "name": "Ayşe Demir",
+    "email": "ayse@example.com",
+    "phone": "+90 555 234 5678",
+    "location": "Ankara",
+    "role": "user",
+    "createdAt": "2024-01-02T00:00:00Z",
+    "updatedAt": "2024-01-02T00:00:00Z"
+  },
+  {
+    "id": "user3",
+    "name": "Mehmet Kaya",
+    "email": "mehmet@example.com",
+    "phone": "+90 555 345 6789",
+    "location": "İzmir",
+    "role": "user",
+    "createdAt": "2024-01-03T00:00:00Z",
+    "updatedAt": "2024-01-03T00:00:00Z"
+  },
+  {
+    "id": "admin1",
+    "name": "Admin User",
+    "email": "admin@alo17.com",
+    "phone": "+90 555 999 9999",
+    "location": "İstanbul",
+    "role": "admin",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  }
+] 

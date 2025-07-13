@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/sidebar'
-import { ListingCard } from '@/components/listing-card'
+import { ListingCard, ListingCardSkeleton } from '@/components/listing-card'
 import Link from 'next/link'
 import { useCategories } from '@/lib/useCategories'
+import { Smartphone, Home as HomeIcon, Shirt, Baby, Dumbbell, Heart, GraduationCap, Utensils, Palette, Gift, Users, Circle, Briefcase } from 'lucide-react'
+import { RecentlyViewed } from '@/components/RecentlyViewed';
+import { useAuth } from '@/components/Providers';
 
 interface Listing {
   id: number
@@ -22,13 +25,77 @@ interface Listing {
   status: string
 }
 
+const colorPalette = [
+  "text-blue-500",
+  "text-indigo-500",
+  "text-orange-500",
+  "text-purple-500",
+  "text-pink-500",
+  "text-emerald-500",
+  "text-cyan-500",
+  "text-amber-500",
+  "text-teal-500",
+  "text-rose-500",
+  "text-violet-500",
+  "text-lime-500",
+  "text-green-600",
+  "text-slate-500"
+];
+
+function getColor(slug: string, index: number) {
+  return colorPalette[index % colorPalette.length];
+}
+
+// Function to render icon from category data
+function renderIcon(iconData: string | null, slug: string, index: number) {
+  if (iconData && iconData.startsWith('emoji:')) {
+    // Handle emoji icons
+    const emoji = iconData.replace('emoji:', '');
+    return (
+      <span className={`text-2xl ${getColor(slug, index)}`}>
+        {emoji}
+      </span>
+    );
+  } else if (iconData && iconData.startsWith('color:')) {
+    // Handle color-only icons (fallback to emoji)
+    const colorClass = iconData.replace('color:', '');
+    return (
+      <div className={`w-6 h-6 rounded-full ${colorClass} flex items-center justify-center`}>
+        <span className="text-white text-xs font-bold">
+          {slug.charAt(0).toUpperCase()}
+        </span>
+      </div>
+    );
+  } else {
+    // Fallback to default icon
+    const defaultIcons: Record<string, any> = {
+      elektronik: Smartphone,
+      "ev-bahce": HomeIcon,
+      giyim: Shirt,
+      "anne-bebek": Baby,
+      "sporlar-oyunlar-eglenceler": Dumbbell,
+      "egitim-kurslar": GraduationCap,
+      "yemek-icecek": Utensils,
+      "turizm-gecelemeler": Gift,
+      "saglik-guzellik": Heart,
+      "sanat-hobi": Palette,
+      "is": Briefcase,
+      "hizmetler": Users,
+      "ucretsiz-gel-al": Gift,
+    };
+    const Icon = defaultIcons[slug] || Circle;
+    return <Icon className={`w-6 h-6 ${getColor(slug, index)}`} />;
+  }
+}
+
 export default function Home() {
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(12)
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories()
+  const { categories, loading: categoriesLoading, error: categoriesError, refetch } = useCategories()
+  const { session } = useAuth();
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -50,6 +117,7 @@ export default function Home() {
   }, [])
 
   const filteredListings = listings
+    .filter(listing => listing.status === 'active') // Sadece aktif ilanları göster
     .filter(listing =>
       listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       listing.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -71,9 +139,10 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">İlanlar yükleniyor...</p>
+        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => <ListingCardSkeleton key={i} />)}
+          </div>
         </div>
       </div>
     )
@@ -90,23 +159,8 @@ export default function Home() {
 
           {/* Main Content: İlanlar */}
           <div className="flex-1">
-            <div className="mb-6">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="İlan ara..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
+            {/* Son Baktıkların */}
+            {session && <RecentlyViewed allListings={listings} />}
             {/* Premium İlanlar */}
             {premiumListings.length > 0 && (
               <div className="mb-8">

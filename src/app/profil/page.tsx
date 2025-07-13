@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/Providers';
 import {
   UserIcon,
   EnvelopeIcon,
@@ -12,9 +13,15 @@ import {
   PencilIcon,
   TrashIcon,
   PlusIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 import { listingTypes, listingStatus, Listing } from '@/types/listings';
 import MessagesBox from './mesajlar/MessagesBox';
+import { ListingCard } from '@/components/listing-card';
+// import { toast } from 'react-hot-toast';
+import { useToast } from '@/components/ToastProvider';
 
 // Örnek veri
 const user = {
@@ -93,15 +100,122 @@ const listings = [
   },
 ];
 
+function getFavoriteIds() {
+  if (typeof window === 'undefined') return [];
+  return JSON.parse(localStorage.getItem('favorites') || '[]');
+}
+function setFavoriteIds(ids: number[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('favorites', JSON.stringify(ids));
+}
+
 export default function ProfilePage() {
   const router = useRouter();
+  const { session, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('listings');
+  const [userListings, setUserListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [listingTab, setListingTab] = useState<'active' | 'draft' | 'deleted'>('active');
+  const [allListings, setAllListings] = useState<any[]>([]);
 
-  const handleDeleteListing = (id: number) => {
+  // Kullanıcının ilanlarını çek
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      if (!session?.user?.email) return;
+      
+      try {
+        setLoading(true);
+        const response = await fetch('/api/listings');
+        if (response.ok) {
+          const allListings = await response.json();
+          setAllListings(allListings);
+          // Kullanıcının ilanlarını filtrele
+          const userListings = allListings.filter((listing: any) => 
+            listing.email === session.user.email
+          );
+          setUserListings(userListings);
+        }
+      } catch (error) {
+        console.error('İlanlar yüklenirken hata:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserListings();
+  }, [session]);
+
+  const handleDeleteListing = async (id: number) => {
     if (window.confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
-      // API'ye silme isteği gönderilecek
-      console.log('Delete listing:', id);
+      try {
+        const response = await fetch(`/api/listings/${id}?userEmail=${session?.user?.email}&userRole=${session?.user?.role}`, {
+          method: 'DELETE',
+        });
+        
+        if (response.ok) {
+          alert('İlan başarıyla silindi');
+          // Listeyi yenile
+          const updatedResponse = await fetch('/api/listings');
+          if (updatedResponse.ok) {
+            const allListings = await updatedResponse.json();
+            const userListings = allListings.filter((listing: any) => 
+              listing.email === session?.user?.email
+            );
+            setUserListings(userListings);
+          }
+        } else {
+          const error = await response.json();
+          alert(error.error || 'İlan silinirken hata oluştu');
+        }
+      } catch (error) {
+        console.error('İlan silme hatası:', error);
+        alert('İlan silinirken hata oluştu');
+      }
     }
+  };
+
+  const handleEditListing = (listing: any) => {
+    // İlan düzenleme sayfasına yönlendir
+    router.push(`/ilan-duzenle/${listing.id}`);
+  };
+
+  // İlan statüsünü güncelle
+  const handleStatusChange = async (listing: any, newStatus: 'active' | 'draft' | 'deleted') => {
+    try {
+      const response = await fetch(`/api/listings/${listing.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: newStatus,
+          userEmail: session?.user?.email,
+          userRole: session?.user?.role,
+        }),
+      });
+      if (response.ok) {
+        alert('İlan durumu güncellendi');
+        // Listeyi yenile
+        const updatedResponse = await fetch('/api/listings');
+        if (updatedResponse.ok) {
+          const allListings = await updatedResponse.json();
+          const userListings = allListings.filter((l: any) => l.email === session?.user?.email);
+          setUserListings(userListings);
+        }
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Durum güncellenemedi');
+      }
+    } catch (error) {
+      alert('Durum güncellenemedi');
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    return (
+      <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+        <CheckCircleIcon className="w-3 h-3 mr-1" />
+        Yayında
+      </span>
+    );
   };
 
   return (
@@ -189,6 +303,16 @@ export default function ProfilePage() {
                 >
                   Mesajlarım
                 </button>
+                <button
+                  onClick={() => setActiveTab('invoices')}
+                  className={`flex-1 px-4 py-3 text-sm font-medium ${
+                    activeTab === 'invoices'
+                      ? 'text-alo-orange border-b-2 border-alo-orange'
+                      : 'text-gray-500 hover:text-alo-orange'
+                  }`}
+                >
+                  Fatura Arşivi
+                </button>
               </nav>
             </div>
 
@@ -206,73 +330,161 @@ export default function ProfilePage() {
                   </Link>
                 </div>
 
-                <div className="space-y-4">
-                  {listings.map((listing) => (
-                    <div
-                      key={listing.id}
-                      className="bg-white rounded-xl shadow-sm overflow-hidden"
-                    >
-                      <div className="flex flex-col md:flex-row">
-                        <div className="relative w-full md:w-48 h-48">
-                          <Image
-                            src={listing.images[0]}
-                            alt={listing.title}
-                            width={200}
-                            height={150}
-                            className="object-cover rounded-lg"
-                          />
-                        </div>
-                        <div className="flex-1 p-4">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-semibold text-alo-dark mb-2">
-                                {listing.title}
-                              </h4>
-                              <p className="text-xl font-bold text-alo-red mb-2">
-                                {listing.price} TL
-                              </p>
-                              <div className="flex items-center text-sm text-gray-500 mb-2">
-                                <MapPinIcon className="w-4 h-4 mr-1" />
-                                {listing.location}
+                {/* Durum sekmeleri */}
+                <div className="flex gap-2 mb-6">
+                  <button
+                    onClick={() => setListingTab('active')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${listingTab === 'active' ? 'bg-alo-orange text-white border-alo-orange' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`}
+                  >
+                    Yayında
+                  </button>
+                  <button
+                    onClick={() => setListingTab('draft')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${listingTab === 'draft' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`}
+                  >
+                    Taslak
+                  </button>
+                  <button
+                    onClick={() => setListingTab('deleted')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${listingTab === 'deleted' ? 'bg-gray-500 text-white border-gray-500' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`}
+                  >
+                    Silinen
+                  </button>
+                </div>
+
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-alo-orange mx-auto"></div>
+                    <p className="mt-2 text-gray-600">İlanlar yükleniyor...</p>
+                  </div>
+                ) : userListings.filter(l => l.status === listingTab).length > 0 ? (
+                  <div className="space-y-4">
+                    {userListings.filter(l => l.status === listingTab).map((listing) => (
+                      <div
+                        key={listing.id}
+                        className="bg-white rounded-xl shadow-sm overflow-hidden"
+                      >
+                        <div className="flex flex-col md:flex-row">
+                          <div className="relative w-full md:w-48 h-48">
+                            {listing.images && listing.images.length > 0 ? (
+                              <img
+                                src={listing.images[0]}
+                                alt={listing.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <span className="text-gray-500">Resim Yok</span>
                               </div>
-                              <div className="flex items-center text-sm text-gray-500">
-                                <span className="mr-4">
-                                  {new Date(listing.date).toLocaleDateString('tr-TR')}
-                                </span>
-                                <span>{listing.views} görüntülenme</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Link
-                                href={`/ilan/${listing.id}/duzenle`}
-                                className="p-2 text-gray-500 hover:text-alo-orange"
-                              >
-                                <PencilIcon className="w-5 h-5" />
-                              </Link>
-                              <button
-                                onClick={() => handleDeleteListing(listing.id)}
-                                className="p-2 text-gray-500 hover:text-alo-red"
-                              >
-                                <TrashIcon className="w-5 h-5" />
-                              </button>
-                            </div>
+                            )}
                           </div>
-                          <div className="mt-4">
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                listing.status === 'active'
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}
-                            >
-                              {listing.status === 'active' ? 'Aktif' : 'Onay Bekliyor'}
-                            </span>
+                          <div className="flex-1 p-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h4 className="font-semibold text-alo-dark mb-2">
+                                  {listing.title}
+                                </h4>
+                                <p className="text-xl font-bold text-alo-red mb-2">
+                                  {listing.price} ₺
+                                </p>
+                                <div className="flex items-center text-sm text-gray-500 mb-2">
+                                  <MapPinIcon className="w-4 h-4 mr-1" />
+                                  {listing.location}
+                                </div>
+                                <div className="flex items-center text-sm text-gray-500">
+                                  <span className="mr-4">
+                                    {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
+                                  </span>
+                                  <span>{listing.views || 0} görüntülenme</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                {listingTab === 'active' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleStatusChange(listing, 'draft')}
+                                      className="p-2 text-gray-500 hover:text-blue-500"
+                                      title="Taslağa Çek"
+                                    >
+                                      <ClockIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleStatusChange(listing, 'deleted')}
+                                      className="p-2 text-gray-500 hover:text-alo-red"
+                                      title="Sil"
+                                    >
+                                      <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                  </>
+                                )}
+                                {listingTab === 'draft' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleStatusChange(listing, 'active')}
+                                      className="p-2 text-gray-500 hover:text-green-600"
+                                      title="Yayına Al"
+                                    >
+                                      <CheckCircleIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleStatusChange(listing, 'deleted')}
+                                      className="p-2 text-gray-500 hover:text-alo-red"
+                                      title="Sil"
+                                    >
+                                      <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                  </>
+                                )}
+                                {listingTab === 'deleted' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleStatusChange(listing, 'active')}
+                                      className="p-2 text-gray-500 hover:text-green-600"
+                                      title="Geri Al (Yayına Al)"
+                                    >
+                                      <CheckCircleIcon className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteListing(listing.id)}
+                                      className="p-2 text-gray-500 hover:text-alo-red"
+                                      title="Kalıcı Sil"
+                                    >
+                                      <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                  </>
+                                )}
+                                <button
+                                  onClick={() => handleEditListing(listing)}
+                                  className="p-2 text-gray-500 hover:text-alo-orange"
+                                  title="Düzenle"
+                                  disabled={listingTab === 'deleted'}
+                                >
+                                  <PencilIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="mt-4">
+                              {getStatusBadge(listing.status)}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 mb-4">Bu sekmede ilanınız bulunmuyor.</p>
+                    {listingTab === 'active' && (
+                      <Link
+                        href="/ilan-ver"
+                        className="inline-flex items-center px-4 py-2 bg-alo-orange text-white rounded-lg hover:bg-alo-light-orange"
+                      >
+                        <PlusIcon className="w-4 h-4 mr-2" />
+                        İlk İlanınızı Verin
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -280,7 +492,60 @@ export default function ProfilePage() {
             {activeTab === 'favorites' && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-alo-dark mb-4">Favorilerim</h3>
-                <p className="text-gray-500">Henüz favori ilanınız bulunmuyor.</p>
+                {(() => {
+                  const { showToast } = useToast();
+                  const [favIds, setFavIds] = useState<number[]>([]);
+                  useEffect(() => {
+                    setFavIds(getFavoriteIds());
+                  }, []);
+                  const favListings = allListings.filter((l: any) => favIds.includes(l.id));
+                  const handleRemoveFavorite = (id: number) => {
+                    const newFavs = favIds.filter(favId => favId !== id);
+                    setFavIds(newFavs);
+                    setFavoriteIds(newFavs);
+                    showToast('Favorilerden çıkarıldı', 'info');
+                  };
+                  const handleClearFavorites = () => {
+                    setFavIds([]);
+                    setFavoriteIds([]);
+                    showToast('Tüm favoriler temizlendi', 'success');
+                  };
+                  if (favListings.length === 0) {
+                    return <div className="text-center py-12">
+                      <div className="text-6xl mb-4">💔</div>
+                      <p className="text-gray-500 mb-2">Henüz favori ilanınız yok.</p>
+                      <p className="text-gray-400">Beğendiğiniz ilanları kalp ikonuna tıklayarak favorilerinize ekleyebilirsiniz!</p>
+                    </div>;
+                  }
+                  return (
+                    <>
+                      <div className="flex justify-end mb-4">
+                        <button
+                          onClick={handleClearFavorites}
+                          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                        >
+                          Tüm Favorileri Temizle
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {favListings.map((listing: any) => (
+                          <div key={listing.id} className="relative group">
+                            <ListingCard listing={listing} />
+                            <button
+                              onClick={() => handleRemoveFavorite(listing.id)}
+                              className="absolute top-2 right-2 z-20 bg-white/90 text-red-500 border border-red-200 rounded-full p-2 shadow hover:bg-red-500 hover:text-white transition-colors"
+                              title="Favorilerden çıkar"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             )}
 
@@ -288,9 +553,82 @@ export default function ProfilePage() {
             {activeTab === 'messages' && (
               <MessagesBox />
             )}
+
+            {/* Fatura Arşivi */}
+            {activeTab === 'invoices' && (
+              <InvoiceArchive userEmail={session?.user?.email} />
+            )}
           </div>
         </div>
       </div>
+    </div>
+  );
+} 
+
+function InvoiceArchive({ userEmail }: { userEmail: string | undefined }) {
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await fetch('/payments.json');
+        const data = await res.json();
+        // Sadece giriş yapan kullanıcıya ait faturalar
+        setInvoices(data.filter((inv: any) => inv.userEmail === userEmail));
+      } catch (err) {
+        setError('Faturalar yüklenemedi.');
+      }
+      setLoading(false);
+    };
+    if (userEmail) fetchInvoices();
+  }, [userEmail]);
+
+  if (!userEmail) return <div className="p-8 text-center text-red-500">Fatura arşivini görmek için giriş yapmalısınız.</div>;
+  if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+  if (invoices.length === 0) return <div className="p-8 text-center text-gray-500">Fatura bulunamadı.</div>;
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
+      <h3 className="text-lg font-semibold text-alo-dark mb-4">Fatura Arşivim</h3>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fatura No</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tutar</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-100">
+          {invoices.map((inv) => (
+            <tr key={inv.id}>
+              <td className="px-4 py-2 whitespace-nowrap font-mono">{inv.invoiceNo || inv.id}</td>
+              <td className="px-4 py-2 whitespace-nowrap">{new Date(inv.createdAt).toLocaleDateString('tr-TR')}</td>
+              <td className="px-4 py-2 whitespace-nowrap">{inv.amount} {inv.currency || '₺'}</td>
+              <td className="px-4 py-2 whitespace-nowrap">
+                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${inv.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{inv.status === 'paid' ? 'Ödendi' : inv.status}</span>
+              </td>
+              <td className="px-4 py-2 whitespace-nowrap flex gap-2">
+                {inv.pdfUrl && (
+                  <a href={inv.pdfUrl} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">PDF İndir</a>
+                )}
+                <button
+                  onClick={() => alert('Fatura e-posta ile gönderildi (mock).')}
+                  className="px-3 py-1 bg-alo-orange text-white rounded hover:bg-orange-600 text-xs"
+                >
+                  E-posta Gönder
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 } 

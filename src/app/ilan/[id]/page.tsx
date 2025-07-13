@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/Providers';
 import { Heart, Phone, Mail, Share2, Facebook, Twitter, Instagram, MessageCircle, ChevronRight, Eye, BarChart, MessageSquare, AlertTriangle, User } from 'lucide-react';
@@ -25,6 +26,17 @@ const listings = [
 export default function IlanDetayPage({ params }: IlanDetayPageProps) {
   const ilan = listings.find(l => l.id === params.id);
 
+  // Son görüntülenenler: localStorage'a ekle
+  useEffect(() => {
+    if (!ilan) return;
+    if (typeof window === 'undefined') return;
+    let recents = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+    recents = recents.filter((id: string) => id !== ilan.id); // Çiftleri engelle
+    recents.unshift(ilan.id);
+    if (recents.length > 20) recents = recents.slice(0, 20);
+    localStorage.setItem('recentlyViewed', JSON.stringify(recents));
+  }, [ilan]);
+
   if (!ilan) {
     return <div className="p-8">İlan bulunamadı.</div>;
   }
@@ -36,13 +48,4 @@ export default function IlanDetayPage({ params }: IlanDetayPageProps) {
       <div className="text-gray-500 mt-4">Statik export için örnek ilan detay sayfası.</div>
     </div>
   );
-}
-
-// Statik export için generateStaticParams fonksiyonu
-export async function generateStaticParams() {
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-  ];
 } 

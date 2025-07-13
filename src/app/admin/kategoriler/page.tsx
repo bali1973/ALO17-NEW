@@ -5,39 +5,44 @@ import { useAuth } from "@/components/Providers";
 import { useToast } from "@/components/ToastProvider";
 import * as LucideIcons from 'lucide-react';
 import React from 'react';
+import { triggerCategoryUpdate } from '@/lib/useCategories';
 
 function SubCategoryInput({ value, onChange, onAdd, iconValue, onIconChange, iconOptions, loading }: { value: string, onChange: (val: string) => void, onAdd: (name: string, icon: string) => Promise<boolean>, iconValue: string, onIconChange: (val: string) => void, iconOptions: any[], loading: boolean }) {
   return (
-    <div className="flex gap-2 mt-2">
-      <input
-        type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder="Yeni alt kategori adı"
-        className="border rounded px-2 py-1 flex-1"
-        autoComplete="off"
-        disabled={loading}
-      />
+    <div className="flex items-center gap-3">
+      <div className="flex-1">
+        <input
+          type="text"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="Alt kategori adını girin..."
+          className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+          autoComplete="off"
+          disabled={loading}
+        />
+      </div>
       <select
         value={iconValue}
         onChange={e => onIconChange(e.target.value)}
-        className="border rounded px-2 py-1"
+        className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
         disabled={loading}
       >
         {iconOptions.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
-      <span className="ml-2">{iconOptions.find(opt => opt.value === iconValue)?.icon}</span>
+      <div className="flex items-center justify-center w-10 h-10 bg-white border-2 border-gray-200 rounded-lg">
+        {iconOptions.find(opt => opt.value === iconValue)?.icon}
+      </div>
       <button
         onClick={async () => {
           if (!value.trim()) return;
           await onAdd(value, iconValue);
         }}
-        className="bg-blue-500 text-white px-3 py-1 rounded"
+        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
         disabled={loading}
       >
-        Alt Kategori Ekle
+        {loading ? '⏳' : '➕ Alt Kategori Ekle'}
       </button>
     </div>
   );
@@ -122,21 +127,40 @@ function getIcon(slug: string) {
 }
 
 const iconOptions = [
-  { value: "Smartphone", label: "Telefon", icon: <LucideIcons.Smartphone /> },
-  { value: "Home", label: "Ev", icon: <LucideIcons.Home /> },
-  { value: "Shirt", label: "Giyim", icon: <LucideIcons.Shirt /> },
-  { value: "Baby", label: "Bebek", icon: <LucideIcons.Baby /> },
-  { value: "Dumbbell", label: "Spor", icon: <LucideIcons.Dumbbell /> },
-  { value: "Heart", label: "Sağlık", icon: <LucideIcons.Heart /> },
-  { value: "GraduationCap", label: "Eğitim", icon: <LucideIcons.GraduationCap /> },
-  { value: "Utensils", label: "Yemek", icon: <LucideIcons.Utensils /> },
-  { value: "Palette", label: "Sanat", icon: <LucideIcons.Palette /> },
-  { value: "Gift", label: "Turizm", icon: <LucideIcons.Gift /> },
-  { value: "Briefcase", label: "İş", icon: <LucideIcons.Briefcase /> },
-  { value: "MoreHorizontal", label: "Hizmetler", icon: <LucideIcons.MoreHorizontal /> },
-  { value: "Circle", label: "Diğer", icon: <LucideIcons.Circle /> },
-  { value: "baby-carriage", label: "Bebek Arabası (SVG)", icon: <img src="/icons/baby-carriage.svg" alt="Bebek Arabası" className="inline w-5 h-5 align-middle" /> },
-  // ... diğer ikonlar ...
+  { value: "Smartphone", label: "📱 Telefon", icon: <LucideIcons.Smartphone className="text-blue-500" />, color: "text-blue-500" },
+  { value: "Home", label: "🏠 Ev", icon: <LucideIcons.Home className="text-green-500" />, color: "text-green-500" },
+  { value: "Shirt", label: "👕 Giyim", icon: <LucideIcons.Shirt className="text-purple-500" />, color: "text-purple-500" },
+  { value: "Baby", label: "👶 Bebek", icon: <LucideIcons.Baby className="text-pink-500" />, color: "text-pink-500" },
+  { value: "Dumbbell", label: "💪 Spor", icon: <LucideIcons.Dumbbell className="text-orange-500" />, color: "text-orange-500" },
+  { value: "Heart", label: "❤️ Sağlık", icon: <LucideIcons.Heart className="text-red-500" />, color: "text-red-500" },
+  { value: "GraduationCap", label: "🎓 Eğitim", icon: <LucideIcons.GraduationCap className="text-indigo-500" />, color: "text-indigo-500" },
+  { value: "Utensils", label: "🍽️ Yemek", icon: <LucideIcons.Utensils className="text-yellow-500" />, color: "text-yellow-500" },
+  { value: "Palette", label: "🎨 Sanat", icon: <LucideIcons.Palette className="text-teal-500" />, color: "text-teal-500" },
+  { value: "Gift", label: "🎁 Turizm", icon: <LucideIcons.Gift className="text-cyan-500" />, color: "text-cyan-500" },
+  { value: "Briefcase", label: "💼 İş", icon: <LucideIcons.Briefcase className="text-gray-600" />, color: "text-gray-600" },
+  { value: "MoreHorizontal", label: "🔧 Hizmetler", icon: <LucideIcons.MoreHorizontal className="text-slate-500" />, color: "text-slate-500" },
+  { value: "Circle", label: "⚪ Diğer", icon: <LucideIcons.Circle className="text-gray-400" />, color: "text-gray-400" },
+  { value: "Laptop", label: "💻 Bilgisayar", icon: <LucideIcons.Laptop className="text-blue-600" />, color: "text-blue-600" },
+  { value: "Camera", label: "📷 Kamera", icon: <LucideIcons.Camera className="text-black" />, color: "text-black" },
+  { value: "Tv", label: "📺 TV", icon: <LucideIcons.Tv className="text-blue-700" />, color: "text-blue-700" },
+  { value: "Headphones", label: "🎧 Kulaklık", icon: <LucideIcons.Headphones className="text-purple-600" />, color: "text-purple-600" },
+  { value: "Gamepad2", label: "🎮 Oyun", icon: <LucideIcons.Gamepad2 className="text-green-600" />, color: "text-green-600" },
+  { value: "Printer", label: "🖨️ Yazıcı", icon: <LucideIcons.Printer className="text-gray-700" />, color: "text-gray-700" },
+  { value: "Sofa", label: "🛋️ Mobilya", icon: <LucideIcons.Sofa className="text-amber-600" />, color: "text-amber-600" },
+  { value: "Flower2", label: "🌸 Bahçe", icon: <LucideIcons.Flower2 className="text-pink-400" />, color: "text-pink-400" },
+  { value: "WashingMachine", label: "🧺 Ev Aleti", icon: <LucideIcons.WashingMachine className="text-blue-400" />, color: "text-blue-400" },
+  { value: "Scissors", label: "✂️ Kozmetik", icon: <LucideIcons.Scissors className="text-purple-400" />, color: "text-purple-400" },
+  { value: "UserCheck", label: "💄 Bakım", icon: <LucideIcons.UserCheck className="text-pink-300" />, color: "text-pink-300" },
+  { value: "BedDouble", label: "🛏️ Yatak", icon: <LucideIcons.BedDouble className="text-indigo-400" />, color: "text-indigo-400" },
+  { value: "ChefHat", label: "👨‍🍳 Mutfak", icon: <LucideIcons.ChefHat className="text-orange-400" />, color: "text-orange-400" },
+  { value: "Music2", label: "🎵 Müzik", icon: <LucideIcons.Music2 className="text-purple-300" />, color: "text-purple-300" },
+  { value: "Theater", label: "🎭 Tiyatro", icon: <LucideIcons.Theater className="text-red-400" />, color: "text-red-400" },
+  { value: "PartyPopper", label: "🎉 Parti", icon: <LucideIcons.PartyPopper className="text-yellow-400" />, color: "text-yellow-400" },
+  { value: "Tent", label: "⛺ Kamp", icon: <LucideIcons.Tent className="text-green-400" />, color: "text-green-400" },
+  { value: "BikeIcon", label: "🚴 Bisiklet", icon: <LucideIcons.BikeIcon className="text-blue-300" />, color: "text-blue-300" },
+  { value: "Building2", label: "🏢 Bina", icon: <LucideIcons.Building2 className="text-gray-500" />, color: "text-gray-500" },
+  { value: "Users", label: "👥 Çocuk", icon: <LucideIcons.Users className="text-pink-200" />, color: "text-pink-200" },
+  { value: "baby-carriage", label: "🚼 Bebek Arabası", icon: <img src="/icons/baby-carriage.svg" alt="Bebek Arabası" className="inline w-5 h-5 align-middle" />, color: "text-pink-300" },
 ];
 
 export default function AdminKategorilerPage() {
@@ -150,6 +174,7 @@ export default function AdminKategorilerPage() {
   const { showToast } = useToast();
   const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
   const [editCategoryName, setEditCategoryName] = useState("");
+  const [editCategoryIcon, setEditCategoryIcon] = useState(iconOptions[0].value);
   const [subCategoryInputs, setSubCategoryInputs] = useState<{ [catId: string]: string }>({});
   const [editSubCategoryId, setEditSubCategoryId] = useState<string | null>(null);
   const [editSubCategoryName, setEditSubCategoryName] = useState("");
@@ -165,10 +190,19 @@ export default function AdminKategorilerPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/categories.json");
-      const data = await res.json();
-      console.log('API /categories.json yanıtı:', data);
-      setCategories(data);
+      // Önce API endpoint'ini dene
+      const res = await fetch("/api/categories");
+      if (res.ok) {
+        const data = await res.json();
+        console.log('API /api/categories yanıtı:', data);
+        setCategories(data);
+      } else {
+        // API başarısız olursa JSON dosyasını dene
+        const jsonRes = await fetch("/categories.json");
+        const data = await jsonRes.json();
+        console.log('JSON /categories.json yanıtı:', data);
+        setCategories(data);
+      }
     } catch (err) {
       setError("Kategoriler yüklenemedi");
     }
@@ -198,6 +232,8 @@ export default function AdminKategorilerPage() {
         showToast("Kategori eklendi", "success");
         setNewCategory("");
         fetchCategories();
+        // Ana sayfayı güncelle
+        triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Kategori eklenemedi");
@@ -225,6 +261,8 @@ export default function AdminKategorilerPage() {
         setSuccess("Kategori silindi");
         showToast("Kategori silindi", "success");
         fetchCategories();
+        // Ana sayfayı güncelle
+        triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Kategori silinemedi");
@@ -245,7 +283,7 @@ export default function AdminKategorilerPage() {
           "Content-Type": "application/json",
           authorization: `Bearer ${localStorage.getItem("alo17-session")}`,
         },
-        body: JSON.stringify({ name: editCategoryName }),
+        body: JSON.stringify({ name: editCategoryName, icon: editCategoryIcon }),
       });
       if (!res.ok) {
         const errData = await res.json();
@@ -257,6 +295,8 @@ export default function AdminKategorilerPage() {
         setEditCategoryId(null);
         setEditCategoryName("");
         fetchCategories();
+        // Ana sayfayı güncelle
+        triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Kategori güncellenemedi");
@@ -289,6 +329,8 @@ export default function AdminKategorilerPage() {
         setSuccess("Alt kategori eklendi");
         showToast("Alt kategori eklendi", "success");
         fetchCategories();
+        // Ana sayfayı güncelle
+        triggerCategoryUpdate();
         return true;
       }
     } catch (err) {
@@ -318,6 +360,8 @@ export default function AdminKategorilerPage() {
         setSuccess("Alt kategori silindi");
         showToast("Alt kategori silindi", "success");
         fetchCategories();
+        // Ana sayfayı güncelle
+        triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Alt kategori silinemedi");
@@ -351,6 +395,8 @@ export default function AdminKategorilerPage() {
         setEditSubCategoryId(null);
         setEditSubCategoryName("");
         fetchCategories();
+        // Ana sayfayı güncelle
+        triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Alt kategori güncellenemedi");
@@ -374,194 +420,267 @@ export default function AdminKategorilerPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Kategori Yönetimi</h1>
-      <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          value={newCategory}
-          onChange={e => setNewCategory(e.target.value)}
-          placeholder="Yeni kategori adı"
-          className="border rounded px-2 py-1 flex-1"
-          autoComplete="off"
-          disabled={loading}
-        />
-        <select
-          value={selectedIcon}
-          onChange={e => setSelectedIcon(e.target.value)}
-          className="border rounded px-2 py-1"
-          disabled={loading}
-        >
-          {iconOptions.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-        <span className="ml-2">{iconOptions.find(opt => opt.value === selectedIcon)?.icon}</span>
-        <button
-          onClick={handleAddCategory}
-          className="bg-blue-500 text-white px-3 py-1 rounded"
-          disabled={loading}
-        >
-          Kategori Ekle
-        </button>
+    <div className="max-w-4xl mx-auto p-8 bg-gray-50 min-h-screen">
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800 flex items-center">
+          <span className="mr-3">🎯</span>
+          Kategori Yönetimi
+        </h1>
+        
+        {/* Yeni Kategori Ekleme */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">➕ Yeni Kategori Ekle</h2>
+          <div className="flex gap-3 items-center">
+            <input
+              type="text"
+              value={newCategory}
+              onChange={e => setNewCategory(e.target.value)}
+              placeholder="Kategori adını girin..."
+              className="border-2 border-gray-200 rounded-lg px-4 py-2 flex-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              autoComplete="off"
+              disabled={loading}
+            />
+            <select
+              value={selectedIcon}
+              onChange={e => setSelectedIcon(e.target.value)}
+              className="border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              disabled={loading}
+            >
+              {iconOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <div className="flex items-center justify-center w-12 h-10 bg-white border-2 border-gray-200 rounded-lg">
+              {iconOptions.find(opt => opt.value === selectedIcon)?.icon}
+            </div>
+            <button
+              onClick={handleAddCategory}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'Ekleniyor...' : '➕ Ekle'}
+            </button>
+          </div>
+        </div>
+
+        {/* Mesajlar */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center">
+              <span className="text-red-500 mr-2">❌</span>
+              <span className="text-red-700 font-medium">{error}</span>
+            </div>
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center">
+              <span className="text-green-500 mr-2">✅</span>
+              <span className="text-green-700 font-medium">{success}</span>
+            </div>
+          </div>
+        )}
       </div>
-      {error && <div className="text-red-600 mb-2">{error}</div>}
-      {success && <div className="text-green-600 mb-2">{success}</div>}
-      <ul className="divide-y">
+
+      {/* Kategoriler Listesi */}
+      <div className="space-y-4">
         {orderedCategories.map((cat, i) => {
           const Icon = getIcon(cat.slug);
           const color = getColor(cat.slug, i);
           return (
-            <li key={cat.id} className="py-2 bg-white border-b">
-              <div className="flex items-center justify-between gap-2">
-                {editCategoryId === cat.id ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editCategoryName}
-                      onChange={e => setEditCategoryName(e.target.value)}
-                      className="border rounded px-2 py-1 mr-2"
-                    />
-                    <button
-                      onClick={() => handleEditCategory(cat.id)}
-                      className="bg-green-600 text-white px-2 py-1 rounded mr-1"
-                      disabled={loading}
-                    >
-                      Kaydet
-                    </button>
-                    <button
-                      onClick={() => { setEditCategoryId(null); setEditCategoryName(""); }}
-                      className="bg-gray-400 text-white px-2 py-1 rounded"
-                    >
-                      İptal
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <span className="font-medium flex items-center gap-2">
-                      <Icon className={`w-5 h-5 ${color}`} />
-                      {cat.name}
-                    </span>
-                    <div className="flex gap-1">
+            <div key={cat.id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+              {/* Ana Kategori Başlığı */}
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  {editCategoryId === cat.id ? (
+                    <div className="flex items-center gap-3 flex-1">
+                      <input
+                        type="text"
+                        value={editCategoryName}
+                        onChange={e => setEditCategoryName(e.target.value)}
+                        className="border-2 border-blue-300 rounded-lg px-3 py-2 flex-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      />
+                      <select
+                        value={editCategoryIcon}
+                        onChange={e => setEditCategoryIcon(e.target.value)}
+                        className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      >
+                        {iconOptions.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                      <div className="flex items-center justify-center w-10 h-10 bg-white border-2 border-gray-200 rounded-lg">
+                        {iconOptions.find(opt => opt.value === editCategoryIcon)?.icon}
+                      </div>
                       <button
-                        onClick={() => { setEditCategoryId(cat.id); setEditCategoryName(cat.name); }}
-                        className="bg-yellow-500 text-white px-2 py-1 rounded"
+                        onClick={() => handleEditCategory(cat.id)}
+                        className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors"
                         disabled={loading}
                       >
-                        Düzenle
+                        💾 Kaydet
                       </button>
                       <button
-                        onClick={() => handleDeleteCategory(cat.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded"
-                        disabled={loading}
+                        onClick={() => { 
+                          setEditCategoryId(null); 
+                          setEditCategoryName(""); 
+                          setEditCategoryIcon(iconOptions[0].value);
+                        }}
+                        className="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors"
                       >
-                        Sil
+                        ❌ İptal
                       </button>
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg bg-white shadow-sm border-2 ${color.replace('text-', 'border-')}`}>
+                          <Icon className={`w-6 h-6 ${color}`} />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-800">{cat.name}</h3>
+                          <p className="text-sm text-gray-600">
+                            {(cat.subCategories || []).length} alt kategori
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { 
+                            setEditCategoryId(cat.id); 
+                            setEditCategoryName(cat.name); 
+                            setEditCategoryIcon(cat.icon || iconOptions[0].value);
+                          }}
+                          className="bg-yellow-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 transition-colors shadow-sm"
+                          disabled={loading}
+                        >
+                          ✏️ Düzenle
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCategory(cat.id)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-sm"
+                          disabled={loading}
+                        >
+                          🗑️ Sil
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
               {/* Alt kategoriler */}
-              <div className="ml-6 mt-2">
-                <ul className="divide-y">
+              <div className="p-4 bg-gray-50">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                  <span className="mr-2">📂</span>
+                  Alt Kategoriler
+                </h4>
+                <div className="space-y-2">
                   {(cat.subCategories || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'tr')).map((sub: any, j: number) => {
                     const subSlug = normalizeSlug(sub.slug);
                     const SubIcon = getIcon(subSlug);
                     const subColor = getColor(subSlug, j);
                     return (
-                      <li key={sub.id} className="flex items-center justify-between py-1 bg-gray-50 border-b">
-                        {editSubCategoryId === sub.id ? (
-                          <>
-                            <input
-                              type="text"
-                              value={editSubCategoryName}
-                              onChange={e => setEditSubCategoryName(e.target.value)}
-                              className="border rounded px-2 py-1 mr-2"
-                            />
-                            <select
-                              value={editSubCategoryIcon}
-                              onChange={e => setEditSubCategoryIcon(e.target.value)}
-                              className="border rounded px-2 py-1 mr-2"
-                            >
-                              {iconOptions.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                              ))}
-                            </select>
-                            <span className="ml-2">{iconOptions.find(opt => opt.value === editSubCategoryIcon)?.icon}</span>
-                            <button
-                              onClick={() => handleEditSubCategory(sub.id)}
-                              className="bg-green-600 text-white px-2 py-1 rounded mr-1"
-                              disabled={loading}
-                            >
-                              Kaydet
-                            </button>
-                            <button
-                              onClick={() => { setEditSubCategoryId(null); setEditSubCategoryName(""); }}
-                              className="bg-gray-400 text-white px-2 py-1 rounded"
-                            >
-                              İptal
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <span className="flex items-center gap-2">
-                              {sub.icon ? (
-                                (() => {
-                                  if (sub.icon === "baby-carriage") {
-                                    return <img src="/icons/baby-carriage.svg" alt="Bebek Arabası" className={`w-4 h-4 ${subColor}`} />;
-                                  }
-                                  const SubIcon = (LucideIcons as any)[sub.icon] || LucideIcons.Circle;
-                                  return <SubIcon className={`w-4 h-4 ${subColor}`} />;
-                                })()
-                              ) : (
-                                <LucideIcons.Circle className={`w-4 h-4 ${subColor}`} />
-                              )}
-                              {sub.name}
-                            </span>
-                            <div className="flex gap-1">
+                      <div key={sub.id} className="bg-white rounded-lg border border-gray-200 p-3">
+                        <div className="flex items-center justify-between">
+                          {editSubCategoryId === sub.id ? (
+                            <div className="flex items-center gap-3 flex-1">
+                              <input
+                                type="text"
+                                value={editSubCategoryName}
+                                onChange={e => setEditSubCategoryName(e.target.value)}
+                                className="border-2 border-blue-300 rounded-lg px-3 py-2 flex-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                              />
+                              <select
+                                value={editSubCategoryIcon}
+                                onChange={e => setEditSubCategoryIcon(e.target.value)}
+                                className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                              >
+                                {iconOptions.map(opt => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </select>
+                              <div className="flex items-center justify-center w-10 h-10 bg-white border-2 border-gray-200 rounded-lg">
+                                {iconOptions.find(opt => opt.value === editSubCategoryIcon)?.icon}
+                              </div>
                               <button
-                                onClick={() => { setEditSubCategoryId(sub.id); setEditSubCategoryName(sub.name); setEditSubCategoryIcon(sub.icon || iconOptions[0].value); }}
-                                className="bg-yellow-500 text-white px-2 py-1 rounded"
+                                onClick={() => handleEditSubCategory(sub.id)}
+                                className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors"
                                 disabled={loading}
                               >
-                                Düzenle
+                                💾
                               </button>
                               <button
-                                onClick={() => handleDeleteSubCategory(sub.id)}
-                                className="bg-red-500 text-white px-2 py-1 rounded"
-                                disabled={loading}
+                                onClick={() => { setEditSubCategoryId(null); setEditSubCategoryName(""); }}
+                                className="bg-gray-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors"
                               >
-                                Sil
+                                ❌
                               </button>
                             </div>
-                          </>
-                        )}
-                      </li>
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg bg-white shadow-sm border ${subColor.replace('text-', 'border-')}`}>
+                                  {sub.icon ? (
+                                    (() => {
+                                      if (sub.icon === "baby-carriage") {
+                                        return <img src="/icons/baby-carriage.svg" alt="Bebek Arabası" className={`w-4 h-4 ${subColor}`} />;
+                                      }
+                                      const SubIcon = (LucideIcons as any)[sub.icon] || LucideIcons.Circle;
+                                      return <SubIcon className={`w-4 h-4 ${subColor}`} />;
+                                    })()
+                                  ) : (
+                                    <LucideIcons.Circle className={`w-4 h-4 ${subColor}`} />
+                                  )}
+                                </div>
+                                <span className="font-medium text-gray-800">{sub.name}</span>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => { setEditSubCategoryId(sub.id); setEditSubCategoryName(sub.name); setEditSubCategoryIcon(sub.icon || iconOptions[0].value); }}
+                                  className="bg-yellow-500 text-white px-3 py-1 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm"
+                                  disabled={loading}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubCategory(sub.id)}
+                                  className="bg-red-500 text-white px-3 py-1 rounded-lg font-medium hover:bg-red-600 transition-colors text-sm"
+                                  disabled={loading}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     );
                   })}
-                </ul>
+                </div>
+                
                 {/* Alt kategori ekleme inputu */}
-                <SubCategoryInput
-                  value={subCategoryInputs[cat.id] || ""}
-                  onChange={val => setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: val }))}
-                  onAdd={async (name, icon) => {
-                    const result = await handleAddSubCategory(cat.id, name, icon);
-                    if (result) {
-                      setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: "" }));
-                      setSubCategoryIcons(icons => ({ ...icons, [cat.id]: icon }));
-                    }
-                    return result;
-                  }}
-                  iconValue={subCategoryIcons[cat.id] || iconOptions[0].value}
-                  onIconChange={val => setSubCategoryIcons(icons => ({ ...icons, [cat.id]: val }))}
-                  iconOptions={iconOptions}
-                  loading={loading}
-                />
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <SubCategoryInput
+                    value={subCategoryInputs[cat.id] || ""}
+                    onChange={val => setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: val }))}
+                    onAdd={async (name, icon) => {
+                      const result = await handleAddSubCategory(cat.id, name, icon);
+                      if (result) {
+                        setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: "" }));
+                        setSubCategoryIcons(icons => ({ ...icons, [cat.id]: icon }));
+                      }
+                      return result;
+                    }}
+                    iconValue={subCategoryIcons[cat.id] || iconOptions[0].value}
+                    onIconChange={val => setSubCategoryIcons(icons => ({ ...icons, [cat.id]: val }))}
+                    iconOptions={iconOptions}
+                    loading={loading}
+                  />
+                </div>
               </div>
-            </li>
+            </div>
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 } 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/Providers';
 import { Search, Filter, MapPin, Sparkles, Star, Clock, TrendingUp } from 'lucide-react';
 import { useCategories } from '@/lib/useCategories';
+import { SearchFilterBar } from '@/components/SearchFilterBar';
 
 // İlan tipi
 interface Ilan {
@@ -26,15 +27,23 @@ interface Ilan {
   brand?: string;
   model?: string;
   year?: number;
+  description?: string;
 }
 
 export default function IlanlarPage() {
   const { session } = useAuth();
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [showPremiumOnly, setShowPremiumOnly] = useState(false);
-  const [sortBy, setSortBy] = useState('newest');
+  // Eski state'ler yerine merkezi filtre state'i
+  const [filters, setFilters] = useState({
+    category: '',
+    subcategory: '',
+    priceMin: '',
+    priceMax: '',
+    location: '',
+    premium: false,
+    sortBy: 'newest',
+  });
+  const [search, setSearch] = useState('');
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,21 +71,28 @@ export default function IlanlarPage() {
   // Filtreleme ve sıralama
   const filteredAndSortedIlanlar = ilanlar
     .filter((ilan: Ilan) => {
-      if (showPremiumOnly && !ilan.isPremium) return false;
-      if (selectedCategory && ilan.category !== selectedCategory) return false;
-      if (searchQuery && !ilan.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filters.premium && !ilan.isPremium) return false;
+      if (filters.category && ilan.category !== filters.category) return false;
+      if (filters.subcategory && ilan.subcategory !== filters.subcategory) return false;
+      if (filters.priceMin && parseInt(ilan.price as string) < parseInt(filters.priceMin)) return false;
+      if (filters.priceMax && parseInt(ilan.price as string) > parseInt(filters.priceMax)) return false;
+      if (filters.location && !ilan.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+      if (search && !(
+        ilan.title.toLowerCase().includes(search.toLowerCase()) ||
+        (ilan.description && ilan.description.toLowerCase().includes(search.toLowerCase()))
+      )) return false;
       return true;
     })
     .sort((a: Ilan, b: Ilan) => {
-      switch (sortBy) {
+      switch (filters.sortBy) {
         case 'newest':
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'oldest':
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case 'price-low':
-          return parseInt(b.price as string) - parseInt(a.price as string);
-        case 'price-high':
           return parseInt(a.price as string) - parseInt(b.price as string);
+        case 'price-high':
+          return parseInt(b.price as string) - parseInt(a.price as string);
         case 'premium-first':
           if (a.isPremium && !b.isPremium) return -1;
           if (!a.isPremium && b.isPremium) return 1;
@@ -146,80 +162,21 @@ export default function IlanlarPage() {
           Yeni İlan Ver
         </button>
       </div>
-
       {/* Arama ve Filtreler */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-8">
-        <div className="flex flex-col md:flex-row gap-4 items-end md:items-center">
-          <div className="flex-1">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="İlan ara..."
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent h-12"
-              />
-              <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
-            </div>
-          </div>
-          <div className="flex flex-1 gap-4">
-            <div className="flex-1">
-              <label className="block mb-1 font-medium">Kategori</label>
-              <select
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-                className="border rounded px-3 py-2 w-full min-w-[150px] h-12"
-                disabled={categoriesLoading}
-              >
-                <option value="">Tümü</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.slug}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex-1">
-              <label className="block mb-1 font-medium">Sırala</label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent w-full min-w-[150px] h-12"
-              >
-                <option value="newest">En Yeni</option>
-                <option value="oldest">En Eski</option>
-                <option value="price-low">Fiyat (Düşükten Yükseğe)</option>
-                <option value="price-high">Fiyat (Yüksekten Düşüğe)</option>
-                <option value="premium-first">Premium Önce</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 h-12">
-                <Filter className="w-5 h-5" />
-                <span>Filtreler</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Premium Filtresi */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showPremiumOnly}
-              onChange={(e) => setShowPremiumOnly(e.target.checked)}
-              className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
-            />
-            <Sparkles className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm font-medium">Sadece Premium İlanları Göster</span>
-          </label>
-        </div>
+      <div className="mb-8">
+        <SearchFilterBar
+          value={search}
+          onSearch={setSearch}
+          filters={filters}
+          onFiltersChange={setFilters}
+        />
       </div>
 
       {/* Sonuç Sayısı */}
       <div className="mb-6">
         <p className="text-gray-600">
           {filteredAndSortedIlanlar.length} ilan bulundu
-          {showPremiumOnly && (
+          {filters.premium && (
             <span className="ml-2 text-yellow-600 font-medium">
               (Premium ilanlar)
             </span>
@@ -319,10 +276,16 @@ export default function IlanlarPage() {
           </p>
           <button
             onClick={() => {
-              setSearchQuery('');
-              setSelectedCategory('');
-              setShowPremiumOnly(false);
-              setSortBy('newest');
+              setSearch('');
+              setFilters({
+                category: '',
+                subcategory: '',
+                priceMin: '',
+                priceMax: '',
+                location: '',
+                premium: false,
+                sortBy: 'newest',
+              });
             }}
             className="bg-alo-orange text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
           >

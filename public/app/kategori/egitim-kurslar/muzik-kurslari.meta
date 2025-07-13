@@ -1,0 +1,7 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/kategori/layout,_N_T_/kategori/egitim-kurslar/layout,_N_T_/kategori/egitim-kurslar/muzik-kurslari/layout,_N_T_/kategori/egitim-kurslar/muzik-kurslari/page,_N_T_/kategori/egitim-kurslar/muzik-kurslari"
+  }
+}
