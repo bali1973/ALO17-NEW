@@ -8,8 +8,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Netlify için output ayarları
-  output: 'export',
   // Image optimization için remote patterns ayarları
   images: {
     unoptimized: true, // Netlify için optimize edilmemiş
