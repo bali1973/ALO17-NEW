@@ -7,8 +7,13 @@ export function FrequentlyUsed({ allListings }: { allListings: any[] }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const ids = JSON.parse(localStorage.getItem('frequentlyUsed') || '[]');
-      setFreqIds(ids);
+      try {
+        const ids = JSON.parse(localStorage.getItem('frequentlyUsed') || '[]');
+        setFreqIds(ids);
+      } catch (e) {
+        setFreqIds([]);
+        // Hata mesajı göstermek için opsiyonel olarak toast eklenebilir
+      }
     }
   }, []);
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, User, LogOut } from "lucide-react"
+import { Search, User, LogOut, Bell, MessageCircle } from "lucide-react"
 import { useAuth } from './Providers'
 
 export default function Header() {
@@ -38,9 +38,13 @@ export default function Header() {
           </div>
         </div>
         <div className="hidden lg:flex items-center gap-4">
+          <Link href="/premium" className="border border-yellow-400 text-yellow-600 bg-yellow-50 hover:bg-yellow-100 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <Bell className="w-5 h-5" /> Premium</Link>
+          <Link href="/ilan-ver" className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded px-4 py-2 flex items-center gap-2 transition">+ İlan Ver</Link>
+          <Link href="/bildirimler" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <Bell className="w-5 h-5" /> Bildirimler</Link>
+          <Link href="/profil/mesajlar" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <MessageCircle className="w-5 h-5" /> Mesajlarım</Link>
           {session ? (
             <>
-              <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> Profilim</Link>
+              <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> Admin User</Link>
               <button onClick={handleSignOut} className="btn-secondary flex items-center gap-2"><LogOut className="w-5 h-5" /> Çıkış</button>
             </>
           ) : (
@@ -54,6 +58,8 @@ export default function Header() {
               <input type="text" placeholder="Ara..." className="input pl-10 pr-4" />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             </div>
+            <Link href="/ilan-ver" className="btn-primary flex items-center gap-2">+ İlan Ver</Link>
+            <Link href="/premium" className="btn-premium flex items-center gap-2">⭐ Premium</Link>
             {session ? (
               <>
                 <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> Profilim</Link>

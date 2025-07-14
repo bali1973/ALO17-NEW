@@ -35,6 +35,10 @@
     --radius: 0.75rem;
     --shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
     --font-sans: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+   
+    /* Alo17 özel renkleri */
+    --alo-dark: 222.2 84% 4.9%;
+    --alo-orange: 24 100% 50%;
   }
 
   .dark {
@@ -87,6 +91,12 @@
   .btn {
     @apply px-5 py-2 rounded-lg font-semibold shadow transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary bg-primary text-white hover:bg-blue-700;
   }
+  .btn-primary {
+    @apply px-5 py-2 rounded-lg font-semibold shadow transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary bg-primary text-white hover:bg-blue-700;
+  }
+  .btn-premium {
+    @apply px-5 py-2 rounded-lg font-semibold shadow transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-yellow-500 text-white hover:bg-yellow-600;
+  }
   .btn-secondary {
     @apply px-5 py-2 rounded-lg font-semibold shadow transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-secondary bg-secondary text-white hover:bg-orange-600;
   }
@@ -99,4 +109,15 @@
   .card {
     @apply bg-card rounded-xl shadow p-6 border border-border transition hover:shadow-lg;
   }
+ 
+ /* Alo17 özel renk utility sınıfları */
+ .text-alo-dark {
+   color: hsl(var(--alo-dark));
+ }
+ .bg-alo-orange {
+   background-color: hsl(var(--alo-orange));
+ }
+ .border-alo-orange {
+   border-color: hsl(var(--alo-orange));
+ }
 } 

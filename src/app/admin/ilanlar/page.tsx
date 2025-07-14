@@ -662,7 +662,7 @@ export default function AdminIlanlarPage() {
   if (isLoading) {
     return <div className="p-8">Yükleniyor...</div>;
   }
-  if (!user || user.role !== "admin") {
+  if (!session || !user || user.role !== "admin") {
     return <div className="p-8 text-red-600">Yetkisiz erişim</div>;
   }
 

@@ -9,7 +9,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   // Netlify için output ayarları
-  output: 'standalone',
+  output: 'export',
   // Image optimization için remote patterns ayarları
   images: {
     unoptimized: true, // Netlify için optimize edilmemiş

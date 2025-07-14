@@ -50,10 +50,16 @@ export function ListingCard({ listing }: ListingCardProps) {
   const { showToast } = useToast();
 
   useEffect(() => {
-    setIsFavorite(getFavoriteIds().includes(listing.id));
     if (typeof window !== 'undefined') {
-      const freq = JSON.parse(localStorage.getItem('frequentlyUsed') || '[]');
-      setIsFrequent(freq.includes(listing.id));
+      try {
+        setIsFavorite(getFavoriteIds().includes(listing.id));
+        const freq = JSON.parse(localStorage.getItem('frequentlyUsed') || '[]');
+        setIsFrequent(freq.includes(listing.id));
+      } catch (e) {
+        setIsFavorite(false);
+        setIsFrequent(false);
+        showToast('Favori veya sık kullanılanlar yüklenemedi', 'error');
+      }
     }
   }, [listing.id]);
 

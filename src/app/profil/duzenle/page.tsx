@@ -165,7 +165,7 @@ export default function EditProfilePage() {
     return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
   }
 
-  if (!session) {
+  if (!isLoading && !session) {
     router.push('/giris');
     return null;
   }

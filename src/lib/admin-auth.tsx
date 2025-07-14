@@ -98,6 +98,16 @@ const TEST_ADMIN_USERS: AdminUser[] = [
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
+  },
+  {
+    id: '3',
+    email: 'bali@alo17.com',
+    name: 'Bali',
+    role: 'super_admin',
+    permissions: PERMISSION_MATRIX.super_admin,
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 

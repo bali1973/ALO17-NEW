@@ -24,28 +24,36 @@ const listings = [
 ];
 
 export default function IlanDetayPage({ params }: IlanDetayPageProps) {
-  const ilan = listings.find(l => l.id === params.id);
+  const [ilan, setIlan] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Son görüntülenenler: localStorage'a ekle
   useEffect(() => {
-    if (!ilan) return;
-    if (typeof window === 'undefined') return;
-    let recents = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-    recents = recents.filter((id: string) => id !== ilan.id); // Çiftleri engelle
-    recents.unshift(ilan.id);
-    if (recents.length > 20) recents = recents.slice(0, 20);
-    localStorage.setItem('recentlyViewed', JSON.stringify(recents));
-  }, [ilan]);
+    const fetchIlan = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await fetch(`/api/listings/${params.id}`);
+        if (!res.ok) throw new Error('İlan bulunamadı');
+        const data = await res.json();
+        setIlan(data);
+      } catch (e) {
+        setError('İlan bulunamadı.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchIlan();
+  }, [params.id]);
 
-  if (!ilan) {
-    return <div className="p-8">İlan bulunamadı.</div>;
-  }
+  if (loading) return <div className="p-8">Yükleniyor...</div>;
+  if (error || !ilan) return <div className="p-8">{error || 'İlan bulunamadı.'}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-4">{ilan.title}</h1>
       <div className="text-lg text-gray-700">Fiyat: {ilan.price}</div>
-      <div className="text-gray-500 mt-4">Statik export için örnek ilan detay sayfası.</div>
+      <div className="text-gray-500 mt-4">{ilan.description}</div>
     </div>
   );
 } 

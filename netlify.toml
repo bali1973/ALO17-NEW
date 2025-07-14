@@ -1,6 +1,5 @@
 [build]
-  command = "npm run build:netlify"
-  publish = "public"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
@@ -10,19 +9,11 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# API routes için
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/___netlify-handler"
   status = 200
 
-# Tüm sayfalar için
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-# Headers
 [[headers]]
   for = "/*"
   [headers.values]

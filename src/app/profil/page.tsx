@@ -494,9 +494,17 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-semibold text-alo-dark mb-4">Favorilerim</h3>
                 {(() => {
                   const { showToast } = useToast();
+                  // Favorilerim için SSR uyumlu state
                   const [favIds, setFavIds] = useState<number[]>([]);
                   useEffect(() => {
-                    setFavIds(getFavoriteIds());
+                    if (typeof window !== 'undefined') {
+                      try {
+                        setFavIds(getFavoriteIds());
+                      } catch (e) {
+                        setFavIds([]);
+                        showToast('Favoriler yüklenirken hata oluştu', 'error');
+                      }
+                    }
                   }, []);
                   const favListings = allListings.filter((l: any) => favIds.includes(l.id));
                   const handleRemoveFavorite = (id: number) => {

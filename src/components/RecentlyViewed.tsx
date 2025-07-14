@@ -7,8 +7,13 @@ export function RecentlyViewed({ allListings }: { allListings: any[] }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const ids = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-      setRecentIds(ids);
+      try {
+        const ids = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+        setRecentIds(ids);
+      } catch (e) {
+        setRecentIds([]);
+        // Hata mesajı göstermek için opsiyonel olarak toast eklenebilir
+      }
     }
   }, []);
 

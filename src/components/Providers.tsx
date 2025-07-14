@@ -35,23 +35,29 @@ export default function Providers({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // localStorage'dan session'ı al
-    const savedSession = localStorage.getItem('alo17-session')
-    if (savedSession) {
-      try {
-        const sessionData = JSON.parse(savedSession)
-        // Session'ın süresi dolmuş mu kontrol et
-        if (new Date(sessionData.expires) > new Date()) {
-          setSession(sessionData)
-        } else {
+    if (typeof window !== 'undefined') {
+      // localStorage'dan session'ı al
+      const savedSession = localStorage.getItem('alo17-session')
+      if (savedSession) {
+        try {
+          const sessionData = JSON.parse(savedSession)
+          // Session'ın süresi dolmuş mu kontrol et
+          if (new Date(sessionData.expires) > new Date()) {
+            setSession(sessionData)
+          } else {
+            localStorage.removeItem('alo17-session')
+          }
+        } catch (error) {
           localStorage.removeItem('alo17-session')
         }
-      } catch (error) {
-        localStorage.removeItem('alo17-session')
       }
+      setIsLoading(false)
+    } else {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }, [])
+
+  if (isLoading) return null;
 
   const handleSetSession = (newSession: Session | null) => {
     setSession(newSession)
