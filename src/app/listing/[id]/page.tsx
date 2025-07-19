@@ -1,4 +1,3 @@
-"use client";
 import ListingDetailClient from './ListingDetailClient';
 
 export default function ListingDetailPage({ params }: { params: { id: string } }) {
