@@ -1,7 +1,7 @@
 'use client'
 
 import { FaHeadset, FaPhone, FaComments, FaUserTie, FaGraduationCap } from 'react-icons/fa'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Sparkles, Star, Clock, TrendingUp, MapPin, Building, DollarSign } from 'lucide-react'
 
 const subcategories = [
@@ -11,113 +11,30 @@ const subcategories = [
   { id: 'musteri-iliskileri', name: 'Müşteri İlişkileri', icon: <FaUserTie className="inline mr-2 text-indigo-500" /> },
 ]
 
-// Müşteri hizmetleri iş ilanları
-const customerServiceListings = [
-  {
-    id: 1,
-    title: 'Müşteri Hizmetleri Temsilcisi - Call Center',
-    company: 'Telekom A.Ş.',
-    location: 'İstanbul',
-    salary: '12.000 - 15.000',
-    type: 'Tam Zamanlı',
-    experience: '1-3 yıl',
-    description: 'Müşteri sorularını yanıtlayacak, problemleri çözecek deneyimli temsilci arıyoruz.',
-    createdAt: '2024-03-20',
-    isPremium: true,
-    premiumFeatures: ['featured', 'urgent'],
-    views: 245,
-    isUrgent: true,
-    isFeatured: true,
-    category: 'musteri-temsilcisi'
-  },
-  {
-    id: 2,
-    title: 'Online Chat Destek Uzmanı',
-    company: 'E-ticaret Platformu',
-    location: 'Uzaktan',
-    salary: '10.000 - 13.000',
-    type: 'Tam Zamanlı',
-    experience: '2-4 yıl',
-    description: 'Online müşteri destek hizmeti verecek, yazılı iletişimde başarılı uzman.',
-    createdAt: '2024-03-19',
-    isPremium: false,
-    premiumFeatures: [],
-    views: 89,
-    isUrgent: false,
-    isFeatured: false,
-    category: 'chat-destek'
-  },
-  {
-    id: 3,
-    title: 'Müşteri İlişkileri Uzmanı',
-    company: 'Finans Kurumu',
-    location: 'Ankara',
-    salary: '18.000 - 25.000',
-    type: 'Tam Zamanlı',
-    experience: '3-5 yıl',
-    description: 'Kurumsal müşteri ilişkileri yönetimi için deneyimli uzman arıyoruz.',
-    createdAt: '2024-03-18',
-    isPremium: true,
-    premiumFeatures: ['featured'],
-    views: 156,
-    isUrgent: false,
-    isFeatured: true,
-    category: 'musteri-iliskileri'
-  },
-  {
-    id: 4,
-    title: 'Call Center Operatörü - Gece Vardiyası',
-    company: 'Hizmet Şirketi',
-    location: 'İzmir',
-    salary: '15.000 - 18.000',
-    type: 'Tam Zamanlı',
-    experience: '1-2 yıl',
-    description: 'Gece vardiyasında çalışacak, müşteri hizmetleri deneyimi olan operatör.',
-    createdAt: '2024-03-17',
-    isPremium: true,
-    premiumFeatures: ['urgent', 'top'],
-    views: 312,
-    isUrgent: true,
-    isFeatured: false,
-    category: 'call-center'
-  },
-  {
-    id: 5,
-    title: 'Müşteri Hizmetleri Stajyeri',
-    company: 'Teknoloji Şirketi',
-    location: 'Bursa',
-    salary: '5.000 - 7.000',
-    type: 'Staj',
-    experience: 'Öğrenci',
-    description: 'Müşteri hizmetleri alanında staj yapmak isteyen öğrenciler için fırsat.',
-    createdAt: '2024-03-16',
-    isPremium: false,
-    premiumFeatures: [],
-    views: 67,
-    isUrgent: false,
-    isFeatured: false,
-    category: 'musteri-temsilcisi'
-  },
-  {
-    id: 6,
-    title: 'Kıdemli Müşteri Hizmetleri Yöneticisi',
-    company: 'Uluslararası Şirket',
-    location: 'İstanbul',
-    salary: '35.000 - 45.000',
-    type: 'Tam Zamanlı',
-    experience: '5-7 yıl',
-    description: 'Müşteri hizmetleri ekibini yönetecek, süreçleri iyileştirecek yönetici.',
-    createdAt: '2024-03-15',
-    isPremium: true,
-    premiumFeatures: ['featured', 'urgent', 'top'],
-    views: 423,
-    isUrgent: true,
-    isFeatured: true,
-    category: 'musteri-iliskileri'
-  }
-]
+const FILTER_STORAGE_KEY = 'musteriHizmetleriFilters';
 
 export default function MusteriHizmetleriPage() {
+  const [listings, setListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.filter((l: any) => l.category === 'is' && l.type === 'Müşteri Hizmetleri'));
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('İlanlar yüklenemedi');
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Yükleniyor...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [salaryRange, setSalaryRange] = useState<string | null>(null)
   const [workType, setWorkType] = useState<string | null>(null)
@@ -125,8 +42,34 @@ export default function MusteriHizmetleriPage() {
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
 
+  // Filtreleri localStorage'dan yükle
+  useEffect(() => {
+    const saved = localStorage.getItem(FILTER_STORAGE_KEY);
+    if (saved) {
+      const filters = JSON.parse(saved);
+      setSelectedSubcategory(filters.selectedSubcategory ?? null);
+      setSalaryRange(filters.salaryRange ?? null);
+      setWorkType(filters.workType ?? null);
+      setExperience(filters.experience ?? null);
+      setShowPremiumOnly(filters.showPremiumOnly ?? false);
+      setSortBy(filters.sortBy ?? 'newest');
+    }
+  }, []);
+
+  // Filtreler değiştikçe kaydet
+  useEffect(() => {
+    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify({
+      selectedSubcategory,
+      salaryRange,
+      workType,
+      experience,
+      showPremiumOnly,
+      sortBy,
+    }));
+  }, [selectedSubcategory, salaryRange, workType, experience, showPremiumOnly, sortBy]);
+
   // Filtreleme ve sıralama
-  const filteredListings = customerServiceListings
+  const filteredListings = listings
     .filter(listing => {
       if (showPremiumOnly && !listing.isPremium) return false
       if (selectedSubcategory && listing.category !== selectedSubcategory) return false
@@ -400,7 +343,7 @@ export default function MusteriHizmetleriPage() {
                   {/* Premium Özellikler */}
                   {listing.premiumFeatures.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {listing.premiumFeatures.map((feature, index) => (
+                      {listing.premiumFeatures.map((feature: string, index: number) => (
                         <span
                           key={index}
                           className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
@@ -415,6 +358,24 @@ export default function MusteriHizmetleriPage() {
                   {/* Görüntülenme Sayısı */}
                   <div className="mt-3 text-xs text-gray-500">
                     {listing.views} görüntülenme
+                  </div>
+
+                  {/* Instagram Paylaşım Butonu */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        const shareUrl = `${window.location.origin}/ilan/${listing.id}`;
+                        navigator.clipboard.writeText(shareUrl);
+                        alert('İlan linki panoya kopyalandı! Instagram uygulamasında paylaşabilirsiniz.');
+                      }}
+                      className="flex items-center px-3 py-1 bg-pink-500 hover:bg-pink-600 text-white rounded-full text-xs font-medium transition-colors"
+                      title="Instagram'da Paylaş"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-4 h-4 mr-1">
+                        <path d="M224,202.66A53.34,53.34,0,1,0,277.34,256,53.38,53.38,0,0,0,224,202.66Zm124.71-41a54,54,0,0,0-30.36-30.36C293.19,120,256,118.13,224,118.13s-69.19,1.87-94.35,13.17a54,54,0,0,0-30.36,30.36C120,162.81,118.13,200,118.13,232s1.87,69.19,13.17,94.35a54,54,0,0,0,30.36,30.36C162.81,392,200,393.87,232,393.87s69.19-1.87,94.35-13.17a54,54,0,0,0,30.36-30.36C392,349.19,393.87,312,393.87,280S392,162.81,348.71,161.66ZM224,338a82,82,0,1,1,82-82A82,82,0,0,1,224,338Zm85.4-148.6a19.2,19.2,0,1,1-19.2-19.2A19.2,19.2,0,0,1,309.4,189.4ZM398.8,80A64,64,0,0,0,368,51.2C346.6,32,320.4,32,224,32S101.4,32,80,51.2A64,64,0,0,0,51.2,80C32,101.4,32,127.6,32,224s0,122.6,19.2,144A64,64,0,0,0,80,460.8C101.4,480,127.6,480,224,480s122.6,0,144-19.2a64,64,0,0,0,28.8-28.8C480,422.6,480,396.4,480,300S480,101.4,398.8,80ZM224,400c-88.22,0-160-71.78-160-160S135.78,80,224,80s160,71.78,160,160S312.22,400,224,400Z" />
+                      </svg>
+                      Instagram'da Paylaş
+                    </button>
                   </div>
                 </div>
               </div>

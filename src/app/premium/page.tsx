@@ -3,13 +3,23 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Zap, Crown, Shield } from 'lucide-react';
 import { getPremiumPlans } from '@/lib/utils';
+import { FrequentlyUsed } from '@/components/FrequentlyUsed';
 
 export default function PremiumPage() {
   const [selectedPlan, setSelectedPlan] = useState<string>('30days');
   const [premiumPlans, setPremiumPlans] = useState<Record<string, { name: string; price: number; days: number }>>({});
   const [loading, setLoading] = useState(true);
+  const [allListings, setAllListings] = useState<any[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
 
   useEffect(() => {
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setAllListings(data);
+        setListingsLoading(false);
+      })
+      .catch(() => setListingsLoading(false));
     fetchPremiumPlans();
   }, []);
 
@@ -54,6 +64,12 @@ export default function PremiumPage() {
       icon: <Sparkles className="w-6 h-6 text-pink-500" />,
       title: 'Maksimum 5 Resim',
       description: 'İlanınızda 5 resme kadar yükleyin'
+    },
+    {
+      icon: <CheckCircle className="w-6 h-6 text-alo-orange animate-bounce" />,
+      title: 'Maksimum 5 İlan',
+      description: 'Premium kullanıcılar 5 adet ilan yayınlayabilir.',
+      highlight: true
     }
   ];
 
@@ -89,6 +105,7 @@ export default function PremiumPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Sık Kullandıkların kaldırıldı */}
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -170,6 +187,10 @@ export default function PremiumPage() {
                 <li className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
                   <span className="text-sm">Maksimum 5 resim</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-sm">Premium kullanıcılar 5 adet ilan yayınlayabilir.</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3" />

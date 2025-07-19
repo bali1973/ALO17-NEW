@@ -1,0 +1,22 @@
+{
+  "30days": {
+    "name": "30 Günlük Premium",
+    "price": 199,
+    "days": 30,
+    "features": [
+      "Öne çıkan ilanlar",
+      "Acil ilan",
+      "Vurgulanmış ilan"
+    ]
+  },
+  "90days": {
+    "name": "90 Gün",
+    "price": 499,
+    "days": 90
+  },
+  "365days": {
+    "name": "365 Gün",
+    "price": 999,
+    "days": 365
+  }
+}

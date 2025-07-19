@@ -7,14 +7,11 @@ import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Upload, X, Eye, S
 import { getPremiumPlans } from '@/lib/utils';
 import { useCategories } from '@/lib/useCategories';
 
-const OPTIONAL_FEATURES = [
-  { key: 'featured', label: 'Öne Çıkan', price: 50 },
-  { key: 'urgent', label: 'Acil', price: 30 },
-  { key: 'highlighted', label: 'Vurgulanmış', price: 25 },
-  { key: 'top', label: 'Üstte', price: 40 },
-];
+// OPTIONAL_FEATURES dizisini kaldır
 
 // Cloudinary upload fonksiyonu ve ilgili kodları kaldır
+
+const FORM_STORAGE_KEY = 'ilanVerForm';
 
 export default function IlanVerPage() {
   const { session, isLoading } = useAuth();
@@ -40,6 +37,13 @@ export default function IlanVerPage() {
   const [premiumPlans, setPremiumPlans] = useState<Record<string, { name: string; price: number; days: number }>>({});
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [featurePrices, setFeaturePrices] = useState({
+    featured: 0,
+    urgent: 0,
+    highlighted: 0,
+    top: 0,
+  });
+  const [featureLoading, setFeatureLoading] = useState(true);
 
   // File to base64 helper
   const fileToBase64 = (file: File) => {
@@ -93,6 +97,7 @@ export default function IlanVerPage() {
       router.push('/giris?callbackUrl=/ilan-ver');
     } else {
       fetchPremiumPlans();
+      fetchFeaturePrices();
     }
   }, [session, router]);
 
@@ -102,6 +107,20 @@ export default function IlanVerPage() {
       setPremiumPlans(plans);
     } catch (error) {
       console.error('Premium planları getirme hatası:', error);
+    }
+  };
+
+  const fetchFeaturePrices = async () => {
+    try {
+      const response = await fetch('/api/premium-feature-prices');
+      if (response.ok) {
+        const data = await response.json();
+        setFeaturePrices(data);
+      }
+    } catch (error) {
+      console.error('Özellik fiyatları getirme hatası:', error);
+    } finally {
+      setFeatureLoading(false);
     }
   };
 
@@ -148,8 +167,7 @@ export default function IlanVerPage() {
 
   // Özellik toplam fiyatı
   const getFeaturesTotal = () => selectedFeatures.reduce((sum, key) => {
-    const f = OPTIONAL_FEATURES.find(f => f.key === key);
-    return sum + (f ? f.price : 0);
+    return sum + (featurePrices[key as keyof typeof featurePrices] || 0);
   }, 0);
 
   // Önizleme butonu işlevi
@@ -214,20 +232,25 @@ export default function IlanVerPage() {
       alert('Lütfen tüm mecburi alanları doldurun.');
       return;
     }
-    
     // Admin kontrolü
     const isAdmin = session?.user?.role === 'admin';
-    
-    // Admin değilse premium plan kontrolü
-    if (!isAdmin && selectedPremiumPlan !== 'free') {
-      const planPrice = getSelectedPlanPrice();
-      const planName = premiumPlans[selectedPremiumPlan]?.name || selectedPremiumPlan;
-      const confirmPremium = confirm(`${planName} premium plan için ${planPrice}₺ ödeme yapılacak. Devam etmek istiyor musunuz?`);
-      if (!confirmPremium) return;
+    // Premium plan veya özellik seçiliyse ödeme sayfasına yönlendir
+    if (selectedPremiumPlan !== 'free' || selectedFeatures.length > 0) {
+      localStorage.setItem('pendingListing', JSON.stringify({
+        formData,
+        images: [],
+        selectedPremiumPlan,
+        selectedFeatures,
+        acceptedTerms,
+        user: session?.user?.name || 'Anonim',
+        email: session?.user?.email || '',
+        userRole: session?.user?.role || 'user',
+      }));
+      router.push('/ilan-odeme');
+      return;
     }
-    
+    // Ücretsiz ise doğrudan yayınla
     setIsPublishing(true);
-    
     try {
       // Resimleri yükle (geçici, sadece tarayıcıda çalışır)
       const imageUrls = images
@@ -341,7 +364,6 @@ export default function IlanVerPage() {
         {selectedFeatures.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {selectedFeatures.map((feature, index) => {
-              const featureInfo = OPTIONAL_FEATURES.find(f => f.key === feature);
               return (
                 <span
                   key={index}
@@ -351,7 +373,7 @@ export default function IlanVerPage() {
                   {feature === 'urgent' && <Clock className="w-3 h-3 mr-1 text-red-500" />}
                   {feature === 'highlighted' && <Sparkles className="w-3 h-3 mr-1 text-blue-500" />}
                   {feature === 'top' && <TrendingUp className="w-3 h-3 mr-1 text-green-500" />}
-                  <span>{featureInfo?.label || feature}</span>
+                  <span>{feature} ({featurePrices[feature as keyof typeof featurePrices] || 0}₺)</span>
                 </span>
               );
             })}
@@ -533,28 +555,41 @@ export default function IlanVerPage() {
                   </div>
                 </div>
 
+                {/* İsteğe Bağlı Özellikler */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">İsteğe Bağlı Özellikler</label>
-                  <div className="flex flex-wrap gap-4">
-                    {OPTIONAL_FEATURES.map(f => (
-                      <label key={f.key} className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedFeatures.includes(f.key)}
-                          onChange={e => {
-                            setSelectedFeatures(prev =>
-                              e.target.checked
-                                ? [...prev, f.key]
-                                : prev.filter(k => k !== f.key)
-                            );
-                          }}
-                          className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
-                        />
-                        <span className="text-sm">{f.label} (+{f.price}₺)</span>
-                      </label>
-                    ))}
-                  </div>
-                  {selectedFeatures.length > 0 && (
+                  {featureLoading ? (
+                    <div>Yükleniyor...</div>
+                  ) : featurePrices && Object.keys(featurePrices).length > 0 ? (
+                    <div className="flex flex-wrap gap-4">
+                      {Object.entries(featurePrices).map(([featureKey, featurePrice]) => (
+                        <label key={featureKey} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedFeatures.includes(featureKey)}
+                            onChange={e => {
+                              setSelectedFeatures(prev =>
+                                e.target.checked
+                                  ? [...prev, featureKey]
+                                  : prev.filter(k => k !== featureKey)
+                              );
+                            }}
+                            className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
+                          />
+                          <span className="text-sm">
+                            {featureKey === 'featured' && 'Öne Çıkan'}
+                            {featureKey === 'urgent' && 'Acil'}
+                            {featureKey === 'highlighted' && 'Vurgulanmış'}
+                            {featureKey === 'top' && 'Üstte Gösterim'}
+                            {' '}(+{featurePrice}₺)
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div>Özellik bulunamadı</div>
+                  )}
+                  {selectedFeatures.length > 0 && !featureLoading && (
                     <div className="mt-2 text-sm text-gray-700">
                       Seçili özellikler toplamı: <span className="font-semibold">{getFeaturesTotal()}₺</span>
                     </div>

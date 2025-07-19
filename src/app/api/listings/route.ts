@@ -67,10 +67,25 @@ export async function POST(req: Request) {
     
     // Kullanıcı rolünü belirle
     const userRole = body.userRole || 'user';
+    const userEmail = body.email || '';
     
     console.log('Mevcut ilanlar okunuyor...');
     const listings = await readListings();
     console.log('Mevcut ilan sayısı:', listings.length);
+
+    // Premium kullanıcı ilan limiti kontrolü
+    if (userRole === 'premium') {
+      const userListings = listings.filter((l: any) => l.email === userEmail);
+      if (userListings.length >= 5) {
+        // İlk ilan tarihi
+        const firstListing = userListings.reduce((min: any, curr: any) => new Date(curr.createdAt) < new Date(min.createdAt) ? curr : min, userListings[0]);
+        return NextResponse.json({
+          error: 'Premium kullanıcılar en fazla 5 ilan verebilir.',
+          firstListingDate: firstListing.createdAt,
+          totalListings: userListings.length
+        }, { status: 403 });
+      }
+    }
     
     const newId = listings.length > 0 ? Math.max(...listings.map((l: any) => Number(l.id) || 0)) + 1 : 1;
     const now = new Date().toISOString();
@@ -86,7 +101,7 @@ export async function POST(req: Request) {
       premiumFeatures: body.premiumFeatures || [],
       // Kullanıcı bilgileri
       user: body.user || 'Anonim',
-      email: body.email || '',
+      email: userEmail,
       userRole: userRole,
     };
     

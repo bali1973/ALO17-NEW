@@ -3,6 +3,19 @@
 
 import { prisma } from './prisma'
 import { compare } from 'bcryptjs'
+import { promises as fs } from 'fs';
+import path from 'path';
+
+const USERS_PATH = path.join(process.cwd(), 'public', 'users.json');
+
+async function readUsersJson() {
+  try {
+    const data = await fs.readFile(USERS_PATH, 'utf-8');
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
 
 // Hardcoded test kullanıcıları
 export const hardcodedUsers = [
@@ -36,6 +49,9 @@ export interface Session {
     email: string;
     name: string;
     role: string;
+    phone?: string;
+    location?: string;
+    birthdate?: string;
   };
   expires: string;
 }
@@ -46,6 +62,9 @@ export interface User {
   email: string;
   name: string;
   role: string;
+  phone?: string;
+  location?: string;
+  birthdate?: string;
 }
 
 // localStorage'dan session'ı al
@@ -103,24 +122,64 @@ export const signIn = async (email: string, password: string): Promise<Session |
 
   // Veritabanında kullanıcıyı ara
   const dbUser = await prisma.user.findUnique({ where: { email } });
-  if (!dbUser || !dbUser.password) return null;
+  if (dbUser && dbUser.password) {
+    // Şifreyi karşılaştır (önce hash, sonra düz metin)
+    let isPasswordValid = false;
+    try {
+      isPasswordValid = await compare(password, dbUser.password);
+    } catch {}
+    if (!isPasswordValid) {
+      // Düz metin kontrolü (geçici)
+      isPasswordValid = password === dbUser.password;
+    }
+    if (!isPasswordValid) return null;
+    // Session oluştur
+    const session: Session = {
+      user: {
+        id: dbUser.id,
+        email: dbUser.email,
+        name: dbUser.name,
+        role: String(dbUser.role || 'user'),
+        phone: dbUser.phone,
+        location: dbUser.location,
+        birthdate: dbUser.birthdate,
+      },
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
+    };
+    setSession(session);
+    return session;
+  }
 
-  // Şifreyi karşılaştır
-  const isPasswordValid = await compare(password, dbUser.password);
-  if (!isPasswordValid) return null;
+  // JSON dosyasından kullanıcıyı ara (public/users.json) - sunucu tarafı
+  const users = await readUsersJson();
+  const jsonUser = users.find((u: any) => u.email === email);
+  if (jsonUser && jsonUser.password) {
+    let isPasswordValid = false;
+    try {
+      isPasswordValid = await compare(password, jsonUser.password);
+    } catch {}
+    if (!isPasswordValid) {
+      // Düz metin kontrolü (geçici)
+      isPasswordValid = password === jsonUser.password;
+    }
+    if (!isPasswordValid) return null;
+    const session: Session = {
+      user: {
+        id: jsonUser.id,
+        email: jsonUser.email,
+        name: jsonUser.name,
+        role: jsonUser.role,
+        phone: jsonUser.phone,
+        location: jsonUser.location,
+        birthdate: jsonUser.birthdate,
+      },
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    };
+    setSession(session);
+    return session;
+  }
 
-  // Session oluştur
-  const session: Session = {
-    user: {
-      id: dbUser.id,
-      email: dbUser.email,
-      name: dbUser.name,
-      role: String(dbUser.role || 'user'),
-    },
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
-  };
-  setSession(session);
-  return session;
+  return null;
 };
 
 // Kullanıcı çıkışı yap

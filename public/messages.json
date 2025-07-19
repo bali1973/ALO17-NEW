@@ -1,0 +1,5 @@
+[
+  { "id": "1", "sender": "admin@alo17.com", "receiver": "user@alo17.com", "content": "Hoş geldiniz!", "date": "2024-07-10" },
+  { "id": "2", "sender": "user@alo17.com", "receiver": "admin@alo17.com", "content": "Teşekkürler!", "date": "2024-07-10" },
+  { "id": "3", "sender": "test@alo17.com", "receiver": "user@alo17.com", "content": "İlanınız onaylandı.", "date": "2024-07-09" }
+] 

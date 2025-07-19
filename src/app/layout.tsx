@@ -3,26 +3,83 @@ import './globals.css'
 import Providers from '@/components/Providers'
 import Header from '@/components/Header'
 import SiteFooter from '@/components/SiteFooter'
+import fs from 'fs';
+import path from 'path';
+import ClientCookieBanner from '@/components/ClientCookieBanner';
 
 export const metadata: Metadata = {
-  title: 'Alo17 - Türkiye\'nin En Büyük İlan Sitesi',
+  title: {
+    default: "Alo17 - Türkiye'nin En Büyük İlan Sitesi",
+    template: "%s | Alo17"
+  },
   description: 'Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.',
+  keywords: [
+    'alo17', 'ilan', 'ikinci el', 'satılık', 'hizmet', 'elektronik', 'ev eşyası', 'giyim', 'araba', 'emlak', 'iş ilanı', 'premium ilan', 'ücretsiz ilan', 'Çanakkale', 'Türkiye'
+  ],
   icons: {
-    icon: '/icon',
+    icon: '/favicon.ico',
     apple: '/apple-icon',
   },
-}
+  openGraph: {
+    type: 'website',
+    url: 'https://alo17.com',
+    title: "Alo17 - Türkiye'nin En Büyük İlan Sitesi",
+    description: 'Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.',
+    siteName: 'Alo17',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Alo17 - Türkiye\'nin En Büyük İlan Sitesi',
+      },
+    ],
+    locale: 'tr_TR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@alo17tr',
+    title: "Alo17 - Türkiye'nin En Büyük İlan Sitesi",
+    description: 'Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.',
+    images: ['/images/og-image.jpg'],
+  },
+  metadataBase: new URL('https://alo17.com'),
+  themeColor: '#ff6600',
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Google Ads kodunu settings.json'dan oku
+  let googleAdsCode = '';
+  try {
+    const settingsPath = path.join(process.cwd(), 'public', 'settings.json');
+    const settingsRaw = fs.readFileSync(settingsPath, 'utf-8');
+    const settings = JSON.parse(settingsRaw);
+    googleAdsCode = settings.googleAdsCode || '';
+  } catch {}
+
   return (
     <html lang="tr">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Alo17" />
+        <meta name="copyright" content="Alo17" />
+        <meta name="theme-color" content="#ff6600" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-icon" />
+        <link rel="manifest" href="/manifest.json" />
+        {googleAdsCode && (
+          <div dangerouslySetInnerHTML={{ __html: googleAdsCode }} />
+        )}
+      </head>
       <body className="font-sans">
         <Providers>
           <Header />
+          <ClientCookieBanner />
           {children}
           <div className="w-full m-0 p-0">
             <div className="bg-yellow-50 border-t-4 border-alo-orange p-1 pb-px mb-0 m-0 shadow flex flex-col gap-0 items-center rounded-none">

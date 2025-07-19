@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { revalidatePath } from 'next/cache';
 
 // Kategori güncelleme
 export async function PUT(
@@ -33,6 +34,10 @@ export async function PUT(
     // JSON dosyasına kaydet
     writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
 
+    // Kategori değişti, anasayfa ve kategori sayfalarını revalidate et
+    revalidatePath('/');
+    revalidatePath('/kategori');
+
     return NextResponse.json({ success: true, category: categories[categoryIndex] });
   } catch (error) {
     console.error('Kategori güncelleme hatası:', error);
@@ -64,6 +69,10 @@ export async function DELETE(
 
     // JSON dosyasına kaydet
     writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
+
+    // Kategori değişti, anasayfa ve kategori sayfalarını revalidate et
+    revalidatePath('/');
+    revalidatePath('/kategori');
 
     return NextResponse.json({ success: true });
   } catch (error) {

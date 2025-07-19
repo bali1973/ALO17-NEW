@@ -7,7 +7,8 @@ import * as LucideIcons from 'lucide-react';
 import React from 'react';
 import { triggerCategoryUpdate } from '@/lib/useCategories';
 
-function SubCategoryInput({ value, onChange, onAdd, iconValue, onIconChange, iconOptions, loading }: { value: string, onChange: (val: string) => void, onAdd: (name: string, icon: string) => Promise<boolean>, iconValue: string, onIconChange: (val: string) => void, iconOptions: any[], loading: boolean }) {
+// SubCategoryInput bileşenini sadeleştir
+function SubCategoryInput({ value, onChange, onAdd, loading }: { value: string, onChange: (val: string) => void, onAdd: (name: string) => Promise<boolean>, loading: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1">
@@ -21,23 +22,10 @@ function SubCategoryInput({ value, onChange, onAdd, iconValue, onIconChange, ico
           disabled={loading}
         />
       </div>
-      <select
-        value={iconValue}
-        onChange={e => onIconChange(e.target.value)}
-        className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-        disabled={loading}
-      >
-        {iconOptions.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
-      <div className="flex items-center justify-center w-10 h-10 bg-white border-2 border-gray-200 rounded-lg">
-        {iconOptions.find(opt => opt.value === iconValue)?.icon}
-      </div>
       <button
         onClick={async () => {
           if (!value.trim()) return;
-          await onAdd(value, iconValue);
+          await onAdd(value);
         }}
         className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
         disabled={loading}
@@ -306,22 +294,20 @@ export default function AdminKategorilerPage() {
   };
 
   // Alt kategori işlemleri
-  const handleAddSubCategory = async (categoryId: string, name: string, icon: string) => {
+  const handleAddSubCategory = async (categoryId: string, name: string) => {
     setError("");
     setSuccess("");
     try {
-      console.log('Alt kategori ekle: gönderilen veri', { name, categoryId });
       const res = await fetch(`/api/subcategories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           authorization: `Bearer ${localStorage.getItem("alo17-session")}`,
         },
-        body: JSON.stringify({ name, categoryId, icon }),
+        body: JSON.stringify({ name, categoryId }),
       });
       if (!res.ok) {
         const errData = await res.json();
-        console.error('Alt kategori ekle hata:', errData);
         setError(errData.error || "Alt kategori eklenemedi");
         showToast(errData.error || "Alt kategori eklenemedi", "error");
         return false;
@@ -329,12 +315,10 @@ export default function AdminKategorilerPage() {
         setSuccess("Alt kategori eklendi");
         showToast("Alt kategori eklendi", "success");
         fetchCategories();
-        // Ana sayfayı güncelle
         triggerCategoryUpdate();
         return true;
       }
     } catch (err) {
-      console.error('Alt kategori ekle catch:', err);
       setError("Alt kategori eklenemedi");
       showToast("Alt kategori eklenemedi", "error");
       return false;
@@ -545,6 +529,15 @@ export default function AdminKategorilerPage() {
                       </div>
                       <div className="flex gap-2">
                         <button
+                          onClick={() => {
+                            window.open(`/kategori/${cat.slug}`, '_blank');
+                          }}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-sm"
+                          disabled={loading}
+                        >
+                          👁️ Detaya Git
+                        </button>
+                        <button
                           onClick={() => { 
                             setEditCategoryId(cat.id); 
                             setEditCategoryName(cat.name); 
@@ -576,8 +569,8 @@ export default function AdminKategorilerPage() {
                 <div className="space-y-2">
                   {(cat.subCategories || []).sort((a: any, b: any) => a.name.localeCompare(b.name, 'tr')).map((sub: any, j: number) => {
                     const subSlug = normalizeSlug(sub.slug);
-                    const SubIcon = getIcon(subSlug);
-                    const subColor = getColor(subSlug, j);
+                    // const SubIcon = getIcon(subSlug); // kaldırıldı
+                    // const subColor = getColor(subSlug, j); // kaldırıldı
                     return (
                       <div key={sub.id} className="bg-white rounded-lg border border-gray-200 p-3">
                         <div className="flex items-center justify-between">
@@ -589,18 +582,7 @@ export default function AdminKategorilerPage() {
                                 onChange={e => setEditSubCategoryName(e.target.value)}
                                 className="border-2 border-blue-300 rounded-lg px-3 py-2 flex-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                               />
-                              <select
-                                value={editSubCategoryIcon}
-                                onChange={e => setEditSubCategoryIcon(e.target.value)}
-                                className="border-2 border-gray-200 rounded-lg px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                              >
-                                {iconOptions.map(opt => (
-                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                              </select>
-                              <div className="flex items-center justify-center w-10 h-10 bg-white border-2 border-gray-200 rounded-lg">
-                                {iconOptions.find(opt => opt.value === editSubCategoryIcon)?.icon}
-                              </div>
+                              {/* İKON SEÇİMİ VE GÖSTERİMİ KALDIRILDI */}
                               <button
                                 onClick={() => handleEditSubCategory(sub.id)}
                                 className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors"
@@ -618,22 +600,19 @@ export default function AdminKategorilerPage() {
                           ) : (
                             <>
                               <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg bg-white shadow-sm border ${subColor.replace('text-', 'border-')}`}>
-                                  {sub.icon ? (
-                                    (() => {
-                                      if (sub.icon === "baby-carriage") {
-                                        return <img src="/icons/baby-carriage.svg" alt="Bebek Arabası" className={`w-4 h-4 ${subColor}`} />;
-                                      }
-                                      const SubIcon = (LucideIcons as any)[sub.icon] || LucideIcons.Circle;
-                                      return <SubIcon className={`w-4 h-4 ${subColor}`} />;
-                                    })()
-                                  ) : (
-                                    <LucideIcons.Circle className={`w-4 h-4 ${subColor}`} />
-                                  )}
-                                </div>
+                                {/* İKON KALDIRILDI */}
                                 <span className="font-medium text-gray-800">{sub.name}</span>
                               </div>
                               <div className="flex gap-2">
+                                <button
+                                  onClick={() => {
+                                    window.open(`/kategori/${cat.slug}/${sub.slug}`, '_blank');
+                                  }}
+                                  className="bg-blue-500 text-white px-3 py-1 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm"
+                                  disabled={loading}
+                                >
+                                  👁️
+                                </button>
                                 <button
                                   onClick={() => { setEditSubCategoryId(sub.id); setEditSubCategoryName(sub.name); setEditSubCategoryIcon(sub.icon || iconOptions[0].value); }}
                                   className="bg-yellow-500 text-white px-3 py-1 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm"
@@ -662,17 +641,13 @@ export default function AdminKategorilerPage() {
                   <SubCategoryInput
                     value={subCategoryInputs[cat.id] || ""}
                     onChange={val => setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: val }))}
-                    onAdd={async (name, icon) => {
-                      const result = await handleAddSubCategory(cat.id, name, icon);
+                    onAdd={async (name) => {
+                      const result = await handleAddSubCategory(cat.id, name);
                       if (result) {
                         setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: "" }));
-                        setSubCategoryIcons(icons => ({ ...icons, [cat.id]: icon }));
                       }
                       return result;
                     }}
-                    iconValue={subCategoryIcons[cat.id] || iconOptions[0].value}
-                    onIconChange={val => setSubCategoryIcons(icons => ({ ...icons, [cat.id]: val }))}
-                    iconOptions={iconOptions}
                     loading={loading}
                   />
                 </div>

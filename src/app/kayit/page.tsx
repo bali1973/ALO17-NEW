@@ -78,6 +78,16 @@ export default function KayitPage() {
 
       // Kullanıcıyı kaydet
       saveUser(newUser);
+      // Dosyaya da ekle
+      try {
+        await fetch('/api/users/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newUser),
+        });
+      } catch (e) {
+        console.warn('users.json dosyasına yazılamadı:', e);
+      }
 
       console.log('✅ Kayıt başarılı:', newUser.email);
 

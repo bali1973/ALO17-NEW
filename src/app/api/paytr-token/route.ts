@@ -4,18 +4,30 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export async function POST(req: Request) {
+  // Basit auth: Authorization header 'Bearer <ADMIN_TOKEN>' olmalı
+  const auth = req.headers.get('authorization');
+  const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'alo17admin';
+  if (!auth || auth !== `Bearer ${ADMIN_TOKEN}`) {
+    return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
+  }
   const body = await req.json();
 
-  // .env.local dosyasına ekleyin:
-  // PAYTR_MERCHANT_ID=...
-  // PAYTR_MERCHANT_KEY=...
-  // PAYTR_MERCHANT_SALT=...
-  const merchant_id = process.env.PAYTR_MERCHANT_ID!;
-  const merchant_key = process.env.PAYTR_MERCHANT_KEY!;
-  const merchant_salt = process.env.PAYTR_MERCHANT_SALT!;
+  // settings.json dosyasından ayarları oku
+  const settingsPath = path.join(process.cwd(), 'public', 'settings.json');
+  let settings: any = {};
+  try {
+    const data = await fs.readFile(settingsPath, 'utf-8');
+    settings = JSON.parse(data);
+  } catch (e) {
+    return NextResponse.json({ error: 'Ayarlar dosyası okunamadı' }, { status: 500 });
+  }
+
+  const merchant_id = settings.paytrMerchantId;
+  const merchant_key = settings.paytrApiKey;
+  const merchant_salt = settings.paytrMerchantSalt;
 
   if (!merchant_id || !merchant_key || !merchant_salt) {
-    return NextResponse.json({ error: 'PayTR API bilgileri eksik (.env.local)' }, { status: 500 });
+    return NextResponse.json({ error: 'PayTR API bilgileri eksik (ayarlar)' }, { status: 500 });
   }
 
   // Ortak alanlar

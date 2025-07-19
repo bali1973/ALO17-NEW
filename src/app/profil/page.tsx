@@ -24,81 +24,14 @@ import { ListingCard } from '@/components/listing-card';
 import { useToast } from '@/components/ToastProvider';
 
 // Örnek veri
-const user = {
-  name: 'Ahmet Yılmaz',
-  email: 'ahmet@example.com',
-  phone: '+90 555 123 4567',
-  location: 'Kadıköy, İstanbul',
-  memberSince: '2023',
-  avatar: '/images/avatar.jpg',
-};
-
-const listings = [
-  {
-    id: 1,
-    title: 'Sahibinden Satılık Lüks Daire',
-    price: '2.450.000',
-    location: 'Kadıköy, İstanbul',
-    category: 'Ev & Yaşam',
-    subcategory: 'Daire',
-    description: 'Sahibinden satılık lüks daire. 3+1, 180m², deniz manzaralı.',
-    images: ['/images/listing1.jpg'],
-    date: '2024-02-20',
-    condition: 'Yeni',
-    type: listingTypes.PREMIUM,
-    status: listingStatus.ACTIVE,
-    showPhone: true,
-    isFavorite: false,
-    views: 1234,
-    favorites: 5,
-    seller: {
-      name: 'Ahmet Yılmaz',
-      rating: 4.8,
-      memberSince: '2023-01-15',
-      phone: '0532 123 4567',
-      isVerified: true,
-    },
-    premiumFeatures: {
-      isActive: true,
-      expiresAt: '2024-04-20',
-      isHighlighted: true,
-      isFeatured: true,
-      isUrgent: false,
-    },
-  },
-  {
-    id: 2,
-    title: '2019 Model BMW 320i',
-    price: '1.850.000',
-    location: 'Beşiktaş, İstanbul',
-    category: 'Otomobil',
-    subcategory: 'BMW',
-    description: '2019 model BMW 320i. Otomatik, benzin, 45.000 km.',
-    images: ['/images/listing2.jpg'],
-    date: '2024-02-19',
-    condition: 'İkinci El',
-    type: listingTypes.PREMIUM,
-    status: listingStatus.PENDING,
-    showPhone: true,
-    isFavorite: false,
-    views: 856,
-    favorites: 3,
-    seller: {
-      name: 'Ahmet Yılmaz',
-      rating: 4.8,
-      memberSince: '2023-01-15',
-      phone: '0532 123 4567',
-      isVerified: true,
-    },
-    premiumFeatures: {
-      isActive: true,
-      expiresAt: '2024-04-19',
-      isHighlighted: false,
-      isFeatured: false,
-      isUrgent: true,
-    },
-  },
-];
+// const user = {
+//   name: 'Ahmet Yılmaz',
+//   email: 'ahmet@example.com',
+//   phone: '+90 555 123 4567',
+//   location: 'Kadıköy, İstanbul',
+//   memberSince: '2023',
+//   avatar: '/images/avatar.jpg',
+// };
 
 function getFavoriteIds() {
   if (typeof window === 'undefined') return [];
@@ -113,6 +46,13 @@ export default function ProfilePage() {
   const router = useRouter();
   const { session, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('listings');
+  // Bildirimlerim için state
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifError, setNotifError] = useState<string | null>(null);
+  const [notifDetail, setNotifDetail] = useState<any | null>(null);
+  const [notifProcessing, setNotifProcessing] = useState(false);
+  const [notifFilter, setNotifFilter] = useState<'all' | 'read' | 'unread'>('all');
   const [userListings, setUserListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [listingTab, setListingTab] = useState<'active' | 'draft' | 'deleted'>('active');
@@ -144,6 +84,23 @@ export default function ProfilePage() {
 
     fetchUserListings();
   }, [session]);
+
+  // Bildirimleri çek
+  useEffect(() => {
+    if (activeTab === 'notifications' && session?.user?.email) {
+      setNotifLoading(true);
+      fetch(`/api/notifications?userEmail=${session.user.email}`)
+        .then(res => res.json())
+        .then(data => {
+          setNotifications(data);
+          setNotifLoading(false);
+        })
+        .catch(() => {
+          setNotifError('Bildirimler yüklenemedi');
+          setNotifLoading(false);
+        });
+    }
+  }, [activeTab, session]);
 
   const handleDeleteListing = async (id: number) => {
     if (window.confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
@@ -209,6 +166,47 @@ export default function ProfilePage() {
     }
   };
 
+  const handleMarkRead = async (id: number, read: boolean) => {
+    setNotifProcessing(true);
+    await fetch('/api/notifications', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, read })
+    });
+    // Listeyi güncelle
+    setNotifications(notifications => notifications.map(n => n.id === id ? { ...n, read } : n));
+    setNotifProcessing(false);
+  };
+
+  const handleDeleteNotif = async (id: number) => {
+    if (!window.confirm('Bu bildirimi silmek istediğinize emin misiniz?')) return;
+    setNotifProcessing(true);
+    await fetch('/api/notifications', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    setNotifications(notifications => notifications.filter(n => n.id !== id));
+    setNotifProcessing(false);
+  };
+
+  function NotificationDetailModal({ notif, onClose }: { notif: any, onClose: () => void }) {
+    if (!notif) return null;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 min-w-[300px] max-w-[90vw]">
+          <h2 className="text-xl font-bold mb-2">Bildirim Detayı</h2>
+          <div className="mb-2"><b>Başlık:</b> {notif.title}</div>
+          <div className="mb-2"><b>İçerik:</b> {notif.content}</div>
+          <div className="mb-2"><b>Tip:</b> {notif.type}</div>
+          <div className="mb-2"><b>Tarih:</b> {new Date(notif.createdAt).toLocaleString('tr-TR')}</div>
+          <div className="mb-2"><b>Okundu:</b> {notif.read ? 'Evet' : 'Hayır'}</div>
+          <button onClick={onClose} className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Kapat</button>
+        </div>
+      </div>
+    );
+  }
+
   const getStatusBadge = (status: string) => {
     return (
       <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
@@ -228,8 +226,8 @@ export default function ProfilePage() {
               <div className="flex flex-col items-center">
                 <div className="relative w-32 h-32 mb-4">
                   <Image
-                    src={user.avatar}
-                    alt={user.name}
+                    src={'/images/avatar.jpg'}
+                    alt={session?.user?.name || 'Kullanıcı'}
                     fill
                     className="rounded-full object-cover"
                   />
@@ -237,22 +235,22 @@ export default function ProfilePage() {
                     <PencilIcon className="w-4 h-4" />
                   </button>
                 </div>
-                <h2 className="text-xl font-semibold text-alo-dark">{user.name}</h2>
-                <p className="text-sm text-gray-500">Üyelik: {user.memberSince}</p>
+                <h2 className="text-xl font-semibold text-alo-dark">{session?.user?.name || 'Kullanıcı'}</h2>
+                <p className="text-sm text-gray-500">Üyelik: 2024</p>
               </div>
 
               <div className="mt-6 space-y-4">
                 <div className="flex items-center text-gray-600">
                   <EnvelopeIcon className="w-5 h-5 mr-2" />
-                  <span>{user.email}</span>
+                  <span>{session?.user?.email || '-'}</span>
                 </div>
                 <div className="flex items-center text-gray-600">
                   <PhoneIcon className="w-5 h-5 mr-2" />
-                  <span>{user.phone}</span>
+                  <span>{session?.user?.phone || '-'}</span>
                 </div>
                 <div className="flex items-center text-gray-600">
                   <MapPinIcon className="w-5 h-5 mr-2" />
-                  <span>{user.location}</span>
+                  <span>-</span>
                 </div>
               </div>
 
@@ -302,6 +300,16 @@ export default function ProfilePage() {
                   }`}
                 >
                   Mesajlarım
+                </button>
+                <button
+                  onClick={() => setActiveTab('notifications')}
+                  className={`flex-1 px-4 py-3 text-sm font-medium ${
+                    activeTab === 'notifications'
+                      ? 'text-alo-orange border-b-2 border-alo-orange'
+                      : 'text-gray-500 hover:text-alo-orange'
+                  }`}
+                >
+                  Bildirimlerim
                 </button>
                 <button
                   onClick={() => setActiveTab('invoices')}
@@ -560,6 +568,80 @@ export default function ProfilePage() {
             {/* Mesajlarım */}
             {activeTab === 'messages' && (
               <MessagesBox />
+            )}
+
+            {/* Bildirimlerim */}
+            {activeTab === 'notifications' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-alo-dark mb-4">Bildirimlerim</h3>
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => setNotifFilter('all')}
+                    className={`px-3 py-1 rounded ${notifFilter === 'all' ? 'bg-alo-orange text-white' : 'bg-gray-100 text-gray-700'}`}
+                  >Tümü</button>
+                  <button
+                    onClick={() => setNotifFilter('unread')}
+                    className={`px-3 py-1 rounded ${notifFilter === 'unread' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                  >Okunmamış</button>
+                  <button
+                    onClick={() => setNotifFilter('read')}
+                    className={`px-3 py-1 rounded ${notifFilter === 'read' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                  >Okunan</button>
+                </div>
+                {notifLoading && <div>Yükleniyor...</div>}
+                {notifError && <div className="text-red-600">{notifError}</div>}
+                {!notifLoading && notifications.filter(n =>
+                  notifFilter === 'all' ? true : notifFilter === 'read' ? n.read : !n.read
+                ).length === 0 && <div className="text-gray-500">Hiç bildiriminiz yok.</div>}
+                {!notifLoading && notifications.filter(n =>
+                  notifFilter === 'all' ? true : notifFilter === 'read' ? n.read : !n.read
+                ).length > 0 && (
+                  <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="py-2 px-4 text-left">Başlık</th>
+                        <th className="py-2 px-4 text-left">İçerik</th>
+                        <th className="py-2 px-4 text-left">Tarih</th>
+                        <th className="py-2 px-4 text-left">Okundu</th>
+                        <th className="py-2 px-4 text-left">İşlemler</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {notifications.filter(n =>
+                        notifFilter === 'all' ? true : notifFilter === 'read' ? n.read : !n.read
+                      ).map(notif => (
+                        <tr key={notif.id} className={notif.read ? 'bg-gray-50' : 'bg-yellow-50 font-semibold'}>
+                          <td className="py-2 px-4 cursor-pointer underline" onClick={() => setNotifDetail(notif)}>{notif.title}</td>
+                          <td className="py-2 px-4">{notif.content}</td>
+                          <td className="py-2 px-4">{new Date(notif.createdAt).toLocaleString('tr-TR')}</td>
+                          <td className="py-2 px-4">
+                            <button
+                              onClick={() => handleMarkRead(notif.id, !notif.read)}
+                              className={notif.read ? 'text-green-600' : 'text-gray-400'}
+                              title={notif.read ? 'Okundu olarak işaretlendi' : 'Okunmadı olarak işaretle'}
+                              disabled={notifProcessing}
+                            >
+                              {notif.read ? '✓' : '•'}
+                            </button>
+                          </td>
+                          <td className="py-2 px-4 flex gap-2">
+                            <button
+                              onClick={() => setNotifDetail(notif)}
+                              className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs"
+                            >Detay</button>
+                            <button
+                              onClick={() => handleDeleteNotif(notif.id)}
+                              className="px-2 py-1 bg-red-200 rounded hover:bg-red-300 text-xs"
+                              disabled={notifProcessing}
+                            >Sil</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+                <NotificationDetailModal notif={notifDetail} onClose={() => setNotifDetail(null)} />
+              </div>
             )}
 
             {/* Fatura Arşivi */}

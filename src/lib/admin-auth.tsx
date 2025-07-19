@@ -72,6 +72,8 @@ const PERMISSION_MATRIX: Record<AdminRole, AdminPermission[]> = {
     'dashboard:read',
     'listings:read',
     'listings:approve',
+    'listings:delete',
+    'listings:write',
     'messages:read',
     'statistics:read'
   ]

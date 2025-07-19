@@ -10,6 +10,10 @@ interface Session {
     email: string
     name: string
     role: string
+    phone?: string
+    password?: string // eklendi
+    location?: string // eklendi
+    birthdate?: string // eklendi
   }
   expires: string
 }

@@ -1,0 +1,22 @@
+{
+  "name": "Alo17 - Türkiye'nin En Büyük İlan Sitesi",
+  "short_name": "Alo17",
+  "description": "Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#ff6600",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48 64x64 96x96 128x128 256x256",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+} 

@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { PencilIcon, CameraIcon } from '@heroicons/react/24/outline';
 
 export default function EditProfilePage() {
-  const { session, isLoading } = useAuth();
+  const { session, isLoading, setSession } = useAuth();
   const router = useRouter();
   
   const [formData, setFormData] = useState({
@@ -24,7 +24,7 @@ export default function EditProfilePage() {
   // Şifre değiştirme state
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordData, setPasswordData] = useState({
-    current: '',
+    current: session?.user?.password || '',
     new: '',
     confirm: '',
   });
@@ -34,6 +34,8 @@ export default function EditProfilePage() {
   // E-posta doğrulama
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [emailCode, setEmailCode] = useState('');
+  const [sentCode, setSentCode] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
   // Bildirim tercihleri
   const [notificationPrefs, setNotificationPrefs] = useState({
     email: true,
@@ -44,18 +46,19 @@ export default function EditProfilePage() {
     const { name, checked } = e.target;
     setNotificationPrefs(prev => ({ ...prev, [name]: checked }));
   };
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (session?.user) {
-      // Mevcut kullanıcı bilgilerini yükle
+    if (session?.user && !initialized) {
       setFormData({
         name: session.user.name || '',
         email: session.user.email || '',
-        phone: '', // Session'da telefon yok, API'den alınacak
-        location: '', // Session'da konum yok, API'den alınacak
-        birthdate: '', // Session'da doğum tarihi yok, API'den alınacak
+        phone: session.user.phone || '',
+        location: session.user.location || '',
+        birthdate: session.user.birthdate || '',
       });
       setAvatar('/images/placeholder.jpg');
+      setInitialized(true);
     }
     // DEBUG: Session ve expires logla
     console.log('Session:', session);
@@ -63,6 +66,13 @@ export default function EditProfilePage() {
       console.log('Session expires:', session.expires, 'Şu an:', new Date().toISOString());
     }
   }, [session]);
+
+  // Şifre formu açıldığında mevcut şifreyi doldur
+  useEffect(() => {
+    if (showPasswordForm && session?.user?.password) {
+      setPasswordData(prev => ({ ...prev, current: session.user.password }));
+    }
+  }, [showPasswordForm, session?.user?.password]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -101,19 +111,38 @@ export default function EditProfilePage() {
       setPasswordData({ current: '', new: '', confirm: '' });
     }, 1000);
   };
-  const handleSendEmailCode = () => {
-    setEmailVerificationSent(true);
-    setTimeout(() => {
-      alert('Doğrulama kodu e-posta adresinize gönderildi (mock).');
-    }, 500);
+  const handleSendEmailCode = async () => {
+    setEmailSending(true);
+    // 6 haneli random kod üret
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    try {
+      const res = await fetch('/api/send-verification-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: formData.email, code }),
+      });
+      if (res.ok) {
+        setSentCode(code);
+        setEmailVerificationSent(true);
+        alert('Doğrulama kodu e-posta adresinize gönderildi.');
+      } else {
+        const data = await res.json();
+        alert('E-posta gönderilemedi: ' + (data.error || 'Bilinmeyen hata') + (data.detail?.message ? '\n' + data.detail.message : ''));
+      }
+    } catch (err) {
+      alert('E-posta gönderilemedi.');
+    } finally {
+      setEmailSending(false);
+    }
   };
   const handleVerifyEmailCode = () => {
-    if (emailCode === '123456') {
-      alert('E-posta doğrulandı! (mock)');
+    if (emailCode === sentCode) {
+      alert('E-posta doğrulandı!');
       setEmailVerificationSent(false);
       setEmailCode('');
+      setSentCode('');
     } else {
-      alert('Kod yanlış! (mock)');
+      alert('Kod yanlış!');
     }
   };
   const handleDeleteAccount = () => {
@@ -129,30 +158,54 @@ export default function EditProfilePage() {
 
     try {
       // Form verilerini hazırla
-      const submitData = new FormData();
-      submitData.append('name', formData.name);
-      submitData.append('email', formData.email);
-      submitData.append('phone', formData.phone);
-      submitData.append('location', formData.location);
-      submitData.append('birthdate', formData.birthdate);
-      
-      if (avatarFile) {
-        submitData.append('avatar', avatarFile);
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location,
+        birthdate: formData.birthdate
+      };
+      console.log('GÖNDERİLEN (frontend):', payload);
+      let response, data;
+      try {
+        response = await fetch('/api/users/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        data = await response.json();
+      } catch (err) {
+        setMessage({ type: 'error', text: 'Sunucuya bağlanılamadı veya yanıt alınamadı.' });
+        setLoading(false);
+        console.error('Profil güncelleme fetch hatası:', err);
+        return;
       }
 
-      const response = await fetch('/api/profile/update', {
-        method: 'POST',
-        body: submitData,
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response && response.ok) {
         setMessage({ type: 'success', text: 'Profil başarıyla güncellendi!' });
-        // Session'ı yenile
-        window.location.reload();
+        // Session'ı güncelle
+        if (session) {
+          console.log('GÜNCELLENEN SESSION:', {
+            ...session.user,
+            name: formData.name,
+            phone: formData.phone,
+            location: formData.location,
+            birthdate: formData.birthdate,
+          });
+          setSession({
+            ...session,
+            user: {
+              ...session.user,
+              name: formData.name,
+              phone: formData.phone,
+              location: formData.location,
+              birthdate: formData.birthdate,
+            }
+          });
+        }
       } else {
-        setMessage({ type: 'error', text: data.error || 'Profil güncellenirken hata oluştu.' });
+        setMessage({ type: 'error', text: (data && data.error) || 'Profil güncellenirken hata oluştu.' });
+        console.error('Profil güncelleme API hatası:', data);
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Bir hata oluştu. Lütfen tekrar deneyin.' });
@@ -189,8 +242,9 @@ export default function EditProfilePage() {
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200">
+                  {/* Eğer avatar yoksa varsayılan profil fotoğrafı gösterilir */}
                   <Image
-                    src={avatar}
+                    src={avatar || "/images/placeholder.jpg"}
                     alt="Profil fotoğrafı"
                     width={128}
                     height={128}
@@ -247,10 +301,10 @@ export default function EditProfilePage() {
                   <button
                     type="button"
                     onClick={handleSendEmailCode}
-                    className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                    disabled={emailVerificationSent}
+                    className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                    disabled={emailVerificationSent || emailSending}
                   >
-                    Doğrulama Kodu Gönder
+                    {emailSending ? 'Gönderiliyor...' : 'Doğrulama Kodu Gönder'}
                   </button>
                 </div>
                 {emailVerificationSent && (

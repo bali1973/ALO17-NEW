@@ -20,11 +20,13 @@ export default function GirisPage() {
 
   useEffect(() => {
     setIsClient(true);
-    
-    // URL'den callbackUrl'i al
+    // URL'den callbackUrl veya redirect parametresini al
     const callback = searchParams.get('callbackUrl');
+    const redirect = searchParams.get('redirect');
     if (callback) {
       setCallbackUrl(callback);
+    } else if (redirect) {
+      setCallbackUrl(redirect);
     }
   }, [searchParams]);
 

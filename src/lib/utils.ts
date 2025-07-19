@@ -60,8 +60,16 @@ export function calculatePremiumEndDate(plan: '30days' | '90days' | '365days'): 
 
 // Premium planları veritabanından çeken fonksiyon (server-side only)
 export async function getPremiumPlans() {
-  // Bu fonksiyon sadece server-side'da kullanılmalı
-  // Client-side'da kullanılmak istenirse API endpoint'i kullanılmalı
+  // Artık dosyadan veya API'den dinamik çekilecek
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/premium-plans`, { cache: 'no-store' });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    // fallback
+  }
+  // Fallback: sabit değerler
   return {
     '30days': { name: '30 Gün', price: 99, days: 30 },
     '90days': { name: '90 Gün', price: 249, days: 90 },

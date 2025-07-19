@@ -44,7 +44,7 @@ export default function Header() {
           <Link href="/profil/mesajlar" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <MessageCircle className="w-5 h-5" /> Mesajlarım</Link>
           {session ? (
             <>
-              <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> Admin User</Link>
+              <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> {session.user.name}</Link>
               <button onClick={handleSignOut} className="btn-secondary flex items-center gap-2"><LogOut className="w-5 h-5" /> Çıkış</button>
             </>
           ) : (

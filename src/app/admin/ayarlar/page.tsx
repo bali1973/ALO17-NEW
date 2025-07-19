@@ -1,536 +1,288 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Cog6ToothIcon,
-  BellIcon,
-  ShieldCheckIcon,
-  GlobeAltIcon,
-  CreditCardIcon,
-  DocumentTextIcon,
-  CheckIcon,
-  CheckCircleIcon,
-} from '@heroicons/react/24/outline';
+import React, { useEffect, useState } from 'react';
 
-export default function SettingsPage() {
-  const [settings, setSettings] = useState({
-    // Site Ayarları
-    siteName: 'Alo17',
-    siteDescription: 'Türkiye\'nin en güvenilir ilan sitesi',
-    contactEmail: 'destek@alo17.tr',
-    contactPhone: '541 4042404',
-    
-    // Bildirim Ayarları
-    emailNotifications: true,
-    smsNotifications: false,
-    pushNotifications: true,
-    adminNotifications: true,
-    
-    // Güvenlik Ayarları
-    requireEmailVerification: true,
-    requirePhoneVerification: false,
-    maxLoginAttempts: 5,
-    sessionTimeout: 24,
-    
-    // Ödeme Ayarları
-    stripeEnabled: true,
-    paypalEnabled: false,
-    bankTransferEnabled: true,
-    currency: 'TRY',
-    
-    // İçerik Ayarları
-    autoApproveListings: false,
-    requireListingApproval: true,
-    maxImagesPerListing: 10,
-    maxListingTitleLength: 100,
-    
-    // SEO Ayarları
-    metaTitle: 'Alo17 - Türkiye\'nin En Güvenilir İlan Sitesi',
-    metaDescription: 'Alo17 ile güvenle alım satım yapın. Binlerce ilan, güvenli ödeme seçenekleri.',
-    googleAnalyticsId: 'GA-123456789',
-  });
+const defaultSettings = {
+  siteTitle: '',
+  supportEmail: '',
+  homepageDescription: '',
+  logoUrl: '',
+  phone: '',
+  footerText: '',
+  facebook: '',
+  instagram: '',
+  twitter: '',
+  whatsappNumber: '',
+  paytrApiKey: '',
+  paytrMerchantId: '',
+  paytrMerchantSalt: '',
+  stripePublicKey: '',
+  stripeSecretKey: '',
+  invoiceTitle: '',
+  taxNumber: '',
+  invoiceAddress: '',
+  announcementText: '',
+  bannerImageUrl: '',
+  announcementActive: false,
+  faviconUrl: '',
+  googleAdsCode: '',
+};
 
-  const [activeTab, setActiveTab] = useState('general');
+export default function AdminAyarlarPage() {
+  const [settings, setSettings] = useState(defaultSettings);
+  const [loading, setLoading] = useState(true);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSettingChange = (key: string, value: any) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value,
-    }));
+  useEffect(() => {
+    fetch('/api/admin/settings')
+      .then(res => res.json())
+      .then(data => {
+        setSettings({ ...defaultSettings, ...data });
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Ayarlar yüklenemedi');
+        setLoading(false);
+      });
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setSettings({ ...settings, [e.target.name]: e.target.value });
   };
 
-  const handleSave = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccess('');
+    setError('');
     try {
-      // Burada API çağrısı yapılacak
-      console.log('Ayarlar kaydediliyor:', settings);
-      alert('Ayarlar başarıyla kaydedildi!');
-    } catch (error) {
-      console.error('Ayar kaydetme hatası:', error);
-      alert('Ayarlar kaydedilirken hata oluştu!');
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+      if (res.ok) {
+        setSuccess('Ayarlar başarıyla kaydedildi!');
+      } else {
+        setError('Ayarlar kaydedilemedi!');
+      }
+    } catch {
+      setError('Ayarlar kaydedilemedi!');
     }
   };
 
-  const tabs = [
-    { id: 'general', name: 'Genel', icon: Cog6ToothIcon },
-    { id: 'notifications', name: 'Bildirimler', icon: BellIcon },
-    { id: 'security', name: 'Güvenlik', icon: ShieldCheckIcon },
-    { id: 'payment', name: 'Ödeme', icon: CreditCardIcon },
-    { id: 'content', name: 'İçerik', icon: DocumentTextIcon },
-    { id: 'seo', name: 'SEO', icon: GlobeAltIcon },
-  ];
+  // Ayarları dışa aktar (indir)
+  const handleExport = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "settings.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
+  // Ayarları içe aktar (yükle)
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const imported = JSON.parse(text);
+      setSettings({ ...defaultSettings, ...imported });
+      // Otomatik kaydetmek için PATCH isteği gönder
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(imported)
+      });
+      if (res.ok) {
+        setSuccess('Ayarlar başarıyla yüklendi!');
+      } else {
+        setError('Ayarlar yüklenemedi!');
+      }
+    } catch {
+      setError('Geçersiz dosya veya okuma hatası!');
+    }
+  };
+
+  // Siteyi yedekle (zip indir)
+  const handleBackup = () => {
+    const link = document.createElement('a');
+    link.href = '/api/admin/backup';
+    link.download = 'site-backup.zip';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
+  // Logo yükleme
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'logo');
+    const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.url) {
+      setSettings(s => ({ ...s, logoUrl: data.url }));
+      setSuccess('Logo başarıyla yüklendi!');
+    } else {
+      setError('Logo yüklenemedi!');
+    }
+  };
+  // Favicon yükleme
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'favicon');
+    const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.url) {
+      setSettings(s => ({ ...s, faviconUrl: data.url }));
+      setSuccess('Favicon başarıyla yüklendi!');
+    } else {
+      setError('Favicon yüklenemedi!');
+    }
+  };
+
+  if (loading) return <div className="p-8">Yükleniyor...</div>;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="border-b border-gray-200 pb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Site Ayarları</h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Platform ayarlarını yapılandırın ve yönetin.
-        </p>
+    <div className="max-w-2xl mx-auto p-8 bg-white rounded-lg shadow-md mt-8">
+      <h1 className="text-2xl font-bold mb-6">Ayarlar</h1>
+      <div className="flex gap-4 mb-4">
+        <button type="button" onClick={handleExport} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Ayarları Dışa Aktar (JSON İndir)</button>
+        <label className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition cursor-pointer">
+          Ayarları İçe Aktar (JSON Yükle)
+          <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
+        </label>
+        <button type="button" onClick={handleBackup} className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition">Siteyi Yedekle (Tüm İçeriği İndir)</button>
       </div>
-
-      {/* Tabs */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <tab.icon className="h-5 w-5 inline mr-2" />
-                {tab.name}
-              </button>
-            ))}
-          </nav>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Site Başlığı</label>
+          <input type="text" name="siteTitle" value={settings.siteTitle} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Site başlığını girin" />
         </div>
-
-        <div className="px-6 py-6">
-          {/* General Settings */}
-          {activeTab === 'general' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900">Genel Ayarlar</h3>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="siteName" className="block text-sm font-medium text-gray-700">
-                    Site Adı
-                  </label>
-                  <input
-                    type="text"
-                    id="siteName"
-                    value={settings.siteName}
-                    onChange={(e) => handleSettingChange('siteName', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="siteDescription" className="block text-sm font-medium text-gray-700">
-                    Site Açıklaması
-                  </label>
-                  <input
-                    type="text"
-                    id="siteDescription"
-                    value={settings.siteDescription}
-                    onChange={(e) => handleSettingChange('siteDescription', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">
-                    İletişim E-posta
-                  </label>
-                  <input
-                    type="email"
-                    id="contactEmail"
-                    value={settings.contactEmail}
-                    onChange={(e) => handleSettingChange('contactEmail', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="contactPhone" className="block text-sm font-medium text-gray-700">
-                    İletişim Telefonu
-                  </label>
-                  <input
-                    type="text"
-                    id="contactPhone"
-                    value={settings.contactPhone}
-                    onChange={(e) => handleSettingChange('contactPhone', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Notification Settings */}
-          {activeTab === 'notifications' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900">Bildirim Ayarları</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">E-posta Bildirimleri</h4>
-                    <p className="text-sm text-gray-500">Kullanıcılara e-posta ile bildirim gönder</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('emailNotifications', !settings.emailNotifications)}
-                    className={`${
-                      settings.emailNotifications ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.emailNotifications ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">SMS Bildirimleri</h4>
-                    <p className="text-sm text-gray-500">Kullanıcılara SMS ile bildirim gönder</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('smsNotifications', !settings.smsNotifications)}
-                    className={`${
-                      settings.smsNotifications ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.smsNotifications ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">Push Bildirimleri</h4>
-                    <p className="text-sm text-gray-500">Tarayıcı push bildirimleri gönder</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('pushNotifications', !settings.pushNotifications)}
-                    className={`${
-                      settings.pushNotifications ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.pushNotifications ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">Admin Bildirimleri</h4>
-                    <p className="text-sm text-gray-500">Admin paneline bildirim gönder</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('adminNotifications', !settings.adminNotifications)}
-                    className={`${
-                      settings.adminNotifications ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.adminNotifications ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Security Settings */}
-          {activeTab === 'security' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900">Güvenlik Ayarları</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">E-posta Doğrulama Zorunlu</h4>
-                    <p className="text-sm text-gray-500">Kullanıcıların e-posta adreslerini doğrulaması gerekir</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('requireEmailVerification', !settings.requireEmailVerification)}
-                    className={`${
-                      settings.requireEmailVerification ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.requireEmailVerification ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">Telefon Doğrulama Zorunlu</h4>
-                    <p className="text-sm text-gray-500">Kullanıcıların telefon numaralarını doğrulaması gerekir</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('requirePhoneVerification', !settings.requirePhoneVerification)}
-                    className={`${
-                      settings.requirePhoneVerification ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.requirePhoneVerification ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div>
-                  <label htmlFor="maxLoginAttempts" className="block text-sm font-medium text-gray-700">
-                    Maksimum Giriş Denemesi
-                  </label>
-                  <input
-                    type="number"
-                    id="maxLoginAttempts"
-                    value={settings.maxLoginAttempts}
-                    onChange={(e) => handleSettingChange('maxLoginAttempts', parseInt(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    min="1"
-                    max="10"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="sessionTimeout" className="block text-sm font-medium text-gray-700">
-                    Oturum Zaman Aşımı (Saat)
-                  </label>
-                  <input
-                    type="number"
-                    id="sessionTimeout"
-                    value={settings.sessionTimeout}
-                    onChange={(e) => handleSettingChange('sessionTimeout', parseInt(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    min="1"
-                    max="168"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Payment Settings */}
-          {activeTab === 'payment' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900">Ödeme Ayarları</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">Stripe Ödemeleri</h4>
-                    <p className="text-sm text-gray-500">Kredi kartı ödemelerini etkinleştir</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('stripeEnabled', !settings.stripeEnabled)}
-                    className={`${
-                      settings.stripeEnabled ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.stripeEnabled ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">PayPal Ödemeleri</h4>
-                    <p className="text-sm text-gray-500">PayPal ödemelerini etkinleştir</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('paypalEnabled', !settings.paypalEnabled)}
-                    className={`${
-                      settings.paypalEnabled ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.paypalEnabled ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">Banka Havalesi</h4>
-                    <p className="text-sm text-gray-500">Banka havalesi ödemelerini etkinleştir</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('bankTransferEnabled', !settings.bankTransferEnabled)}
-                    className={`${
-                      settings.bankTransferEnabled ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.bankTransferEnabled ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div>
-                  <label htmlFor="currency" className="block text-sm font-medium text-gray-700">
-                    Para Birimi
-                  </label>
-                  <select
-                    id="currency"
-                    value={settings.currency}
-                    onChange={(e) => handleSettingChange('currency', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  >
-                    <option value="TRY">Türk Lirası (₺)</option>
-                    <option value="USD">Amerikan Doları ($)</option>
-                    <option value="EUR">Euro (€)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Content Settings */}
-          {activeTab === 'content' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900">İçerik Ayarları</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">Otomatik İlan Onayı</h4>
-                    <p className="text-sm text-gray-500">İlanlar otomatik olarak onaylansın</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('autoApproveListings', !settings.autoApproveListings)}
-                    className={`${
-                      settings.autoApproveListings ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.autoApproveListings ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">İlan Onayı Gerekli</h4>
-                    <p className="text-sm text-gray-500">İlanların admin onayından geçmesi gerekir</p>
-                  </div>
-                  <button
-                    onClick={() => handleSettingChange('requireListingApproval', !settings.requireListingApproval)}
-                    className={`${
-                      settings.requireListingApproval ? 'bg-blue-600' : 'bg-gray-200'
-                    } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out`}
-                  >
-                    <span
-                      className={`${
-                        settings.requireListingApproval ? 'translate-x-6' : 'translate-x-1'
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out mt-1`}
-                    />
-                  </button>
-                </div>
-                <div>
-                  <label htmlFor="maxImagesPerListing" className="block text-sm font-medium text-gray-700">
-                    İlan Başına Maksimum Resim
-                  </label>
-                  <input
-                    type="number"
-                    id="maxImagesPerListing"
-                    value={settings.maxImagesPerListing}
-                    onChange={(e) => handleSettingChange('maxImagesPerListing', parseInt(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    min="1"
-                    max="20"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="maxListingTitleLength" className="block text-sm font-medium text-gray-700">
-                    İlan Başlığı Maksimum Uzunluk
-                  </label>
-                  <input
-                    type="number"
-                    id="maxListingTitleLength"
-                    value={settings.maxListingTitleLength}
-                    onChange={(e) => handleSettingChange('maxListingTitleLength', parseInt(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    min="10"
-                    max="200"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SEO Settings */}
-          {activeTab === 'seo' && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900">SEO Ayarları</h3>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700">
-                    Meta Başlık
-                  </label>
-                  <input
-                    type="text"
-                    id="metaTitle"
-                    value={settings.metaTitle}
-                    onChange={(e) => handleSettingChange('metaTitle', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
-                    Meta Açıklama
-                  </label>
-                  <textarea
-                    id="metaDescription"
-                    rows={3}
-                    value={settings.metaDescription}
-                    onChange={(e) => handleSettingChange('metaDescription', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="googleAnalyticsId" className="block text-sm font-medium text-gray-700">
-                    Google Analytics ID
-                  </label>
-                  <input
-                    type="text"
-                    id="googleAnalyticsId"
-                    value={settings.googleAnalyticsId}
-                    onChange={(e) => handleSettingChange('googleAnalyticsId', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    placeholder="GA-XXXXXXXXX"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Destek E-posta</label>
+          <input type="email" name="supportEmail" value={settings.supportEmail} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="destek@site.com" />
         </div>
-      </div>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={handleSave}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <CheckIcon className="h-4 w-4 mr-2" />
-          Ayarları Kaydet
-        </button>
-      </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Ana Sayfa Açıklaması</label>
+          <textarea name="homepageDescription" value={settings.homepageDescription} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Ana sayfa açıklaması"></textarea>
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Site Logosu (URL)</label>
+          <input type="text" name="logoUrl" value={settings.logoUrl} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="/images/logo.svg" />
+          <input type="file" accept="image/*" onChange={handleLogoUpload} className="block" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Favicon (URL)</label>
+          <input type="text" name="faviconUrl" value={settings.faviconUrl || ''} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 mb-2" placeholder="/favicon.ico" />
+          <input type="file" accept="image/*" onChange={handleFaviconUpload} className="block" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Telefon</label>
+          <input type="text" name="phone" value={settings.phone} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="+90 555 123 4567" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Footer Metni</label>
+          <input type="text" name="footerText" value={settings.footerText} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="© 2024 Alo17. Tüm hakları saklıdır." />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Facebook</label>
+          <input type="text" name="facebook" value={settings.facebook} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://facebook.com/alo17" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Instagram</label>
+          <input type="text" name="instagram" value={settings.instagram} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://instagram.com/alo17" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Twitter</label>
+          <input type="text" name="twitter" value={settings.twitter} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://twitter.com/alo17" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">WhatsApp Destek Numarası</label>
+          <input type="text" name="whatsappNumber" value={settings.whatsappNumber} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="+90 555 123 4567" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">PayTR API Key</label>
+          <input type="text" name="paytrApiKey" value={settings.paytrApiKey} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="PayTR API Key" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">PayTR Merchant ID</label>
+          <input type="text" name="paytrMerchantId" value={settings.paytrMerchantId} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="PayTR Merchant ID" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">PayTR Merchant Salt</label>
+          <input type="text" name="paytrMerchantSalt" value={settings.paytrMerchantSalt} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="PayTR Merchant Salt" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Stripe Public Key</label>
+          <input type="text" name="stripePublicKey" value={settings.stripePublicKey} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Stripe Public Key" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Stripe Secret Key</label>
+          <input type="text" name="stripeSecretKey" value={settings.stripeSecretKey} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Stripe Secret Key" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Fatura Başlığı</label>
+          <input type="text" name="invoiceTitle" value={settings.invoiceTitle} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Fatura başlığı" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Vergi Numarası</label>
+          <input type="text" name="taxNumber" value={settings.taxNumber} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Vergi numarası" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Fatura Adresi</label>
+          <textarea name="invoiceAddress" value={settings.invoiceAddress} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Fatura adresi"></textarea>
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Duyuru Metni</label>
+          <input type="text" name="announcementText" value={settings.announcementText} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Duyuru metni" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Banner Görseli (URL)</label>
+          <input type="text" name="bannerImageUrl" value={settings.bannerImageUrl} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="/images/banner.jpg" />
+          <input type="file" accept="image/*" onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('type', 'banner');
+            const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.url) {
+              setSettings(s => ({ ...s, bannerImageUrl: data.url }));
+              setSuccess('Banner görseli başarıyla yüklendi!');
+            } else {
+              setError('Banner görseli yüklenemedi!');
+            }
+          }} className="block mt-2" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Google Reklam Kodu (HTML/script)</label>
+          <textarea
+            name="googleAdsCode"
+            value={settings.googleAdsCode}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+            placeholder="&lt;script async src='https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X'&gt;&lt;/script&gt;\n&lt;script&gt;...&lt;/script&gt;"
+            rows={4}
+          />
+        </div>
+        <div className="flex items-center">
+          <input type="checkbox" id="announcementActive" name="announcementActive" checked={!!settings.announcementActive} onChange={e => setSettings({ ...settings, announcementActive: e.target.checked })} className="mr-2" />
+          <label htmlFor="announcementActive" className="text-gray-700 font-medium">Duyuru Aktif</label>
+        </div>
+        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Kaydet</button>
+        {success && <div className="mt-2 text-green-600 font-semibold">{success}</div>}
+        {error && <div className="mt-2 text-red-600 font-semibold">{error}</div>}
+      </form>
     </div>
   );
 } 

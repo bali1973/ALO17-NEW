@@ -1,28 +1,38 @@
 import ListingDetail from './ListingDetail';
+import { useEffect, useState } from 'react';
 
-interface ListingDetailPageProps {
-  params: { id: string };
-};
+export default function ListingDetailPage({ params }: { params: { id: string } }) {
+  const [ilan, setIlan] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-// Statik ilan verisi (örnek)
-const listings = [
-  { id: '1', title: 'Listing 1', price: '1000 TL' },
-  { id: '2', title: 'Listing 2', price: '2000 TL' },
-  { id: '3', title: 'Listing 3', price: '3000 TL' },
-];
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/listings/${params.id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('İlan bulunamadı');
+        return res.json();
+      })
+      .then(data => {
+        setIlan(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('İlan bulunamadı');
+        setLoading(false);
+      });
+  }, [params.id]);
 
-export default function ListingDetailPage({ params }: ListingDetailPageProps) {
-  const ilan = listings.find(l => l.id === params.id);
-
-  if (!ilan) {
-    return <div className="p-8">Listing not found.</div>;
-  }
+  if (loading) return <div>Yükleniyor...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+  if (!ilan) return <div>İlan bulunamadı.</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-4">{ilan.title}</h1>
-      <div className="text-lg text-gray-700">Price: {ilan.price}</div>
-      <div className="text-gray-500 mt-4">Static export sample listing detail page.</div>
+      <div className="text-lg text-gray-700">Fiyat: {ilan.price}</div>
+      <div className="text-gray-500 mt-4">{ilan.description}</div>
+      {/* Diğer alanlar */}
     </div>
   );
 }

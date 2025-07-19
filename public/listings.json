@@ -15,10 +15,13 @@
     "year": "2022",
     "status": "active",
     "isPremium": true,
-    "premiumFeatures": ["featured", "highlighted"],
+    "premiumFeatures": [
+      "featured",
+      "highlighted"
+    ],
     "views": 156,
     "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2025-07-16T07:20:05.826Z",
     "userId": "user1"
   },
   {
@@ -40,7 +43,7 @@
     "premiumFeatures": [],
     "views": 89,
     "createdAt": "2024-01-10T14:20:00Z",
-    "updatedAt": "2024-01-10T14:20:00Z",
+    "updatedAt": "2025-07-16T07:20:51.784Z",
     "userId": "user2"
   },
   {
@@ -81,7 +84,9 @@
     "year": "2022",
     "status": "active",
     "isPremium": true,
-    "premiumFeatures": ["urgent"],
+    "premiumFeatures": [
+      "urgent"
+    ],
     "views": 234,
     "createdAt": "2024-01-05T16:45:00Z",
     "updatedAt": "2024-01-05T16:45:00Z",
@@ -126,5 +131,86 @@
     "user": "Test User",
     "email": "test@example.com",
     "userRole": "user"
+  },
+  {
+    "title": "ilan45",
+    "description": "reagsvvsauvaouybauyb",
+    "price": 88000,
+    "category": "1",
+    "subcategory": "1-1",
+    "condition": "İkinci El",
+    "location": "Çanakkale Merkez",
+    "phone": "05445132046",
+    "phoneVisibility": "public",
+    "images": [
+      "blob:http://localhost:3004/6a9fbb80-0f99-43d1-95db-2927c334d72f"
+    ],
+    "premiumPlan": "free",
+    "features": [
+      "featured",
+      "urgent",
+      "highlighted",
+      "top"
+    ],
+    "user": "Admin User",
+    "email": "admin@alo17.com",
+    "userRole": "admin",
+    "id": 7,
+    "createdAt": "2025-07-19T07:33:26.456Z",
+    "status": "active",
+    "views": 0,
+    "isPremium": false,
+    "premiumFeatures": []
+  },
+  {
+    "title": "ilan 85",
+    "description": "rgargreageragea",
+    "price": 65000,
+    "category": "6",
+    "subcategory": "6-1",
+    "condition": "Yeni",
+    "location": "Çanakkale Merkez",
+    "phone": "05445132046",
+    "phoneVisibility": "public",
+    "images": [
+      "blob:http://localhost:3004/0da83dc4-5fbe-4273-924f-62da6ef959fa"
+    ],
+    "premiumPlan": "30days",
+    "features": [
+      "featured"
+    ],
+    "user": "Admin User",
+    "email": "admin@alo17.com",
+    "userRole": "admin",
+    "id": 8,
+    "createdAt": "2025-07-19T07:39:59.236Z",
+    "status": "active",
+    "views": 0,
+    "isPremium": false,
+    "premiumFeatures": []
+  },
+  {
+    "title": "shsfhghilan 125",
+    "description": "ewgewgergregreggge",
+    "price": "65.00",
+    "category": "3",
+    "subcategory": "3-2",
+    "condition": "Yeni",
+    "location": "Çanakkale Merkez",
+    "phone": "05445132046",
+    "phoneVisibility": "public",
+    "premiumPlan": "free",
+    "features": [
+      "urgent"
+    ],
+    "user": "Admin User",
+    "email": "admin@alo17.com",
+    "userRole": "admin",
+    "id": 9,
+    "createdAt": "2025-07-19T07:46:25.283Z",
+    "status": "active",
+    "views": 0,
+    "isPremium": false,
+    "premiumFeatures": []
   }
-] 
+]

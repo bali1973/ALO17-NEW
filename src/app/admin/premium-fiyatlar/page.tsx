@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/Providers';
 import { useRouter } from 'next/navigation';
-import { Save, DollarSign, Calendar, Package } from 'lucide-react';
+import { Save, DollarSign, Calendar, Package, Star, AlertTriangle, Sparkles, TrendingUp } from 'lucide-react';
 
 interface PremiumPlan {
   id: string;
@@ -21,6 +21,17 @@ export default function PremiumFiyatlarPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
+  // Özellik fiyatları için state
+  const [featurePrices, setFeaturePrices] = useState({
+    featured: 0,
+    urgent: 0,
+    highlighted: 0,
+    top: 0,
+  });
+  const [featureLoading, setFeatureLoading] = useState(true);
+  const [featureSaving, setFeatureSaving] = useState(false);
+  const [featureMessage, setFeatureMessage] = useState('');
+
   useEffect(() => {
     if (!session) {
       router.push('/giris?callbackUrl=/admin/premium-fiyatlar');
@@ -28,6 +39,7 @@ export default function PremiumFiyatlarPage() {
       router.push('/');
     } else {
       fetchPlans();
+      fetchFeaturePrices();
     }
   }, [session, router]);
 
@@ -42,6 +54,20 @@ export default function PremiumFiyatlarPage() {
       console.error('Premium planları getirme hatası:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFeaturePrices = async () => {
+    try {
+      const response = await fetch('/api/premium-feature-prices');
+      if (response.ok) {
+        const data = await response.json();
+        setFeaturePrices(data);
+      }
+    } catch (error) {
+      console.error('Özellik fiyatları getirme hatası:', error);
+    } finally {
+      setFeatureLoading(false);
     }
   };
 
@@ -85,6 +111,32 @@ export default function PremiumFiyatlarPage() {
     }
   };
 
+  const handleFeaturePriceChange = (key: keyof typeof featurePrices, value: number) => {
+    setFeaturePrices(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleFeatureSave = async () => {
+    setFeatureSaving(true);
+    setFeatureMessage('');
+    try {
+      const response = await fetch('/api/premium-feature-prices', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(featurePrices),
+      });
+      if (response.ok) {
+        setFeatureMessage('Özellik fiyatları başarıyla güncellendi!');
+        setTimeout(() => setFeatureMessage(''), 3000);
+      } else {
+        setFeatureMessage('Güncelleme sırasında bir hata oluştu');
+      }
+    } catch (error) {
+      setFeatureMessage('Güncelleme sırasında bir hata oluştu');
+    } finally {
+      setFeatureSaving(false);
+    }
+  };
+
   if (isLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -113,6 +165,40 @@ export default function PremiumFiyatlarPage() {
             {message}
           </div>
         )}
+
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h2 className="text-xl font-bold mb-4 text-gray-900">İsteğe Bağlı Premium Özellik Fiyatları</h2>
+          {featureMessage && (
+            <div className={`mb-4 p-3 rounded-lg ${featureMessage.includes('başarıyla') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>{featureMessage}</div>
+          )}
+          {featureLoading ? (
+            <div>Yükleniyor...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2"><Star className="inline w-4 h-4 mr-1 text-yellow-500" />Öne Çıkar (Featured)</label>
+                <input type="number" value={featurePrices.featured} onChange={e => handleFeaturePriceChange('featured', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2"><AlertTriangle className="inline w-4 h-4 mr-1 text-red-500" />Acil (Urgent)</label>
+                <input type="number" value={featurePrices.urgent} onChange={e => handleFeaturePriceChange('urgent', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2"><Sparkles className="inline w-4 h-4 mr-1 text-blue-500" />Vurgulu (Highlighted)</label>
+                <input type="number" value={featurePrices.highlighted} onChange={e => handleFeaturePriceChange('highlighted', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2"><TrendingUp className="inline w-4 h-4 mr-1 text-green-500" />Üstte Gösterim (Top)</label>
+                <input type="number" value={featurePrices.top} onChange={e => handleFeaturePriceChange('top', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+              </div>
+            </div>
+          )}
+          <div className="mt-6 flex justify-end">
+            <button onClick={handleFeatureSave} disabled={featureSaving} className="px-6 py-3 bg-alo-orange text-white rounded-md hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+              {featureSaving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>Kaydediliyor...</>) : (<><Save className="w-4 h-4" />Değişiklikleri Kaydet</>)}
+            </button>
+          </div>
+        </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="grid gap-6">

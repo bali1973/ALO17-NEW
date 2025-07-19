@@ -33,10 +33,64 @@
     "id": "admin1",
     "name": "Admin User",
     "email": "admin@alo17.com",
-    "phone": "+90 555 999 9999",
-    "location": "İstanbul",
+    "phone": "05414042404",
+    "location": "Çanakkale Merkez",
     "role": "admin",
     "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+    "updatedAt": "2024-01-01T00:00:00Z",
+    "birthdate": "1973-01-28"
+  },
+  {
+    "id": "1752843407341",
+    "name": "Bali Sarı",
+    "email": "balisari17@hotmail.com",
+    "phone": "05414042404",
+    "password": "TRS8n@Aw2BZLxqa",
+    "role": "user",
+    "createdAt": "2025-07-18T12:56:47.341Z",
+    "location": "Çanakkale Merkez",
+    "birthdate": "1973-01-28"
+  },
+  {
+    "id": "1752848611902",
+    "name": "Bali Sarı",
+    "email": "balisaari17@hotmail.com",
+    "phone": "05414042404",
+    "password": "$2b$10$00YIaYk9I5uto9xZSBXRre37VRst500yusn38TVGMDl2OBb5peyt6",
+    "role": "user",
+    "createdAt": "2025-07-18T14:23:31.902Z"
+  },
+  {
+    "id": "1752850270982",
+    "name": "MEDİNE sarı",
+    "email": "bali73@gmail.com",
+    "phone": "05445132046",
+    "password": "$2b$10$ZnZwWr6jDW66Nym3w3D/j..HpjvhHqnsPCeFtYFfl7BnmPfeACfq6",
+    "role": "user",
+    "createdAt": "2025-07-18T14:51:10.982Z",
+    "location": "Çanakkale Merkez",
+    "birthdate": "1980-01-01"
+  },
+  {
+    "id": "1752850736095",
+    "name": "MEDİNE sarı",
+    "email": "destek@hemenalgetir.com",
+    "phone": "05414042404",
+    "password": "$2b$10$CAk2ajSfu1rYXjk/AiBGreHduIb9rWQcgLBhLbaSXFo1.SisOGvXi",
+    "role": "user",
+    "createdAt": "2025-07-18T14:58:56.095Z",
+    "location": "Çanakkale Merkez",
+    "birthdate": "1973-01-28"
+  },
+  {
+    "id": "1752861501524",
+    "name": "MEDİNE sarı",
+    "email": "alo@hemenalgetir.com",
+    "phone": "05445132046",
+    "password": "$2b$10$w7t5RTmTcXQieYybbCgOgOTE2qJGQ7Nn04rkN9/PlZ.f6DioPOcce",
+    "role": "user",
+    "createdAt": "2025-07-18T17:58:21.524Z",
+    "location": "Çanakkale Merkez",
+    "birthdate": "1980-01-01"
   }
-] 
+]

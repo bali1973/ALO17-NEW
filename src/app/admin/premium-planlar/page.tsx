@@ -9,20 +9,86 @@ import {
   PlusIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
+import { Sparkles, Clock, TrendingUp } from 'lucide-react';
 
-// Örnek premium plan verileri
-const initialPlans = {
-  '30days': { name: '30 Günlük Premium', price: 99, days: 30, features: ['Öne çıkan ilanlar', 'Acil ilan', 'Vurgulanmış ilan'] },
-  '90days': { name: '90 Günlük Premium', price: 249, days: 90, features: ['Öne çıkan ilanlar', 'Acil ilan', 'Vurgulanmış ilan', 'Üst sıralarda'] },
-  '365days': { name: '365 Günlük Premium', price: 799, days: 365, features: ['Tüm premium özellikler', 'Öncelikli destek', 'Özel rozet'] },
-};
-
+type Plan = { name: string; price: number; days: number; features: string[] };
+type Plans = Record<string, Plan>;
 export default function PremiumPlansPage() {
-  const [plans, setPlans] = useState(initialPlans);
+  const [plans, setPlans] = useState<Plans>({});
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ name: '', price: 0, days: 0, features: [''] });
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPlan, setNewPlan] = useState({ key: '', name: '', price: 0, days: 0, features: [''] });
+
+  // Özellik fiyatları için state
+  const [featurePrices, setFeaturePrices] = useState({
+    featured: 0,
+    urgent: 0,
+    highlighted: 0,
+    top: 0,
+  });
+  const [featureLoading, setFeatureLoading] = useState(true);
+  const [featureSaving, setFeatureSaving] = useState(false);
+  const [featureMessage, setFeatureMessage] = useState('');
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await fetch('/api/premium-plans');
+        if (response.ok) {
+          const data = await response.json();
+          setPlans(data);
+        }
+      } catch (error) {
+        console.error('Premium planları getirme hatası:', error);
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  useEffect(() => {
+    fetchFeaturePrices();
+  }, []);
+
+  const fetchFeaturePrices = async () => {
+    try {
+      const response = await fetch('/api/premium-feature-prices');
+      if (response.ok) {
+        const data = await response.json();
+        setFeaturePrices(data);
+      }
+    } catch (error) {
+      console.error('Özellik fiyatları getirme hatası:', error);
+    } finally {
+      setFeatureLoading(false);
+    }
+  };
+
+  const handleFeaturePriceChange = (key: keyof typeof featurePrices, value: number) => {
+    setFeaturePrices(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleFeatureSave = async () => {
+    setFeatureSaving(true);
+    setFeatureMessage('');
+    try {
+      const response = await fetch('/api/premium-feature-prices', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(featurePrices),
+      });
+      if (response.ok) {
+        setFeatureMessage('Özellik fiyatları başarıyla güncellendi!');
+        setTimeout(() => setFeatureMessage(''), 3000);
+      } else {
+        setFeatureMessage('Güncelleme sırasında bir hata oluştu');
+      }
+    } catch (error) {
+      setFeatureMessage('Güncelleme sırasında bir hata oluştu');
+    } finally {
+      setFeatureSaving(false);
+    }
+  };
 
   const handleEditPlan = (planKey: string) => {
     const plan = plans[planKey as keyof typeof plans];
@@ -46,7 +112,7 @@ export default function PremiumPlansPage() {
         },
         body: JSON.stringify({
           planKey: editingPlan,
-          ...editValues,
+          data: editValues,
         }),
       });
 
@@ -146,6 +212,10 @@ export default function PremiumPlansPage() {
     }
   };
 
+  if (!plans || Object.keys(plans).length === 0) {
+    return <div>Yükleniyor...</div>;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -154,6 +224,41 @@ export default function PremiumPlansPage() {
         <p className="mt-2 text-sm text-gray-700">
           Premium planları oluşturun, düzenleyin ve yönetin.
         </p>
+      </div>
+
+      {/* Özellik Fiyatları */}
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4 text-gray-900">İsteğe Bağlı Premium Özellik Fiyatları</h2>
+        {featureMessage && (
+          <div className={`mb-4 p-3 rounded-lg ${featureMessage.includes('başarıyla') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>{featureMessage}</div>
+        )}
+        {featureLoading ? (
+          <div>Yükleniyor...</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2"><StarIcon className="inline w-4 h-4 mr-1 text-yellow-500" />Öne Çıkan (Featured)</label>
+              <input type="number" value={featurePrices.featured} onChange={e => handleFeaturePriceChange('featured', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2"><Clock className="inline w-4 h-4 mr-1 text-red-500" />Acil (Urgent)</label>
+              <input type="number" value={featurePrices.urgent} onChange={e => handleFeaturePriceChange('urgent', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2"><Sparkles className="inline w-4 h-4 mr-1 text-blue-500" />Vurgulu (Highlighted)</label>
+              <input type="number" value={featurePrices.highlighted} onChange={e => handleFeaturePriceChange('highlighted', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2"><TrendingUp className="inline w-4 h-4 mr-1 text-green-500" />Üstte Gösterim (Top)</label>
+              <input type="number" value={featurePrices.top} onChange={e => handleFeaturePriceChange('top', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
+            </div>
+          </div>
+        )}
+        <div className="mt-6 flex justify-end">
+          <button onClick={handleFeatureSave} disabled={featureSaving} className="px-6 py-3 bg-alo-orange text-white rounded-md hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+            {featureSaving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>Kaydediliyor...</>) : (<><CheckIcon className="w-4 h-4" />Değişiklikleri Kaydet</>)}
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -184,7 +289,7 @@ export default function PremiumPlansPage() {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">En Yüksek Fiyat</dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {Math.max(...Object.values(plans).map(p => p.price))} ₺
+                    {Math.max(...Object.values(plans).map((p: Plan) => p.price))} ₺
                   </dd>
                 </dl>
               </div>
@@ -202,7 +307,7 @@ export default function PremiumPlansPage() {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">En Uzun Süre</dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {Math.max(...Object.values(plans).map(p => p.days))} gün
+                    {Math.max(...Object.values(plans).map((p: Plan) => p.days))} gün
                   </dd>
                 </dl>
               </div>
@@ -336,7 +441,7 @@ export default function PremiumPlansPage() {
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        {Object.entries(plans).map(([planKey, plan]) => (
+        {Object.entries(plans).map(([planKey, plan]: [string, Plan]) => (
           <div key={planKey} className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center justify-between mb-4">
@@ -449,7 +554,7 @@ export default function PremiumPlansPage() {
                     {plan.days} gün
                   </div>
                   <ul className="space-y-2">
-                    {plan.features.map((feature, index) => (
+                    {(plan.features || []).map((feature, index) => (
                       <li key={index} className="flex items-center">
                         <CheckIcon className="h-4 w-4 text-green-500 mr-2" />
                         <span className="text-sm text-gray-700">{feature}</span>

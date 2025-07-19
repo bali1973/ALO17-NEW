@@ -54,6 +54,16 @@ export interface Listing {
   seller: Seller;
   premiumFeatures: PremiumFeature;
   externalLink?: string;
+  // Son işlem yapan kişi ve işlem bilgisi
+  lastActionBy?: { id: string; name: string; role: string };
+  lastActionType?: string;
+  lastActionAt?: string;
+  // Tüm işlem geçmişi
+  history?: Array<{
+    action: string; // işlem tipi (onay, sil, düzenle, vb.)
+    by: { id: string; name: string; role: string };
+    at: string; // ISO tarih
+  }>;
 }
 
 // Kategori Tipi

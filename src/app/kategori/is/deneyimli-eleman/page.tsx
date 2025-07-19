@@ -1,63 +1,38 @@
 'use client'
 
 import { FaUserCheck, FaBriefcase, FaMapMarkerAlt, FaClock, FaMoneyBillWave, FaGraduationCap, FaUsers, FaStar, FaCheckCircle, FaAward } from 'react-icons/fa'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Sparkles, Star, Clock, TrendingUp } from 'lucide-react'
 
-// Deneyimli eleman ilanları
-const deneyimliElemanlar = [
-  {
-    id: 1,
-    name: 'Ahmet Yılmaz',
-    title: 'Kıdemli Yazılım Geliştirici',
-    experience: '8 yıl',
-    education: 'Bilgisayar Mühendisliği',
-    location: 'İstanbul',
-    salary: '25.000 - 35.000',
-    type: 'Tam Zamanlı',
-    skills: ['Java', 'Spring Boot', 'Microservices', 'AWS', 'Docker'],
-    description: '8 yıllık deneyimle büyük ölçekli projelerde çalışmış, ekip liderliği yapmış kıdemli yazılım geliştirici arıyorum.',
-    createdAt: '2024-03-20',
-    isPremium: true,
-    premiumFeatures: ['featured', 'urgent'],
-    views: 189,
-    isUrgent: true,
-    isFeatured: true,
-    achievements: ['3 büyük proje tamamladı', 'Ekip liderliği', 'AWS sertifikası'],
-    languages: ['Türkçe', 'İngilizce'],
-    availability: 'Hemen başlayabilirim'
-  },
-  {
-    id: 2,
-    name: 'Ayşe Demir',
-    title: 'Satış Müdürü',
-    experience: '12 yıl',
-    education: 'İşletme Yönetimi',
-    location: 'Ankara',
-    salary: '20.000 - 30.000',
-    type: 'Tam Zamanlı',
-    skills: ['Satış Yönetimi', 'Ekip Liderliği', 'Müşteri İlişkileri', 'Pazarlama'],
-    description: '12 yıllık satış deneyimi ile bölge satış müdürü pozisyonu arıyorum. Hedef odaklı çalışma prensibi.',
-    createdAt: '2024-03-19',
-    isPremium: false,
-    premiumFeatures: [],
-    views: 67,
-    isUrgent: false,
-    isFeatured: false,
-    achievements: ['%150 satış hedefi aşımı', '5 kişilik ekip yönetti', 'Yılın satış temsilcisi'],
-    languages: ['Türkçe', 'İngilizce', 'Almanca'],
-    availability: '1 ay içinde başlayabilirim'
-  }
-]
-
 export default function DeneyimliElemanPage() {
+  const [listings, setListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.filter((l: any) => l.category === 'is' && l.type === 'Deneyimli'));
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('İlanlar yüklenemedi');
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Yükleniyor...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
+
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
   const [selectedExperience, setSelectedExperience] = useState<string | null>(null)
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
 
   // Filtreleme ve sıralama
-  const filteredElemanlar = deneyimliElemanlar
+  const filteredElemanlar = listings
     .filter(eleman => {
       if (showPremiumOnly && !eleman.isPremium) return false
       if (selectedLocation && eleman.location !== selectedLocation) return false

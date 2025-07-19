@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { revalidatePath } from 'next/cache';
 
 // Alt kategori güncelleme
 export async function PUT(
@@ -45,6 +46,11 @@ export async function PUT(
 
     // JSON dosyasına kaydet
     writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
+
+    // Sayfa cache'ini temizle
+    revalidatePath('/admin/kategoriler');
+    revalidatePath('/kategori');
+    revalidatePath('/');
 
     return NextResponse.json({ 
       success: true, 
@@ -91,6 +97,11 @@ export async function DELETE(
 
     // JSON dosyasına kaydet
     writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
+
+    // Sayfa cache'ini temizle
+    revalidatePath('/admin/kategoriler');
+    revalidatePath('/kategori');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true });
   } catch (error) {

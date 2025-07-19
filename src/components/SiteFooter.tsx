@@ -27,7 +27,10 @@ export default function SiteFooter() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/kvkk" className="hover:underline">KVKK</Link></li>
             <li><Link href="/cerez-politikasi" className="hover:underline">Çerez Politikası</Link></li>
+            <li><Link href="/gizlilik-politikasi" className="hover:underline">Gizlilik Politikası</Link></li>
             <li><Link href="/kullanim-kosullari" className="hover:underline">Kullanım Koşulları</Link></li>
+            <li><Link href="/iade-politikasi" className="hover:underline">İade Politikası</Link></li>
+            <li><Link href="/acik-riza" className="hover:underline">Açık Rıza Metni</Link></li>
           </ul>
         </div>
         {/* Sosyal ve İletişim */}

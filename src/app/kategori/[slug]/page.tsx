@@ -150,21 +150,17 @@ export default function CategoryPage() {
       <div className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center space-x-4 mb-8">
-            {renderIcon(category.icon || null, category.slug, categories.findIndex(c => c.slug === slug))}
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1>
-              <p className="text-gray-600">
+              {/* <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1> */}
+              {/* <p className="text-gray-600">
                 {category.subCategories ? `${category.subCategories.length} alt kategori` : 'Kategori'}
-              </p>
+              </p> */}
             </div>
           </div>
 
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold mb-4">Bu Kategorideki İlanlar</h2>
-            <p className="text-gray-600">
-              Bu kategoride henüz ilan bulunmuyor. İlk ilanı vermek için aşağıdaki butona tıklayın.
-            </p>
-            <div className="mt-6">
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-gray-600 mb-4 text-center">Bu kategoride henüz ilan bulunmuyor.</p>
               <Link
                 href="/ilan-ver"
                 className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"

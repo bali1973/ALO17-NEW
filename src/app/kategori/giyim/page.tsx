@@ -62,9 +62,7 @@ export default function GiyimCategoryPage() {
           {/* Sol Sidebar - Filtreler */}
           <div className="w-full md:w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-sm p-4">
-              <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
-              
-              {/* Alt Kategoriler */}
+              <h2 className="text-lg font-semibold mb-4">Alt Kategoriler</h2>
               <div className="mb-6">
                 <h3 className="font-medium mb-2">Tür</h3>
                 <div className="space-y-2">
@@ -72,53 +70,10 @@ export default function GiyimCategoryPage() {
                     <Link
                       key={subcategory.id}
                       href={`/kategori/giyim/${subcategory.id === 'erkek' ? 'erkek-giyim' : subcategory.id === 'bayan' ? 'bayan-giyim' : subcategory.id}`}
-                      className={`block px-3 py-2 rounded-md hover:bg-gray-100 ${
-                        selectedSubcategory === subcategory.id ? 'bg-gray-100 font-medium' : ''
-                      }`}
+                      className="block px-3 py-2 rounded-md hover:bg-gray-100"
                     >
                       {subcategory.icon}{subcategory.name}
                     </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Fiyat Aralığı Filtresi */}
-              <div className="mb-6">
-                <h3 className="font-medium mb-2">Fiyat Aralığı</h3>
-                <div className="space-y-2">
-                  {[
-                    { value: '0-5000', label: '0 - 5.000 TL' },
-                    { value: '5000-10000', label: '5.000 - 10.000 TL' },
-                    { value: '10000-20000', label: '10.000 - 20.000 TL' },
-                    { value: '20000+', label: '20.000 TL ve üzeri' }
-                  ].map(range => (
-                    <label key={range.value} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="mr-2"
-                        checked={priceRange === range.value}
-                        onChange={() => setPriceRange(priceRange === range.value ? null : range.value)}
-                      />
-                      <span>{range.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Durum Filtresi */}
-              <div className="mb-6">
-                <h3 className="font-medium mb-2">Durum</h3>
-                <div className="space-y-2">
-                  {['Yeni', 'İkinci El'].map(status => (
-                    <label key={status} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="mr-2"
-                        checked={condition === status}
-                        onChange={() => setCondition(condition === status ? null : status)}
-                      />
-                      <span>{status}</span>
-                    </label>
                   ))}
                 </div>
               </div>

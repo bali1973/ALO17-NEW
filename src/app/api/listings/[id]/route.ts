@@ -32,20 +32,35 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     
     const listing = listings[listingIndex];
     
-    // Yetki kontrolü - sadece ilan sahibi veya admin düzenleyebilir
+    // Yetki kontrolü - sadece ilan sahibi veya admin/moderatör düzenleyebilir
     const userEmail = body.userEmail;
     const userRole = body.userRole;
+    const userId = body.userId;
+    const userName = body.userName;
     
-    if (listing.email !== userEmail && userRole !== 'admin') {
+    if (listing.email !== userEmail && userRole !== 'admin' && userRole !== 'moderator') {
       return NextResponse.json({ error: 'Bu ilanı düzenleme yetkiniz yok' }, { status: 403 });
     }
     
+    // İşlem bilgisi
+    const now = new Date().toISOString();
+    const actionInfo = {
+      action: 'düzenle',
+      by: { id: userId, name: userName, role: userRole },
+      at: now
+    };
+    // History dizisini güncelle
+    const updatedHistory = Array.isArray(listing.history) ? [...listing.history, actionInfo] : [actionInfo];
     // İlanı güncelle
     const updatedListing = {
       ...listing,
       ...body,
       id: listingId, // ID'yi koru
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
+      lastActionBy: { id: userId, name: userName, role: userRole },
+      lastActionType: 'düzenle',
+      lastActionAt: now,
+      history: updatedHistory
     };
     
     listings[listingIndex] = updatedListing;
@@ -65,6 +80,8 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     const url = new URL(req.url);
     const userEmail = url.searchParams.get('userEmail');
     const userRole = url.searchParams.get('userRole');
+    const userId = url.searchParams.get('userId');
+    const userName = url.searchParams.get('userName');
     
     const listings = await readListings();
     const listingIndex = listings.findIndex((l: any) => l.id === listingId);
@@ -75,18 +92,36 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     
     const listing = listings[listingIndex];
     
-    // Yetki kontrolü - sadece ilan sahibi veya admin silebilir
-    if (listing.email !== userEmail && userRole !== 'admin') {
+    // Yetki kontrolü - sadece ilan sahibi veya admin/moderatör silebilir
+    if (listing.email !== userEmail && userRole !== 'admin' && userRole !== 'moderator') {
       return NextResponse.json({ error: 'Bu ilanı silme yetkiniz yok' }, { status: 403 });
     }
-    
+    // İşlem bilgisi
+    const now = new Date().toISOString();
+    const actionInfo = {
+      action: 'sil',
+      by: { id: userId, name: userName, role: userRole },
+      at: now
+    };
+    // History dizisini güncelle
+    const updatedHistory = Array.isArray(listing.history) ? [...listing.history, actionInfo] : [actionInfo];
+    // Silinen ilanı history ile birlikte kaydetmek için (opsiyonel: arşivleme yapılabilir)
     // İlanı sil
     listings.splice(listingIndex, 1);
     await writeListings(listings);
-    
-    return NextResponse.json({ message: 'İlan başarıyla silindi' });
+    // (Opsiyonel: Silinen ilanı başka bir dosyada arşivleyebilirsiniz)
+    return NextResponse.json({ message: 'İlan başarıyla silindi', lastAction: actionInfo, history: updatedHistory });
   } catch (error) {
     console.error('İlan silme hatası:', error);
     return NextResponse.json({ error: 'İlan silinirken hata oluştu' }, { status: 500 });
   }
+} 
+
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
+  const listings = await readListings();
+  const listing = listings.find((l: any) => l.id === Number(params.id));
+  if (!listing) {
+    return NextResponse.json({ error: 'İlan bulunamadı' }, { status: 404 });
+  }
+  return NextResponse.json(listing);
 } 

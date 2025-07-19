@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { revalidatePath } from 'next/cache';
 
 // Alt kategori ekleme
 export async function POST(request: NextRequest) {
@@ -51,6 +52,11 @@ export async function POST(request: NextRequest) {
 
     // JSON dosyasına kaydet
     writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
+
+    // Sayfa cache'ini temizle
+    revalidatePath('/admin/kategoriler');
+    revalidatePath('/kategori');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, subCategory: newSubCategory });
   } catch (error) {
