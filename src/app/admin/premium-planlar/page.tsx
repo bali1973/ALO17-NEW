@@ -11,14 +11,14 @@ import {
 } from '@heroicons/react/24/outline';
 import { Sparkles, Clock, TrendingUp } from 'lucide-react';
 
-type Plan = { name: string; price: number; days: number; features: string[] };
+type Plan = { name: string; price: number; days: number; features: string[]; maxImages?: number };
 type Plans = Record<string, Plan>;
 export default function PremiumPlansPage() {
   const [plans, setPlans] = useState<Plans>({});
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState({ name: '', price: 0, days: 0, features: [''] });
+  const [editValues, setEditValues] = useState({ name: '', price: 0, days: 0, features: [''], maxImages: 5 });
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newPlan, setNewPlan] = useState({ key: '', name: '', price: 0, days: 0, features: [''] });
+  const [newPlan, setNewPlan] = useState({ key: '', name: '', price: 0, days: 0, features: [''], maxImages: 5 });
 
   // Özellik fiyatları için state
   const [featurePrices, setFeaturePrices] = useState({
@@ -98,6 +98,7 @@ export default function PremiumPlansPage() {
       price: plan.price,
       days: plan.days,
       features: [...plan.features],
+      maxImages: plan.maxImages ?? 5,
     });
   };
 
@@ -122,7 +123,7 @@ export default function PremiumPlansPage() {
           [editingPlan]: editValues,
         }));
         setEditingPlan(null);
-        setEditValues({ name: '', price: 0, days: 0, features: [''] });
+        setEditValues({ name: '', price: 0, days: 0, features: [''], maxImages: 5 });
       } else {
         console.error('Premium plan güncelleme hatası:', await response.text());
       }
@@ -133,7 +134,7 @@ export default function PremiumPlansPage() {
 
   const handleCancelEdit = () => {
     setEditingPlan(null);
-    setEditValues({ name: '', price: 0, days: 0, features: [''] });
+    setEditValues({ name: '', price: 0, days: 0, features: [''], maxImages: 5 });
   };
 
   const handleAddFeature = () => {
@@ -180,10 +181,11 @@ export default function PremiumPlansPage() {
             price: newPlan.price,
             days: newPlan.days,
             features: newPlan.features.filter(f => f.trim() !== ''),
+            maxImages: newPlan.maxImages,
           },
         }));
         setShowAddForm(false);
-        setNewPlan({ key: '', name: '', price: 0, days: 0, features: [''] });
+        setNewPlan({ key: '', name: '', price: 0, days: 0, features: [''], maxImages: 5 });
       } else {
         console.error('Premium plan ekleme hatası:', await response.text());
       }
@@ -385,6 +387,21 @@ export default function PremiumPlansPage() {
                   placeholder="30"
                 />
               </div>
+              <div>
+                <label htmlFor="planMaxImages" className="block text-sm font-medium text-gray-700">
+                  Maksimum Resim
+                </label>
+                <input
+                  type="number"
+                  id="planMaxImages"
+                  value={newPlan.maxImages}
+                  min={1}
+                  max={20}
+                  onChange={(e) => setNewPlan(prev => ({ ...prev, maxImages: parseInt(e.target.value) || 1 }))}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  placeholder="5"
+                />
+              </div>
             </div>
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -444,10 +461,18 @@ export default function PremiumPlansPage() {
         {Object.entries(plans).map(([planKey, plan]: [string, Plan]) => (
           <div key={planKey} className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
+              {/* Plan Adı En Üste, Turuncu ve Yıldızlı */}
+              <div className="mb-4 flex flex-col items-center">
+                <Sparkles className="w-6 h-6 text-alo-orange mb-1" />
+                <h3 className="text-xl font-bold text-alo-orange text-center">{plan.name}</h3>
+              </div>
+              <div className="flex flex-col items-center mb-4">
+                <div className="text-3xl font-extrabold text-gray-900 mb-1">{plan.price.toLocaleString('tr-TR')} ₺</div>
+                <div className="text-base text-gray-500 mb-2">{plan.days} gün</div>
+              </div>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
                   <StarIcon className="h-6 w-6 text-yellow-500 mr-2" />
-                  <h3 className="text-lg font-medium text-gray-900">{plan.name}</h3>
                 </div>
                 <div className="flex space-x-2">
                   {editingPlan === planKey ? (
@@ -518,6 +543,17 @@ export default function PremiumPlansPage() {
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Maksimum Resim</label>
+                      <input
+                        type="number"
+                        value={editValues.maxImages}
+                        min={1}
+                        max={20}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, maxImages: parseInt(e.target.value) || 1 }))}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Özellikler</label>
@@ -547,13 +583,11 @@ export default function PremiumPlansPage() {
                 </div>
               ) : (
                 <div>
-                  <div className="text-3xl font-bold text-gray-900 mb-2">
-                    {plan.price.toLocaleString('tr-TR')} ₺
-                  </div>
-                  <div className="text-sm text-gray-500 mb-4">
-                    {plan.days} gün
-                  </div>
                   <ul className="space-y-2">
+                    <li className="flex items-center">
+                      <CheckIcon className="h-4 w-4 text-green-500 mr-2" />
+                      <span className="text-sm text-gray-700">Maksimum {plan.maxImages ?? 5} resim</span>
+                    </li>
                     {(plan.features || []).map((feature, index) => (
                       <li key={index} className="flex items-center">
                         <CheckIcon className="h-4 w-4 text-green-500 mr-2" />

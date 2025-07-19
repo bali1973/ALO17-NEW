@@ -766,15 +766,17 @@ export default function IlanVerPage() {
                     ? 'border-alo-orange bg-orange-50' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`} onClick={() => setSelectedPremiumPlan(key)}>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold">{plan.name}</h3>
-                    <span className="text-2xl font-bold text-alo-orange">{plan.price}₺</span>
+                  <div className="flex flex-col items-center mb-2">
+                    <Sparkles className="w-5 h-5 text-alo-orange mb-1" />
+                    <h3 className="font-bold text-alo-orange text-lg text-center">{
+                      plan.name === '90 Gün' ? '90 Günlük Premium'
+                        : plan.name === '365 Gün' ? '365 Günlük Premium'
+                        : plan.name
+                    }</h3>
+                    <span className="text-2xl font-extrabold text-gray-900 mt-1">{plan.price}₺</span>
+                    <span className="text-sm text-gray-500">{plan.days} gün premium</span>
                   </div>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li className="flex items-center">
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      {plan.days} gün premium
-                    </li>
+                  <ul className="text-sm text-gray-600 space-y-1 mt-2">
                     <li className="flex items-center">
                       <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
                       Maksimum 5 resim

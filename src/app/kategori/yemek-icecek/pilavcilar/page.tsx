@@ -2,14 +2,16 @@ import React from 'react';
 import Link from 'next/link';
 
 const subcategories = [
-  { slug: 'kitap', name: 'Kitap' },
-  { slug: 'ahsap', name: 'Ahşap' },
-  { slug: 'seramik', name: 'Seramik' },
-  { slug: 'muzik', name: 'Müzik' },
-  { slug: 'resim', name: 'Resim' },
+  { slug: 'restoranlar', name: 'Restoranlar' },
+  { slug: 'kafeler', name: 'Kafeler' },
+  { slug: 'pastaneler', name: 'Pastaneler' },
+  { slug: 'fast-food', name: 'Fast Food' },
+  { slug: 'tatli-pastane', name: 'Tatlı & Pastane' },
+  { slug: 'lokantalar', name: 'Lokantalar' },
+  { slug: 'pilavcilar', name: 'Pilavcılar' },
 ];
 
-export default function ResimPage() {
+export default function PilavcilarPage() {
   return (
     <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
       {/* Sidebar */}
@@ -19,8 +21,8 @@ export default function ResimPage() {
           <ul className="space-y-2">
             {subcategories.map((cat) => (
               <li key={cat.slug}>
-                <Link href={`/kategori/sanat-hobi/${cat.slug}`}
-                  className={`block px-3 py-2 rounded transition ${cat.slug === 'resim' ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' : 'hover:bg-gray-100'}`}
+                <Link href={`/kategori/yemek-icecek/${cat.slug}`}
+                  className={`block px-3 py-2 rounded transition ${cat.slug === 'pilavcilar' ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' : 'hover:bg-gray-100'}`}
                 >
                   {cat.name}
                 </Link>
@@ -31,14 +33,14 @@ export default function ResimPage() {
       </aside>
       {/* Main */}
       <main className="flex-1">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Resim</h1>
-        <p className="text-gray-600 mb-6">Sanat & Hobi kategorisinde Resim alt kategorisi</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Pilavcılar</h1>
+        <p className="text-gray-600 mb-6">Yemek & İçecek kategorisinde Pilavcılar alt kategorisi</p>
         <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
           <h2 className="text-xl font-bold mb-2">Bu Alt Kategorideki İlanlar</h2>
           <p className="mb-4 text-gray-600">Bu alt kategoride henüz ilan bulunmuyor. İlk ilanı vermek için aşağıdaki butona tıklayın.</p>
           <div className="flex gap-3">
-            <Link href="/ilan-ver" className="bg-blue-600 text-white px-5 py-2 rounded font-semibold hover:bg-blue-700 transition">İlan Ver</Link>
-            <Link href="/kategori/sanat-hobi" className="bg-gray-100 text-gray-700 px-5 py-2 rounded font-semibold hover:bg-gray-200 transition">Tüm Sanat & Hobi İlanları</Link>
+            <button className="bg-blue-600 text-white px-5 py-2 rounded font-semibold hover:bg-blue-700 transition">İlan Ver</button>
+            <button className="bg-gray-100 text-gray-700 px-5 py-2 rounded font-semibold hover:bg-gray-200 transition">Tüm Yemek & İçecek İlanları</button>
           </div>
         </div>
       </main>

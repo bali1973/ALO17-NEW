@@ -31,6 +31,10 @@ export async function PATCH(req: NextRequest) {
   }
   const updates = await req.json();
   const settings = await readSettings();
+  // bannerImageUrl alanı boş veya null ise yine de kaydet
+  if ('bannerImageUrl' in updates && (updates.bannerImageUrl === null || updates.bannerImageUrl === undefined)) {
+    updates.bannerImageUrl = '';
+  }
   const newSettings = { ...settings, ...updates };
   await writeSettings(newSettings);
   return NextResponse.json(newSettings);
