@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 const defaultSettings = {
   siteTitle: '',
+  metaTitle: '',
   supportEmail: '',
   homepageDescription: '',
   logoUrl: '',
@@ -123,7 +124,12 @@ export default function AdminAyarlarPage() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', 'logo');
-    const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+    const adminToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-admin-token') : '';
+    const res = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {},
+      body: formData
+    });
     const data = await res.json();
     if (data.url) {
       setSettings(s => ({ ...s, logoUrl: data.url }));
@@ -139,7 +145,12 @@ export default function AdminAyarlarPage() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', 'favicon');
-    const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+    const adminToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-admin-token') : '';
+    const res = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {},
+      body: formData
+    });
     const data = await res.json();
     if (data.url) {
       setSettings(s => ({ ...s, faviconUrl: data.url }));
@@ -166,6 +177,10 @@ export default function AdminAyarlarPage() {
         <div>
           <label className="block text-gray-700 font-medium mb-2">Site Başlığı</label>
           <input type="text" name="siteTitle" value={settings.siteTitle} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Site başlığını girin" />
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Site Meta Başlığı (Slogan)</label>
+          <input type="text" name="metaTitle" value={settings.metaTitle || ''} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Örn: Türkiye'nin En Büyük İlan Sitesi" />
         </div>
         <div>
           <label className="block text-gray-700 font-medium mb-2">Destek E-posta</label>
@@ -254,7 +269,12 @@ export default function AdminAyarlarPage() {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('type', 'banner');
-            const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+            const adminToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-admin-token') : '';
+            const res = await fetch('/api/admin/upload', {
+              method: 'POST',
+              headers: adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {},
+              body: formData
+            });
             const data = await res.json();
             if (data.url) {
               setSettings(s => ({ ...s, bannerImageUrl: data.url }));

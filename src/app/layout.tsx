@@ -7,45 +7,62 @@ import fs from 'fs';
 import path from 'path';
 import ClientCookieBanner from '@/components/ClientCookieBanner';
 
-export const metadata: Metadata = {
-  title: {
-    default: "Alo17 - Türkiye'nin En Büyük İlan Sitesi",
-    template: "%s | Alo17"
-  },
-  description: 'Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.',
-  keywords: [
-    'alo17', 'ilan', 'ikinci el', 'satılık', 'hizmet', 'elektronik', 'ev eşyası', 'giyim', 'araba', 'emlak', 'iş ilanı', 'premium ilan', 'ücretsiz ilan', 'Çanakkale', 'Türkiye'
-  ],
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon',
-  },
-  openGraph: {
-    type: 'website',
-    url: 'https://alo17.com',
-    title: "Alo17 - Türkiye'nin En Büyük İlan Sitesi",
-    description: 'Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.',
-    siteName: 'Alo17',
-    images: [
-      {
-        url: '/images/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Alo17 - Türkiye\'nin En Büyük İlan Sitesi',
-      },
+export const metadata: Metadata = (() => {
+  let metaTitle = "Alo17 - Türkiye'nin En Büyük İlan Sitesi";
+  let metaTitleTemplate = "%s | Alo17";
+  let metaDescription = 'Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.';
+  try {
+    const settingsPath = path.join(process.cwd(), 'public', 'settings.json');
+    const settingsRaw = fs.readFileSync(settingsPath, 'utf-8');
+    const settings = JSON.parse(settingsRaw);
+    if (settings.metaTitle && settings.metaTitle.trim() !== '') {
+      metaTitle = settings.metaTitle;
+      metaTitleTemplate = "%s | " + settings.metaTitle;
+    }
+    if (settings.homepageDescription && settings.homepageDescription.trim() !== '') {
+      metaDescription = settings.homepageDescription;
+    }
+  } catch {}
+  return {
+    title: {
+      default: metaTitle,
+      template: metaTitleTemplate
+    },
+    description: metaDescription,
+    keywords: [
+      'alo17', 'ilan', 'ikinci el', 'satılık', 'hizmet', 'elektronik', 'ev eşyası', 'giyim', 'araba', 'emlak', 'iş ilanı', 'premium ilan', 'ücretsiz ilan', 'Çanakkale', 'Türkiye'
     ],
-    locale: 'tr_TR',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@alo17tr',
-    title: "Alo17 - Türkiye'nin En Büyük İlan Sitesi",
-    description: 'Elektronik, ev eşyaları, giyim ve daha birçok kategoride binlerce ilanı keşfedin.',
-    images: ['/images/og-image.jpg'],
-  },
-  metadataBase: new URL('https://alo17.com'),
-  themeColor: '#ff6600',
-};
+    icons: {
+      icon: '/favicon.ico',
+      apple: '/apple-icon',
+    },
+    openGraph: {
+      type: 'website',
+      url: 'https://alo17.com',
+      title: metaTitle,
+      description: metaDescription,
+      siteName: metaTitle,
+      images: [
+        {
+          url: '/images/og-image.jpg',
+          width: 1200,
+          height: 630,
+          alt: metaTitle,
+        },
+      ],
+      locale: 'tr_TR',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@alo17tr',
+      title: metaTitle,
+      description: metaDescription,
+      images: ['/images/og-image.jpg'],
+    },
+    metadataBase: new URL('https://alo17.com'),
+    themeColor: '#ff6600',
+  };
+})();
 
 export default function RootLayout({
   children,

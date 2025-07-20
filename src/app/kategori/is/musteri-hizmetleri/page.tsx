@@ -13,6 +13,11 @@ const subcategories = [
 
 const FILTER_STORAGE_KEY = 'musteriHizmetleriFilters';
 
+// Türkiye'deki tüm şehirler
+const cities = [
+  "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Şanlıurfa", "Siirt", "Sinop", "Şırnak", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
+];
+
 export default function MusteriHizmetleriPage() {
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +46,7 @@ export default function MusteriHizmetleriPage() {
   const [experience, setExperience] = useState<string | null>(null)
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
+  const [selectedCity, setSelectedCity] = useState<string | null>(null)
 
   // Filtreleri localStorage'dan yükle
   useEffect(() => {
@@ -53,6 +59,7 @@ export default function MusteriHizmetleriPage() {
       setExperience(filters.experience ?? null);
       setShowPremiumOnly(filters.showPremiumOnly ?? false);
       setSortBy(filters.sortBy ?? 'newest');
+      setSelectedCity(filters.selectedCity ?? null);
     }
   }, []);
 
@@ -65,8 +72,9 @@ export default function MusteriHizmetleriPage() {
       experience,
       showPremiumOnly,
       sortBy,
+      selectedCity,
     }));
-  }, [selectedSubcategory, salaryRange, workType, experience, showPremiumOnly, sortBy]);
+  }, [selectedSubcategory, salaryRange, workType, experience, showPremiumOnly, sortBy, selectedCity]);
 
   // Filtreleme ve sıralama
   const filteredListings = listings
@@ -75,6 +83,7 @@ export default function MusteriHizmetleriPage() {
       if (selectedSubcategory && listing.category !== selectedSubcategory) return false
       if (workType && listing.type !== workType) return false
       if (experience && listing.experience !== experience) return false
+      if (selectedCity && listing.location !== selectedCity) return false
       if (salaryRange) {
         const salary = parseInt(listing.salary.split('-')[0].replace(/[^0-9]/g, ''))
         switch (salaryRange) {
@@ -249,6 +258,21 @@ export default function MusteriHizmetleriPage() {
                 ))}
               </div>
             </div>
+
+            {/* Şehir Filtresi */}
+            <div className="mb-6">
+              <h3 className="font-medium mb-2">Şehir</h3>
+              <select
+                className="w-full border rounded px-2 py-1"
+                value={selectedCity || ''}
+                onChange={e => setSelectedCity(e.target.value || null)}
+              >
+                <option value="">Tüm Şehirler</option>
+                {cities.map(city => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -400,6 +424,7 @@ export default function MusteriHizmetleriPage() {
                   setExperience(null)
                   setShowPremiumOnly(false)
                   setSortBy('newest')
+                  setSelectedCity(null)
                 }}
                 className="bg-alo-orange text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
               >

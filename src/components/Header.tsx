@@ -39,9 +39,13 @@ export default function Header() {
         </div>
         <div className="hidden lg:flex items-center gap-4">
           <Link href="/premium" className="border border-yellow-400 text-yellow-600 bg-yellow-50 hover:bg-yellow-100 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <Bell className="w-5 h-5" /> Premium</Link>
-          <Link href="/ilan-ver" className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded px-4 py-2 flex items-center gap-2 transition">+ İlan Ver</Link>
-          <Link href="/bildirimler" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <Bell className="w-5 h-5" /> Bildirimler</Link>
-          <Link href="/profil/mesajlar" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <MessageCircle className="w-5 h-5" /> Mesajlarım</Link>
+          <Link href="/ilan-ver" className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded px-4 py-2 flex items-center gap-2 transition">+ Ücretsiz İlan Ver</Link>
+          {session && (
+            <>
+              <Link href="/bildirimler" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <Bell className="w-5 h-5" /> Bildirimler</Link>
+              <Link href="/profil/mesajlar" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <MessageCircle className="w-5 h-5" /> Mesajlarım</Link>
+            </>
+          )}
           {session ? (
             <>
               <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> {session.user.name}</Link>
@@ -58,8 +62,14 @@ export default function Header() {
               <input type="text" placeholder="Ara..." className="input pl-10 pr-4" />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             </div>
-            <Link href="/ilan-ver" className="btn-primary flex items-center gap-2">+ İlan Ver</Link>
+            <Link href="/ilan-ver" className="btn-primary flex items-center gap-2">+ Ücretsiz İlan Ver</Link>
             <Link href="/premium" className="btn-premium flex items-center gap-2">⭐ Premium</Link>
+            {session && (
+              <>
+                <Link href="/bildirimler" className="btn-outline flex items-center gap-2"><Bell className="w-5 h-5" /> Bildirimler</Link>
+                <Link href="/profil/mesajlar" className="btn-outline flex items-center gap-2"><MessageCircle className="w-5 h-5" /> Mesajlarım</Link>
+              </>
+            )}
             {session ? (
               <>
                 <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> Profilim</Link>
