@@ -57,9 +57,13 @@ export default function AdminAyarlarPage() {
     setSuccess('');
     setError('');
     try {
+      const adminToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-admin-token') : '';
       const res = await fetch('/api/admin/settings', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {})
+        },
         body: JSON.stringify(settings)
       });
       if (res.ok) {
@@ -92,9 +96,13 @@ export default function AdminAyarlarPage() {
       const imported = JSON.parse(text);
       setSettings({ ...defaultSettings, ...imported });
       // Otomatik kaydetmek için PATCH isteği gönder
+      const adminToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-admin-token') : '';
       const res = await fetch('/api/admin/settings', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {})
+        },
         body: JSON.stringify(imported)
       });
       if (res.ok) {
