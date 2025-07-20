@@ -3,6 +3,7 @@
 import { FaHeadset, FaPhone, FaComments, FaUserTie, FaGraduationCap } from 'react-icons/fa'
 import { useEffect, useState } from 'react'
 import { Sparkles, Star, Clock, TrendingUp, MapPin, Building, DollarSign } from 'lucide-react'
+import CategoryFilters from '@/components/CategoryFilters';
 
 const subcategories = [
   { id: 'musteri-temsilcisi', name: 'Müşteri Temsilcisi', icon: <FaHeadset className="inline mr-2 text-blue-500" /> },
@@ -40,87 +41,69 @@ export default function MusteriHizmetleriPage() {
   if (loading) return <div>Yükleniyor...</div>;
   if (error) return <div className="text-red-600">{error}</div>;
 
+  // Merkezi filtreler
+  const [city, setCity] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+  const [premiumOnly, setPremiumOnly] = useState(false);
+  // Diğer özel filtreler
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
   const [salaryRange, setSalaryRange] = useState<string | null>(null)
   const [workType, setWorkType] = useState<string | null>(null)
   const [experience, setExperience] = useState<string | null>(null)
-  const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [sortBy, setSortBy] = useState('newest')
-  const [selectedCity, setSelectedCity] = useState<string | null>(null)
-
-  // Filtreleri localStorage'dan yükle
-  useEffect(() => {
-    const saved = localStorage.getItem(FILTER_STORAGE_KEY);
-    if (saved) {
-      const filters = JSON.parse(saved);
-      setSelectedSubcategory(filters.selectedSubcategory ?? null);
-      setSalaryRange(filters.salaryRange ?? null);
-      setWorkType(filters.workType ?? null);
-      setExperience(filters.experience ?? null);
-      setShowPremiumOnly(filters.showPremiumOnly ?? false);
-      setSortBy(filters.sortBy ?? 'newest');
-      setSelectedCity(filters.selectedCity ?? null);
-    }
-  }, []);
-
-  // Filtreler değiştikçe kaydet
-  useEffect(() => {
-    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify({
-      selectedSubcategory,
-      salaryRange,
-      workType,
-      experience,
-      showPremiumOnly,
-      sortBy,
-      selectedCity,
-    }));
-  }, [selectedSubcategory, salaryRange, workType, experience, showPremiumOnly, sortBy, selectedCity]);
 
   // Filtreleme ve sıralama
   const filteredListings = listings
     .filter(listing => {
-      if (showPremiumOnly && !listing.isPremium) return false
-      if (selectedSubcategory && listing.category !== selectedSubcategory) return false
-      if (workType && listing.type !== workType) return false
-      if (experience && listing.experience !== experience) return false
-      if (selectedCity && listing.location !== selectedCity) return false
+      if (premiumOnly && !listing.isPremium) return false;
+      if (city && listing.location !== city) return false;
+      if (priceRange) {
+        const price = parseInt(listing.salary?.split('-')[0]?.replace(/[^0-9]/g, '') || '0');
+        if (priceRange === '0-1000' && !(price >= 0 && price <= 1000)) return false;
+        if (priceRange === '1000-5000' && !(price >= 1000 && price <= 5000)) return false;
+        if (priceRange === '5000-10000' && !(price >= 5000 && price <= 10000)) return false;
+        if (priceRange === '10000+' && !(price >= 10000)) return false;
+      }
+      if (selectedSubcategory && listing.category !== selectedSubcategory) return false;
+      if (workType && listing.type !== workType) return false;
+      if (experience && listing.experience !== experience) return false;
       if (salaryRange) {
-        const salary = parseInt(listing.salary.split('-')[0].replace(/[^0-9]/g, ''))
+        const salary = parseInt(listing.salary?.split('-')[0]?.replace(/[^0-9]/g, '') || '0');
         switch (salaryRange) {
           case '0-10000':
-            if (salary > 10000) return false
-            break
+            if (salary > 10000) return false;
+            break;
           case '10000-20000':
-            if (salary < 10000 || salary > 20000) return false
-            break
+            if (salary < 10000 || salary > 20000) return false;
+            break;
           case '20000-35000':
-            if (salary < 20000 || salary > 35000) return false
-            break
+            if (salary < 20000 || salary > 35000) return false;
+            break;
           case '35000+':
-            if (salary < 35000) return false
-            break
+            if (salary < 35000) return false;
+            break;
         }
       }
-      return true
+      return true;
     })
     .sort((a, b) => {
       switch (sortBy) {
         case 'newest':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case 'oldest':
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case 'salary-low':
-          return parseInt(a.salary.split('-')[0].replace(/[^0-9]/g, '')) - parseInt(b.salary.split('-')[0].replace(/[^0-9]/g, ''))
+          return parseInt(a.salary?.split('-')[0]?.replace(/[^0-9]/g, '') || '0') - parseInt(b.salary?.split('-')[0]?.replace(/[^0-9]/g, '') || '0');
         case 'salary-high':
-          return parseInt(b.salary.split('-')[0].replace(/[^0-9]/g, '')) - parseInt(a.salary.split('-')[0].replace(/[^0-9]/g, ''))
+          return parseInt(b.salary?.split('-')[0]?.replace(/[^0-9]/g, '') || '0') - parseInt(a.salary?.split('-')[0]?.replace(/[^0-9]/g, '') || '0');
         case 'premium-first':
-          if (a.isPremium && !b.isPremium) return -1
-          if (!a.isPremium && b.isPremium) return 1
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          if (a.isPremium && !b.isPremium) return -1;
+          if (!a.isPremium && b.isPremium) return 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         default:
-          return 0
+          return 0;
       }
-    })
+    });
 
   const getPremiumFeatureIcon = (feature: string) => {
     switch (feature) {
@@ -164,114 +147,79 @@ export default function MusteriHizmetleriPage() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sol Sidebar - Filtreler */}
         <div className="w-full md:w-64 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <h2 className="text-lg font-semibold mb-4">Filtreler</h2>
-            
-            {/* Premium Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Premium</h3>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={showPremiumOnly}
-                  onChange={(e) => setShowPremiumOnly(e.target.checked)}
-                  className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
-                />
-                <Sparkles className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm">Sadece Premium İlanlar</span>
-              </label>
-            </div>
-
+          <CategoryFilters
+            city={city}
+            onCityChange={setCity}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            premiumOnly={premiumOnly}
+            onPremiumOnlyChange={setPremiumOnly}
+          />
+          <div className="bg-white rounded-lg shadow-sm p-4 mt-4">
             {/* Alt Kategoriler */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Pozisyon Türü</h3>
-              <div className="space-y-2">
-                {subcategories.map(subcategory => (
-                  <label key={subcategory.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={selectedSubcategory === subcategory.id}
-                      onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.id ? null : subcategory.id)}
-                    />
-                    <span>{subcategory.icon}{subcategory.name}</span>
-                  </label>
-                ))}
-              </div>
+            <h3 className="font-medium mb-2">Pozisyon Türü</h3>
+            <div className="space-y-2">
+              {subcategories.map(subcategory => (
+                <label key={subcategory.id} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={selectedSubcategory === subcategory.id}
+                    onChange={() => setSelectedSubcategory(selectedSubcategory === subcategory.id ? null : subcategory.id)}
+                  />
+                  <span>{subcategory.icon}{subcategory.name}</span>
+                </label>
+              ))}
             </div>
-
             {/* Çalışma Türü Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Çalışma Türü</h3>
-              <div className="space-y-2">
-                {['Tam Zamanlı', 'Yarı Zamanlı', 'Staj', 'Freelance'].map(type => (
-                  <label key={type} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={workType === type}
-                      onChange={() => setWorkType(workType === type ? null : type)}
-                    />
-                    <span>{type}</span>
-                  </label>
-                ))}
-              </div>
+            <h3 className="font-medium mb-2 mt-4">Çalışma Türü</h3>
+            <div className="space-y-2">
+              {['Tam Zamanlı', 'Yarı Zamanlı', 'Staj', 'Freelance'].map(type => (
+                <label key={type} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={workType === type}
+                    onChange={() => setWorkType(workType === type ? null : type)}
+                  />
+                  <span>{type}</span>
+                </label>
+              ))}
             </div>
-
             {/* Deneyim Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Deneyim</h3>
-              <div className="space-y-2">
-                {['Öğrenci', '1-2 yıl', '1-3 yıl', '2-4 yıl', '3-5 yıl', '5-7 yıl'].map(exp => (
-                  <label key={exp} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={experience === exp}
-                      onChange={() => setExperience(experience === exp ? null : exp)}
-                    />
-                    <span>{exp}</span>
-                  </label>
-                ))}
-              </div>
+            <h3 className="font-medium mb-2 mt-4">Deneyim</h3>
+            <div className="space-y-2">
+              {['Öğrenci', '1-2 yıl', '1-3 yıl', '2-4 yıl', '3-5 yıl', '5-7 yıl'].map(exp => (
+                <label key={exp} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={experience === exp}
+                    onChange={() => setExperience(experience === exp ? null : exp)}
+                  />
+                  <span>{exp}</span>
+                </label>
+              ))}
             </div>
-
             {/* Maaş Aralığı Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Maaş Aralığı</h3>
-              <div className="space-y-2">
-                {[
-                  { value: '0-10000', label: '0 - 10.000 TL' },
-                  { value: '10000-20000', label: '10.000 - 20.000 TL' },
-                  { value: '20000-35000', label: '20.000 - 35.000 TL' },
-                  { value: '35000+', label: '35.000 TL ve üzeri' }
-                ].map(range => (
-                  <label key={range.value} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={salaryRange === range.value}
-                      onChange={() => setSalaryRange(salaryRange === range.value ? null : range.value)}
-                    />
-                    <span>{range.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Şehir Filtresi */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Şehir</h3>
-              <select
-                className="w-full border rounded px-2 py-1"
-                value={selectedCity || ''}
-                onChange={e => setSelectedCity(e.target.value || null)}
-              >
-                <option value="">Tüm Şehirler</option>
-                {cities.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
+            <h3 className="font-medium mb-2 mt-4">Maaş Aralığı</h3>
+            <div className="space-y-2">
+              {[
+                { value: '0-10000', label: '0 - 10.000 TL' },
+                { value: '10000-20000', label: '10.000 - 20.000 TL' },
+                { value: '20000-35000', label: '20.000 - 35.000 TL' },
+                { value: '35000+', label: '35.000 TL ve üzeri' }
+              ].map(range => (
+                <label key={range.value} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={salaryRange === range.value}
+                    onChange={() => setSalaryRange(salaryRange === range.value ? null : range.value)}
+                  />
+                  <span>{range.label}</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
@@ -283,7 +231,7 @@ export default function MusteriHizmetleriPage() {
             <div className="flex justify-between items-center">
               <span className="text-gray-600">
                 {filteredListings.length} ilan bulundu
-                {showPremiumOnly && (
+                {premiumOnly && (
                   <span className="ml-2 text-yellow-600 font-medium">
                     (Premium ilanlar)
                   </span>
@@ -418,13 +366,14 @@ export default function MusteriHizmetleriPage() {
               </p>
               <button
                 onClick={() => {
+                  setCity('')
+                  setPriceRange('')
+                  setPremiumOnly(false)
                   setSelectedSubcategory(null)
                   setSalaryRange(null)
                   setWorkType(null)
                   setExperience(null)
-                  setShowPremiumOnly(false)
                   setSortBy('newest')
-                  setSelectedCity(null)
                 }}
                 className="bg-alo-orange text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
               >
