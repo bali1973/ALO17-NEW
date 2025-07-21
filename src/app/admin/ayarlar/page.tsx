@@ -13,30 +13,25 @@ const defaultSettings = {
   facebook: '',
   instagram: '',
   twitter: '',
-  whatsappNumber: '',
-  paytrApiKey: '',
-  paytrMerchantId: '',
-  paytrMerchantSalt: '',
-  stripePublicKey: '',
-  stripeSecretKey: '',
-  invoiceTitle: '',
-  taxNumber: '',
+  address: '',
   invoiceAddress: '',
   announcementText: '',
-  bannerImageUrl: '',
-  announcementActive: false,
-  faviconUrl: '',
   googleAdsCode: '',
 };
 
 export default function AdminAyarlarPage() {
-  const [settings, setSettings] = useState(defaultSettings);
+  const [settings, setSettings] = useState<any>(defaultSettings);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/admin/settings')
+    const adminToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-admin-token') : '';
+    fetch('/api/admin/settings', {
+      headers: {
+        ...(adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {})
+      }
+    })
       .then(res => res.json())
       .then(data => {
         setSettings({ ...defaultSettings, ...data });
@@ -48,8 +43,14 @@ export default function AdminAyarlarPage() {
       });
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSettings({ ...settings, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSettings((s: any) => ({ ...s, [name]: value }));
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setSettings((s: any) => ({ ...s, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -196,7 +197,7 @@ export default function AdminAyarlarPage() {
         </div>
         <div>
           <label className="block text-gray-700 font-medium mb-2">Ana Sayfa Açıklaması</label>
-          <textarea name="homepageDescription" value={settings.homepageDescription} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Ana sayfa açıklaması"></textarea>
+          <textarea name="homepageDescription" value={settings.homepageDescription} onChange={handleTextareaChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Ana sayfa açıklaması"></textarea>
         </div>
         <div>
           <label className="block text-gray-700 font-medium mb-2">Site Logosu (URL)</label>
@@ -262,42 +263,19 @@ export default function AdminAyarlarPage() {
         </div>
         <div>
           <label className="block text-gray-700 font-medium mb-2">Fatura Adresi</label>
-          <textarea name="invoiceAddress" value={settings.invoiceAddress} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Fatura adresi"></textarea>
+          <textarea name="invoiceAddress" value={settings.invoiceAddress} onChange={handleTextareaChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Fatura adresi"></textarea>
         </div>
         <div>
           <label className="block text-gray-700 font-medium mb-2">Duyuru Metni</label>
           <input type="text" name="announcementText" value={settings.announcementText} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="Duyuru metni" />
         </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Banner Görseli (URL)</label>
-          <input type="text" name="bannerImageUrl" value={settings.bannerImageUrl} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="/images/banner.jpg" />
-          <input type="file" accept="image/*" onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', 'banner');
-            const adminToken = typeof window !== 'undefined' ? localStorage.getItem('alo17-admin-token') : '';
-            const res = await fetch('/api/admin/upload', {
-              method: 'POST',
-              headers: adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {},
-              body: formData
-            });
-            const data = await res.json();
-            if (data.url) {
-              setSettings(s => ({ ...s, bannerImageUrl: data.url }));
-              setSuccess('Banner görseli başarıyla yüklendi!');
-            } else {
-              setError('Banner görseli yüklenemedi!');
-            }
-          }} className="block mt-2" />
-        </div>
+        {/* Banner Görseli (URL) ile ilgili input, label ve kod tamamen kaldırıldı */}
         <div>
           <label className="block text-gray-700 font-medium mb-2">Google Reklam Kodu (HTML/script)</label>
           <textarea
             name="googleAdsCode"
             value={settings.googleAdsCode}
-            onChange={handleChange}
+            onChange={handleTextareaChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
             placeholder="&lt;script async src='https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X'&gt;&lt;/script&gt;\n&lt;script&gt;...&lt;/script&gt;"
             rows={4}

@@ -41,12 +41,6 @@ const navigation = [
     permission: 'users:read' as const
   },
   { 
-    name: 'İlanlar', 
-    href: '/admin/ilanlar', 
-    icon: ClipboardDocumentListIcon,
-    permission: 'listings:read' as const
-  },
-  { 
     name: 'Mesajlar', 
     href: '/admin/mesajlar', 
     icon: ChatBubbleLeftRightIcon,

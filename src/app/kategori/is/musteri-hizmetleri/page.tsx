@@ -146,17 +146,19 @@ export default function MusteriHizmetleriPage() {
       
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sol Sidebar - Filtreler */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <CategoryFilters
-            city={city}
-            onCityChange={setCity}
-            priceRange={priceRange}
-            onPriceRangeChange={setPriceRange}
-            premiumOnly={premiumOnly}
-            onPremiumOnlyChange={setPremiumOnly}
-          />
+        <div className="w-full md:w-80 flex-shrink-0 mb-8 md:mb-0">
+          <div className="bg-yellow-100 rounded-lg shadow p-4 mb-6 border border-blue-200">
+            <CategoryFilters
+              city={city}
+              onCityChange={setCity}
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
+              premiumOnly={premiumOnly}
+              onPremiumOnlyChange={setPremiumOnly}
+            />
+          </div>
           <div className="bg-white rounded-lg shadow-sm p-4 mt-4">
-            {/* Alt Kategoriler */}
+            {/* Alt Kategoriler ve ek filtreler buraya */}
             <h3 className="font-medium mb-2">Pozisyon Türü</h3>
             <div className="space-y-2">
               {subcategories.map(subcategory => (
@@ -171,56 +173,8 @@ export default function MusteriHizmetleriPage() {
                 </label>
               ))}
             </div>
-            {/* Çalışma Türü Filtresi */}
             <h3 className="font-medium mb-2 mt-4">Çalışma Türü</h3>
-            <div className="space-y-2">
-              {['Tam Zamanlı', 'Yarı Zamanlı', 'Staj', 'Freelance'].map(type => (
-                <label key={type} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={workType === type}
-                    onChange={() => setWorkType(workType === type ? null : type)}
-                  />
-                  <span>{type}</span>
-                </label>
-              ))}
-            </div>
-            {/* Deneyim Filtresi */}
-            <h3 className="font-medium mb-2 mt-4">Deneyim</h3>
-            <div className="space-y-2">
-              {['Öğrenci', '1-2 yıl', '1-3 yıl', '2-4 yıl', '3-5 yıl', '5-7 yıl'].map(exp => (
-                <label key={exp} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={experience === exp}
-                    onChange={() => setExperience(experience === exp ? null : exp)}
-                  />
-                  <span>{exp}</span>
-                </label>
-              ))}
-            </div>
-            {/* Maaş Aralığı Filtresi */}
-            <h3 className="font-medium mb-2 mt-4">Maaş Aralığı</h3>
-            <div className="space-y-2">
-              {[
-                { value: '0-10000', label: '0 - 10.000 TL' },
-                { value: '10000-20000', label: '10.000 - 20.000 TL' },
-                { value: '20000-35000', label: '20.000 - 35.000 TL' },
-                { value: '35000+', label: '35.000 TL ve üzeri' }
-              ].map(range => (
-                <label key={range.value} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={salaryRange === range.value}
-                    onChange={() => setSalaryRange(salaryRange === range.value ? null : range.value)}
-                  />
-                  <span>{range.label}</span>
-                </label>
-              ))}
-            </div>
+            {/* Diğer filtreler buraya */}
           </div>
         </div>
 

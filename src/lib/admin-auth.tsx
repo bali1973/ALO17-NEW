@@ -163,6 +163,7 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
       if (admin && password === 'admin123') { // Test şifresi
         setAdminUser(admin);
         localStorage.setItem('adminUser', JSON.stringify(admin));
+        localStorage.setItem('alo17-admin-token', 'alo17admin'); // .env'deki ADMIN_TOKEN ile aynı olmalı
         return true;
       } else {
         setError('Geçersiz email veya şifre');

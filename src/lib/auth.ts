@@ -101,86 +101,49 @@ export const clearSession = (): void => {
   localStorage.removeItem('alo17-session');
 };
 
-// Kullanıcı girişi yap
-export const signIn = async (email: string, password: string): Promise<Session | null> => {
-  // Hardcoded kullanıcılardan ara
-  const user = hardcodedUsers.find(u => u.email === email && u.password === password);
-  if (user) {
-    // Session oluştur
-    const session: Session = {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      },
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
-    };
-    setSession(session);
-    return session;
-  }
-
-  // Veritabanında kullanıcıyı ara
-  const dbUser = await prisma.user.findUnique({ where: { email } });
-  if (dbUser && dbUser.password) {
-    // Şifreyi karşılaştır (önce hash, sonra düz metin)
-    let isPasswordValid = false;
-    try {
-      isPasswordValid = await compare(password, dbUser.password);
-    } catch {}
-    if (!isPasswordValid) {
-      // Düz metin kontrolü (geçici)
-      isPasswordValid = password === dbUser.password;
+export async function signIn(email: string, password: string) {
+  try {
+    // Önce hardcoded kullanıcıları kontrol et
+    const hardcodedUser = hardcodedUsers.find(
+      u => u.email === email && u.password === password
+    );
+    
+    if (hardcodedUser) {
+      return {
+        user: {
+          id: hardcodedUser.id,
+          email: hardcodedUser.email,
+          name: hardcodedUser.name,
+          role: hardcodedUser.role
+        }
+      };
     }
-    if (!isPasswordValid) return null;
-    // Session oluştur
-    const session: Session = {
-      user: {
-        id: dbUser.id,
-        email: dbUser.email,
-        name: dbUser.name,
-        role: String(dbUser.role || 'user'),
-        phone: dbUser.phone,
-        location: dbUser.location,
-        birthdate: dbUser.birthdate,
-      },
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 gün
-    };
-    setSession(session);
-    return session;
-  }
 
-  // JSON dosyasından kullanıcıyı ara (public/users.json) - sunucu tarafı
-  const users = await readUsersJson();
-  const jsonUser = users.find((u: any) => u.email === email);
-  if (jsonUser && jsonUser.password) {
-    let isPasswordValid = false;
-    try {
-      isPasswordValid = await compare(password, jsonUser.password);
-    } catch {}
-    if (!isPasswordValid) {
-      // Düz metin kontrolü (geçici)
-      isPasswordValid = password === jsonUser.password;
+    // API'den giriş kontrolü yap
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        return null; // Kullanıcı bulunamadı veya şifre yanlış
+      }
+      throw new Error('Bağlantı hatası');
     }
-    if (!isPasswordValid) return null;
-    const session: Session = {
-      user: {
-        id: jsonUser.id,
-        email: jsonUser.email,
-        name: jsonUser.name,
-        role: jsonUser.role,
-        phone: jsonUser.phone,
-        location: jsonUser.location,
-        birthdate: jsonUser.birthdate,
-      },
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    };
-    setSession(session);
-    return session;
-  }
 
-  return null;
-};
+    const data = await res.json();
+    if (!data || !data.user) {
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('SignIn Error:', error);
+    throw error;
+  }
+}
 
 // Kullanıcı çıkışı yap
 export const signOut = (): void => {

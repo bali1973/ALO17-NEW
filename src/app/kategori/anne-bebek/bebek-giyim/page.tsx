@@ -51,7 +51,7 @@ export default function BebekGiyimPage() {
   return (
     <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
       {/* Sidebar */}
-      <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0">
+      <aside className="w-full md:w-80 flex-shrink-0 mb-8 md:mb-0">
         <div className="bg-white rounded-lg shadow p-4 mb-6">
           <h2 className="text-lg font-semibold mb-4">Alt Kategoriler</h2>
           <ul className="space-y-2">
@@ -66,15 +66,16 @@ export default function BebekGiyimPage() {
             ))}
           </ul>
         </div>
-        {/* Ortak Filtreler */}
-        <CategoryFilters
-          city={city}
-          onCityChange={setCity}
-          priceRange={priceRange}
-          onPriceRangeChange={setPriceRange}
-          premiumOnly={premiumOnly}
-          onPremiumOnlyChange={setPremiumOnly}
-        />
+        <div className="bg-yellow-100 rounded-lg shadow p-4 mb-6 border border-blue-200">
+          <CategoryFilters
+            city={city}
+            onCityChange={setCity}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            premiumOnly={premiumOnly}
+            onPremiumOnlyChange={setPremiumOnly}
+          />
+        </div>
       </aside>
       {/* Main */}
       <main className="flex-1">

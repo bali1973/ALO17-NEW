@@ -97,7 +97,7 @@ export default function Home() {
   const [itemsPerPage] = useState(12)
   const { categories, loading: categoriesLoading, error: categoriesError, refetch } = useCategories()
   const { session } = useAuth();
-  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  // Banner ile ilgili tüm kod kaldırıldı
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -117,16 +117,6 @@ export default function Home() {
     }
     fetchListings()
   }, [])
-
-  useEffect(() => {
-    fetch('/api/admin/settings')
-      .then(res => res.json())
-      .then(data => {
-        if (data.bannerImageUrl && data.bannerImageUrl.trim() !== '') setBannerUrl(data.bannerImageUrl);
-        else setBannerUrl(null);
-      })
-      .catch(() => setBannerUrl(null));
-  }, []);
 
   const filteredListings = listings
     .filter(listing => listing.status === 'active') // Sadece aktif ilanları göster
@@ -162,20 +152,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Banner */}
-      {bannerUrl && bannerUrl.trim() !== '' && (
-        <div className="w-full flex justify-center mb-8">
-          <Image
-            src={bannerUrl}
-            alt="Banner"
-            width={1920}
-            height={320}
-            className="max-w-6xl w-full rounded-lg shadow-lg object-cover"
-            style={{maxHeight: 320}}
-            priority
-          />
-        </div>
-      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
           {/* Sidebar */}

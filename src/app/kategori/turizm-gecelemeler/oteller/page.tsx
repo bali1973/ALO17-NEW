@@ -50,17 +50,19 @@ export default function HotelsCategoryPage() {
       
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sol Sidebar - Filtreler */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <CategoryFilters
-            city={city}
-            onCityChange={setCity}
-            priceRange={priceRange}
-            onPriceRangeChange={setPriceRange}
-            premiumOnly={premiumOnly}
-            onPremiumOnlyChange={setPremiumOnly}
-          />
+        <div className="w-full md:w-80 flex-shrink-0 mb-8 md:mb-0">
+          <div className="bg-yellow-100 rounded-lg shadow p-4 mb-6 border border-blue-200">
+            <CategoryFilters
+              city={city}
+              onCityChange={setCity}
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
+              premiumOnly={premiumOnly}
+              onPremiumOnlyChange={setPremiumOnly}
+            />
+          </div>
           <div className="bg-white rounded-lg shadow-sm p-4 mt-4">
-            {/* Yıldız Filtresi */}
+            {/* Yıldız ve Özellikler Filtresi buraya */}
             <h3 className="font-medium mb-2">Yıldız</h3>
             <div className="space-y-2">
               {stars.map(star => (
@@ -75,36 +77,8 @@ export default function HotelsCategoryPage() {
                 </label>
               ))}
             </div>
-            {/* Özellikler Filtresi */}
             <h3 className="font-medium mb-2 mt-4">Özellikler</h3>
-            <div className="space-y-2">
-              {[
-                'Havuz',
-                'Spa',
-                'Fitness',
-                'Restoran',
-                'Bar',
-                'Çocuk Kulübü',
-                'Ücretsiz Wi-Fi',
-                'Otopark'
-              ].map(feature => (
-                <label key={feature} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={features.includes(feature)}
-                    onChange={() => {
-                      if (features.includes(feature)) {
-                        setFeatures(features.filter(f => f !== feature))
-                      } else {
-                        setFeatures([...features, feature])
-                      }
-                    }}
-                  />
-                  <span>{feature}</span>
-                </label>
-              ))}
-            </div>
+            {/* Özellikler filtreleri buraya */}
           </div>
         </div>
 

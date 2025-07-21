@@ -1,51 +1,72 @@
 "use client";
-import React, { useState } from 'react';
-import CategoryFilters from '@/components/CategoryFilters';
+import React, { useEffect, useState } from 'react';
+import CategoryLayout from '@/components/CategoryLayout';
 
-const fakeIlanlar = [
-  { id: 1, title: 'iPhone 13 Pro', price: 35000, city: 'İstanbul', brand: 'Apple', image: '/images/placeholder.jpg' },
-  { id: 2, title: 'Samsung Galaxy S22', price: 28000, city: 'Ankara', brand: 'Samsung', image: '/images/placeholder.jpg' },
-  { id: 3, title: 'Xiaomi Redmi Note 12', price: 12000, city: 'İzmir', brand: 'Xiaomi', image: '/images/placeholder.jpg' },
-  { id: 4, title: 'Huawei P40', price: 15000, city: 'Bursa', brand: 'Huawei', image: '/images/placeholder.jpg' },
+const subcategories = [
+  { slug: 'telefon', name: 'Telefon' },
+  { slug: 'kulaklik', name: 'Kulaklık' },
+  { slug: 'bilgisayar', name: 'Bilgisayar' },
+  { slug: 'tablet', name: 'Tablet' },
+  { slug: 'televizyon', name: 'Televizyon' },
+  { slug: 'yazici', name: 'Yazıcı' },
+  { slug: 'aksesuar', name: 'Aksesuar' },
+  { slug: 'kamera', name: 'Kamera' },
+  { slug: 'oyun-konsolu', name: 'Oyun Konsolu' },
+  { slug: 'network', name: 'Network' },
 ];
 
 export default function TelefonPage() {
+  const [listings, setListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  // Filtre state'leri
   const [city, setCity] = useState('');
   const [priceRange, setPriceRange] = useState('');
   const [premiumOnly, setPremiumOnly] = useState(false);
   const [brand, setBrand] = useState('');
 
-  // Fiyat aralığı filtreleme
-  const filterByPrice = (price: number, range: string) => {
-    if (!range) return true;
-    if (range === '0-1000') return price >= 0 && price <= 1000;
-    if (range === '1000-5000') return price >= 1000 && price <= 5000;
-    if (range === '5000-10000') return price >= 5000 && price <= 10000;
-    if (range === '10000+') return price >= 10000;
-    return true;
-  };
+  useEffect(() => {
+    setLoading(true);
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.filter((l: any) => l.category === 'elektronik' && l.subcategory === 'telefon'));
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('İlanlar yüklenemedi');
+        setLoading(false);
+      });
+  }, []);
 
-  const filteredIlanlar = fakeIlanlar.filter(ilan => {
-    if (city && ilan.city !== city) return false;
-    if (brand && ilan.brand !== brand) return false;
-    if (!filterByPrice(ilan.price, priceRange)) return false;
-    // premiumOnly sahte veride yok, gerçek veride eklenecek
+  // Filtreleme
+  const filteredListings = listings.filter(listing => {
+    if (premiumOnly && !listing.isPremium) return false;
+    if (city && listing.location !== city) return false;
+    if (brand && listing.brand !== brand) return false;
+    if (priceRange) {
+      const price = parseFloat(listing.price);
+      if (priceRange === '0-1000' && !(price >= 0 && price <= 1000)) return false;
+      if (priceRange === '1000-5000' && !(price >= 1000 && price <= 5000)) return false;
+      if (priceRange === '5000-10000' && !(price >= 5000 && price <= 10000)) return false;
+      if (priceRange === '10000+' && !(price >= 10000)) return false;
+    }
     return true;
   });
 
   return (
-    <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0">
-        <CategoryFilters
-          city={city}
-          onCityChange={setCity}
-          priceRange={priceRange}
-          onPriceRangeChange={setPriceRange}
-          premiumOnly={premiumOnly}
-          onPremiumOnlyChange={setPremiumOnly}
-        />
-        <div className="bg-white rounded-lg shadow p-4 mt-4">
+    <CategoryLayout
+      subcategories={subcategories}
+      activeSlug="telefon"
+      categoryBasePath="kategori/elektronik"
+      city={city}
+      onCityChange={setCity}
+      priceRange={priceRange}
+      onPriceRangeChange={setPriceRange}
+      premiumOnly={premiumOnly}
+      onPremiumOnlyChange={setPremiumOnly}
+      extraSidebarContent={
+        <>
           <label className="block font-medium mb-1">Marka</label>
           <select className="w-full border rounded p-2" value={brand} onChange={e => setBrand(e.target.value)}>
             <option value="">Tümü</option>
@@ -54,22 +75,37 @@ export default function TelefonPage() {
             <option value="Xiaomi">Xiaomi</option>
             <option value="Huawei">Huawei</option>
           </select>
+        </>
+      }
+    >
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Telefon</h1>
+      <p className="text-gray-600 mb-6">Elektronik kategorisinde Telefon alt kategorisi</p>
+      {loading ? (
+        <div>Yükleniyor...</div>
+      ) : error ? (
+        <div className="text-red-600">{error}</div>
+      ) : filteredListings.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+          <h2 className="text-xl font-bold mb-2">Bu Alt Kategorideki İlanlar</h2>
+          <p className="mb-4 text-gray-600">Bu alt kategoride henüz ilan bulunmuyor. İlk ilanı vermek için aşağıdaki butona tıklayın.</p>
+          <div className="flex gap-3">
+            <a href="/ilan-ver" className="bg-blue-600 text-white px-5 py-2 rounded font-semibold hover:bg-blue-700 transition">İlan Ver</a>
+            <a href="/kategori/elektronik" className="bg-gray-100 text-gray-700 px-5 py-2 rounded font-semibold hover:bg-gray-200 transition">Tüm Elektronik İlanları</a>
+          </div>
         </div>
-      </aside>
-      {/* İlanlar */}
-      <main className="flex-1">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredIlanlar.map((ilan) => (
-            <div key={ilan.id} className="bg-white rounded-lg shadow p-4 flex flex-col items-center">
-              <img src={ilan.image} alt={ilan.title} className="w-full h-32 object-cover rounded mb-3" />
-              <h3 className="text-lg font-semibold mb-1">{ilan.title}</h3>
-              <div className="text-gray-500 text-sm mb-1">{ilan.city}</div>
-              <div className="text-alo-orange font-bold mb-2">{ilan.price.toLocaleString('tr-TR')} ₺</div>
-              <button className="bg-alo-orange text-white px-4 py-2 rounded hover:bg-orange-600 transition">Detay</button>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {filteredListings.map(listing => (
+            <div key={listing.id} className="bg-white rounded-lg shadow p-4">
+              <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
+              <p className="text-gray-600 mb-1">{listing.description}</p>
+              <div className="text-sm text-gray-500 mb-1">Şehir: {listing.location}</div>
+              <div className="text-sm text-gray-500 mb-1">Fiyat: {listing.price} TL</div>
+              {listing.isPremium && <span className="inline-block bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-semibold">Premium</span>}
             </div>
           ))}
         </div>
-      </main>
-    </div>
+      )}
+    </CategoryLayout>
   );
 } 
