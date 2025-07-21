@@ -122,8 +122,8 @@ export default function Home() {
     fetch('/api/admin/settings')
       .then(res => res.json())
       .then(data => {
-        if (data.bannerImageUrl) setBannerUrl(data.bannerImageUrl);
-        else setBannerUrl('/images/banner.jpg');
+        if (data.bannerImageUrl && data.bannerImageUrl.trim() !== '') setBannerUrl(data.bannerImageUrl);
+        else setBannerUrl(null);
       })
       .catch(() => setBannerUrl(null));
   }, []);
