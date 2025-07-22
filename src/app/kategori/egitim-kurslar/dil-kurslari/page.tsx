@@ -5,18 +5,7 @@ import Link from 'next/link';
 import CategoryFilters from '@/components/CategoryFilters';
 import { Listing } from '@/types';
 
-const subcategories = [
-  { slug: 'dil-kurslari', name: 'Dil Kursları' },
-  { slug: 'muzik-kurslari', name: 'Müzik Kursları' },
-  { slug: 'spor-kurslari', name: 'Spor Kursları' },
-  { slug: 'ozel-dersler', name: 'Özel Dersler' },
-  { slug: 'sanat-kurslari', name: 'Sanat Kursları' },
-  { slug: 'bilgisayar-kurslari', name: 'Bilgisayar Kursları' },
-  { slug: 'meslek-kurslari', name: 'Meslek Kursları' },
-  { slug: 'sinav-hazirlik', name: 'Sınav Hazırlık' },
-];
-
-export default function EgitimKurslarPage() {
+export default function DilKurslariPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [city, setCity] = useState('');
   const [priceRange, setPriceRange] = useState('');
@@ -26,7 +15,9 @@ export default function EgitimKurslarPage() {
     fetch('/api/listings')
       .then(res => res.json())
       .then(data => {
-        setListings(data.filter((listing: Listing) => listing.category === 'egitim-kurslar'));
+        setListings(data.filter((listing: Listing) => 
+          listing.category === 'egitim-kurslar' && listing.subCategory === 'dil-kurslari'
+        ));
       });
   }, []);
 
@@ -44,29 +35,11 @@ export default function EgitimKurslarPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Eğitim & Kurslar</h1>
+      <h1 className="text-3xl font-bold mb-8">Dil Kursları</h1>
       
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sol Sidebar - Filtreler ve Alt Kategoriler */}
+        {/* Sol Sidebar - Filtreler */}
         <div className="lg:w-1/4">
-          {/* Alt Kategoriler */}
-          <div className="bg-white rounded-lg shadow p-4 mb-6">
-            <h2 className="text-lg font-semibold mb-4">Alt Kategoriler</h2>
-            <ul className="space-y-2">
-              {subcategories.map((subcat) => (
-                <li key={subcat.slug}>
-                  <Link
-                    href={`/kategori/egitim-kurslar/${subcat.slug}`}
-                    className="block px-3 py-2 rounded-md hover:bg-gray-100 transition"
-                  >
-                    {subcat.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Filtreler */}
           <CategoryFilters
             city={city}
             onCityChange={setCity}
