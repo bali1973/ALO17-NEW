@@ -1,49 +1,83 @@
-'use client'
+"use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-const subcategories = [
-  { slug: 'erkek-giyim', name: 'Erkek Giyim' },
-  { slug: 'bayan-giyim', name: 'Bayan Giyim' },
-  { slug: 'cocuk-giyim', name: 'Çocuk Giyim' },
-  { slug: 'ayakkabi', name: 'Ayakkabı' },
-  { slug: 'aksesuar', name: 'Aksesuar' },
-];
+import CategoryFilters from '@/components/CategoryFilters';
+import { Listing } from '@/types';
 
 export default function BayanGiyimPage() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [city, setCity] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+  const [premiumOnly, setPremiumOnly] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.filter((listing: Listing) => 
+          listing.category === 'giyim' && listing.subCategory === 'bayan-giyim'
+        ));
+      });
+  }, []);
+
+  const filteredListings = listings.filter((listing: Listing) => {
+    if (city && listing.city !== city) return false;
+    if (premiumOnly && !listing.isPremium) return false;
+    if (priceRange) {
+      const price = Number(listing.price);
+      const [min, max] = priceRange.split('-').map(Number);
+      if (max && (price < min || price > max)) return false;
+      if (!max && price < min) return false;
+    }
+    return true;
+  });
+
   return (
-    <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0">
-        <div className="bg-white rounded-lg shadow p-4">
-          <h2 className="text-lg font-semibold mb-4">Alt Kategoriler</h2>
-          <ul className="space-y-2">
-            {subcategories.map((cat) => (
-              <li key={cat.slug}>
-                <Link href={`/kategori/giyim/${cat.slug}`}
-                  className={`block px-3 py-2 rounded transition ${cat.slug === 'bayan-giyim' ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200' : 'hover:bg-gray-100'}`}
-                >
-                  {cat.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Bayan Giyim</h1>
+      
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sol Sidebar - Filtreler */}
+        <div className="lg:w-1/4">
+          <CategoryFilters
+            city={city}
+            onCityChange={setCity}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            premiumOnly={premiumOnly}
+            onPremiumOnlyChange={setPremiumOnly}
+          />
         </div>
-      </aside>
-      {/* Main */}
-      <main className="flex-1">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Bayan Giyim</h1>
-        <p className="text-gray-600 mb-6">Giyim kategorisinde Bayan Giyim alt kategorisi</p>
-        <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-          <h2 className="text-xl font-bold mb-2">Bu Alt Kategorideki İlanlar</h2>
-          <p className="mb-4 text-gray-600">Bu alt kategoride henüz ilan bulunmuyor. İlk ilanı vermek için aşağıdaki butona tıklayın.</p>
-          <div className="flex gap-3">
-            <Link href="/ilan-ver" className="bg-blue-600 text-white px-5 py-2 rounded font-semibold hover:bg-blue-700 transition">İlan Ver</Link>
-            <Link href="/kategori/giyim" className="bg-gray-100 text-gray-700 px-5 py-2 rounded font-semibold hover:bg-gray-200 transition">Tüm Giyim İlanları</Link>
+
+        {/* Sağ Taraf - İlanlar Grid */}
+        <div className="lg:w-3/4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {filteredListings.length > 0 ? (
+              filteredListings.map((listing: Listing) => (
+                <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
+                  <Link href={`/listing/${listing.id}`}>
+                    <div className="aspect-w-16 aspect-h-9 mb-4">
+                      <img
+                        src={listing.images?.[0] || '/placeholder.png'}
+                        alt={listing.title}
+                        className="object-cover w-full h-full rounded"
+                      />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
+                    <p className="text-gray-600">{listing.price} TL</p>
+                    <p className="text-sm text-gray-500 mt-2">{listing.city}</p>
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                Bu kategoride ilan bulunamadı.
+              </div>
+            )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 } 

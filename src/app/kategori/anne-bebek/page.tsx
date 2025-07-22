@@ -1,84 +1,80 @@
-'use client'
+"use client";
 
-import { FaBaby, FaBabyCarriage, FaGamepad, FaBed } from 'react-icons/fa'
-import { useState, useEffect } from 'react'
-import { ListingCard } from '@/components/listing-card'
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import CategoryFilters from '@/components/CategoryFilters';
+import { Listing } from '@/types';
 
 export default function AnneBebekPage() {
-  const [subcategories, setSubcategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const [listings, setListings] = useState<any[]>([]);
-  const [error, setError] = useState('');
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [city, setCity] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+  const [premiumOnly, setPremiumOnly] = useState(false);
 
   useEffect(() => {
-    async function fetchCategories() {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/categories');
-        const data = await res.json();
-        const anneBebek = data.find((cat: any) => cat.slug === 'anne-bebek');
-        setSubcategories(anneBebek?.subCategories || []);
-      } catch (e) {
-        setSubcategories([]);
-      }
-      setLoading(false);
-    }
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
     fetch('/api/listings')
       .then(res => res.json())
       .then(data => {
-        setListings(data.filter((l: any) => l.category === 'anne-bebek' && (!selectedSubcategory || l.subcategory === selectedSubcategory)));
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('İlanlar yüklenemedi');
-        setLoading(false);
+        setListings(data.filter((listing: Listing) => listing.category === 'anne-bebek'));
       });
-  }, [selectedSubcategory]);
+  }, []);
 
-  if (loading) return <div>Yükleniyor...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  const filteredListings = listings.filter((listing: Listing) => {
+    if (city && listing.city !== city) return false;
+    if (premiumOnly && !listing.isPremium) return false;
+    if (priceRange) {
+      const price = Number(listing.price);
+      const [min, max] = priceRange.split('-').map(Number);
+      if (max && (price < min || price > max)) return false;
+      if (!max && price < min) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Anne & Bebek İlanları</h1>
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar */}
-        <aside className="md:w-64 w-full mb-4 md:mb-0">
-          <div className="bg-white rounded shadow p-4">
-            <h2 className="text-lg font-semibold mb-3">Alt Kategoriler</h2>
-            <ul className="space-y-2">
-              <li>
-                <button
-                  className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
-                  onClick={() => setSelectedSubcategory(null)}
-                >Tümü</button>
-              </li>
-              {subcategories.map((s: any) => (
-                <li key={s.slug}>
-                  <button
-                    className="w-full text-left px-2 py-1 rounded hover:bg-gray-100"
-                    onClick={() => setSelectedSubcategory(s.slug)}
-                  >{s.name}</button>
-                </li>
-              ))}
-            </ul>
+      <h1 className="text-3xl font-bold mb-8">Anne & Bebek</h1>
+      
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sol Sidebar - Filtreler */}
+        <div className="lg:w-1/4">
+          <CategoryFilters
+            city={city}
+            onCityChange={setCity}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            premiumOnly={premiumOnly}
+            onPremiumOnlyChange={setPremiumOnly}
+          />
+        </div>
+
+        {/* Sağ Taraf - İlanlar Grid */}
+        <div className="lg:w-3/4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {filteredListings.length > 0 ? (
+              filteredListings.map((listing: Listing) => (
+                <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
+                  <Link href={`/listing/${listing.id}`}>
+                    <div className="aspect-w-16 aspect-h-9 mb-4">
+                      <img
+                        src={listing.images?.[0] || '/placeholder.png'}
+                        alt={listing.title}
+                        className="object-cover w-full h-full rounded"
+                      />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
+                    <p className="text-gray-600">{listing.price} TL</p>
+                    <p className="text-sm text-gray-500 mt-2">{listing.city}</p>
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                Bu kategoride ilan bulunamadı.
+              </div>
+            )}
           </div>
-        </aside>
-        {/* İlanlar */}
-        <main className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map(listing => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-          {listings.length === 0 && <div className="text-center py-12">İlan bulunamadı.</div>}
-        </main>
+        </div>
       </div>
     </div>
   );

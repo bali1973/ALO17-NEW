@@ -1,61 +1,80 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useCategories } from '@/lib/useCategories'
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import CategoryFilters from '@/components/CategoryFilters';
+import { Listing } from '@/types';
 
-// Boş iş ilanları listesi (örnek, gerçek API ile değiştirilebilir)
-const jobListings: any[] = []
+export default function IsPage() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [city, setCity] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+  const [premiumOnly, setPremiumOnly] = useState(false);
 
-export default function IsKategoriPage() {
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  useEffect(() => {
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.filter((listing: Listing) => listing.category === 'is'));
+      });
+  }, []);
 
-  // Ana kategori olarak 'is' veya 'is-kariyer' slug'ını bul
-  const mainCategory = categories.find(cat => cat.slug === 'is' || cat.slug === 'is-kariyer');
-  const subcategories = mainCategory?.subCategories || [];
-
-  if (categoriesLoading) return <div>Kategoriler yükleniyor...</div>;
-  if (categoriesError) return <div>{categoriesError}</div>;
+  const filteredListings = listings.filter((listing: Listing) => {
+    if (city && listing.city !== city) return false;
+    if (premiumOnly && !listing.isPremium) return false;
+    if (priceRange) {
+      const price = Number(listing.price);
+      const [min, max] = priceRange.split('-').map(Number);
+      if (max && (price < min || price > max)) return false;
+      if (!max && price < min) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">İş & Eleman İlanları</h1>
-        <p className="text-gray-600 mt-2">
-          İş arıyorum, eleman arıyorum, tam zamanlı, yarı zamanlı, freelance ve diğer iş fırsatları. Kariyerinizi geliştirin veya uygun elemanı bulun.
-        </p>
-      </div>
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar - Alt Kategoriler */}
-        <aside className="md:w-64 w-full mb-4 md:mb-0">
-          <div className="bg-white rounded shadow p-4">
-            <h2 className="text-lg font-semibold mb-3">Alt Kategoriler</h2>
-            <ul className="space-y-2">
-              {subcategories.length === 0 && <li>Alt kategori bulunamadı.</li>}
-              {subcategories.map((s: any) => (
-                <li key={s.slug}>
-                  <Link
-                    href={`/kategori/is/${s.slug}`}
-                    className="block w-full text-left px-2 py-1 rounded hover:bg-gray-100"
-                  >{s.name}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
-        {/* İlanlar */}
-        <main className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {jobListings.map(listing => (
-              <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
-                <h2 className="text-lg font-semibold mb-2">{listing.title}</h2>
-                <div className="text-gray-600 mb-1">{listing.location}</div>
-                <div className="text-gray-800 font-bold mb-2">{listing.price} TL</div>
-                {/* Diğer alanlar */}
+      <h1 className="text-3xl font-bold mb-8">İş İlanları</h1>
+      
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sol Sidebar - Filtreler */}
+        <div className="lg:w-1/4">
+          <CategoryFilters
+            city={city}
+            onCityChange={setCity}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            premiumOnly={premiumOnly}
+            onPremiumOnlyChange={setPremiumOnly}
+          />
+        </div>
+
+        {/* Sağ Taraf - İlanlar Grid */}
+        <div className="lg:w-3/4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {filteredListings.length > 0 ? (
+              filteredListings.map((listing: Listing) => (
+                <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
+                  <Link href={`/listing/${listing.id}`}>
+                    <div className="aspect-w-16 aspect-h-9 mb-4">
+                      <img
+                        src={listing.images?.[0] || '/placeholder.png'}
+                        alt={listing.title}
+                        className="object-cover w-full h-full rounded"
+                      />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
+                    <p className="text-gray-600">{listing.price} TL</p>
+                    <p className="text-sm text-gray-500 mt-2">{listing.city}</p>
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                Bu kategoride ilan bulunamadı.
               </div>
-            ))}
+            )}
           </div>
-          {jobListings.length === 0 && <div className="text-center py-12">İlan bulunamadı.</div>}
-        </main>
+        </div>
       </div>
     </div>
   );
