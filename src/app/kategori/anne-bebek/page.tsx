@@ -5,6 +5,13 @@ import Link from 'next/link';
 import CategoryFilters from '@/components/CategoryFilters';
 import { Listing } from '@/types';
 
+const subcategories = [
+  { slug: 'bebek-giyim', name: 'Bebek Giyim' },
+  { slug: 'bebek-arabasi', name: 'Bebek Arabası' },
+  { slug: 'bebek-esyalari', name: 'Bebek Eşyaları' },
+  { slug: 'bebek-oyuncaklari', name: 'Bebek Oyuncakları' },
+];
+
 export default function AnneBebekPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [city, setCity] = useState('');
@@ -36,8 +43,26 @@ export default function AnneBebekPage() {
       <h1 className="text-3xl font-bold mb-8">Anne & Bebek</h1>
       
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sol Sidebar - Filtreler */}
+        {/* Sol Sidebar - Filtreler ve Alt Kategoriler */}
         <div className="lg:w-1/4">
+          {/* Alt Kategoriler */}
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <h2 className="text-lg font-semibold mb-4">Alt Kategoriler</h2>
+            <ul className="space-y-2">
+              {subcategories.map((subcat) => (
+                <li key={subcat.slug}>
+                  <Link
+                    href={`/kategori/anne-bebek/${subcat.slug}`}
+                    className="block px-3 py-2 rounded-md hover:bg-gray-100 transition"
+                  >
+                    {subcat.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Filtreler */}
           <CategoryFilters
             city={city}
             onCityChange={setCity}
