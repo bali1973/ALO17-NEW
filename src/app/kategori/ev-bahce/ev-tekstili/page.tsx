@@ -5,18 +5,7 @@ import Link from 'next/link';
 import CategoryFilters from '@/components/CategoryFilters';
 import { Listing } from '@/types';
 
-const subcategories = [
-  { slug: 'mobilya', name: 'Mobilya' },
-  { slug: 'ev-tekstili', name: 'Ev Tekstili' },
-  { slug: 'mutfak', name: 'Mutfak' },
-  { slug: 'bahce', name: 'Bahçe' },
-  { slug: 'dekorasyon', name: 'Dekorasyon' },
-  { slug: 'elektrikli-ev-aletleri', name: 'Elektrikli Ev Aletleri' },
-  { slug: 'banyo', name: 'Banyo' },
-  { slug: 'aydinlatma', name: 'Aydınlatma' },
-];
-
-export default function EvBahcePage() {
+export default function EvTekstiliPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [city, setCity] = useState('');
   const [priceRange, setPriceRange] = useState('');
@@ -26,7 +15,9 @@ export default function EvBahcePage() {
     fetch('/api/listings')
       .then(res => res.json())
       .then(data => {
-        setListings(data.filter((listing: Listing) => listing.category === 'ev-bahce'));
+        setListings(data.filter((listing: Listing) => 
+          listing.category === 'ev-bahce' && listing.subCategory === 'ev-tekstili'
+        ));
       });
   }, []);
 
@@ -44,29 +35,11 @@ export default function EvBahcePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Ev & Bahçe</h1>
+      <h1 className="text-3xl font-bold mb-8">Ev Tekstili</h1>
       
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sol Sidebar - Filtreler ve Alt Kategoriler */}
+        {/* Sol Sidebar - Filtreler */}
         <div className="lg:w-1/4">
-          {/* Alt Kategoriler */}
-          <div className="bg-white rounded-lg shadow p-4 mb-6">
-            <h2 className="text-lg font-semibold mb-4">Alt Kategoriler</h2>
-            <ul className="space-y-2">
-              {subcategories.map((subcat) => (
-                <li key={subcat.slug}>
-                  <Link
-                    href={`/kategori/ev-bahce/${subcat.slug}`}
-                    className="block px-3 py-2 rounded-md hover:bg-gray-100 transition"
-                  >
-                    {subcat.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Filtreler */}
           <CategoryFilters
             city={city}
             onCityChange={setCity}
