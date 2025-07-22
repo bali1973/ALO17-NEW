@@ -5,7 +5,7 @@ import Link from 'next/link';
 import CategoryFilters from '@/components/CategoryFilters';
 import { Listing } from '@/types';
 
-export default function BahcePage() {
+export default function AydinlatmaPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [city, setCity] = useState('');
   const [priceRange, setPriceRange] = useState('');
@@ -16,7 +16,7 @@ export default function BahcePage() {
       .then(res => res.json())
       .then(data => {
         setListings(data.filter((listing: Listing) => 
-          listing.category === 'ev-bahce' && listing.subCategory === 'bahce'
+          listing.category === 'ev-bahce' && listing.subCategory === 'aydinlatma'
         ));
       });
   }, []);
@@ -35,7 +35,7 @@ export default function BahcePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Bahçe</h1>
+      <h1 className="text-3xl font-bold mb-8">Aydınlatma</h1>
       
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sol Sidebar - Filtreler */}
