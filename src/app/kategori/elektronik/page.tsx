@@ -1,59 +1,81 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { useCategories } from '@/lib/useCategories'
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import CategoryFilters from '@/components/CategoryFilters';
+import { Listing } from '@/types';
 
-export default function ElektronikCategoryPage() {
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-  const elektronik = categories.find(cat => cat.slug === 'elektronik');
+export default function ElektronikPage() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [city, setCity] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+  const [premiumOnly, setPremiumOnly] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.filter((listing: Listing) => listing.category === 'elektronik'));
+      });
+  }, []);
+
+  const filteredListings = listings.filter((listing: Listing) => {
+    if (city && listing.city !== city) return false;
+    if (premiumOnly && !listing.isPremium) return false;
+    if (priceRange) {
+      const price = Number(listing.price);
+      const [min, max] = priceRange.split('-').map(Number);
+      if (max && (price < min || price > max)) return false;
+      if (!max && price < min) return false;
+    }
+    return true;
+  });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Elektronik</h1>
-          <p className="text-gray-600 mt-2">
-            Elektronik ürünler ve aksesuarlar
-          </p>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Elektronik</h1>
+      
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Sol Sidebar - Filtreler */}
+        <div className="lg:w-1/4">
+          <CategoryFilters
+            city={city}
+            onCityChange={setCity}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            premiumOnly={premiumOnly}
+            onPremiumOnlyChange={setPremiumOnly}
+          />
         </div>
-        
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Sol Sidebar - Kategoriler ve Filtreler */}
-          <div className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              {/* Alt Kategoriler */}
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-4">Kategoriler</h2>
-                {categoriesLoading ? (
-                  <div>Kategoriler yükleniyor...</div>
-                ) : categoriesError ? (
-                  <div className="text-red-600">{categoriesError}</div>
-                ) : elektronik && elektronik.subCategories && elektronik.subCategories.length > 0 ? (
-                <div className="space-y-2">
-                    {elektronik.subCategories.map(subcategory => (
-                    <Link
-                      key={subcategory.id}
-                        href={`/kategori/elektronik/${subcategory.slug}`}
-                        onClick={() => setSelectedSubcategory(subcategory.slug)}
-                      className={`block px-3 py-2 rounded-md hover:bg-gray-100 ${
-                          selectedSubcategory === subcategory.slug ? 'bg-gray-100 font-medium' : ''
-                      }`}
-                    >
-                        {subcategory.name}
-                    </Link>
-                  ))}
+
+        {/* Sağ Taraf - İlanlar Grid */}
+        <div className="lg:w-3/4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {filteredListings.length > 0 ? (
+              filteredListings.map((listing: Listing) => (
+                <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
+                  <Link href={`/listing/${listing.id}`}>
+                    <div className="aspect-w-16 aspect-h-9 mb-4">
+                      <img
+                        src={listing.images?.[0] || '/placeholder.png'}
+                        alt={listing.title}
+                        className="object-cover w-full h-full rounded"
+                      />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
+                    <p className="text-gray-600">{listing.price} TL</p>
+                    <p className="text-sm text-gray-500 mt-2">{listing.city}</p>
+                  </Link>
                 </div>
-                ) : (
-                  <div>Alt kategori bulunamadı.</div>
-                )}
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                Bu kategoride ilan bulunamadı.
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 } 
