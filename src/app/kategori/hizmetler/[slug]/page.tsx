@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import CategoryLayout from '@/components/CategoryLayout';
 import { Listing } from '@/types';
 import { useCategories } from '@/lib/useCategories';
@@ -25,6 +26,11 @@ export default function SubCategoryPage({ params }: SubCategoryPageProps) {
   const currentSubcategory = subcategories.find(sub => sub.slug === params.slug);
 
   useEffect(() => {
+    if (!currentSubcategory) {
+      notFound();
+      return;
+    }
+
     fetch('/api/listings')
       .then(res => res.json())
       .then(data => {
@@ -33,7 +39,7 @@ export default function SubCategoryPage({ params }: SubCategoryPageProps) {
           listing.subcategory === params.slug
         ));
       });
-  }, [params.slug]);
+  }, [params.slug, currentSubcategory]);
 
   const filteredListings = listings.filter((listing: Listing) => {
     if (city && listing.city !== city) return false;
@@ -52,7 +58,7 @@ export default function SubCategoryPage({ params }: SubCategoryPageProps) {
   }
 
   if (!currentSubcategory) {
-    return <div className="text-center py-8">Alt kategori bulunamadı.</div>;
+    return notFound();
   }
 
   return (

@@ -2,13 +2,13 @@ export interface Listing {
   id: string;
   title: string;
   description: string;
-  price: string | number;
+  price: string;
   category: string;
-  subCategory?: string;
+  subcategory: string;
   city: string;
   images?: string[];
   isPremium?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  userId?: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
 } 
