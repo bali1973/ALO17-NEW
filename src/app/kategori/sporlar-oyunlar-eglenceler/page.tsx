@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import CategoryLayout from '@/components/CategoryLayout';
 import { Listing } from '@/types';
 import { useCategories } from '@/lib/useCategories';
@@ -45,7 +44,7 @@ export default function SporlarOyunlarEglencelerPage() {
     <CategoryLayout
       subcategories={subcategories}
       activeSlug=""
-      categoryBasePath="sporlar-oyunlar-eglenceler"
+      categoryBasePath="kategori/sporlar-oyunlar-eglenceler"
       city={city}
       onCityChange={setCity}
       priceRange={priceRange}
@@ -53,30 +52,40 @@ export default function SporlarOyunlarEglencelerPage() {
       premiumOnly={premiumOnly}
       onPremiumOnlyChange={setPremiumOnly}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredListings.length > 0 ? (
-          filteredListings.map((listing: Listing) => (
-            <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
-              <Link href={`/listing/${listing.id}`}>
-                <div className="aspect-w-16 aspect-h-9 mb-4">
-                  <img
-                    src={listing.images?.[0] || '/placeholder.png'}
-                    alt={listing.title}
-                    className="object-cover w-full h-full rounded"
-                  />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
-                <p className="text-gray-600">{listing.price} TL</p>
-                <p className="text-sm text-gray-500 mt-2">{listing.city}</p>
-              </Link>
-            </div>
-          ))
-        ) : (
-          <div className="col-span-full text-center py-8 text-gray-500">
-            Bu kategoride ilan bulunamadı.
-          </div>
-        )}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Sporlar, Oyunlar & Eğlenceler</h1>
+        <p className="text-gray-600 mt-2">
+          Spor malzemeleri, oyunlar ve eğlence ürünleri
+        </p>
       </div>
+
+      {filteredListings.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-6 text-center">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Henüz İlan Bulunmuyor</h3>
+          <p className="text-gray-600 mb-6">Bu kategoride henüz ilan bulunmuyor. İlk ilanı siz verin!</p>
+          <a
+            href="/ilan-ver"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Ücretsiz İlan Ver
+          </a>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredListings.map((listing) => (
+            <div key={listing.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+              <div className="p-4">
+                <h3 className="font-semibold text-lg text-gray-900 mb-2">{listing.title}</h3>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{listing.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-blue-600">{listing.price} ₺</span>
+                  <span className="text-sm text-gray-500">{listing.city}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </CategoryLayout>
   );
 } 
