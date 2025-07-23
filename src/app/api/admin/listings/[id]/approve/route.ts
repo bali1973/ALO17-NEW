@@ -1,23 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 
-interface RouteParams {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
-export async function POST(request: NextRequest, context: RouteParams) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = await context.params;
+    const listingsPath = path.join(process.cwd(), 'public', 'listings.json');
+    const listingsData = fs.readFileSync(listingsPath, 'utf-8');
+    const listings = JSON.parse(listingsData);
+
+    const listingIndex = listings.findIndex((l: any) => l.id.toString() === params.id);
     
-    // Mock implementation - gerçek uygulamada database kullanılacak
-    const mockListing = {
-      id,
-      status: 'active',
-      message: 'İlan onaylandı'
-    };
-    
-    return NextResponse.json(mockListing);
+    if (listingIndex === -1) {
+      return NextResponse.json({ error: 'İlan bulunamadı' }, { status: 404 });
+    }
+
+    listings[listingIndex].status = 'approved';
+    listings[listingIndex].updatedAt = new Date().toISOString();
+
+    fs.writeFileSync(listingsPath, JSON.stringify(listings, null, 2));
+
+    return NextResponse.json({ success: true, message: 'İlan onaylandı' });
   } catch (error) {
     console.error('İlan onaylama hatası:', error);
     return NextResponse.json({ error: 'İlan onaylanamadı' }, { status: 500 });

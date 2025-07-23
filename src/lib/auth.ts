@@ -33,8 +33,13 @@ export interface Session {
     email: string;
     name: string;
     role: string;
+    phone?: string;
+    password?: string;
+    location?: string;
+    birthdate?: string;
   };
-  token: string;
+  expires: string;
+  token?: string;
 }
 
 // Local storage'dan session al
@@ -42,7 +47,7 @@ export function getSession(): Session | null {
   if (typeof window === 'undefined') return null;
   
   try {
-    const sessionData = localStorage.getItem('alo17_session');
+    const sessionData = localStorage.getItem('alo17-session');
     return sessionData ? JSON.parse(sessionData) : null;
   } catch {
     return null;
@@ -53,14 +58,14 @@ export function getSession(): Session | null {
 export function setSession(session: Session): void {
   if (typeof window === 'undefined') return;
   
-  localStorage.setItem('alo17_session', JSON.stringify(session));
+  localStorage.setItem('alo17-session', JSON.stringify(session));
 }
 
 // Session temizle
 export function clearSession(): void {
   if (typeof window === 'undefined') return;
   
-  localStorage.removeItem('alo17_session');
+  localStorage.removeItem('alo17-session');
 }
 
 // Kullanıcı doğrulama (client-side)
@@ -76,6 +81,7 @@ export function validateUser(email: string, password: string): Session | null {
       name: user.name,
       role: user.role
     },
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 saat sonra
     token: `mock_token_${user.id}_${Date.now()}`
   };
 }
@@ -151,8 +157,8 @@ export function requireAuth(session: Session | null): boolean {
 }
 
 // Mock functions for backward compatibility
-export const signIn = (credentials: { email: string; password: string }) => {
-  return validateUser(credentials.email, credentials.password);
+export const signIn = (email: string, password: string): Session | null => {
+  return validateUser(email, password);
 };
 
 export const signOut = () => {

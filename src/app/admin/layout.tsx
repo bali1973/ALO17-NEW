@@ -35,6 +35,12 @@ const navigation = [
     permission: 'dashboard:read' as const
   },
   { 
+    name: 'İlanlar', 
+    href: '/admin/ilanlar', 
+    icon: ClipboardDocumentListIcon,
+    permission: 'listings:read' as const
+  },
+  { 
     name: 'Kullanıcılar', 
     href: '/admin/kullanicilar', 
     icon: UserGroupIcon,
