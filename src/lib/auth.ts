@@ -1,22 +1,6 @@
 // Client-side authentication utilities
 // Bu dosya artık NextAuth kullanmıyor, sadece client-side auth için yardımcı fonksiyonlar içeriyor
 
-import { prisma } from './prisma'
-import { compare } from 'bcryptjs'
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const USERS_PATH = path.join(process.cwd(), 'public', 'users.json');
-
-async function readUsersJson() {
-  try {
-    const data = await fs.readFile(USERS_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
 // Hardcoded test kullanıcıları
 export const hardcodedUsers = [
   {
@@ -49,122 +33,164 @@ export interface Session {
     email: string;
     name: string;
     role: string;
-    phone?: string;
-    location?: string;
-    birthdate?: string;
   };
-  expires: string;
+  token: string;
 }
 
-// Kullanıcı tipi
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  phone?: string;
-  location?: string;
-  birthdate?: string;
-}
-
-// localStorage'dan session'ı al
-export const getSession = (): Session | null => {
+// Local storage'dan session al
+export function getSession(): Session | null {
   if (typeof window === 'undefined') return null;
   
   try {
-    const sessionData = localStorage.getItem('alo17-session');
-    if (!sessionData) return null;
-    
-    const session = JSON.parse(sessionData);
-    
-    // Session'ın süresi dolmuş mu kontrol et
-    if (new Date(session.expires) < new Date()) {
-      localStorage.removeItem('alo17-session');
-      return null;
-    }
-    
-    return session;
+    const sessionData = localStorage.getItem('alo17_session');
+    return sessionData ? JSON.parse(sessionData) : null;
   } catch {
     return null;
   }
-};
-
-// Session'ı localStorage'a kaydet
-export const setSession = (session: Session): void => {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('alo17-session', JSON.stringify(session));
-};
-
-// Session'ı localStorage'dan sil
-export const clearSession = (): void => {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('alo17-session');
-};
-
-export async function signIn(email: string, password: string) {
-  try {
-    // Önce hardcoded kullanıcıları kontrol et
-    const hardcodedUser = hardcodedUsers.find(
-      u => u.email === email && u.password === password
-    );
-    
-    if (hardcodedUser) {
-      return {
-        user: {
-          id: hardcodedUser.id,
-          email: hardcodedUser.email,
-          name: hardcodedUser.name,
-          role: hardcodedUser.role
-        }
-      };
-    }
-
-    // API'den giriş kontrolü yap
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-
-    if (!res.ok) {
-      if (res.status === 401) {
-        return null; // Kullanıcı bulunamadı veya şifre yanlış
-      }
-      throw new Error('Bağlantı hatası');
-    }
-
-    const data = await res.json();
-    if (!data || !data.user) {
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('SignIn Error:', error);
-    throw error;
-  }
 }
 
-// Kullanıcı çıkışı yap
-export const signOut = (): void => {
+// Session kaydet
+export function setSession(session: Session): void {
+  if (typeof window === 'undefined') return;
+  
+  localStorage.setItem('alo17_session', JSON.stringify(session));
+}
+
+// Session temizle
+export function clearSession(): void {
+  if (typeof window === 'undefined') return;
+  
+  localStorage.removeItem('alo17_session');
+}
+
+// Kullanıcı doğrulama (client-side)
+export function validateUser(email: string, password: string): Session | null {
+  const user = hardcodedUsers.find(u => u.email === email && u.password === password);
+  
+  if (!user) return null;
+  
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    },
+    token: `mock_token_${user.id}_${Date.now()}`
+  };
+}
+
+// Token doğrulama
+export function verifyToken(token: string): { id: string; email: string; name: string; role: string } | null {
+  // Mock token validation
+  if (!token.startsWith('mock_token_')) return null;
+  
+  const parts = token.split('_');
+  if (parts.length < 3) return null;
+  
+  const userId = parts[2];
+  const user = hardcodedUsers.find(u => u.id === userId);
+  
+  if (!user) return null;
+  
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role
+  };
+}
+
+// Hook: Auth durumu
+import { useState, useEffect } from 'react';
+
+export function useAuth() {
+  const [session, setSessionState] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const savedSession = getSession();
+    setSessionState(savedSession);
+    setIsLoading(false);
+  }, []);
+
+  const login = (email: string, password: string): boolean => {
+    const validatedSession = validateUser(email, password);
+    
+    if (validatedSession) {
+      setSession(validatedSession);
+      setSessionState(validatedSession);
+      return true;
+    }
+    
+    return false;
+  };
+
+  const logout = () => {
+    clearSession();
+    setSessionState(null);
+  };
+
+  return {
+    session,
+    setSession: setSessionState,
+    isLoading,
+    login,
+    logout
+  };
+}
+
+// Admin kontrolü
+export function isAdmin(session: Session | null): boolean {
+  return session?.user?.role === 'admin';
+}
+
+// Authentication guard
+export function requireAuth(session: Session | null): boolean {
+  return session !== null;
+}
+
+// Mock functions for backward compatibility
+export const signIn = (credentials: { email: string; password: string }) => {
+  return validateUser(credentials.email, credentials.password);
+};
+
+export const signOut = () => {
   clearSession();
 };
 
-// Kullanıcının giriş yapmış olup olmadığını kontrol et
-export const isAuthenticated = (): boolean => {
-  return getSession() !== null;
-};
+// Server-side functions (for API routes)
+export function getServerSession(): Session | null {
+  // Bu server-side'da çalışmaz, API route'larda başka yöntem kullan
+  return null;
+}
 
-// Kullanıcının admin olup olmadığını kontrol et
-export const isAdmin = (): boolean => {
-  const session = getSession();
-  return session?.user?.role === 'admin';
-};
+// JWT işlemleri (mock)
+export function createToken(userId: string): string {
+  return `mock_token_${userId}_${Date.now()}`;
+}
 
-// API istekleri için authorization header'ı oluştur
-export const getAuthHeader = (): string | null => {
-  const session = getSession();
-  if (!session) return null;
+export function parseToken(token: string): { userId: string } | null {
+  if (!token.startsWith('mock_token_')) return null;
   
-  return `Bearer ${JSON.stringify(session)}`;
-}; 
+  const parts = token.split('_');
+  if (parts.length < 3) return null;
+  
+  return { userId: parts[2] };
+}
+
+// Kullanıcı rolü kontrolü
+export function hasRole(session: Session | null, role: string): boolean {
+  return session?.user?.role === role;
+}
+
+// Permission kontrolü
+export function hasPermission(session: Session | null, permission: string): boolean {
+  if (!session) return false;
+  
+  // Admin tüm izinlere sahip
+  if (session.user.role === 'admin') return true;
+  
+  // Diğer rol tabanlı izin kontrolü burada yapılabilir
+  return false;
+} 
