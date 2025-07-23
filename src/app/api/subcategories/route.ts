@@ -1,62 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
 import { revalidatePath } from 'next/cache';
 
-// Alt kategori ekleme
+// Mock subcategories (production'da gerçek database kullanılacak)
+const mockSubCategories = [
+  { id: '1', name: 'Temizlik', categoryId: '1' },
+  { id: '2', name: 'Tadilat', categoryId: '1' },
+  { id: '3', name: 'Elektronik', categoryId: '2' },
+  { id: '4', name: 'Mobilya', categoryId: '2' }
+];
+
+// Alt kategorileri getir
+export async function GET() {
+  try {
+    return NextResponse.json(mockSubCategories);
+  } catch (error) {
+    console.error('Alt kategoriler getirme hatası:', error);
+    return NextResponse.json({ error: 'Alt kategoriler getirilemedi' }, { status: 500 });
+  }
+}
+
+// Yeni alt kategori ekle
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, categoryId, icon } = body;
+    const { name, categoryId } = body;
 
     if (!name || !categoryId) {
       return NextResponse.json({ error: 'Alt kategori adı ve kategori ID gerekli' }, { status: 400 });
     }
 
-    // JSON dosyasını oku
-    const categoriesPath = join(process.cwd(), 'public', 'categories.json');
-    const categoriesData = readFileSync(categoriesPath, 'utf8');
-    const categories = JSON.parse(categoriesData);
-
-    // Kategoriyi bul
-    const categoryIndex = categories.findIndex((cat: any) => cat.id === categoryId);
-    if (categoryIndex === -1) {
-      return NextResponse.json({ error: 'Kategori bulunamadı' }, { status: 404 });
-    }
-
-    // Yeni alt kategori ID'si oluştur
-    const newSubId = `${categoryId}-${categories[categoryIndex].subCategories.length + 1}`;
-    
-    // Slug oluştur
-    const slug = name.toLowerCase()
-      .replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u')
-      .replace(/ş/g, 's')
-      .replace(/ı/g, 'i')
-      .replace(/ö/g, 'o')
-      .replace(/ç/g, 'c')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
     // Yeni alt kategori oluştur
     const newSubCategory = {
-      id: newSubId,
+      id: (mockSubCategories.length + 1).toString(),
       name,
-      slug,
-      icon: icon || 'emoji:📦'
+      categoryId
     };
 
-    // Alt kategoriyi ekle
-    categories[categoryIndex].subCategories.push(newSubCategory);
+    mockSubCategories.push(newSubCategory);
 
-    // JSON dosyasına kaydet
-    writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
-
-    // Sayfa cache'ini temizle
-    revalidatePath('/admin/kategoriler');
+    // Alt kategori değişti, kategorileri revalidate et
     revalidatePath('/kategori');
-    revalidatePath('/');
 
     return NextResponse.json({ success: true, subCategory: newSubCategory });
   } catch (error) {

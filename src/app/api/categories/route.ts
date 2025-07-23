@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
 import { revalidatePath } from 'next/cache';
 
+// Mock kategoriler (production'da gerçek database kullanılacak)
+const mockCategories = [
+  { id: '1', name: 'Hizmetler', icon: '🔧' },
+  { id: '2', name: 'Ücretsiz Gel Al', icon: '🎁' },
+  { id: '3', name: 'İş', icon: '💼' },
+  { id: '4', name: 'Sporlar-Oyunlar-Eğlenceler', icon: '⚽' },
+  { id: '5', name: 'Sanat-Hobi', icon: '🎨' },
+  { id: '6', name: 'Sağlık-Güzellik', icon: '💅' }
+];
+
+// Kategorileri getir
 export async function GET() {
   try {
-    // public/categories.json dosyasını oku
-    const categoriesPath = join(process.cwd(), 'public', 'categories.json');
-    const categoriesData = readFileSync(categoriesPath, 'utf8');
-    const categories = JSON.parse(categoriesData);
-    return NextResponse.json(categories);
+    return NextResponse.json(mockCategories);
   } catch (error) {
-    console.error('Kategoriler yüklenirken hata:', error);
-    return NextResponse.json({ error: 'Kategoriler yüklenemedi' }, { status: 500 });
+    console.error('Kategoriler getirme hatası:', error);
+    return NextResponse.json({ error: 'Kategoriler getirilemedi' }, { status: 500 });
   }
 }
 
-// Kategori ekleme
+// Yeni kategori ekle
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -26,41 +31,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
     }
 
-    // JSON dosyasını oku
-    const categoriesPath = join(process.cwd(), 'public', 'categories.json');
-    const categoriesData = readFileSync(categoriesPath, 'utf8');
-    const categories = JSON.parse(categoriesData);
-
-    // Yeni kategori ID'si oluştur
-    const newId = (categories.length + 1).toString();
-    
-    // Slug oluştur
-    const slug = name.toLowerCase()
-      .replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u')
-      .replace(/ş/g, 's')
-      .replace(/ı/g, 'i')
-      .replace(/ö/g, 'o')
-      .replace(/ç/g, 'c')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
     // Yeni kategori oluştur
     const newCategory = {
-      id: newId,
+      id: (mockCategories.length + 1).toString(),
       name,
-      slug,
-      icon: icon || 'emoji:📦',
-      order: categories.length,
-      subCategories: []
+      icon: icon || '📁'
     };
 
-    // Kategoriyi ekle
-    categories.push(newCategory);
-
-    // JSON dosyasına kaydet
-    writeFileSync(categoriesPath, JSON.stringify(categories, null, 2));
+    mockCategories.push(newCategory);
 
     // Kategori değişti, anasayfa ve kategori sayfalarını revalidate et
     revalidatePath('/');
