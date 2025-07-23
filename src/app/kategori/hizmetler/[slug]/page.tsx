@@ -15,6 +15,8 @@ interface SubCategoryPageProps {
 
 export default function SubCategoryPage({ params }: SubCategoryPageProps) {
   const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [city, setCity] = useState('');
   const [priceRange, setPriceRange] = useState('');
   const [premiumOnly, setPremiumOnly] = useState(false);
@@ -31,13 +33,25 @@ export default function SubCategoryPage({ params }: SubCategoryPageProps) {
       return;
     }
 
+    setLoading(true);
+    setError(null);
+
     fetch('/api/listings')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('İlanlar yüklenirken bir hata oluştu');
+        return res.json();
+      })
       .then(data => {
         setListings(data.filter((listing: Listing) => 
           listing.category === 'hizmetler' && 
           listing.subcategory === params.slug
         ));
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('İlanlar yüklenirken hata:', err);
+        setError('İlanlar yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+        setLoading(false);
       });
   }, [params.slug, currentSubcategory]);
 
@@ -53,8 +67,22 @@ export default function SubCategoryPage({ params }: SubCategoryPageProps) {
     return true;
   });
 
-  if (categoriesLoading) {
+  if (categoriesLoading || loading) {
     return <div className="text-center py-8">Yükleniyor...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600 mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          Tekrar Dene
+        </button>
+      </div>
+    );
   }
 
   if (!currentSubcategory) {
