@@ -1,19 +1,31 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const LISTINGS_PATH = path.join(process.cwd(), 'public', 'listings.json');
-
-async function readListings() {
-  try {
-    const data = await fs.readFile(LISTINGS_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
 
 export async function GET() {
-  const listings = await readListings();
-  return NextResponse.json(listings);
+  // Mock implementation - gerçek uygulamada database kullanılacak
+  const mockListings = [
+    {
+      id: '1',
+      title: 'iPhone 15 Pro',
+      description: 'Sıfır kutusunda iPhone 15 Pro',
+      price: '45000',
+      category: 'elektronik',
+      subcategory: 'telefon',
+      city: 'İstanbul',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: '2',
+      title: 'MacBook Pro M3',
+      description: '14 inch MacBook Pro M3 çipli',
+      price: '65000',
+      category: 'elektronik',
+      subcategory: 'bilgisayar',
+      city: 'Ankara',
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    }
+  ];
+  
+  return NextResponse.json(mockListings);
 } 
