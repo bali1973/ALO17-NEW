@@ -6,15 +6,12 @@
     "dev": "next dev -p 3004",
     "dev:watch": "nodemon --watch src --watch server.js --exec \"next dev -p 3004\"",
     "build": "next build",
-    "build:netlify": "next build && npm run copy-build-files",
-    "copy-build-files": "xcopy .next\\static public\\static /E /I /Y && xcopy .next\\server\\app public\\app /E /I /Y && xcopy .next\\server\\app\\*.html public\\ /Y",
     "start": "next start -p $PORT",
     "lint": "next lint",
     "seed": "tsx prisma/seed.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "export": "next export",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -61,7 +58,6 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@netlify/plugin-nextjs": "^5.11.5",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/jest": "^30.0.0",
