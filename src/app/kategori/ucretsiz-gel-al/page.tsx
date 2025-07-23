@@ -6,7 +6,7 @@ import CategoryLayout from '@/components/CategoryLayout';
 import { Listing } from '@/types';
 import { useCategories } from '@/lib/useCategories';
 
-export default function SanatHobiPage() {
+export default function UcretsizGelAlPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [city, setCity] = useState('');
   const [priceRange, setPriceRange] = useState('');
@@ -14,26 +14,20 @@ export default function SanatHobiPage() {
   const { categories, loading: categoriesLoading } = useCategories();
 
   // Ana kategoriyi ve alt kategorileri bul
-  const mainCategory = categories.find(cat => cat.slug === 'sanat-hobi');
+  const mainCategory = categories.find(cat => cat.slug === 'ucretsiz-gel-al');
   const subcategories = mainCategory?.subCategories || [];
 
   useEffect(() => {
     fetch('/api/listings')
       .then(res => res.json())
       .then(data => {
-        setListings(data.filter((listing: Listing) => listing.category === 'sanat-hobi'));
+        setListings(data.filter((listing: Listing) => listing.category === 'ucretsiz-gel-al'));
       });
   }, []);
 
   const filteredListings = listings.filter((listing: Listing) => {
     if (city && listing.city !== city) return false;
     if (premiumOnly && !listing.isPremium) return false;
-    if (priceRange) {
-      const price = Number(listing.price);
-      const [min, max] = priceRange.split('-').map(Number);
-      if (max && (price < min || price > max)) return false;
-      if (!max && price < min) return false;
-    }
     return true;
   });
 
@@ -45,7 +39,7 @@ export default function SanatHobiPage() {
     <CategoryLayout
       subcategories={subcategories}
       activeSlug=""
-      categoryBasePath="sanat-hobi"
+      categoryBasePath="ucretsiz-gel-al"
       city={city}
       onCityChange={setCity}
       priceRange={priceRange}
@@ -66,7 +60,6 @@ export default function SanatHobiPage() {
                   />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
-                <p className="text-gray-600">{listing.price} TL</p>
                 <p className="text-sm text-gray-500 mt-2">{listing.city}</p>
               </Link>
             </div>

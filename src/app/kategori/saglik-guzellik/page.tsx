@@ -1,56 +1,121 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
-import { useCategories } from '@/lib/useCategories'
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import CategoryLayout from '@/components/CategoryLayout';
+import { Listing } from '@/types';
+import { useCategories } from '@/lib/useCategories';
 
-export default function SaglikGuzellikCategoryPage() {
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null)
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
-  const saglik = categories.find(cat => cat.slug === 'saglik-guzellik');
+export default function SaglikGuzellikPage() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [city, setCity] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+  const [premiumOnly, setPremiumOnly] = useState(false);
+  const { categories, loading: categoriesLoading } = useCategories();
+
+  // Ana kategoriyi ve alt kategorileri bul
+  const mainCategory = categories.find(cat => cat.slug === 'saglik-guzellik');
+  const subcategories = mainCategory?.subCategories || [];
+
+  useEffect(() => {
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then(data => {
+        setListings(data.filter((listing: Listing) => listing.category === 'saglik-guzellik'));
+      });
+  }, []);
+
+  const filteredListings = listings.filter((listing: Listing) => {
+    if (city && listing.city !== city) return false;
+    if (premiumOnly && !listing.isPremium) return false;
+    if (priceRange) {
+      const price = Number(listing.price);
+      const [min, max] = priceRange.split('-').map(Number);
+      if (max && (price < min || price > max)) return false;
+      if (!max && price < min) return false;
+    }
+    return true;
+  });
+
+  if (categoriesLoading) {
+    return <div className="text-center py-8">Yükleniyor...</div>;
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Sağlık ve Güzellik</h1>
-        <p className="text-gray-600 mt-2">
-          Sağlık ve güzellik ürünleri
-        </p>
-      </div>
-      
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Sol Sidebar - Kategoriler ve Filtreler */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            {/* Alt Kategoriler */}
-            <div className="mb-6">
-              <h2 className="text-lg font-semibold mb-4">Kategoriler</h2>
-              {categoriesLoading ? (
-                <div>Kategoriler yükleniyor...</div>
-              ) : categoriesError ? (
-                <div className="text-red-600">{categoriesError}</div>
-              ) : saglik && saglik.subCategories && saglik.subCategories.length > 0 ? (
-                <div className="space-y-2">
-                  {saglik.subCategories.map(subcategory => (
-                    <Link
-                      key={subcategory.id}
-                      href={`/kategori/saglik-guzellik/${subcategory.slug}`}
-                      className={`block px-3 py-2 rounded-md hover:bg-gray-100 ${
-                        selectedSubcategory === subcategory.slug ? 'bg-gray-100 font-medium' : ''
-                      }`}
-                      onClick={() => setSelectedSubcategory(subcategory.slug)}
-                    >
-                      {subcategory.name}
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div>Alt kategori bulunamadı.</div>
-              )}
-            </div>
+    <CategoryLayout
+      subcategories={subcategories}
+      activeSlug=""
+      categoryBasePath="saglik-guzellik"
+      city={city}
+      onCityChange={setCity}
+      priceRange={priceRange}
+      onPriceRangeChange={setPriceRange}
+      premiumOnly={premiumOnly}
+      onPremiumOnlyChange={setPremiumOnly}
+      extraSidebarContent={
+        <div className="mt-6">
+          <h3 className="font-medium mb-2">Özel Filtreler</h3>
+          <div className="space-y-2">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={false}
+                onChange={() => {}}
+              />
+              <span>Sadece Sertifikalı</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={false}
+                onChange={() => {}}
+              />
+              <span>Randevu İmkanı</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={false}
+                onChange={() => {}}
+              />
+              <span>Online Hizmet</span>
+            </label>
           </div>
         </div>
+      }
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredListings.length > 0 ? (
+          filteredListings.map((listing: Listing) => (
+            <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
+              <Link href={`/listing/${listing.id}`}>
+                <div className="aspect-w-16 aspect-h-9 mb-4">
+                  <img
+                    src={listing.images?.[0] || '/placeholder.png'}
+                    alt={listing.title}
+                    className="object-cover w-full h-full rounded"
+                  />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{listing.title}</h3>
+                <p className="text-gray-600">{listing.price} TL</p>
+                <p className="text-sm text-gray-500 mt-2">{listing.city}</p>
+                {listing.isPremium && (
+                  <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-2">
+                    Premium
+                  </span>
+                )}
+              </Link>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8 text-gray-500">
+            Bu kategoride ilan bulunamadı.
+          </div>
+        )}
       </div>
-    </div>
-  )
+    </CategoryLayout>
+  );
 } 
