@@ -1,73 +1,91 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import CategoryLayout from '@/components/CategoryLayout';
+import { Listing } from '@/types';
 import { useCategories } from '@/lib/useCategories';
 
 export default function YemekIcecekPage() {
-  const [listings, setListings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [city, setCity] = useState('');
+  const [priceRange, setPriceRange] = useState('');
+  const [premiumOnly, setPremiumOnly] = useState(false);
+  const { categories, loading: categoriesLoading } = useCategories();
 
-  // Ana kategori ve alt kategorileri bul
+  // Ana kategoriyi ve alt kategorileri bul
   const mainCategory = categories.find(cat => cat.slug === 'yemek-icecek');
-  const subcategories = (mainCategory?.subCategories || []).sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+  const subcategories = mainCategory?.subCategories || [];
 
   useEffect(() => {
-    setLoading(true);
     fetch('/api/listings')
       .then(res => res.json())
       .then(data => {
-        setListings(data.filter((l: any) => l.category === 'yemek-icecek'));
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('İlanlar yüklenemedi');
-        setLoading(false);
+        setListings(data.filter((listing: Listing) => listing.category === 'yemek-icecek'));
       });
   }, []);
 
-  if (loading || categoriesLoading) return <div>Yükleniyor...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (categoriesError) return <div className="text-red-600">{categoriesError}</div>;
+  const filteredListings = listings.filter((listing: Listing) => {
+    if (city && listing.city !== city) return false;
+    if (premiumOnly && !listing.isPremium) return false;
+    if (priceRange) {
+      const price = Number(listing.price);
+      const [min, max] = priceRange.split('-').map(Number);
+      if (max && (price < min || price > max)) return false;
+      if (!max && price < min) return false;
+    }
+    return true;
+  });
+
+  if (categoriesLoading) {
+    return <div className="text-center py-8">Yükleniyor...</div>;
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Yemek & İçecek İlanları</h1>
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar - Alt Kategoriler */}
-        <aside className="md:w-64 w-full mb-4 md:mb-0">
-          <div className="bg-white rounded shadow p-4">
-            <h2 className="text-lg font-semibold mb-3">Alt Kategoriler</h2>
-            <ul className="space-y-2">
-              {subcategories.length === 0 && <li>Alt kategori bulunamadı.</li>}
-              {subcategories.map((s: any) => (
-                <li key={s.slug}>
-                  <Link
-                    href={`/kategori/yemek-icecek/${s.slug}`}
-                    className="block w-full text-left px-2 py-1 rounded hover:bg-gray-100"
-                  >{s.name}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
-        {/* İlanlar */}
-        <main className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map(listing => (
-              <div key={listing.id} className="bg-white rounded-lg shadow-md p-4">
-                <h2 className="text-lg font-semibold mb-2">{listing.title}</h2>
-                <div className="text-gray-600 mb-1">{listing.location}</div>
-                <div className="text-gray-800 font-bold mb-2">{listing.price} TL</div>
-                {/* Diğer alanlar */}
-              </div>
-            ))}
-          </div>
-          {listings.length === 0 && <div className="text-center py-12">İlan bulunamadı.</div>}
-        </main>
+    <CategoryLayout
+      subcategories={subcategories}
+      activeSlug=""
+      categoryBasePath="kategori/yemek-icecek"
+      city={city}
+      onCityChange={setCity}
+      priceRange={priceRange}
+      onPriceRangeChange={setPriceRange}
+      premiumOnly={premiumOnly}
+      onPremiumOnlyChange={setPremiumOnly}
+    >
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Yemek & İçecek</h1>
+        <p className="text-gray-600 mt-2">
+          Restoranlar, kafeler, pastaneler ve yemek hizmetleri
+        </p>
       </div>
-    </div>
+
+      {filteredListings.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-6 text-center">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Henüz İlan Bulunmuyor</h3>
+          <p className="text-gray-600 mb-6">Bu kategoride henüz ilan bulunmuyor. İlk ilanı siz verin!</p>
+          <a
+            href="/ilan-ver"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Ücretsiz İlan Ver
+          </a>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredListings.map((listing) => (
+            <div key={listing.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+              <div className="p-4">
+                <h3 className="font-semibold text-lg text-gray-900 mb-2">{listing.title}</h3>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{listing.description}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-bold text-blue-600">{listing.price} ₺</span>
+                  <span className="text-sm text-gray-500">{listing.city}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </CategoryLayout>
   );
 } 
