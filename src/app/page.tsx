@@ -103,7 +103,7 @@ export default function Home() {
     const fetchListings = async () => {
       try {
         console.log('Fetching listings from API...');
-        const response = await fetch('/api/listings/');
+        const response = await fetch('/api/listings');
         console.log('API Response status:', response.status);
         
         if (response.ok) {
@@ -134,7 +134,7 @@ export default function Home() {
 
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/categories/');
+        const response = await fetch('/api/categories');
         if (response.ok) {
           const data = await response.json();
           setCategories(data);

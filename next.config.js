@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  trailingSlash: true,
+  trailingSlash: false,
   images: {
     unoptimized: true,
   },
@@ -11,7 +11,5 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 };
-
-module.exports = nextConfig;
 
 module.exports = nextConfig; 

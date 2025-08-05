@@ -4,7 +4,7 @@ import { Category } from '@/types/categories';
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useCategories() {
-  const { data, error } = useSWR<Category[]>('/api/categories/', fetcher);
+  const { data, error } = useSWR<Category[]>('/api/categories', fetcher);
 
   return {
     categories: data || [],
