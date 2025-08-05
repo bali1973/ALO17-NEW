@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, Eye } from 'lucide-react';
-import { useAuth } from '@/components/Providers';
+import { useAuth } from '@/hooks/useAuth';
 import { Sidebar } from '@/components/Sidebar';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { Category } from '@/lib/types';

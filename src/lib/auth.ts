@@ -20,32 +20,7 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// Hardcoded test kullanıcıları
-export const hardcodedUsers = [
-  {
-    id: '1',
-    email: 'admin@alo17.com',
-    name: 'Admin User',
-    password: 'admin123',
-    role: 'admin'
-  },
-  {
-    id: '2',
-    email: 'user@alo17.com',
-    name: 'Normal User',
-    password: 'user123',
-    role: 'user'
-  },
-  {
-    id: '3',
-    email: 'test@alo17.com',
-    name: 'Test User',
-    password: 'test123',
-    role: 'user'
-  }
-];
-
-// Session tipi
+// Session interface
 export interface Session {
   user: {
     id: string;
@@ -61,108 +36,74 @@ export interface Session {
   token?: string;
 }
 
-// Local storage'dan session al
+// Local storage session yönetimi
 export function getSession(): Session | null {
   if (typeof window === 'undefined') return null;
   
   try {
     const sessionData = localStorage.getItem('alo17-session');
-    return sessionData ? JSON.parse(sessionData) : null;
-  } catch {
-    return null;
+    if (sessionData) {
+      const session = JSON.parse(sessionData);
+      if (session.expires && new Date(session.expires) > new Date()) {
+        return session;
+      }
+    }
+  } catch (error) {
+    console.error('Session okuma hatası:', error);
   }
+  
+  return null;
 }
 
-// Session kaydet
 export function setSession(session: Session): void {
   if (typeof window === 'undefined') return;
   
-  localStorage.setItem('alo17-session', JSON.stringify(session));
+  try {
+    localStorage.setItem('alo17-session', JSON.stringify(session));
+  } catch (error) {
+    console.error('Session kaydetme hatası:', error);
+  }
 }
 
-// Session temizle
 export function clearSession(): void {
   if (typeof window === 'undefined') return;
   
-  localStorage.removeItem('alo17-session');
+  try {
+    localStorage.removeItem('alo17-session');
+  } catch (error) {
+    console.error('Session temizleme hatası:', error);
+  }
 }
 
-// Kullanıcı doğrulama (client-side)
 export function validateUser(email: string, password: string): Session | null {
-  const user = hardcodedUsers.find(u => u.email === email && u.password === password);
+  // Mock kullanıcı doğrulama
+  if (email === 'admin@alo17.com' && password === 'admin123') {
+    return {
+      user: {
+        id: '1',
+        email: 'admin@alo17.com',
+        name: 'Admin',
+        role: 'admin'
+      },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    };
+  }
   
-  if (!user) return null;
-  
-  return {
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role
-    },
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 saat sonra
-    token: `mock_token_${user.id}_${Date.now()}`
-  };
+  return null;
 }
 
-// Token doğrulama
 export function verifyToken(token: string): { id: string; email: string; name: string; role: string } | null {
-  // Mock token validation
-  if (!token.startsWith('mock_token_')) return null;
+  // Mock token doğrulama
+  if (token.startsWith('mock_token_')) {
+    return {
+      id: '1',
+      email: 'admin@alo17.com',
+      name: 'Admin',
+      role: 'admin'
+    };
+  }
   
-  const parts = token.split('_');
-  if (parts.length < 3) return null;
-  
-  const userId = parts[2];
-  const user = hardcodedUsers.find(u => u.id === userId);
-  
-  if (!user) return null;
-  
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role
-  };
-}
-
-// Hook: Auth durumu
-import { useState, useEffect } from 'react';
-
-export function useAuth() {
-  const [session, setSessionState] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const savedSession = getSession();
-    setSessionState(savedSession);
-    setIsLoading(false);
-  }, []);
-
-  const login = (email: string, password: string): boolean => {
-    const validatedSession = validateUser(email, password);
-    
-    if (validatedSession) {
-      setSession(validatedSession);
-      setSessionState(validatedSession);
-      return true;
-    }
-    
-    return false;
-  };
-
-  const logout = () => {
-    clearSession();
-    setSessionState(null);
-  };
-
-  return {
-    session,
-    setSession: setSessionState,
-    isLoading,
-    login,
-    logout
-  };
+  return null;
 }
 
 // Admin kontrolü
