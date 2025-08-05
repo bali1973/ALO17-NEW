@@ -1,5 +1,8 @@
 'use client'
 
+import React, { useState, useEffect } from 'react';
+
+import { Search, Filter, Grid, List } from 'lucide-react';
 import { useCategories } from '@/lib/useCategories'
 import Link from 'next/link'
 import { Smartphone, Home as HomeIcon, Shirt, Baby, Dumbbell, Heart, GraduationCap, Utensils, Palette, Gift, Users, Circle, Briefcase } from 'lucide-react'
@@ -47,7 +50,10 @@ function getColor(slug: string, index: number) {
 }
 
 export default function TumKategorilerPage() {
+  
   const { categories, loading, error } = useCategories();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('grid');
 
   if (loading) {
     return (

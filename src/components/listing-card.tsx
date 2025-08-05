@@ -5,41 +5,17 @@ import { Heart, Eye, Clock, Star, MapPin, Tag, Zap, TrendingUp } from "lucide-re
 import { cn } from "@/lib/utils"
 import { useToast } from '@/components/ToastProvider';
 import Image from 'next/image';
-
-interface Listing {
-  id: number
-  title: string
-  price: string | number
-  location: string
-  description: string
-  category: string
-  subcategory: string
-  isPremium: boolean
-  imageUrl: string
-  createdAt: Date
-  views: number
-  condition: string
-  brand?: string
-  model?: string
-  year?: number | null
-  seller?: {
-    name: string
-    email: string
-  }
-  isUrgent?: boolean
-  isFeatured?: boolean
-  premiumFeatures?: string[]
-}
+import { Listing } from '@/types';
 
 interface ListingCardProps {
   listing: Listing
 }
 
-function getFavoriteIds() {
+function getFavoriteIds(): string[] {
   if (typeof window === 'undefined') return [];
   return JSON.parse(localStorage.getItem('favorites') || '[]');
 }
-function setFavoriteIds(ids: number[]) {
+function setFavoriteIds(ids: string[]) {
   if (typeof window === 'undefined') return;
   localStorage.setItem('favorites', JSON.stringify(ids));
 }
@@ -163,18 +139,18 @@ export function ListingCard({ listing }: ListingCardProps) {
   // Görsel oranı ve fallback iyileştirildi
   const getImageUrl = (imageUrl: string) => {
     if (!imageUrl || typeof imageUrl !== 'string') {
-      return '/images/placeholder.jpg';
+      return '/images/placeholder.svg';
     }
     const trimmedUrl = imageUrl.trim();
     if (trimmedUrl === '') {
-      return '/images/placeholder.jpg';
+      return '/images/placeholder.svg';
     }
     if (trimmedUrl.startsWith('[') && trimmedUrl.endsWith(']')) {
       try {
         const parsed = JSON.parse(trimmedUrl);
-        return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '/images/placeholder.jpg';
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '/images/placeholder.svg';
       } catch (error) {
-        return '/images/placeholder.jpg';
+        return '/images/placeholder.svg';
       }
     }
     return trimmedUrl;
@@ -193,12 +169,30 @@ export function ListingCard({ listing }: ListingCardProps) {
       <Link href={`/ilan/${listing.id}`} tabIndex={-1} className="block focus:outline-none">
         <div className="relative aspect-[4/3] bg-gray-50">
           <Image
-            src={listing.imageUrl && listing.imageUrl.trim() !== '' ? listing.imageUrl : '/images/placeholder.jpg'}
-            alt={listing.title}
+            src={(() => {
+              if (!listing.images) return '/images/placeholder.svg';
+              if (Array.isArray(listing.images)) {
+                return listing.images.length > 0 ? listing.images[0] : '/images/placeholder.svg';
+              }
+              if (typeof listing.images === 'string') {
+                try {
+                  const parsed = JSON.parse(listing.images);
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed[0];
+                  }
+                  return listing.images;
+                } catch {
+                  return listing.images;
+                }
+              }
+              return '/images/placeholder.svg';
+            })()}
+            alt={listing.title || 'İlan görseli'}
             width={400}
             height={300}
             className="w-full h-48 object-cover rounded-t-lg"
             loading="lazy"
+            unoptimized
           />
           {renderBadges()}
           {/* Favori ve sık kullanılan butonları */}

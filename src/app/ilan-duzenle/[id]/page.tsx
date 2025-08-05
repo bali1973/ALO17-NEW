@@ -46,7 +46,7 @@ export default function IlanDuzenlePage() {
           description: data.description || "",
           price: data.price?.toString() || "",
           category: data.category || "",
-          subcategory: data.subcategory || data.subCategory || "",
+          subcategory: data.subcategory || "",
           condition: data.condition || "",
           location: data.location || "",
           images: Array.isArray(data.images) ? data.images : (data.images ? [data.images] : []),

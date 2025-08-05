@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-
-// Mock subcategories (production'da gerçek database kullanılacak)
-const mockSubCategories = [
-  { id: '1', name: 'Temizlik', categoryId: '1' },
-  { id: '2', name: 'Tadilat', categoryId: '1' },
-  { id: '3', name: 'Elektronik', categoryId: '2' },
-  { id: '4', name: 'Mobilya', categoryId: '2' }
-];
+import { prisma } from '@/lib/prisma';
 
 // Alt kategorileri getir
 export async function GET() {
   try {
-    return NextResponse.json(mockSubCategories);
+    const subCategories = await prisma.subCategory.findMany();
+    return NextResponse.json(subCategories);
   } catch (error) {
     console.error('Alt kategoriler getirme hatası:', error);
     return NextResponse.json({ error: 'Alt kategoriler getirilemedi' }, { status: 500 });
@@ -29,14 +23,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Alt kategori adı ve kategori ID gerekli' }, { status: 400 });
     }
 
-    // Yeni alt kategori oluştur
-    const newSubCategory = {
-      id: (mockSubCategories.length + 1).toString(),
-      name,
-      categoryId
-    };
+    // Slug oluştur
+    const slug = name.toLowerCase()
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
 
-    mockSubCategories.push(newSubCategory);
+    // Alt kategoriyi veritabanına ekle
+    const newSubCategory = await prisma.subCategory.create({
+      data: {
+        name,
+        slug,
+        categoryId,
+      },
+    });
 
     // Alt kategori değişti, kategorileri revalidate et
     revalidatePath('/kategori');

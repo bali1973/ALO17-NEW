@@ -1,90 +1,217 @@
-// Simple in-memory cache system for performance optimization
 interface CacheItem<T> {
   data: T;
   timestamp: number;
-  ttl: number;
+  expiresAt: number;
 }
 
-class Cache {
-  private store = new Map<string, CacheItem<any>>();
-  private maxSize = 1000; // Maximum cache size
+interface CacheStats {
+  hits: number;
+  misses: number;
+  size: number;
+  keys: string[];
+}
 
-  set<T>(key: string, data: T, ttl: number = 5 * 60 * 1000): void {
-    // Clean up expired items
-    this.cleanup();
+class CacheService {
+  private cache = new Map<string, CacheItem<any>>();
+  private stats: CacheStats = {
+    hits: 0,
+    misses: 0,
+    size: 0,
+    keys: [],
+  };
+  private maxSize = 1000; // Maksimum cache boyutu
+  private cleanupInterval: NodeJS.Timeout;
 
-    // Remove oldest items if cache is full
-    if (this.store.size >= this.maxSize) {
-      const oldestKey = this.store.keys().next().value;
-      if (oldestKey) {
-        this.store.delete(oldestKey);
-      }
-    }
-
-    this.store.set(key, {
-      data,
-      timestamp: Date.now(),
-      ttl
-    });
+  constructor() {
+    // Her 5 dakikada bir expired item'ları temizle
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 5 * 60 * 1000);
   }
 
+  // Veri cache'e ekle
+  set<T>(key: string, data: T, ttlSeconds: number = 3600): void {
+    const now = Date.now();
+    const expiresAt = now + (ttlSeconds * 1000);
+
+    // Cache boyutunu kontrol et
+    if (this.cache.size >= this.maxSize) {
+      this.evictOldest();
+    }
+
+    const item: CacheItem<T> = {
+      data,
+      timestamp: now,
+      expiresAt,
+    };
+
+    this.cache.set(key, item);
+    this.updateStats();
+  }
+
+  // Cache'den veri al
   get<T>(key: string): T | null {
-    const item = this.store.get(key);
+    const item = this.cache.get(key);
     
     if (!item) {
+      this.stats.misses++;
       return null;
     }
 
-    // Check if item is expired
-    if (Date.now() - item.timestamp > item.ttl) {
-      this.store.delete(key);
+    // Expired kontrolü
+    if (Date.now() > item.expiresAt) {
+      this.cache.delete(key);
+      this.stats.misses++;
       return null;
     }
 
-    return item.data;
+    this.stats.hits++;
+    return item.data as T;
   }
 
+  // Cache'den veri sil
   delete(key: string): boolean {
-    return this.store.delete(key);
+    const deleted = this.cache.delete(key);
+    if (deleted) {
+      this.updateStats();
+    }
+    return deleted;
   }
 
+  // Cache'i temizle
   clear(): void {
-    this.store.clear();
+    this.cache.clear();
+    this.updateStats();
   }
 
+  // Belirli pattern'e uyan key'leri sil
+  deletePattern(pattern: string): number {
+    const regex = new RegExp(pattern);
+    let deletedCount = 0;
+
+    for (const key of this.cache.keys()) {
+      if (regex.test(key)) {
+        this.cache.delete(key);
+        deletedCount++;
+      }
+    }
+
+    if (deletedCount > 0) {
+      this.updateStats();
+    }
+
+    return deletedCount;
+  }
+
+  // Cache istatistiklerini al
+  getStats(): CacheStats {
+    return { ...this.stats };
+  }
+
+  // Cache boyutunu al
+  getSize(): number {
+    return this.cache.size;
+  }
+
+  // Cache'de key var mı kontrol et
+  has(key: string): boolean {
+    const item = this.cache.get(key);
+    if (!item) return false;
+    
+    if (Date.now() > item.expiresAt) {
+      this.cache.delete(key);
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Cache'deki tüm key'leri al
+  keys(): string[] {
+    return Array.from(this.cache.keys());
+  }
+
+  // Cache'deki tüm değerleri al
+  values(): any[] {
+    return Array.from(this.cache.values()).map(item => item.data);
+  }
+
+  // Cache'deki tüm item'ları al
+  entries(): [string, any][] {
+    return Array.from(this.cache.entries()).map(([key, item]) => [key, item.data]);
+  }
+
+  // Expired item'ları temizle
   private cleanup(): void {
     const now = Date.now();
-    this.store.forEach((item, key) => {
-      if (now - item.timestamp > item.ttl) {
-        this.store.delete(key);
+    let cleanedCount = 0;
+
+    for (const [key, item] of this.cache.entries()) {
+      if (now > item.expiresAt) {
+        this.cache.delete(key);
+        cleanedCount++;
       }
-    });
+    }
+
+    if (cleanedCount > 0) {
+      this.updateStats();
+    }
   }
 
-  // Get cache statistics
-  getStats() {
-    return {
-      size: this.store.size,
-      maxSize: this.maxSize,
-      keys: Array.from(this.store.keys())
-    };
+  // En eski item'ı sil (LRU)
+  private evictOldest(): void {
+    let oldestKey: string | null = null;
+    let oldestTime = Date.now();
+
+    for (const [key, item] of this.cache.entries()) {
+      if (item.timestamp < oldestTime) {
+        oldestTime = item.timestamp;
+        oldestKey = key;
+      }
+    }
+
+    if (oldestKey) {
+      this.cache.delete(oldestKey);
+    }
+  }
+
+  // İstatistikleri güncelle
+  private updateStats(): void {
+    this.stats.size = this.cache.size;
+    this.stats.keys = Array.from(this.cache.keys());
+  }
+
+  // Cache'i destroy et
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    this.cache.clear();
   }
 }
 
 // Global cache instance
-export const cache = new Cache();
+export const cache = new CacheService();
 
-// Cache keys
-export const CACHE_KEYS = {
-  LISTINGS: 'listings',
-  CATEGORIES: 'categories',
-  USER_PROFILE: 'user_profile',
-  FEATURED_ADS: 'featured_ads',
-  LATEST_ADS: 'latest_ads',
-  SEARCH_RESULTS: 'search_results'
-} as const;
+// Cache wrapper fonksiyonları
+export async function cachedFetch<T>(
+  key: string,
+  fetchFn: () => Promise<T>,
+  ttlSeconds: number = 3600
+): Promise<T> {
+  // Cache'den kontrol et
+  const cached = cache.get<T>(key);
+  if (cached !== null) {
+    return cached;
+  }
 
-// Cache utilities
+  // Fetch et ve cache'e kaydet
+  const data = await fetchFn();
+  cache.set(key, data, ttlSeconds);
+  return data;
+}
+
+// Cache key generator
 export function generateCacheKey(prefix: string, params: Record<string, any>): string {
   const sortedParams = Object.keys(params)
     .sort()
@@ -94,48 +221,55 @@ export function generateCacheKey(prefix: string, params: Record<string, any>): s
   return `${prefix}:${sortedParams}`;
 }
 
-// Cache decorator for functions
-export function withCache<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  keyGenerator: (...args: Parameters<T>) => string,
-  ttl: number = 5 * 60 * 1000
-): T {
-  return (async (...args: Parameters<T>): Promise<ReturnType<T>> => {
-    const key = keyGenerator(...args);
-    const cached = cache.get<ReturnType<T>>(key);
-    
-    if (cached) {
-      return cached;
-    }
-
-    const result = await fn(...args);
-    cache.set(key, result, ttl);
-    
-    return result;
-  }) as T;
-}
-
-// Database query cache wrapper
-export async function cachedQuery<T>(
+// Cache middleware (API routes için)
+export function withCache<T>(
+  handler: () => Promise<T>,
   key: string,
-  queryFn: () => Promise<T>,
-  ttl: number = 5 * 60 * 1000
-): Promise<T> {
-  const cached = cache.get<T>(key);
-  
-  if (cached) {
-    return cached;
-  }
-
-  const result = await queryFn();
-  cache.set(key, result, ttl);
-  
-  return result;
+  ttlSeconds: number = 3600
+): () => Promise<T> {
+  return async () => {
+    return cachedFetch(key, handler, ttlSeconds);
+  };
 }
 
-// Cache invalidation
-export function invalidateCache(pattern: string): void {
-  // This would need to be implemented differently to access private store
-  // For now, we'll use a different approach
-  cache.clear(); // Clear all cache as a fallback
-} 
+// Cache invalidation helpers
+export const cacheInvalidators = {
+  // İlan cache'ini temizle
+  clearListingCache: (listingId?: string) => {
+    if (listingId) {
+      cache.deletePattern(`listing:${listingId}`);
+    } else {
+      cache.deletePattern('listing:');
+    }
+  },
+
+  // Kategori cache'ini temizle
+  clearCategoryCache: (categoryId?: string) => {
+    if (categoryId) {
+      cache.deletePattern(`category:${categoryId}`);
+    } else {
+      cache.deletePattern('category:');
+    }
+  },
+
+  // Kullanıcı cache'ini temizle
+  clearUserCache: (userId?: string) => {
+    if (userId) {
+      cache.deletePattern(`user:${userId}`);
+    } else {
+      cache.deletePattern('user:');
+    }
+  },
+
+  // Arama cache'ini temizle
+  clearSearchCache: () => {
+    cache.deletePattern('search:');
+  },
+
+  // Tüm cache'i temizle
+  clearAll: () => {
+    cache.clear();
+  },
+};
+
+export default cache; 

@@ -8,12 +8,14 @@ import {
   RefreshControl,
   Image,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { RootStackParamList } from '../../types/navigation';
+import apiService from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -46,43 +48,64 @@ const HomeScreen: React.FC = () => {
   const loadListings = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call
-      const mockListings: Listing[] = [
-        {
-          id: '1',
-          title: 'iPhone 14 Pro Max',
-          price: 25000,
-          image: 'https://via.placeholder.com/300x200',
-          location: 'İstanbul',
-          createdAt: '2024-01-15',
-          isPremium: true,
-          viewCount: 150,
-        },
-        {
-          id: '2',
-          title: 'MacBook Pro M2',
-          price: 45000,
-          image: 'https://via.placeholder.com/300x200',
-          location: 'Ankara',
-          createdAt: '2024-01-14',
-          isPremium: false,
-          viewCount: 89,
-        },
-        {
-          id: '3',
-          title: 'Samsung Galaxy S23',
-          price: 18000,
-          image: 'https://via.placeholder.com/300x200',
-          location: 'İzmir',
-          createdAt: '2024-01-13',
-          isPremium: true,
-          viewCount: 234,
-        },
-      ];
       
-      setListings(mockListings);
+      // Gerçek API çağrısı
+      const response = await apiService.getListings({ limit: 20 });
+      
+      if (response.success && response.data) {
+        // API'den gelen veriyi Listing formatına dönüştür
+        const apiListings = response.data.map((item: any) => ({
+          id: item.id.toString(),
+          title: item.title,
+          price: typeof item.price === 'number' ? item.price : parseFloat(item.price),
+          image: Array.isArray(item.images) ? item.images[0] : item.images || 'https://via.placeholder.com/300x200',
+          location: item.city || item.location || 'Bilinmiyor',
+          createdAt: item.createdAt || new Date().toISOString(),
+          isPremium: item.premium || item.isPremium || false,
+          viewCount: item.views || 0,
+        }));
+        
+        setListings(apiListings);
+      } else {
+        // API hatası durumunda mock data kullan
+        console.warn('API error, using mock data:', response.error);
+        const mockListings: Listing[] = [
+          {
+            id: '1',
+            title: 'iPhone 14 Pro Max',
+            price: 25000,
+            image: 'https://via.placeholder.com/300x200',
+            location: 'İstanbul',
+            createdAt: '2024-01-15',
+            isPremium: true,
+            viewCount: 150,
+          },
+          {
+            id: '2',
+            title: 'MacBook Pro M2',
+            price: 45000,
+            image: 'https://via.placeholder.com/300x200',
+            location: 'Ankara',
+            createdAt: '2024-01-14',
+            isPremium: false,
+            viewCount: 89,
+          },
+          {
+            id: '3',
+            title: 'Samsung Galaxy S23',
+            price: 18000,
+            image: 'https://via.placeholder.com/300x200',
+            location: 'İzmir',
+            createdAt: '2024-01-13',
+            isPremium: true,
+            viewCount: 234,
+          },
+        ];
+        setListings(mockListings);
+      }
     } catch (error) {
       console.error('Error loading listings:', error);
+      apiService.handleError('İlanlar yüklenirken bir hata oluştu', 'Yükleme Hatası');
     } finally {
       setLoading(false);
     }

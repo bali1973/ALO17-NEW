@@ -35,24 +35,26 @@ export type PremiumFeature = {
 
 // İlan tipi
 export interface Listing {
-  id: number;
+  id: string | number;
   title: string;
-  price: string;
-  location: string;
+  price: number | string;
+  location?: string;
+  city: string;
   category: string;
-  subcategory: string;
+  subcategory?: string;
   description: string;
-  images: string[];
-  date: string;
-  condition: string;
-  type: typeof listingTypes[keyof typeof listingTypes];
-  status: typeof listingStatus[keyof typeof listingStatus];
-  showPhone: boolean;
-  isFavorite: boolean;
-  views: number;
-  favorites: number;
-  seller: Seller;
-  premiumFeatures: PremiumFeature;
+  images?: string[] | string;
+  date?: string;
+  condition?: string;
+  type?: typeof listingTypes[keyof typeof listingTypes];
+  status?: typeof listingStatus[keyof typeof listingStatus];
+  showPhone?: boolean;
+  isFavorite?: boolean;
+  views?: number;
+  favorites?: number;
+  seller?: Seller;
+  premiumFeatures?: PremiumFeature;
+  premium?: boolean; // Premium ilan mı?
   externalLink?: string;
   // Son işlem yapan kişi ve işlem bilgisi
   lastActionBy?: { id: string; name: string; role: string };
@@ -64,6 +66,17 @@ export interface Listing {
     by: { id: string; name: string; role: string };
     at: string; // ISO tarih
   }>;
+  brand?: string;
+  model?: string;
+  year?: string;
+  isPremium?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  userId?: string;
+  user?: string | { id: string; name: string; email: string };
+  email?: string;
+  userRole?: string;
+  features?: string | string[];
 }
 
 // Kategori Tipi

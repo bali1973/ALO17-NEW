@@ -1,6 +1,11 @@
+'use client';
+
 import React from 'react';
 
+import { Users, Target, Award, Heart } from 'lucide-react';
+
 export default function HakkimizdaPage() {
+  
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold mb-8">Biz Kimiz?</h1>

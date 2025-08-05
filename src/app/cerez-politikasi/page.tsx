@@ -1,6 +1,11 @@
+'use client';
+
 import React from 'react';
 
+import { Cookie, Settings, Info, Shield } from 'lucide-react';
+
 export default function CerezPolitikasiPage() {
+  
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-2xl font-bold mb-6">Çerez Politikası</h1>

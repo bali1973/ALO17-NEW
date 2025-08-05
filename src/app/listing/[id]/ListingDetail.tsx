@@ -194,7 +194,7 @@ export default function ListingDetail() {
   }
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = '/images/placeholder.jpg';
+    e.currentTarget.src = '/images/placeholder.svg';
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {

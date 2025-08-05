@@ -19,7 +19,7 @@ async function writeUsers(users: any[]) {
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const { email, name, phone, location, birthdate } = body;
+  const { email, name, phone, location, address, birthdate } = body;
   console.log('API gelen (JSON):', body);
   if (!email) {
     return NextResponse.json({ error: 'Email zorunlu' }, { status: 400 });
@@ -34,6 +34,7 @@ export async function POST(req: Request) {
   users[idx].name = name || users[idx].name;
   users[idx].phone = phone || users[idx].phone;
   users[idx].location = location || users[idx].location;
+  users[idx].address = address || users[idx].address;
   users[idx].birthdate = birthdate || users[idx].birthdate;
   console.log('SONRA (users[idx]):', users[idx]);
   // Avatar dosyası mock (gerçek dosya kaydı yok)

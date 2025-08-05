@@ -36,7 +36,7 @@ export default function MessagesBox() {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessages(data.messages);
+        setMessages(data.messages || data || []);
       } else {
         setError(data.error || 'Mesajlar yüklenemedi.');
       }
@@ -72,11 +72,11 @@ export default function MessagesBox() {
       </div>
       {loading && <div>Yükleniyor...</div>}
       {error && <div className="text-red-500 mb-4">{error}</div>}
-      {!loading && messages.length === 0 && (
+      {!loading && (!messages || messages.length === 0) && (
         <div className="text-gray-500">Hiç mesaj yok.</div>
       )}
       <ul className="space-y-4">
-        {messages.map((msg: any) => (
+        {messages && messages.map((msg: any) => (
           <li
             key={msg.id}
             className="bg-white rounded shadow p-4 cursor-pointer hover:bg-blue-50"

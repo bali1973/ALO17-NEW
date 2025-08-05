@@ -1,0 +1,60 @@
+[
+  {
+    "id": "1",
+    "name": "Yeni Yıl İndirimi",
+    "type": "discount",
+    "discount": 30,
+    "startDate": "2024-12-25",
+    "endDate": "2024-01-05",
+    "targetAudience": [
+      "yeni-kullanici",
+      "premium"
+    ],
+    "isActive": true,
+    "performance": {
+      "totalRevenue": 45000,
+      "conversions": 156,
+      "cost": 5000
+    },
+    "createdAt": "2024-01-01",
+    "updatedAt": "2024-01-15"
+  },
+  {
+    "id": "2",
+    "name": "Premium Deneme Kampanyası",
+    "type": "trial",
+    "discount": 100,
+    "startDate": "2024-01-01",
+    "endDate": "2024-01-31",
+    "targetAudience": [
+      "aktif-kullanici"
+    ],
+    "isActive": true,
+    "performance": {
+      "totalRevenue": 23000,
+      "conversions": 89,
+      "cost": 3000
+    },
+    "createdAt": "2024-01-01",
+    "updatedAt": "2024-01-10"
+  },
+  {
+    "id": "3",
+    "name": "Yaz Sezonu İndirimi",
+    "type": "discount",
+    "discount": 25,
+    "startDate": "2024-06-01",
+    "endDate": "2024-08-31",
+    "targetAudience": [
+      "tum-kullanicilar"
+    ],
+    "isActive": false,
+    "performance": {
+      "totalRevenue": 67000,
+      "conversions": 234,
+      "cost": 8000
+    },
+    "createdAt": "2024-01-01",
+    "updatedAt": "2024-01-05"
+  }
+]

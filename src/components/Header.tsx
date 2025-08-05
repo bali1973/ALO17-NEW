@@ -2,12 +2,42 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, User, LogOut, Bell, MessageCircle } from "lucide-react"
-import { useAuth } from './Providers'
+import Image from 'next/image';
+import { User, LogOut, Bell, MessageCircle, Menu, X } from "lucide-react";
+import { useAuth } from './Providers';
+
+interface NotificationCount {
+  unreadCount: number;
+  totalNotifications: number;
+}
 
 export default function Header() {
-  const { session, setSession, isLoading } = useAuth();
+  const { session, setSession } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState<NotificationCount>({ 
+    unreadCount: 0, 
+    totalNotifications: 0 
+  });
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchNotificationCount();
+      const interval = setInterval(fetchNotificationCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [session]);
+
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await fetch(`/api/notifications/unread/count?userId=${session?.user?.email}`);
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationCount(data);
+      }
+    } catch (error) {
+      // Bildirim sayısı alınamadı - sessizce devam et
+    }
+  };
 
   const handleSignOut = () => {
     setSession(null);
@@ -16,68 +46,157 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow">
-            <span className="text-white font-bold text-2xl">A</span>
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-4">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">A17</span>
+              </div>
+              <span className="font-bold text-xl text-gray-800 hidden sm:block">Alo17</span>
+            </Link>
           </div>
-          <span className="text-2xl font-extrabold tracking-tight text-primary">alo17<span className="text-secondary">.tr</span></span>
-        </Link>
-        {/* Mobil hamburger */}
-        <button className="lg:hidden p-2 rounded-md hover:bg-gray-100" onClick={()=>setIsMenuOpen(v=>!v)}>
-          <span className="sr-only">Menüyü Aç</span>
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
-        </button>
-        {/* Arama ve kullanıcı */}
-        <div className="hidden lg:flex items-center gap-4 flex-1 justify-center">
-          <div className="relative w-full max-w-lg">
-            <input type="text" placeholder="Ürün, hizmet veya kategori ara..." className="input pl-10 pr-4" />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          </div>
-        </div>
-        <div className="hidden lg:flex items-center gap-4">
-          <Link href="/premium" className="border border-yellow-400 text-yellow-600 bg-yellow-50 hover:bg-yellow-100 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <Bell className="w-5 h-5" /> Premium</Link>
-          <Link href="/ilan-ver" className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded px-4 py-2 flex items-center gap-2 transition">+ Ücretsiz İlan Ver</Link>
-          {session && (
-            <>
-              <Link href="/bildirimler" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <Bell className="w-5 h-5" /> Bildirimler</Link>
-              <Link href="/profil/mesajlar" className="border border-blue-400 text-blue-600 bg-white hover:bg-blue-50 font-semibold rounded px-4 py-2 flex items-center gap-2 transition"> <MessageCircle className="w-5 h-5" /> Mesajlarım</Link>
-            </>
-          )}
-          {session ? (
-            <>
-              <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> {session.user.name}</Link>
-              <button onClick={handleSignOut} className="btn-secondary flex items-center gap-2"><LogOut className="w-5 h-5" /> Çıkış</button>
-            </>
-          ) : (
-            <Link href="/giris" className="btn">Giriş Yap</Link>
-          )}
-        </div>
-        {/* Mobil menü */}
-        {isMenuOpen && (
-          <div className="absolute top-16 right-4 bg-white rounded-xl shadow-lg p-4 flex flex-col gap-3 w-56 border z-50 animate-fade-in">
-            <div className="relative w-full mb-2">
-              <input type="text" placeholder="Ara..." className="input pl-10 pr-4" />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            </div>
-            <Link href="/ilan-ver" className="btn-primary flex items-center gap-2">+ Ücretsiz İlan Ver</Link>
-            <Link href="/premium" className="btn-premium flex items-center gap-2">⭐ Premium</Link>
-            {session && (
-              <>
-                <Link href="/bildirimler" className="btn-outline flex items-center gap-2"><Bell className="w-5 h-5" /> Bildirimler</Link>
-                <Link href="/profil/mesajlar" className="btn-outline flex items-center gap-2"><MessageCircle className="w-5 h-5" /> Mesajlarım</Link>
-              </>
-            )}
+          
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-4">
+            <Link 
+              href="/premium-ozellikler" 
+              className="px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors"
+            >
+              ⭐ Öncelikli
+            </Link>
+            <Link 
+              href="/ilan-ver" 
+              className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors"
+            >
+              + İlan Ver
+            </Link>
             {session ? (
               <>
-                <Link href="/profil" className="btn-outline flex items-center gap-2"><User className="w-5 h-5" /> Profilim</Link>
-                <button onClick={handleSignOut} className="btn-secondary flex items-center gap-2"><LogOut className="w-5 h-5" /> Çıkış</button>
+                <Link 
+                  href="/bildirimler" 
+                  className="relative px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  <Bell className="w-4 h-4 inline mr-1" />
+                  Bildirimler
+                  {notificationCount.unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {notificationCount.unreadCount > 99 ? '99+' : notificationCount.unreadCount}
+                    </span>
+                  )}
+                </Link>
+                <Link 
+                  href="/profil/mesajlar" 
+                  className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4 inline mr-1" />
+                  Mesajlarım
+                </Link>
+  
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    {session.user?.name || 'Profil'}
+                  </button>
+                  {isMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-200">
+                      <Link href="/profil" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        Profilim
+                      </Link>
+                      <button 
+                        onClick={handleSignOut} 
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Çıkış Yap
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
-              <Link href="/giris" className="btn">Giriş Yap</Link>
+              <Link href="/giris" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                Giriş
+              </Link>
             )}
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="lg:hidden">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+        
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="lg:hidden py-4 border-t border-gray-200">
+            <div className="space-y-3">
+              <Link 
+                href="/ilan-ver" 
+                className="block w-full px-4 py-3 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors text-center"
+              >
+                + İlan Ver
+              </Link>
+              <Link 
+                href="/premium-ozellikler" 
+                className="block w-full px-4 py-3 text-sm font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors text-center"
+              >
+                ⭐ Öncelikli
+              </Link>
+              {session ? (
+                <>
+                  <Link 
+                    href="/bildirimler" 
+                    className="relative block w-full px-4 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-center"
+                  >
+                    <Bell className="w-4 h-4 inline mr-1" />
+                    Bildirimler
+                    {notificationCount.unreadCount > 0 && (
+                      <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {notificationCount.unreadCount > 99 ? '99+' : notificationCount.unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  <Link 
+                    href="/profil/mesajlar" 
+                    className="block w-full px-4 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-center"
+                  >
+                    <MessageCircle className="w-4 h-4 inline mr-1" />
+                    Mesajlarım
+                  </Link>
+                  <Link 
+                    href="/profil" 
+                    className="block w-full px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
+                  >
+                    <User className="w-4 h-4 inline mr-1" />
+                    Profilim
+                  </Link>
+                  <button 
+                    onClick={handleSignOut} 
+                    className="block w-full px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 inline mr-1" />
+                    Çıkış Yap
+                  </button>
+                </>
+              ) : (
+                <Link 
+                  href="/giris" 
+                  className="block w-full px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors text-center"
+                >
+                  Giriş
+                </Link>
+              )}
+            </div>
           </div>
         )}
       </div>

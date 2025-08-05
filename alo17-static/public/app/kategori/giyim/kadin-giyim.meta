@@ -1,0 +1,7 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/kategori/layout,_N_T_/kategori/giyim/layout,_N_T_/kategori/giyim/kadin-giyim/layout,_N_T_/kategori/giyim/kadin-giyim/page,_N_T_/kategori/giyim/kadin-giyim"
+  }
+}

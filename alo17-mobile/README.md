@@ -1,240 +1,298 @@
 # Alo17 Mobile App
 
-Alo17 marketplace uygulamasının React Native mobil versiyonu.
+Alo17'nin React Native ile geliştirilmiş mobil uygulaması.
 
 ## 🚀 Özellikler
 
 ### ✅ Tamamlanan Özellikler
-- **Authentication Sistemi**
-  - Kullanıcı kayıt ve giriş
-  - Token tabanlı authentication
-  - Otomatik token yenileme
-  - Güvenli çıkış
 
-- **Ana Sayfa**
-  - İlan listesi görüntüleme
-  - Premium ilan işaretleme
-  - Pull-to-refresh
-  - Kullanıcı karşılama
+#### 🔐 **Kimlik Doğrulama**
+- Kullanıcı kaydı ve girişi
+- JWT token yönetimi
+- Oturum yönetimi
+- Güvenli API iletişimi
 
-- **Arama Sistemi**
-  - Gerçek zamanlı arama
-  - Arama sonuçları
-  - Kategori filtreleme
+#### 📱 **Ana Özellikler**
+- İlan listeleme ve detay görüntüleme
+- Kategori ve alt kategori filtreleme
+- Gelişmiş arama ve filtreleme
+- Favori ekleme/çıkarma
+- Kullanıcı profili yönetimi
 
-- **İlan Yönetimi**
-  - İlan oluşturma
-  - İlan detay görüntüleme
-  - Kategori seçimi
-  - Durum belirleme
+#### 💬 **Mesajlaşma**
+- Gerçek zamanlı mesajlaşma
+- İlan sahipleriyle iletişim
+- Mesaj bildirimleri
+- Okunmamış mesaj sayacı
 
-- **Mesajlaşma**
-  - Chat listesi
-  - Gerçek zamanlı mesajlaşma
-  - Okunmamış mesaj sayısı
-  - Mesaj geçmişi
+#### 🔔 **Bildirimler**
+- Push notification desteği
+- Yerel bildirimler
+- Bildirim geçmişi
+- Bildirim ayarları
 
-- **Profil Yönetimi**
-  - Kullanıcı profili
-  - İstatistikler
-  - Tema değiştirme
-  - Ayarlar
+#### 📊 **Offline Desteği**
+- Gelişmiş cache sistemi
+- Offline veri erişimi
+- Senkronizasyon
+- Pending actions
 
-- **Favoriler**
-  - Favori ilan ekleme/çıkarma
-  - Favori listesi
-  - Hızlı erişim
+#### 🎯 **Gelişmiş Özellikler**
+- Premium plan yönetimi
+- İlan raporlama
+- Analytics tracking
+- Arama geçmişi
 
-- **Ayarlar**
-  - Tema değiştirme (Açık/Koyu)
-  - Bildirim ayarları
-  - Konum servisleri
-  - Önbellek yönetimi
+### 🔧 **Teknik Özellikler**
 
-## 📱 Ekranlar
+#### **API Entegrasyonu**
+- RESTful API iletişimi
+- Error handling
+- Request/Response interceptors
+- Offline fallback
 
-### Authentication
-- `SplashScreen` - Açılış ekranı
-- `LoginScreen` - Giriş ekranı
-- `RegisterScreen` - Kayıt ekranı
+#### **State Yönetimi**
+- Context API
+- Local state management
+- Persistent storage
+- Cache management
 
-### Ana Uygulama
-- `HomeScreen` - Ana sayfa
-- `SearchScreen` - Arama ekranı
-- `CreateListingScreen` - İlan oluşturma
-- `MessagesScreen` - Mesajlar listesi
-- `ProfileScreen` - Profil ekranı
+#### **UI/UX**
+- Modern tasarım
+- Responsive layout
+- Dark/Light theme
+- Accessibility support
 
-### Detay Ekranları
-- `ListingDetailScreen` - İlan detayı
-- `ChatScreen` - Sohbet ekranı
-- `FavoritesScreen` - Favoriler
-- `SettingsScreen` - Ayarlar
+#### **Performance**
+- Lazy loading
+- Image optimization
+- Memory management
+- Bundle optimization
 
-## 🛠️ Teknolojiler
-
-- **React Native** 0.72.6
-- **TypeScript** 4.8.4
-- **React Navigation** 6.x
-- **React Native Paper** - UI Components
-- **Axios** - HTTP Client
-- **AsyncStorage** - Local Storage
-- **React Native Vector Icons** - Icons
-
-## 📦 Kurulum
+## 📋 Kurulum
 
 ### Gereksinimler
-- Node.js 16+
+- Node.js 18+
 - React Native CLI
-- Android Studio (Android için)
-- Xcode (iOS için)
+- Expo CLI
+- Android Studio / Xcode
 
 ### Adımlar
 
 1. **Bağımlılıkları yükleyin:**
 ```bash
-cd alo17-mobile
 npm install
 ```
 
-2. **iOS için (sadece macOS):**
+2. **Expo CLI ile başlatın:**
 ```bash
-cd ios
-pod install
-cd ..
+npx expo start
 ```
 
-3. **Uygulamayı çalıştırın:**
+3. **Platform seçin:**
+- Android: `a`
+- iOS: `i`
+- Web: `w`
 
-**Android:**
-```bash
-npm run android
-```
-
-**iOS:**
-```bash
-npm run ios
-```
-
-**Metro bundler:**
-```bash
-npm start
-```
-
-## 🔧 Konfigürasyon
-
-### Environment Variables
-`.env` dosyası oluşturun:
-```
-API_BASE_URL=http://localhost:3000/api
-```
-
-### API Endpoints
-Uygulama şu API endpoint'lerini kullanır:
-- `POST /auth/login` - Giriş
-- `POST /auth/register` - Kayıt
-- `GET /listings` - İlan listesi
-- `POST /listings` - İlan oluşturma
-- `GET /listings/:id` - İlan detayı
-- `GET /messages` - Mesaj listesi
-- `POST /messages` - Mesaj gönderme
-
-## 📁 Proje Yapısı
+## 🏗️ Proje Yapısı
 
 ```
 src/
 ├── components/          # Yeniden kullanılabilir bileşenler
-│   └── common/         # Ortak bileşenler
-├── context/            # React Context'ler
-│   ├── AuthContext.tsx
-│   └── ThemeContext.tsx
 ├── screens/            # Ekran bileşenleri
-│   ├── auth/          # Authentication ekranları
-│   └── main/          # Ana uygulama ekranları
-├── services/           # API servisleri
-│   └── authService.ts
-├── types/              # TypeScript tip tanımları
-│   └── navigation.ts
-└── utils/              # Yardımcı fonksiyonlar
+│   ├── auth/          # Kimlik doğrulama ekranları
+│   ├── main/          # Ana ekranlar
+│   └── profile/       # Profil ekranları
+├── services/          # API ve servis katmanı
+│   ├── api.ts         # API servisi
+│   ├── auth.ts        # Kimlik doğrulama
+│   ├── notifications.ts # Bildirim servisi
+│   └── offlineStorage.ts # Offline storage
+├── context/           # React Context
+├── hooks/             # Custom hooks
+├── types/             # TypeScript tipleri
+└── utils/             # Yardımcı fonksiyonlar
 ```
 
-## 🎨 Tema Sistemi
+## 🔌 API Entegrasyonu
 
-Uygulama açık ve koyu tema desteği sunar:
+### Endpoints
 
-```typescript
-const { theme, isDark, toggleTheme } = useTheme();
+#### **Kimlik Doğrulama**
+- `POST /api/auth/login` - Giriş
+- `POST /api/auth/register` - Kayıt
 
-// Tema renklerine erişim
-theme.colors.primary
-theme.colors.background
-theme.colors.text
-```
+#### **İlanlar**
+- `GET /api/listings` - İlan listesi
+- `GET /api/listings/:id` - İlan detayı
+- `POST /api/listings` - İlan oluşturma
+- `PUT /api/listings/:id` - İlan güncelleme
+- `DELETE /api/listings/:id` - İlan silme
 
-## 🔐 Authentication
+#### **Kategoriler**
+- `GET /api/categories` - Kategori listesi
+- `GET /api/categories/:slug` - Kategori detayı
+- `GET /api/categories/:slug/subcategories` - Alt kategoriler
 
-Authentication sistemi token tabanlı çalışır:
+#### **Mesajlar**
+- `GET /api/messages` - Mesaj listesi
+- `POST /api/messages` - Mesaj gönderme
+- `PUT /api/messages/:id/read` - Mesaj okundu
 
-```typescript
-const { user, login, logout, isAuthenticated } = useAuth();
+#### **Kullanıcı**
+- `GET /api/user/profile` - Profil bilgileri
+- `PUT /api/user/profile` - Profil güncelleme
+- `GET /api/user/favorites` - Favoriler
+- `POST /api/user/favorites` - Favori ekleme
+- `DELETE /api/user/favorites/:id` - Favori çıkarma
 
-// Giriş yapma
-await login(email, password);
+### Offline Desteği
 
-// Çıkış yapma
-await logout();
-```
+#### **Cache Stratejileri**
+- **Network First**: API çağrıları için
+- **Cache First**: Statik veriler için
+- **Stale While Revalidate**: Resimler için
 
-## 📱 Platform Özellikleri
+#### **Pending Actions**
+- İlan oluşturma
+- Mesaj gönderme
+- Profil güncelleme
+- Raporlama
+
+## 🔔 Bildirimler
+
+### Push Notifications
+- Expo Push Notifications
+- FCM entegrasyonu
+- Background notifications
+- Deep linking
+
+### Bildirim Türleri
+- Yeni mesaj
+- İlan görüntüleme
+- Favori ekleme
+- Fiyat düşüşü
+- Sistem bildirimleri
+
+## 📱 Platform Desteği
 
 ### Android
+- API Level 21+
 - Material Design
-- Back button handling
-- Status bar customization
+- Native navigation
+- Background services
 
 ### iOS
-- iOS Design Guidelines
-- Safe area handling
-- Haptic feedback
+- iOS 12+
+- Human Interface Guidelines
+- Native navigation
+- Background app refresh
 
-## 🚀 Build
+## 🚀 Deployment
 
-### Android APK
+### Expo Build
 ```bash
-npm run build:android
+# Android
+expo build:android
+
+# iOS
+expo build:ios
 ```
 
-### iOS Archive
+### EAS Build
 ```bash
-npm run build:ios
+# Configure EAS
+eas build:configure
+
+# Build for Android
+eas build --platform android
+
+# Build for iOS
+eas build --platform ios
 ```
 
-## 🧪 Test
+## 📊 Analytics
 
-```bash
-npm test
-```
+### Tracking Events
+- Sayfa görüntüleme
+- İlan görüntüleme
+- Arama yapma
+- Mesaj gönderme
+- Favori ekleme
 
-## 📝 Notlar
+### Metrics
+- Kullanıcı etkileşimi
+- Performans metrikleri
+- Hata oranları
+- Kullanım istatistikleri
 
-- Uygulama şu anda mock data kullanıyor
-- Backend API entegrasyonu için TODO'lar mevcut
-- Push notification sistemi eklenecek
-- Offline support planlanıyor
+## 🔧 Geliştirme
 
-## 🤝 Katkıda Bulunma
+### Kod Standartları
+- ESLint
+- Prettier
+- TypeScript
+- React Native best practices
 
+### Testing
+- Unit tests
+- Integration tests
+- E2E tests
+- Performance testing
+
+### CI/CD
+- GitHub Actions
+- Automated testing
+- Code quality checks
+- Automated deployment
+
+## 📈 Performans
+
+### Optimizasyonlar
+- Bundle splitting
+- Lazy loading
+- Image optimization
+- Memory management
+- Cache strategies
+
+### Monitoring
+- Performance metrics
+- Error tracking
+- User analytics
+- Crash reporting
+
+## 🔒 Güvenlik
+
+### Önlemler
+- JWT token validation
+- API rate limiting
+- Data encryption
+- Secure storage
+- Certificate pinning
+
+### Privacy
+- GDPR compliance
+- Data minimization
+- User consent
+- Data portability
+
+## 📞 Destek
+
+### İletişim
+- Email: support@alo17.com
+- GitHub Issues
+- Documentation
+
+### Katkıda Bulunma
 1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit yapın (`git commit -m 'Add amazing feature'`)
-4. Push yapın (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
+2. Feature branch oluşturun
+3. Değişikliklerinizi commit edin
+4. Pull request gönderin
 
 ## 📄 Lisans
 
 Bu proje MIT lisansı altında lisanslanmıştır.
 
-## 📞 İletişim
+---
 
-- Proje: [Alo17 Mobile](https://github.com/alo17/mobile)
-- Email: info@alo17.com 
+**Alo17 Mobile App** - Türkiye'nin en büyük ilan sitesinin mobil uygulaması 🚀 

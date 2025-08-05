@@ -9,97 +9,173 @@ import {
   PlusIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
-import { Sparkles, Clock, TrendingUp } from 'lucide-react';
+import { 
+  Sparkles, 
+  Clock, 
+  TrendingUp, 
+  Crown, 
+  Shield, 
+  FileText, 
+  MessageCircle, 
+  BarChart3, 
+  Bell, 
+  Settings, 
+  Zap,
+  Eye,
+  DollarSign,
+  Calendar
+} from 'lucide-react';
 
-type Plan = { name: string; price: number; days: number; features: string[]; maxImages?: number };
-type Plans = Record<string, Plan>;
+interface PremiumFeature {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  icon: string;
+}
+
+interface PremiumPlan {
+  id: string;
+  name: string;
+  duration: number;
+  price: number;
+  features: string[];
+  isPopular: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+// Premium özellikler - Component dışında tanımlanıyor
+const allFeatures: PremiumFeature[] = [
+  {
+    id: 'feature_1',
+    name: 'Öne Çıkan Rozet',
+    description: 'İlanınız premium rozeti ile işaretlenir ve daha fazla dikkat çeker',
+    price: 15.00,
+    category: 'listing',
+    icon: 'crown'
+  },
+  {
+    id: 'feature_2',
+    name: 'Öncelikli Sıralama',
+    description: 'Arama sonuçlarında üst sıralarda görünürsünüz',
+    price: 25.00,
+    category: 'listing',
+    icon: 'trendingUp'
+  },
+  {
+    id: 'feature_3',
+    name: 'Güvenilir Satıcı Rozeti',
+    description: 'Premium satıcı rozeti kazanın ve güven oluşturun',
+    price: 20.00,
+    category: 'profile',
+    icon: 'shield'
+  },
+  {
+    id: 'feature_4',
+    name: 'Maksimum 5 Resim',
+    description: 'İlanınızda 5 resme kadar yükleyebilirsiniz',
+    price: 10.00,
+    category: 'listing',
+    icon: 'sparkles'
+  },
+  {
+    id: 'feature_5',
+    name: 'Maksimum 5 İlan',
+    description: 'Aynı anda 5 adet ilan yayınlayabilirsiniz',
+    price: 30.00,
+    category: 'listing',
+    icon: 'fileText'
+  },
+
+  {
+    id: 'feature_7',
+    name: 'Gelişmiş Analitikler',
+    description: 'İlan performansınızı detaylı olarak takip edin',
+    price: 20.00,
+    category: 'analytics',
+    icon: 'barChart3'
+  },
+  {
+    id: 'feature_8',
+    name: 'Özel Bildirimler',
+    description: 'Özel bildirim tercihleri ve gelişmiş uyarılar',
+    price: 15.00,
+    category: 'communication',
+    icon: 'bell'
+  },
+  {
+    id: 'feature_9',
+    name: 'Profil Özelleştirme',
+    description: 'Profilinizi özelleştirin ve daha profesyonel görünün',
+    price: 12.00,
+    category: 'profile',
+    icon: 'settings'
+  },
+  {
+    id: 'feature_10',
+    name: 'Hızlı İlan Yayınlama',
+    description: 'İlanlarınızı daha hızlı yayınlayın',
+    price: 18.00,
+    category: 'listing',
+    icon: 'zap'
+  }
+];
+
 export default function PremiumPlansPage() {
-  const [plans, setPlans] = useState<Plans>({});
+  const [plans, setPlans] = useState<PremiumPlan[]>([]);
+  const [features, setFeatures] = useState<PremiumFeature[]>([]);
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState({ name: '', price: 0, days: 0, features: [''], maxImages: 5 });
+  const [editValues, setEditValues] = useState<Partial<PremiumPlan>>({});
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newPlan, setNewPlan] = useState({ key: '', name: '', price: 0, days: 0, features: [''], maxImages: 5 });
-
-  // Özellik fiyatları için state
-  const [featurePrices, setFeaturePrices] = useState({
-    featured: 0,
-    urgent: 0,
-    highlighted: 0,
-    top: 0,
-  });
-  const [featureLoading, setFeatureLoading] = useState(true);
-  const [featureSaving, setFeatureSaving] = useState(false);
-  const [featureMessage, setFeatureMessage] = useState('');
+  const [newPlan, setNewPlan] = useState<Partial<PremiumPlan>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const response = await fetch('/api/premium-plans');
-        if (response.ok) {
-          const data = await response.json();
-          setPlans(data);
-        }
-      } catch (error) {
-        console.error('Premium planları getirme hatası:', error);
-      }
-    };
     fetchPlans();
+    setFeatures(allFeatures);
   }, []);
 
-  useEffect(() => {
-    fetchFeaturePrices();
-  }, []);
-
-  const fetchFeaturePrices = async () => {
+  const fetchPlans = async () => {
     try {
-      const response = await fetch('/api/premium-feature-prices');
+      const response = await fetch('/api/premium-plans');
       if (response.ok) {
         const data = await response.json();
-        setFeaturePrices(data);
+        setPlans(data);
       }
     } catch (error) {
-      console.error('Özellik fiyatları getirme hatası:', error);
+      console.error('Premium planları getirme hatası:', error);
     } finally {
-      setFeatureLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleFeaturePriceChange = (key: keyof typeof featurePrices, value: number) => {
-    setFeaturePrices(prev => ({ ...prev, [key]: value }));
+  const getFeatureIcon = (iconName: string) => {
+    const iconMap: Record<string, any> = {
+      crown: <Crown className="w-4 h-4" />,
+      trendingUp: <TrendingUp className="w-4 h-4" />,
+      shield: <Shield className="w-4 h-4" />,
+      sparkles: <Sparkles className="w-4 h-4" />,
+      fileText: <FileText className="w-4 h-4" />,
+      messageCircle: <MessageCircle className="w-4 h-4" />,
+      barChart3: <BarChart3 className="w-4 h-4" />,
+      bell: <Bell className="w-4 h-4" />,
+      settings: <Settings className="w-4 h-4" />,
+      zap: <Zap className="w-4 h-4" />
+    };
+    return iconMap[iconName] || <Sparkles className="w-4 h-4" />;
   };
 
-  const handleFeatureSave = async () => {
-    setFeatureSaving(true);
-    setFeatureMessage('');
-    try {
-      const response = await fetch('/api/premium-feature-prices', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(featurePrices),
-      });
-      if (response.ok) {
-        setFeatureMessage('Özellik fiyatları başarıyla güncellendi!');
-        setTimeout(() => setFeatureMessage(''), 3000);
-      } else {
-        setFeatureMessage('Güncelleme sırasında bir hata oluştu');
-      }
-    } catch (error) {
-      setFeatureMessage('Güncelleme sırasında bir hata oluştu');
-    } finally {
-      setFeatureSaving(false);
-    }
+  const calculatePlanValue = (planFeatures: string[]) => {
+    return allFeatures
+      .filter(feature => planFeatures.includes(feature.id))
+      .reduce((total, feature) => total + feature.price, 0);
   };
 
-  const handleEditPlan = (planKey: string) => {
-    const plan = plans[planKey as keyof typeof plans];
-    setEditingPlan(planKey);
-    setEditValues({
-      name: plan.name,
-      price: plan.price,
-      days: plan.days,
-      features: [...plan.features],
-      maxImages: plan.maxImages ?? 5,
-    });
+  const handleEditPlan = (plan: PremiumPlan) => {
+    setEditingPlan(plan.id);
+    setEditValues(plan);
   };
 
   const handleSavePlan = async () => {
@@ -108,163 +184,96 @@ export default function PremiumPlansPage() {
     try {
       const response = await fetch('/api/premium-plans', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          planKey: editingPlan,
-          data: editValues,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingPlan, ...editValues }),
       });
 
       if (response.ok) {
-        setPlans(prev => ({
-          ...prev,
-          [editingPlan]: editValues,
-        }));
+        setPlans(prev => prev.map(plan => 
+          plan.id === editingPlan ? { ...plan, ...editValues } : plan
+        ));
         setEditingPlan(null);
-        setEditValues({ name: '', price: 0, days: 0, features: [''], maxImages: 5 });
-      } else {
-        console.error('Premium plan güncelleme hatası:', await response.text());
+        setEditValues({});
       }
     } catch (error) {
-      console.error('Premium plan güncelleme hatası:', error);
+      console.error('Plan güncelleme hatası:', error);
     }
   };
 
   const handleCancelEdit = () => {
     setEditingPlan(null);
-    setEditValues({ name: '', price: 0, days: 0, features: [''], maxImages: 5 });
-  };
-
-  const handleAddFeature = () => {
-    setEditValues(prev => ({
-      ...prev,
-      features: [...prev.features, ''],
-    }));
-  };
-
-  const handleRemoveFeature = (index: number) => {
-    setEditValues(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleFeatureChange = (index: number, value: string) => {
-    setEditValues(prev => ({
-      ...prev,
-      features: prev.features.map((feature, i) => i === index ? value : feature),
-    }));
+    setEditValues({});
   };
 
   const handleAddPlan = async () => {
-    if (!newPlan.key || !newPlan.name || newPlan.price <= 0 || newPlan.days <= 0) {
-      alert('Lütfen tüm alanları doldurun');
+    if (!newPlan.name || !newPlan.price || !newPlan.duration) {
+      alert('Lütfen gerekli alanları doldurun');
       return;
     }
 
     try {
       const response = await fetch('/api/premium-plans', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPlan),
       });
 
       if (response.ok) {
-        setPlans(prev => ({
-          ...prev,
-          [newPlan.key]: {
-            name: newPlan.name,
-            price: newPlan.price,
-            days: newPlan.days,
-            features: newPlan.features.filter(f => f.trim() !== ''),
-            maxImages: newPlan.maxImages,
-          },
-        }));
+        const addedPlan = await response.json();
+        setPlans(prev => [...prev, addedPlan]);
         setShowAddForm(false);
-        setNewPlan({ key: '', name: '', price: 0, days: 0, features: [''], maxImages: 5 });
-      } else {
-        console.error('Premium plan ekleme hatası:', await response.text());
+        setNewPlan({});
       }
     } catch (error) {
-      console.error('Premium plan ekleme hatası:', error);
+      console.error('Plan ekleme hatası:', error);
     }
   };
 
-  const handleDeletePlan = async (planKey: string) => {
+  const handleDeletePlan = async (planId: string) => {
     if (!confirm('Bu planı silmek istediğinizden emin misiniz?')) return;
 
     try {
-      const response = await fetch(`/api/premium-plans/${planKey}`, {
+      const response = await fetch(`/api/premium-plans/${planId}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        const newPlans = { ...plans };
-        delete newPlans[planKey as keyof typeof plans];
-        setPlans(newPlans);
-      } else {
-        console.error('Premium plan silme hatası:', await response.text());
+        setPlans(prev => prev.filter(plan => plan.id !== planId));
       }
     } catch (error) {
-      console.error('Premium plan silme hatası:', error);
+      console.error('Plan silme hatası:', error);
     }
   };
 
-  if (!plans || Object.keys(plans).length === 0) {
-    return <div>Yükleniyor...</div>;
+  const toggleFeature = (featureId: string) => {
+    const currentFeatures = editValues.features || [];
+    const newFeatures = currentFeatures.includes(featureId)
+      ? currentFeatures.filter(id => id !== featureId)
+      : [...currentFeatures, featureId];
+    
+    setEditValues(prev => ({ ...prev, features: newFeatures }));
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-alo-orange"></div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="border-b border-gray-200 pb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Premium Plan Yönetimi</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Premium Plan Yönetimi</h1>
         <p className="mt-2 text-sm text-gray-700">
           Premium planları oluşturun, düzenleyin ve yönetin.
         </p>
       </div>
 
-      {/* Özellik Fiyatları */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4 text-gray-900">İsteğe Bağlı Premium Özellik Fiyatları</h2>
-        {featureMessage && (
-          <div className={`mb-4 p-3 rounded-lg ${featureMessage.includes('başarıyla') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>{featureMessage}</div>
-        )}
-        {featureLoading ? (
-          <div>Yükleniyor...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2"><StarIcon className="inline w-4 h-4 mr-1 text-yellow-500" />Öne Çıkan (Featured)</label>
-              <input type="number" value={featurePrices.featured} onChange={e => handleFeaturePriceChange('featured', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2"><Clock className="inline w-4 h-4 mr-1 text-red-500" />Acil (Urgent)</label>
-              <input type="number" value={featurePrices.urgent} onChange={e => handleFeaturePriceChange('urgent', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2"><Sparkles className="inline w-4 h-4 mr-1 text-blue-500" />Vurgulu (Highlighted)</label>
-              <input type="number" value={featurePrices.highlighted} onChange={e => handleFeaturePriceChange('highlighted', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2"><TrendingUp className="inline w-4 h-4 mr-1 text-green-500" />Üstte Gösterim (Top)</label>
-              <input type="number" value={featurePrices.top} onChange={e => handleFeaturePriceChange('top', parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent" min="0" step="0.01" />
-            </div>
-          </div>
-        )}
-        <div className="mt-6 flex justify-end">
-          <button onClick={handleFeatureSave} disabled={featureSaving} className="px-6 py-3 bg-alo-orange text-white rounded-md hover:bg-orange-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium">
-            {featureSaving ? (<><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>Kaydediliyor...</>) : (<><CheckIcon className="w-4 h-4" />Değişiklikleri Kaydet</>)}
-          </button>
-        </div>
-      </div>
-
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
@@ -274,7 +283,7 @@ export default function PremiumPlansPage() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Toplam Plan</dt>
-                  <dd className="text-lg font-medium text-gray-900">{Object.keys(plans).length}</dd>
+                  <dd className="text-lg font-medium text-gray-900">{plans.length}</dd>
                 </dl>
               </div>
             </div>
@@ -285,13 +294,13 @@ export default function PremiumPlansPage() {
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="h-6 w-6 bg-green-500 rounded"></div>
+                <DollarSign className="h-6 w-6 text-green-500" />
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">En Yüksek Fiyat</dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {Math.max(...Object.values(plans).map((p: Plan) => p.price))} ₺
+                    {plans.length > 0 ? Math.max(...plans.map(p => p.price)) : 0} ₺
                   </dd>
                 </dl>
               </div>
@@ -303,13 +312,31 @@ export default function PremiumPlansPage() {
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="h-6 w-6 bg-blue-500 rounded"></div>
+                <Calendar className="h-6 w-6 text-blue-500" />
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">En Uzun Süre</dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {Math.max(...Object.values(plans).map((p: Plan) => p.days))} gün
+                    {plans.length > 0 ? Math.max(...plans.map(p => p.duration)) : 0} gün
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Eye className="h-6 w-6 text-purple-500" />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Aktif Planlar</dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {plans.filter(p => p.isActive).length}
                   </dd>
                 </dl>
               </div>
@@ -322,7 +349,7 @@ export default function PremiumPlansPage() {
       <div className="flex justify-end">
         <button
           onClick={() => setShowAddForm(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-alo-orange hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
         >
           <PlusIcon className="h-4 w-4 mr-2" />
           Yeni Plan Ekle
@@ -336,108 +363,73 @@ export default function PremiumPlansPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Yeni Premium Plan Ekle</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="planKey" className="block text-sm font-medium text-gray-700">
-                  Plan Anahtarı
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Plan Adı</label>
                 <input
                   type="text"
-                  id="planKey"
-                  value={newPlan.key}
-                  onChange={(e) => setNewPlan(prev => ({ ...prev, key: e.target.value }))}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  placeholder="30days"
-                />
-              </div>
-              <div>
-                <label htmlFor="planName" className="block text-sm font-medium text-gray-700">
-                  Plan Adı
-                </label>
-                <input
-                  type="text"
-                  id="planName"
-                  value={newPlan.name}
+                  value={newPlan.name || ''}
                   onChange={(e) => setNewPlan(prev => ({ ...prev, name: e.target.value }))}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  placeholder="30 Günlük Premium"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-alo-orange focus:ring-alo-orange sm:text-sm"
+                  placeholder="Aylık Premium"
                 />
               </div>
               <div>
-                <label htmlFor="planPrice" className="block text-sm font-medium text-gray-700">
-                  Fiyat (₺)
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Fiyat (₺)</label>
                 <input
                   type="number"
-                  id="planPrice"
-                  value={newPlan.price}
-                  onChange={(e) => setNewPlan(prev => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  placeholder="99"
+                  value={newPlan.price || ''}
+                  onChange={(e) => setNewPlan(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-alo-orange focus:ring-alo-orange sm:text-sm"
+                  placeholder="49.99"
                 />
               </div>
               <div>
-                <label htmlFor="planDays" className="block text-sm font-medium text-gray-700">
-                  Gün Sayısı
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Süre (Gün)</label>
                 <input
                   type="number"
-                  id="planDays"
-                  value={newPlan.days}
-                  onChange={(e) => setNewPlan(prev => ({ ...prev, days: parseInt(e.target.value) || 0 }))}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  value={newPlan.duration || ''}
+                  onChange={(e) => setNewPlan(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-alo-orange focus:ring-alo-orange sm:text-sm"
                   placeholder="30"
                 />
               </div>
-              <div>
-                <label htmlFor="planMaxImages" className="block text-sm font-medium text-gray-700">
-                  Maksimum Resim
-                </label>
+              <div className="flex items-center">
                 <input
-                  type="number"
-                  id="planMaxImages"
-                  value={newPlan.maxImages}
-                  min={1}
-                  max={20}
-                  onChange={(e) => setNewPlan(prev => ({ ...prev, maxImages: parseInt(e.target.value) || 1 }))}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  placeholder="5"
+                  type="checkbox"
+                  checked={newPlan.isPopular || false}
+                  onChange={(e) => setNewPlan(prev => ({ ...prev, isPopular: e.target.checked }))}
+                  className="h-4 w-4 text-alo-orange focus:ring-alo-orange border-gray-300 rounded"
                 />
+                <label className="ml-2 block text-sm text-gray-900">Popüler Plan</label>
               </div>
             </div>
+            
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Özellikler
-              </label>
-              {newPlan.features.map((feature, index) => (
-                <div key={index} className="flex items-center space-x-2 mb-2">
-                  <input
-                    type="text"
-                    value={feature}
-                    onChange={(e) => {
-                      const newFeatures = [...newPlan.features];
-                      newFeatures[index] = e.target.value;
-                      setNewPlan(prev => ({ ...prev, features: newFeatures }));
-                    }}
-                    className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                    placeholder="Özellik açıklaması"
-                  />
-                  <button
-                    onClick={() => {
-                      const newFeatures = newPlan.features.filter((_, i) => i !== index);
-                      setNewPlan(prev => ({ ...prev, features: newFeatures }));
-                    }}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => setNewPlan(prev => ({ ...prev, features: [...prev.features, ''] }))}
-                className="text-blue-600 hover:text-blue-900 text-sm"
-              >
-                + Özellik Ekle
-              </button>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Özellikler</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                {allFeatures.map((feature) => (
+                  <div key={feature.id} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={(newPlan.features || []).includes(feature.id)}
+                      onChange={() => {
+                        const currentFeatures = newPlan.features || [];
+                        const newFeatures = currentFeatures.includes(feature.id)
+                          ? currentFeatures.filter(id => id !== feature.id)
+                          : [...currentFeatures, feature.id];
+                        setNewPlan(prev => ({ ...prev, features: newFeatures }));
+                      }}
+                      className="h-4 w-4 text-alo-orange focus:ring-alo-orange border-gray-300 rounded"
+                    />
+                    <div className="ml-2 flex items-center">
+                      <span className="text-gray-600 mr-2">{getFeatureIcon(feature.icon)}</span>
+                      <span className="text-sm text-gray-900">{feature.name}</span>
+                      <span className="text-xs text-gray-500 ml-1">({feature.price}₺)</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setShowAddForm(false)}
@@ -447,7 +439,7 @@ export default function PremiumPlansPage() {
               </button>
               <button
                 onClick={handleAddPlan}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-alo-orange hover:bg-orange-600"
               >
                 Ekle
               </button>
@@ -458,24 +450,37 @@ export default function PremiumPlansPage() {
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        {Object.entries(plans).map(([planKey, plan]: [string, Plan]) => (
-          <div key={planKey} className="bg-white shadow rounded-lg">
+        {plans.map((plan) => (
+          <div key={plan.id} className="bg-white shadow rounded-lg border-2 border-gray-200 hover:border-gray-300 transition-all">
             <div className="px-4 py-5 sm:p-6">
-              {/* Plan Adı En Üste, Turuncu ve Yıldızlı */}
+              {/* Plan Header */}
               <div className="mb-4 flex flex-col items-center">
                 <Sparkles className="w-6 h-6 text-alo-orange mb-1" />
                 <h3 className="text-xl font-bold text-alo-orange text-center">{plan.name}</h3>
+                {plan.isPopular && (
+                  <span className="mt-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                    POPÜLER
+                  </span>
+                )}
               </div>
+
+              {/* Plan Details */}
               <div className="flex flex-col items-center mb-4">
                 <div className="text-3xl font-extrabold text-gray-900 mb-1">{plan.price.toLocaleString('tr-TR')} ₺</div>
-                <div className="text-base text-gray-500 mb-2">{plan.days} gün</div>
+                <div className="text-base text-gray-500 mb-2">{plan.duration} gün</div>
+                <div className="text-sm text-green-600 font-medium">
+                  Değer: {calculatePlanValue(plan.features).toLocaleString('tr-TR')} ₺
+                </div>
               </div>
+
+              {/* Action Buttons */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
                   <StarIcon className="h-6 w-6 text-yellow-500 mr-2" />
+                  <span className="text-sm text-gray-600">{plan.features.length} özellik</span>
                 </div>
                 <div className="flex space-x-2">
-                  {editingPlan === planKey ? (
+                  {editingPlan === plan.id ? (
                     <>
                       <button
                         onClick={handleSavePlan}
@@ -495,14 +500,14 @@ export default function PremiumPlansPage() {
                   ) : (
                     <>
                       <button
-                        onClick={() => handleEditPlan(planKey)}
+                        onClick={() => handleEditPlan(plan)}
                         className="text-blue-600 hover:text-blue-900"
                         title="Düzenle"
                       >
                         <PencilIcon className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDeletePlan(planKey)}
+                        onClick={() => handleDeletePlan(plan.id)}
                         className="text-red-600 hover:text-red-900"
                         title="Sil"
                       >
@@ -513,15 +518,16 @@ export default function PremiumPlansPage() {
                 </div>
               </div>
 
-              {editingPlan === planKey ? (
+              {/* Edit Form or Features List */}
+              {editingPlan === plan.id ? (
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Plan Adı</label>
                     <input
                       type="text"
-                      value={editValues.name}
+                      value={editValues.name || ''}
                       onChange={(e) => setEditValues(prev => ({ ...prev, name: e.target.value }))}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-alo-orange focus:ring-alo-orange sm:text-sm"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -529,71 +535,69 @@ export default function PremiumPlansPage() {
                       <label className="block text-sm font-medium text-gray-700">Fiyat (₺)</label>
                       <input
                         type="number"
-                        value={editValues.price}
-                        onChange={(e) => setEditValues(prev => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={editValues.price || ''}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-alo-orange focus:ring-alo-orange sm:text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Gün</label>
+                      <label className="block text-sm font-medium text-gray-700">Süre (Gün)</label>
                       <input
                         type="number"
-                        value={editValues.days}
-                        onChange={(e) => setEditValues(prev => ({ ...prev, days: parseInt(e.target.value) || 0 }))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Maksimum Resim</label>
-                      <input
-                        type="number"
-                        value={editValues.maxImages}
-                        min={1}
-                        max={20}
-                        onChange={(e) => setEditValues(prev => ({ ...prev, maxImages: parseInt(e.target.value) || 1 }))}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        value={editValues.duration || ''}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, duration: parseInt(e.target.value) || 0 }))}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-alo-orange focus:ring-alo-orange sm:text-sm"
                       />
                     </div>
                   </div>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editValues.isPopular || false}
+                      onChange={(e) => setEditValues(prev => ({ ...prev, isPopular: e.target.checked }))}
+                      className="h-4 w-4 text-alo-orange focus:ring-alo-orange border-gray-300 rounded"
+                    />
+                    <label className="ml-2 block text-sm text-gray-900">Popüler Plan</label>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Özellikler</label>
-                    {editValues.features.map((feature, index) => (
-                      <div key={index} className="flex items-center space-x-2 mb-2">
-                        <input
-                          type="text"
-                          value={feature}
-                          onChange={(e) => handleFeatureChange(index, e.target.value)}
-                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                        />
-                        <button
-                          onClick={() => handleRemoveFeature(index)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={handleAddFeature}
-                      className="text-blue-600 hover:text-blue-900 text-sm"
-                    >
-                      + Özellik Ekle
-                    </button>
+                    <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
+                      {allFeatures.map((feature) => (
+                        <div key={feature.id} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={(editValues.features || []).includes(feature.id)}
+                            onChange={() => toggleFeature(feature.id)}
+                            className="h-4 w-4 text-alo-orange focus:ring-alo-orange border-gray-300 rounded"
+                          />
+                          <div className="ml-2 flex items-center">
+                            <span className="text-gray-600 mr-2">{getFeatureIcon(feature.icon)}</span>
+                            <span className="text-sm text-gray-900">{feature.name}</span>
+                            <span className="text-xs text-gray-500 ml-1">({feature.price}₺)</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div>
                   <ul className="space-y-2">
-                    <li className="flex items-center">
-                      <CheckIcon className="h-4 w-4 text-green-500 mr-2" />
-                      <span className="text-sm text-gray-700">Maksimum {plan.maxImages ?? 5} resim</span>
-                    </li>
-                    {(plan.features || []).map((feature, index) => (
-                      <li key={index} className="flex items-center">
-                        <CheckIcon className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-700">{feature}</span>
-                      </li>
-                    ))}
+                    {plan.features.map((featureId) => {
+                      const feature = allFeatures.find(f => f.id === featureId);
+                      if (!feature) return null;
+                      
+                      return (
+                        <li key={featureId} className="flex items-center">
+                          <CheckIcon className="h-4 w-4 text-green-500 mr-2" />
+                          <div className="flex items-center">
+                            <span className="text-gray-600 mr-2">{getFeatureIcon(feature.icon)}</span>
+                            <span className="text-sm text-gray-700">{feature.name}</span>
+                            <span className="text-xs text-gray-500 ml-1">({feature.price}₺)</span>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}

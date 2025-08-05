@@ -28,6 +28,7 @@ model User {
   coupons          Coupon[]       @relation("UserCoupons")
   reports          Report[]
   pushToken        String?
+  notificationSubscriptions NotificationSubscription[]
 }
 
 model Account {
@@ -66,25 +67,29 @@ model VerificationToken {
 
 model Category {
   id            String        @id @default(cuid())
-  name          String        @unique
+  name          String
   slug          String        @unique
+  icon          String?
+  subCategories SubCategory[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-  subCategories SubCategory[]
-  order         Int           @default(0)
-  icon          String?
 }
 
 model SubCategory {
-  id         String   @id @default(cuid())
-  name       String
-  slug       String
-  categoryId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  category   Category @relation(fields: [categoryId], references: [id])
-  order      Int      @default(0)
-  icon       String?
+  id          String    @id @default(cuid())
+  name        String
+  slug        String
+  categoryId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  category    Category  @relation(fields: [categoryId], references: [id])
+  order       Int       @default(0)
+  icon        String?
+
+  parentId      String?
+  parent        SubCategory?  @relation("SubCategoryChildren", fields: [parentId], references: [id])
+  subCategories SubCategory[] @relation("SubCategoryChildren")
+
   @@unique([name, categoryId])
 }
 
@@ -95,7 +100,7 @@ model Listing {
   price        Float
   location     String
   category     String
-  subCategory  String?
+  subcategory  String?
   images       String
   features     String
   condition    String
@@ -117,6 +122,7 @@ model Listing {
   messages     Message[]
   favoritedBy  UserFavorite[]
   reports      Report[]
+  notificationHistory NotificationHistory[]
 }
 
 model UserFavorite {
@@ -175,4 +181,75 @@ model Report {
   createdAt  DateTime @default(now())
   listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+// Monitoring Tables
+model ErrorLog {
+  id        String   @id @default(cuid())
+  message   String
+  stack     String?
+  timestamp DateTime @default(now())
+  userId    String?
+  sessionId String?
+  url       String
+  userAgent String
+  severity  String   // low, medium, high, critical
+  category  String   // javascript, api, network, validation, auth
+  metadata  String?  // JSON string
+}
+
+model PerformanceLog {
+  id        String   @id @default(cuid())
+  name      String
+  duration  Float
+  timestamp DateTime @default(now())
+  userId    String?
+  sessionId String?
+  url       String
+  category  String   // navigation, api, render, resource
+  metadata  String?  // JSON string
+}
+
+model UserEventLog {
+  id         String   @id @default(cuid())
+  event      String
+  timestamp  DateTime @default(now())
+  userId     String?
+  sessionId  String?
+  url        String
+  properties String?  // JSON string
+}
+
+// Notification Subscription System
+model NotificationSubscription {
+  id          String   @id @default(cuid())
+  userId      String?
+  email       String
+  category    String?  // Belirli kategori için abonelik
+  subcategory String?  // Belirli alt kategori için abonelik
+  keywords    String?  // Anahtar kelimeler (JSON array)
+  priceRange  String?  // Fiyat aralığı (JSON: {min: number, max: number})
+  location    String?  // Konum filtresi
+  frequency   String   @default("instant") // instant, daily, weekly
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notifications NotificationHistory[]
+  
+  @@unique([email, category, subcategory])
+}
+
+model NotificationHistory {
+  id           String   @id @default(cuid())
+  subscriptionId String
+  listingId    String
+  email        String
+  subject      String
+  content      String
+  sentAt       DateTime @default(now())
+  isRead       Boolean  @default(false)
+  openedAt     DateTime?
+  subscription NotificationSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }

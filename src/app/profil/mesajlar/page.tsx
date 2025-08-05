@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/Providers";
 
+
 interface Message {
   id: number;
   from: string;
@@ -15,6 +16,7 @@ interface Message {
 export default function UserMessagesPage() {
   const { session, isLoading } = useAuth();
   const router = useRouter();
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,13 +36,13 @@ export default function UserMessagesPage() {
         setLoading(false);
       })
       .catch(() => {
-        setError("Mesajlar yüklenemedi");
+        setError(t('messages_load_error'));
         setLoading(false);
       });
-  }, [session, isLoading, router]);
+  }, [session, isLoading, router, t]);
 
   if (isLoading || loading) {
-    return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>;
+    return <div className="min-h-screen flex items-center justify-center">""</div>;
   }
   if (error) {
     return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
@@ -51,9 +53,9 @@ export default function UserMessagesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Mesajlarım</h1>
+      <h1 className="text-2xl font-bold mb-6">""</h1>
       {messages.length === 0 ? (
-        <div className="text-gray-500">Hiç mesajınız yok.</div>
+        <div className="text-gray-500">""</div>
       ) : (
         <div className="space-y-4">
           {messages.map((msg) => (
@@ -68,9 +70,9 @@ export default function UserMessagesPage() {
               <div className="mb-1">{msg.subject}</div>
               <div className="text-xs mt-1">
                 {msg.read ? (
-                  <span className="text-green-600">Okundu</span>
+                  <span className="text-green-600">""</span>
                 ) : (
-                  <span className="text-blue-700 font-semibold">Okunmadı</span>
+                  <span className="text-blue-700 font-semibold">""</span>
                 )}
               </div>
             </div>

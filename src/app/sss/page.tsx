@@ -1,6 +1,13 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
+
+import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 
 export default function SSSPage() {
+  
+  const [openItems, setOpenItems] = useState<Set<number>>(new Set());
+
   const faqs = [
     {
       question: "Siparişim ne zaman elime ulaşır?",

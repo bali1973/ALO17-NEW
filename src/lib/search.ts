@@ -38,7 +38,7 @@ export async function searchListings(
     const searchTerms = query.toLowerCase().split(' ').filter(Boolean);
     
     // Temel sorgu
-    let whereClause: any = {
+    const whereClause: any = {
       status: 'active',
       OR: [
         ...searchTerms.map(term => ({

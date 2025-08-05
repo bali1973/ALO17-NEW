@@ -1,6 +1,11 @@
+'use client';
+
 import React from 'react';
 
-export default function KullanimSartlari() {
+import { FileText, CheckCircle, AlertTriangle, Scale } from 'lucide-react';
+
+export default function KullanimSartlariPage() {
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Kullanım Şartları</h1>

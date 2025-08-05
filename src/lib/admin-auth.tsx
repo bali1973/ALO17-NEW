@@ -183,14 +183,14 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
   };
 
   const hasPermission = (permission: AdminPermission): boolean => {
-    if (!adminUser || !adminUser.isActive) return false;
+    if (!adminUser) return false;
     
     const rolePermissions = PERMISSION_MATRIX[adminUser.role] || [];
     return rolePermissions.includes(permission);
   };
 
   const hasRole = (role: AdminRole): boolean => {
-    if (!adminUser || !adminUser.isActive) return false;
+    if (!adminUser) return false;
     
     // Rol hiyerarşisi: super_admin > admin > moderator
     const roleHierarchy: Record<AdminRole, number> = {
@@ -206,7 +206,7 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
   };
 
   const value: AdminAuthContextType = {
-    isAdmin: !!adminUser && adminUser.isActive,
+    isAdmin: !!adminUser,
     adminUser,
     hasPermission,
     hasRole,

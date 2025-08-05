@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/Providers';
 import { signIn, hardcodedUsers } from '@/lib/auth';
+import Link from 'next/link';
 
 export default function GirisPage() {
   const router = useRouter();
@@ -120,7 +121,7 @@ export default function GirisPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Sayfa yükleniyor...</p>
+          <p className="mt-4 text-gray-600">Yükleniyor...</p>
           <p className="text-xs text-gray-500 mt-2">Lütfen bekleyin</p>
         </div>
       </div>
@@ -136,11 +137,11 @@ export default function GirisPage() {
               Hesabınıza giriş yapın
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Test kullanıcıları ile hızlı giriş yapabilirsiniz
+              Test kullanıcıları hızlı giriş
             </p>
             {callbackUrl !== '/' && (
               <p className="mt-2 text-center text-xs text-blue-600">
-                Giriş yaptıktan sonra {callbackUrl} sayfasına yönlendirileceksiniz
+                Giriş sonrası yönlendirilecek: {callbackUrl}
               </p>
             )}
           </div>
@@ -154,21 +155,22 @@ export default function GirisPage() {
                   key={user.email}
                   onClick={() => handleTestLogin(user)}
                   disabled={loading}
-                  className="w-full text-left text-xs text-blue-700 hover:text-blue-900 p-2 rounded border border-blue-200 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-left p-2 bg-white border border-blue-200 rounded hover:bg-blue-50 transition-colors disabled:opacity-50"
                 >
-                  <strong>{user.label}:</strong> {user.email} / {user.password}
+                  <div className="font-medium text-blue-900">{user.label}</div>
+                  <div className="text-xs text-blue-600">{user.email}</div>
                 </button>
               ))}
             </div>
             <p className="text-xs text-blue-600 mt-2">
-              Test kullanıcıları ile hızlı giriş yapabilirsiniz. Bu kullanıcılar hardcoded olarak tanımlanmıştır.
+              Test kullanıcıları açıklaması
             </p>
             <div className="mt-2 flex gap-2">
               <button
                 onClick={() => {
-                  setError('');
                   setEmail('');
                   setPassword('');
+                  setError('');
                 }}
                 className="text-xs text-blue-600 hover:text-blue-800 underline"
               >
@@ -176,20 +178,22 @@ export default function GirisPage() {
               </button>
               <span className="text-xs text-gray-500">|</span>
               <span className="text-xs text-gray-500">
-                Client-side auth sistemi
+                Client-side sistem
               </span>
             </div>
             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
-              <strong>✅ Çalışıyor:</strong> Bu sistem Vercel API sorunlarını bypass eder ve client-side çalışır.
+              <strong>✅ Çalışıyor:</strong> Vercel sorunlarını atlatıyor
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative flex items-start">
-              <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-              <div>
-                <div className="font-medium">Giriş Hatası:</div>
-                <div className="text-sm mt-1">{error}</div>
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+                <div>
+                  <div className="font-medium">Giriş Hatası:</div>
+                  <div className="text-sm mt-1">{error}</div>
+                </div>
               </div>
             </div>
           )}
@@ -198,7 +202,7 @@ export default function GirisPage() {
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
                 <label htmlFor="email" className="sr-only">
-                  Email adresi
+                  E-posta adresi
                 </label>
                 <input
                   id="email"
@@ -209,7 +213,7 @@ export default function GirisPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Email adresi"
+                  placeholder="E-posta adresi"
                 />
               </div>
               <div className="mt-4 relative">
@@ -219,7 +223,7 @@ export default function GirisPage() {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
                   value={password}
@@ -229,7 +233,6 @@ export default function GirisPage() {
                 />
                 <button
                   type="button"
-                  tabIndex={-1}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
@@ -254,7 +257,7 @@ export default function GirisPage() {
 
               <div className="text-sm">
                 <a href="/sifremi-unuttum" className="font-medium text-blue-600 hover:text-blue-500">
-                  Şifremi unuttum
+                  Şifremi unuttum?
                 </a>
               </div>
             </div>
@@ -279,9 +282,9 @@ export default function GirisPage() {
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Hesabınız yok mu?{' '}
-                <a href="/kayit" className="font-medium text-blue-600 hover:text-blue-500">
-                  Kayıt olun
-                </a>
+                <Link href="/kayit" className="font-medium text-blue-600 hover:text-blue-500">
+                  Kayıt Ol
+                </Link>
               </p>
             </div>
           </form>

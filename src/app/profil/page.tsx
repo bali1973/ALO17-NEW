@@ -1,266 +1,301 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/Providers';
-import {
-  UserIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  MapPinIcon,
-  PencilIcon,
-  TrashIcon,
-  PlusIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-} from '@heroicons/react/24/outline';
-import { listingTypes, listingStatus, Listing } from '@/types/listings';
-import MessagesBox from './mesajlar/MessagesBox';
-import { ListingCard } from '@/components/listing-card';
-// import { toast } from 'react-hot-toast';
-import { useToast } from '@/components/ToastProvider';
+import Link from 'next/link';
+import Image from 'next/image';
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Calendar, 
+  Edit, 
+  Settings, 
+  Bell, 
+  Shield, 
+  Star, 
+  FileText, 
+  MessageCircle, 
+  Heart, 
+  Eye, 
+  TrendingUp, 
+  Award, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  AlertTriangle,
+  Crown,
+  Zap,
+  BarChart3,
+  CreditCard,
+  LogOut,
+  Plus,
+  Filter,
+  Search
+} from 'lucide-react';
 
-// Örnek veri
-// const user = {
-//   name: 'Ahmet Yılmaz',
-//   email: 'ahmet@example.com',
-//   phone: '+90 555 123 4567',
-//   location: 'Kadıköy, İstanbul',
-//   memberSince: '2023',
-//   avatar: '/images/avatar.jpg',
-// };
-
-function getFavoriteIds() {
-  if (typeof window === 'undefined') return [];
-  return JSON.parse(localStorage.getItem('favorites') || '[]');
+interface UserStats {
+  totalListings: number;
+  activeListings: number;
+  totalViews: number;
+  totalMessages: number;
+  totalFavorites: number;
+  memberSince: string;
+  lastActive: string;
 }
-function setFavoriteIds(ids: number[]) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('favorites', JSON.stringify(ids));
+
+interface UserListing {
+  id: string;
+  title: string;
+  price: number;
+  status: 'active' | 'pending' | 'expired' | 'sold';
+  views: number;
+  createdAt: string;
+  category: string;
+  location: string;
+  images: string[];
+}
+
+interface UserPremiumStatus {
+  isPremium: boolean;
+  planName: string;
+  endDate: string;
+  remainingDays: number;
+  features: string[];
 }
 
 export default function ProfilePage() {
+  const { session, isLoading, setSession } = useAuth();
   const router = useRouter();
-  const { session, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState('listings');
-  // Bildirimlerim için state
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [notifLoading, setNotifLoading] = useState(false);
-  const [notifError, setNotifError] = useState<string | null>(null);
-  const [notifDetail, setNotifDetail] = useState<any | null>(null);
-  const [notifProcessing, setNotifProcessing] = useState(false);
-  const [notifFilter, setNotifFilter] = useState<'all' | 'read' | 'unread'>('all');
-  const [userListings, setUserListings] = useState<any[]>([]);
+  const searchParams = useSearchParams();
+  const updated = searchParams.get('updated');
+  
+  const [activeTab, setActiveTab] = useState('overview');
+  const [userStats, setUserStats] = useState<UserStats>({
+    totalListings: 0,
+    activeListings: 0,
+    totalViews: 0,
+    totalMessages: 0,
+    totalFavorites: 0,
+    memberSince: '',
+    lastActive: ''
+  });
+  
+  const [userListings, setUserListings] = useState<UserListing[]>([]);
+  const [userPremiumStatus, setUserPremiumStatus] = useState<UserPremiumStatus>({
+    isPremium: false,
+    planName: '',
+    endDate: '',
+    remainingDays: 0,
+    features: []
+  });
+  
   const [loading, setLoading] = useState(true);
-  const [listingTab, setListingTab] = useState<'active' | 'draft' | 'deleted'>('active');
-  const [allListings, setAllListings] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  // Kullanıcının ilanlarını çek
   useEffect(() => {
-    const fetchUserListings = async () => {
-      if (!session?.user?.email) return;
-      
-      try {
-        setLoading(true);
-        const response = await fetch('/api/listings');
-        if (response.ok) {
-          const allListings = await response.json();
-          setAllListings(allListings);
-          // Kullanıcının ilanlarını filtrele
-          const userListings = allListings.filter((listing: any) => 
-            listing.email === session.user.email
-          );
-          setUserListings(userListings);
-        }
-      } catch (error) {
-        console.error('İlanlar yüklenirken hata:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserListings();
-  }, [session]);
-
-  // Bildirimleri çek
-  useEffect(() => {
-    if (activeTab === 'notifications' && session?.user?.email) {
-      setNotifLoading(true);
-      fetch(`/api/notifications?userEmail=${session.user.email}`)
-        .then(res => res.json())
-        .then(data => {
-          setNotifications(data);
-          setNotifLoading(false);
-        })
-        .catch(() => {
-          setNotifError('Bildirimler yüklenemedi');
-          setNotifLoading(false);
-        });
+    if (isLoading) return;
+    if (!session) {
+      router.push('/giris?redirect=/profil');
+      return;
     }
-  }, [activeTab, session]);
+    
+    loadUserData();
+  }, [session, isLoading, router]);
 
-  const handleDeleteListing = async (id: number) => {
-    if (window.confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
-      try {
-        const response = await fetch(`/api/listings/${id}?userEmail=${session?.user?.email}&userRole=${session?.user?.role}`, {
-          method: 'DELETE',
-        });
-        
-        if (response.ok) {
-          alert('İlan başarıyla silindi');
-          // Listeyi yenile
-          const updatedResponse = await fetch('/api/listings');
-          if (updatedResponse.ok) {
-            const allListings = await updatedResponse.json();
-            const userListings = allListings.filter((listing: any) => 
-              listing.email === session?.user?.email
-            );
-            setUserListings(userListings);
-          }
-        } else {
-          const error = await response.json();
-          alert(error.error || 'İlan silinirken hata oluştu');
-        }
-      } catch (error) {
-        console.error('İlan silme hatası:', error);
-        alert('İlan silinirken hata oluştu');
-      }
-    }
-  };
-
-  const handleEditListing = (listing: any) => {
-    // İlan düzenleme sayfasına yönlendir
-    router.push(`/ilan-duzenle/${listing.id}`);
-  };
-
-  // İlan statüsünü güncelle
-  const handleStatusChange = async (listing: any, newStatus: 'active' | 'draft' | 'deleted') => {
+  const loadUserData = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`/api/listings/${listing.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: newStatus,
-          userEmail: session?.user?.email,
-          userRole: session?.user?.role,
-        }),
-      });
-      if (response.ok) {
-        alert('İlan durumu güncellendi');
-        // Listeyi yenile
-        const updatedResponse = await fetch('/api/listings');
-        if (updatedResponse.ok) {
-          const allListings = await updatedResponse.json();
-          const userListings = allListings.filter((l: any) => l.email === session?.user?.email);
-          setUserListings(userListings);
-        }
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Durum güncellenemedi');
+      // Kullanıcı istatistiklerini al
+      const statsResponse = await fetch(`/api/user/stats?userId=${session?.user.email}`);
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setUserStats(statsData);
+      }
+
+      // Kullanıcı ilanlarını al
+      const listingsResponse = await fetch(`/api/user/listings?userId=${session?.user.email}`);
+      if (listingsResponse.ok) {
+        const listingsData = await listingsResponse.json();
+        setUserListings(listingsData.listings);
+      }
+
+      // Premium durumunu al
+      const premiumResponse = await fetch(`/api/premium/status?userId=${session?.user.email}`);
+      if (premiumResponse.ok) {
+        const premiumData = await premiumResponse.json();
+        setUserPremiumStatus(premiumData);
       }
     } catch (error) {
-      alert('Durum güncellenemedi');
+      console.error('Kullanıcı verileri yüklenemedi:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleMarkRead = async (id: number, read: boolean) => {
-    setNotifProcessing(true);
-    await fetch('/api/notifications', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, read })
-    });
-    // Listeyi güncelle
-    setNotifications(notifications => notifications.map(n => n.id === id ? { ...n, read } : n));
-    setNotifProcessing(false);
-  };
-
-  const handleDeleteNotif = async (id: number) => {
-    if (!window.confirm('Bu bildirimi silmek istediğinize emin misiniz?')) return;
-    setNotifProcessing(true);
-    await fetch('/api/notifications', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
-    });
-    setNotifications(notifications => notifications.filter(n => n.id !== id));
-    setNotifProcessing(false);
-  };
-
-  function NotificationDetailModal({ notif, onClose }: { notif: any, onClose: () => void }) {
-    if (!notif) return null;
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      active: { color: 'bg-green-100 text-green-800', icon: CheckCircle, text: 'Aktif' },
+      pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, text: 'Bekliyor' },
+      expired: { color: 'bg-red-100 text-red-800', icon: XCircle, text: 'Süresi Dolmuş' },
+      sold: { color: 'bg-blue-100 text-blue-800', icon: Award, text: 'Satıldı' }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig];
+    const IconComponent = config.icon;
+    
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 min-w-[300px] max-w-[90vw]">
-          <h2 className="text-xl font-bold mb-2">Bildirim Detayı</h2>
-          <div className="mb-2"><b>Başlık:</b> {notif.title}</div>
-          <div className="mb-2"><b>İçerik:</b> {notif.content}</div>
-          <div className="mb-2"><b>Tip:</b> {notif.type}</div>
-          <div className="mb-2"><b>Tarih:</b> {new Date(notif.createdAt).toLocaleString('tr-TR')}</div>
-          <div className="mb-2"><b>Okundu:</b> {notif.read ? 'Evet' : 'Hayır'}</div>
-          <button onClick={onClose} className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Kapat</button>
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+        <IconComponent className="w-3 h-3 mr-1" />
+        {config.text}
+      </span>
+    );
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('tr-TR');
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY'
+    }).format(price);
+  };
+
+  const filteredListings = userListings.filter(listing => {
+    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         listing.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || listing.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Profil yükleniyor...</p>
         </div>
       </div>
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    return (
-      <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-        <CheckCircleIcon className="w-3 h-3 mr-1" />
-        Yayında
-      </span>
-    );
-  };
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Başarı Mesajı */}
+        {updated && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+              <p className="text-green-800">Profil başarıyla güncellendi!</p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Profil Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm p-6">
+              {/* Profil Fotoğrafı */}
               <div className="flex flex-col items-center">
                 <div className="relative w-32 h-32 mb-4">
-                  <Image
-                    src={'/images/avatar.jpg'}
-                    alt={session?.user?.name || 'Kullanıcı'}
-                    fill
-                    className="rounded-full object-cover"
-                  />
-                  <button className="absolute bottom-0 right-0 p-2 bg-alo-orange text-white rounded-full hover:bg-alo-light-orange">
-                    <PencilIcon className="w-4 h-4" />
-                  </button>
+                                      <Image
+                      src="/images/avatar.svg"
+                      alt={session?.user?.name || 'Kullanıcı'}
+                      fill
+                      className="rounded-full object-cover border-4 border-gray-100"
+                    />
+                  <Link href="/profil/duzenle" className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+                    <Edit className="w-4 h-4" />
+                  </Link>
                 </div>
-                <h2 className="text-xl font-semibold text-alo-dark">{session?.user?.name || 'Kullanıcı'}</h2>
-                <p className="text-sm text-gray-500">Üyelik: 2024</p>
+                
+                <h2 className="text-xl font-semibold text-gray-800 mb-1">
+                  {session?.user?.name || 'Kullanıcı'}
+                </h2>
+                
+                <p className="text-sm text-gray-500 mb-3">
+                  Üye: {userStats.memberSince ? formatDate(userStats.memberSince) : '2024'}
+                </p>
+
+                {/* Premium Durumu */}
+                {userPremiumStatus.isPremium && (
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-lg mb-4 text-center">
+                    <div className="flex items-center justify-center mb-1">
+                      <Crown className="w-4 h-4 mr-1" />
+                      <span className="font-semibold">{userPremiumStatus.planName}</span>
+                    </div>
+                    <p className="text-xs opacity-90">
+                      {userPremiumStatus.remainingDays} gün kaldı
+                    </p>
+                  </div>
+                )}
               </div>
 
-              <div className="mt-6 space-y-4">
+              {/* İletişim Bilgileri */}
+              <div className="space-y-3 mb-6">
                 <div className="flex items-center text-gray-600">
-                  <EnvelopeIcon className="w-5 h-5 mr-2" />
-                  <span>{session?.user?.email || '-'}</span>
+                  <Mail className="w-4 h-4 mr-3 text-gray-400" />
+                  <span className="text-sm">{session?.user?.email || '-'}</span>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <PhoneIcon className="w-5 h-5 mr-2" />
-                  <span>{session?.user?.phone || '-'}</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <MapPinIcon className="w-5 h-5 mr-2" />
-                  <span>-</span>
-                </div>
+                {session?.user?.phone && (
+                  <div className="flex items-center text-gray-600">
+                    <Phone className="w-4 h-4 mr-3 text-gray-400" />
+                    <span className="text-sm">{session.user.phone}</span>
+                  </div>
+                )}
+                {session?.user?.location && (
+                  <div className="flex items-center text-gray-600">
+                    <MapPin className="w-4 h-4 mr-3 text-gray-400" />
+                    <span className="text-sm">{session.user.location}</span>
+                  </div>
+                )}
+                {session?.user?.birthdate && (
+                  <div className="flex items-center text-gray-600">
+                    <Calendar className="w-4 h-4 mr-3 text-gray-400" />
+                    <span className="text-sm">{formatDate(session.user.birthdate)}</span>
+                  </div>
+                )}
               </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              {/* Hızlı Erişim */}
+              <div className="space-y-2">
                 <Link
                   href="/profil/duzenle"
-                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-alo-orange hover:text-alo-light-orange"
+                  className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  <PencilIcon className="w-4 h-4 mr-2" />
+                  <Edit className="w-4 h-4 mr-3" />
                   Profili Düzenle
+                </Link>
+                <Link
+                  href="/bildirim-tercihleri"
+                  className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <Bell className="w-4 h-4 mr-3" />
+                  Bildirim Ayarları
+                </Link>
+                <Link
+                  href="/premium-ozellikler"
+                  className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <Crown className="w-4 h-4 mr-3" />
+                  Premium Özellikler
+                </Link>
+                <Link
+                  href="/ilan-ver"
+                  className="flex items-center w-full px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4 mr-3" />
+                  Yeni İlan Ver
                 </Link>
               </div>
             </div>
@@ -268,457 +303,429 @@ export default function ProfilePage() {
 
           {/* Ana İçerik */}
           <div className="lg:col-span-3">
-            {/* Sekmeler */}
-            <div className="bg-white rounded-xl shadow-sm mb-6">
-              <nav className="flex">
-                <button
-                  onClick={() => setActiveTab('listings')}
-                  className={`flex-1 px-4 py-3 text-sm font-medium ${
-                    activeTab === 'listings'
-                      ? 'text-alo-orange border-b-2 border-alo-orange'
-                      : 'text-gray-500 hover:text-alo-orange'
-                  }`}
-                >
-                  İlanlarım
-                </button>
-                <button
-                  onClick={() => setActiveTab('favorites')}
-                  className={`flex-1 px-4 py-3 text-sm font-medium ${
-                    activeTab === 'favorites'
-                      ? 'text-alo-orange border-b-2 border-alo-orange'
-                      : 'text-gray-500 hover:text-alo-orange'
-                  }`}
-                >
-                  Favorilerim
-                </button>
-                <button
-                  onClick={() => setActiveTab('messages')}
-                  className={`flex-1 px-4 py-3 text-sm font-medium ${
-                    activeTab === 'messages'
-                      ? 'text-alo-orange border-b-2 border-alo-orange'
-                      : 'text-gray-500 hover:text-alo-orange'
-                  }`}
-                >
-                  Mesajlarım
-                </button>
-                <button
-                  onClick={() => setActiveTab('notifications')}
-                  className={`flex-1 px-4 py-3 text-sm font-medium ${
-                    activeTab === 'notifications'
-                      ? 'text-alo-orange border-b-2 border-alo-orange'
-                      : 'text-gray-500 hover:text-alo-orange'
-                  }`}
-                >
-                  Bildirimlerim
-                </button>
-                <button
-                  onClick={() => setActiveTab('invoices')}
-                  className={`flex-1 px-4 py-3 text-sm font-medium ${
-                    activeTab === 'invoices'
-                      ? 'text-alo-orange border-b-2 border-alo-orange'
-                      : 'text-gray-500 hover:text-alo-orange'
-                  }`}
-                >
-                  Fatura Arşivi
-                </button>
-              </nav>
+            {/* İstatistikler */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <FileText className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Toplam İlan</p>
+                    <p className="text-2xl font-bold text-gray-900">{userStats.totalListings}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Eye className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Toplam Görüntülenme</p>
+                    <p className="text-2xl font-bold text-gray-900">{userStats.totalViews}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <MessageCircle className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Toplam Mesaj</p>
+                    <p className="text-2xl font-bold text-gray-900">{userStats.totalMessages}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <Heart className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Favoriler</p>
+                    <p className="text-2xl font-bold text-gray-900">{userStats.totalFavorites}</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* İlanlarım */}
-            {activeTab === 'listings' && (
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold text-alo-dark">İlanlarım</h3>
-                  <Link
-                    href="/ilan-ver"
-                    className="flex items-center px-4 py-2 bg-alo-orange text-white rounded-lg hover:bg-alo-light-orange"
-                  >
-                    <PlusIcon className="w-4 h-4 mr-2" />
-                    Yeni İlan Ver
-                  </Link>
-                </div>
-
-                {/* Durum sekmeleri */}
-                <div className="flex gap-2 mb-6">
-                  <button
-                    onClick={() => setListingTab('active')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${listingTab === 'active' ? 'bg-alo-orange text-white border-alo-orange' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`}
-                  >
-                    Yayında
-                  </button>
-                  <button
-                    onClick={() => setListingTab('draft')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${listingTab === 'draft' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`}
-                  >
-                    Taslak
-                  </button>
-                  <button
-                    onClick={() => setListingTab('deleted')}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${listingTab === 'deleted' ? 'bg-gray-500 text-white border-gray-500' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}`}
-                  >
-                    Silinen
-                  </button>
-                </div>
-
-                {loading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-alo-orange mx-auto"></div>
-                    <p className="mt-2 text-gray-600">İlanlar yükleniyor...</p>
-                  </div>
-                ) : userListings.filter(l => l.status === listingTab).length > 0 ? (
-                  <div className="space-y-4">
-                    {userListings.filter(l => l.status === listingTab).map((listing) => (
-                      <div
-                        key={listing.id}
-                        className="bg-white rounded-xl shadow-sm overflow-hidden"
+            {/* Sekmeler */}
+            <div className="bg-white rounded-xl shadow-sm">
+              <div className="border-b border-gray-200">
+                <nav className="flex space-x-8 px-6">
+                  {[
+                    { id: 'overview', name: 'Genel Bakış', icon: User },
+                    { id: 'listings', name: 'İlanlarım', icon: FileText },
+                    { id: 'messages', name: 'Mesajlarım', icon: MessageCircle },
+                    { id: 'favorites', name: 'Favorilerim', icon: Heart },
+                    { id: 'analytics', name: 'Analitikler', icon: BarChart3 }
+                  ].map((tab) => {
+                    const IconComponent = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                          activeTab === tab.id
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
                       >
-                        <div className="flex flex-col md:flex-row">
-                          <div className="relative w-full md:w-48 h-48">
-                            {listing.images && listing.images.length > 0 ? (
-                              <img
-                                src={listing.images[0]}
-                                alt={listing.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <span className="text-gray-500">Resim Yok</span>
-                              </div>
-                            )}
+                        <IconComponent className="w-4 h-4 mr-2" />
+                        {tab.name}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              <div className="p-6">
+                {/* Genel Bakış */}
+                {activeTab === 'overview' && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-gray-50 rounded-lg p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Son Aktiviteler</h3>
+                        <div className="space-y-3">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                            <span>Yeni ilan eklendi: "iPhone 13 Pro"</span>
+                            <span className="ml-auto text-xs">2 saat önce</span>
                           </div>
-                          <div className="flex-1 p-4">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h4 className="font-semibold text-alo-dark mb-2">
-                                  {listing.title}
-                                </h4>
-                                <p className="text-xl font-bold text-alo-red mb-2">
-                                  {listing.price} ₺
-                                </p>
-                                <div className="flex items-center text-sm text-gray-500 mb-2">
-                                  <MapPinIcon className="w-4 h-4 mr-1" />
-                                  {listing.location}
-                                </div>
-                                <div className="flex items-center text-sm text-gray-500">
-                                  <span className="mr-4">
-                                    {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
-                                  </span>
-                                  <span>{listing.views || 0} görüntülenme</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                {listingTab === 'active' && (
-                                  <>
-                                    <button
-                                      onClick={() => handleStatusChange(listing, 'draft')}
-                                      className="p-2 text-gray-500 hover:text-blue-500"
-                                      title="Taslağa Çek"
-                                    >
-                                      <ClockIcon className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleStatusChange(listing, 'deleted')}
-                                      className="p-2 text-gray-500 hover:text-alo-red"
-                                      title="Sil"
-                                    >
-                                      <TrashIcon className="w-5 h-5" />
-                                    </button>
-                                  </>
-                                )}
-                                {listingTab === 'draft' && (
-                                  <>
-                                    <button
-                                      onClick={() => handleStatusChange(listing, 'active')}
-                                      className="p-2 text-gray-500 hover:text-green-600"
-                                      title="Yayına Al"
-                                    >
-                                      <CheckCircleIcon className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleStatusChange(listing, 'deleted')}
-                                      className="p-2 text-gray-500 hover:text-alo-red"
-                                      title="Sil"
-                                    >
-                                      <TrashIcon className="w-5 h-5" />
-                                    </button>
-                                  </>
-                                )}
-                                {listingTab === 'deleted' && (
-                                  <>
-                                    <button
-                                      onClick={() => handleStatusChange(listing, 'active')}
-                                      className="p-2 text-gray-500 hover:text-green-600"
-                                      title="Geri Al (Yayına Al)"
-                                    >
-                                      <CheckCircleIcon className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteListing(listing.id)}
-                                      className="p-2 text-gray-500 hover:text-alo-red"
-                                      title="Kalıcı Sil"
-                                    >
-                                      <TrashIcon className="w-5 h-5" />
-                                    </button>
-                                  </>
-                                )}
-                                <button
-                                  onClick={() => handleEditListing(listing)}
-                                  className="p-2 text-gray-500 hover:text-alo-orange"
-                                  title="Düzenle"
-                                  disabled={listingTab === 'deleted'}
-                                >
-                                  <PencilIcon className="w-5 h-5" />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="mt-4">
-                              {getStatusBadge(listing.status)}
-                            </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                            <span>3 yeni mesaj alındı</span>
+                            <span className="ml-auto text-xs">1 gün önce</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                            <span>İlan görüntülenme: 25 artış</span>
+                            <span className="ml-auto text-xs">2 gün önce</span>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">Bu sekmede ilanınız bulunmuyor.</p>
-                    {listingTab === 'active' && (
-                      <Link
-                        href="/ilan-ver"
-                        className="inline-flex items-center px-4 py-2 bg-alo-orange text-white rounded-lg hover:bg-alo-light-orange"
-                      >
-                        <PlusIcon className="w-4 h-4 mr-2" />
-                        İlk İlanınızı Verin
-                      </Link>
+
+                      <div className="bg-gray-50 rounded-lg p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Hızlı İstatistikler</h3>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Aktif İlanlar</span>
+                            <span className="font-semibold text-green-600">{userStats.activeListings}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Bu Ay Görüntülenme</span>
+                            <span className="font-semibold text-blue-600">+12%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Ortalama Yanıt Süresi</span>
+                            <span className="font-semibold text-purple-600">2.3 saat</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {userPremiumStatus.isPremium && (
+                      <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">Premium Üyeliğiniz</h3>
+                            <p className="text-gray-600 mb-2">
+                              {userPremiumStatus.planName} planı ile {userPremiumStatus.remainingDays} gün daha premium özelliklere erişiminiz var.
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {userPremiumStatus.features.slice(0, 3).map((feature, index) => (
+                                <span key={index} className="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                                  <Zap className="w-3 h-3 mr-1" />
+                                  {feature}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <Link
+                            href="/premium-ozellikler"
+                            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+                          >
+                            Yenile
+                          </Link>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* Favorilerim */}
-            {activeTab === 'favorites' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-alo-dark mb-4">Favorilerim</h3>
-                {(() => {
-                  const { showToast } = useToast();
-                  // Favorilerim için SSR uyumlu state
-                  const [favIds, setFavIds] = useState<number[]>([]);
-                  useEffect(() => {
-                    if (typeof window !== 'undefined') {
-                      try {
-                        setFavIds(getFavoriteIds());
-                      } catch (e) {
-                        setFavIds([]);
-                        showToast('Favoriler yüklenirken hata oluştu', 'error');
-                      }
-                    }
-                  }, []);
-                  const favListings = allListings.filter((l: any) => favIds.includes(l.id));
-                  const handleRemoveFavorite = (id: number) => {
-                    const newFavs = favIds.filter(favId => favId !== id);
-                    setFavIds(newFavs);
-                    setFavoriteIds(newFavs);
-                    showToast('Favorilerden çıkarıldı', 'info');
-                  };
-                  const handleClearFavorites = () => {
-                    setFavIds([]);
-                    setFavoriteIds([]);
-                    showToast('Tüm favoriler temizlendi', 'success');
-                  };
-                  if (favListings.length === 0) {
-                    return <div className="text-center py-12">
-                      <div className="text-6xl mb-4">💔</div>
-                      <p className="text-gray-500 mb-2">Henüz favori ilanınız yok.</p>
-                      <p className="text-gray-400">Beğendiğiniz ilanları kalp ikonuna tıklayarak favorilerinize ekleyebilirsiniz!</p>
-                    </div>;
-                  }
-                  return (
-                    <>
-                      <div className="flex justify-end mb-4">
-                        <button
-                          onClick={handleClearFavorites}
-                          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
-                        >
-                          Tüm Favorileri Temizle
-                        </button>
+                {/* İlanlarım */}
+                {activeTab === 'listings' && (
+                  <div className="space-y-6">
+                    {/* Filtreler */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="flex-1">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="text"
+                            placeholder="İlan ara..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {favListings.map((listing: any) => (
-                          <div key={listing.id} className="relative group">
-                            <ListingCard listing={listing} />
-                            <button
-                              onClick={() => handleRemoveFavorite(listing.id)}
-                              className="absolute top-2 right-2 z-20 bg-white/90 text-red-500 border border-red-200 rounded-full p-2 shadow hover:bg-red-500 hover:text-white transition-colors"
-                              title="Favorilerden çıkar"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="all">Tüm Durumlar</option>
+                        <option value="active">Aktif</option>
+                        <option value="pending">Bekliyor</option>
+                        <option value="expired">Süresi Dolmuş</option>
+                        <option value="sold">Satıldı</option>
+                      </select>
+                    </div>
+
+                    {/* İlan Listesi */}
+                    <div className="space-y-4">
+                      {filteredListings.length === 0 ? (
+                        <div className="text-center py-12">
+                          <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz ilanınız yok</h3>
+                          <p className="text-gray-500 mb-4">İlk ilanınızı yayınlayarak başlayın!</p>
+                          <Link
+                            href="/ilan-ver"
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            İlan Ver
+                          </Link>
+                        </div>
+                      ) : (
+                        filteredListings.map((listing) => (
+                          <div key={listing.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start space-x-4">
+                                <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden">
+                                  {listing.images.length > 0 ? (
+                                    <Image
+                                      src={listing.images[0]}
+                                      alt={listing.title}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <FileText className="w-6 h-6 text-gray-400" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <h3 className="font-semibold text-gray-900 mb-1">{listing.title}</h3>
+                                  <p className="text-lg font-bold text-blue-600 mb-2">{formatPrice(listing.price)}</p>
+                                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                    <span>{listing.category}</span>
+                                    <span>•</span>
+                                    <span>{listing.location}</span>
+                                    <span>•</span>
+                                    <span>{listing.views} görüntülenme</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end space-y-2">
+                                {getStatusBadge(listing.status)}
+                                <div className="flex space-x-2">
+                                  <Link
+                                    href={`/ilan/${listing.id}`}
+                                    className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Link>
+                                  <Link
+                                    href={`/ilan-duzenle/${listing.id}`}
+                                    className="p-2 text-gray-400 hover:text-green-600 transition-colors"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mesajlarım */}
+                {activeTab === 'messages' && (
+                  <div className="text-center py-12">
+                    <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Mesajlarınız</h3>
+                    <p className="text-gray-500 mb-4">İlanlarınızla ilgili mesajları burada görebilirsiniz.</p>
+                    <Link
+                      href="/mesajlasma"
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Mesajlara Git
+                    </Link>
+                  </div>
+                )}
+
+                {/* Favorilerim */}
+                {activeTab === 'favorites' && (
+                  <div className="text-center py-12">
+                    <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Favorileriniz</h3>
+                    <p className="text-gray-500 mb-4">Beğendiğiniz ilanları burada görebilirsiniz.</p>
+                    <Link
+                      href="/favoriler"
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Favorilere Git
+                    </Link>
+                  </div>
+                )}
+
+                {/* Analitikler */}
+                {activeTab === 'analytics' && (
+                  <div className="space-y-6">
+                    {/* Özet İstatistikler */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-blue-100 text-sm">Bu Ay Görüntülenme</p>
+                            <p className="text-2xl font-bold">{Math.floor(userStats.totalViews * 0.3)}</p>
+                          </div>
+                          <TrendingUp className="w-8 h-8 text-blue-200" />
+                        </div>
+                        <div className="mt-2 flex items-center text-blue-100 text-sm">
+                          <span className="text-green-300">↗ +12%</span>
+                          <span className="ml-2">geçen aya göre</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-green-100 text-sm">Aktif İlanlar</p>
+                            <p className="text-2xl font-bold">{userStats.activeListings}</p>
+                          </div>
+                          <FileText className="w-8 h-8 text-green-200" />
+                        </div>
+                        <div className="mt-2 flex items-center text-green-100 text-sm">
+                          <span className="text-green-300">↗ +5%</span>
+                          <span className="ml-2">geçen haftaya göre</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-purple-100 text-sm">Mesaj Oranı</p>
+                            <p className="text-2xl font-bold">{userStats.totalMessages > 0 ? Math.round((userStats.totalMessages / userStats.totalViews) * 100) : 0}%</p>
+                          </div>
+                          <MessageCircle className="w-8 h-8 text-purple-200" />
+                        </div>
+                        <div className="mt-2 flex items-center text-purple-100 text-sm">
+                          <span className="text-green-300">↗ +8%</span>
+                          <span className="ml-2">geçen aya göre</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* İlan Performans Grafiği */}
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">İlan Performansı (Son 30 Gün)</h3>
+                      <div className="space-y-4">
+                        {userListings.slice(0, 5).map((listing) => (
+                          <div key={listing.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div className="flex items-center space-x-4">
+                              <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <FileText className="w-6 h-6 text-gray-500" />
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-gray-900">{listing.title}</h4>
+                                <p className="text-sm text-gray-500">{listing.category}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-gray-900">{listing.views} görüntülenme</p>
+                              <div className="flex items-center text-sm text-gray-500">
+                                <TrendingUp className="w-4 h-4 mr-1 text-green-500" />
+                                <span>+{Math.floor(listing.views * 0.15)} bu hafta</span>
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
-                    </>
-                  );
-                })()}
-              </div>
-            )}
+                    </div>
 
-            {/* Mesajlarım */}
-            {activeTab === 'messages' && (
-              <MessagesBox />
-            )}
+                    {/* Kategori Analizi */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">En Popüler Kategoriler</h3>
+                        <div className="space-y-3">
+                          {['Elektronik', 'Ev & Yaşam', 'Moda', 'Spor', 'Kitap'].map((category, index) => (
+                            <div key={category} className="flex items-center justify-between">
+                              <span className="text-gray-700">{category}</span>
+                              <div className="flex items-center space-x-2">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-blue-500 h-2 rounded-full" 
+                                    style={{ width: `${80 - (index * 10)}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm text-gray-500 w-8">{80 - (index * 10)}%</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
 
-            {/* Bildirimlerim */}
-            {activeTab === 'notifications' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-alo-dark mb-4">Bildirimlerim</h3>
-                <div className="flex gap-2 mb-4">
-                  <button
-                    onClick={() => setNotifFilter('all')}
-                    className={`px-3 py-1 rounded ${notifFilter === 'all' ? 'bg-alo-orange text-white' : 'bg-gray-100 text-gray-700'}`}
-                  >Tümü</button>
-                  <button
-                    onClick={() => setNotifFilter('unread')}
-                    className={`px-3 py-1 rounded ${notifFilter === 'unread' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700'}`}
-                  >Okunmamış</button>
-                  <button
-                    onClick={() => setNotifFilter('read')}
-                    className={`px-3 py-1 rounded ${notifFilter === 'read' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700'}`}
-                  >Okunan</button>
-                </div>
-                {notifLoading && <div>Yükleniyor...</div>}
-                {notifError && <div className="text-red-600">{notifError}</div>}
-                {!notifLoading && notifications.filter(n =>
-                  notifFilter === 'all' ? true : notifFilter === 'read' ? n.read : !n.read
-                ).length === 0 && <div className="text-gray-500">Hiç bildiriminiz yok.</div>}
-                {!notifLoading && notifications.filter(n =>
-                  notifFilter === 'all' ? true : notifFilter === 'read' ? n.read : !n.read
-                ).length > 0 && (
-                  <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="py-2 px-4 text-left">Başlık</th>
-                        <th className="py-2 px-4 text-left">İçerik</th>
-                        <th className="py-2 px-4 text-left">Tarih</th>
-                        <th className="py-2 px-4 text-left">Okundu</th>
-                        <th className="py-2 px-4 text-left">İşlemler</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {notifications.filter(n =>
-                        notifFilter === 'all' ? true : notifFilter === 'read' ? n.read : !n.read
-                      ).map(notif => (
-                        <tr key={notif.id} className={notif.read ? 'bg-gray-50' : 'bg-yellow-50 font-semibold'}>
-                          <td className="py-2 px-4 cursor-pointer underline" onClick={() => setNotifDetail(notif)}>{notif.title}</td>
-                          <td className="py-2 px-4">{notif.content}</td>
-                          <td className="py-2 px-4">{new Date(notif.createdAt).toLocaleString('tr-TR')}</td>
-                          <td className="py-2 px-4">
-                            <button
-                              onClick={() => handleMarkRead(notif.id, !notif.read)}
-                              className={notif.read ? 'text-green-600' : 'text-gray-400'}
-                              title={notif.read ? 'Okundu olarak işaretlendi' : 'Okunmadı olarak işaretle'}
-                              disabled={notifProcessing}
-                            >
-                              {notif.read ? '✓' : '•'}
-                            </button>
-                          </td>
-                          <td className="py-2 px-4 flex gap-2">
-                            <button
-                              onClick={() => setNotifDetail(notif)}
-                              className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs"
-                            >Detay</button>
-                            <button
-                              onClick={() => handleDeleteNotif(notif.id)}
-                              className="px-2 py-1 bg-red-200 rounded hover:bg-red-300 text-xs"
-                              disabled={notifProcessing}
-                            >Sil</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Ziyaretçi Analizi</h3>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-700">Mobil Ziyaretçi</span>
+                            <span className="font-semibold text-gray-900">68%</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-700">Desktop Ziyaretçi</span>
+                            <span className="font-semibold text-gray-900">32%</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-700">Ortalama Ziyaret Süresi</span>
+                            <span className="font-semibold text-gray-900">2:34 dk</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-700">Sayfa Bounce Oranı</span>
+                            <span className="font-semibold text-gray-900">23%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detaylı Analitikler Linki */}
+                    <div className="text-center">
+                      <Link
+                        href="/analitikler"
+                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        <BarChart3 className="w-5 h-5 mr-2" />
+                        Detaylı Analitikleri Görüntüle
+                      </Link>
+                    </div>
+                  </div>
                 )}
-                <NotificationDetailModal notif={notifDetail} onClose={() => setNotifDetail(null)} />
               </div>
-            )}
-
-            {/* Fatura Arşivi */}
-            {activeTab === 'invoices' && (
-              <InvoiceArchive userEmail={session?.user?.email} />
-            )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-} 
-
-function InvoiceArchive({ userEmail }: { userEmail: string | undefined }) {
-  const [invoices, setInvoices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const res = await fetch('/payments.json');
-        const data = await res.json();
-        // Sadece giriş yapan kullanıcıya ait faturalar
-        setInvoices(data.filter((inv: any) => inv.userEmail === userEmail));
-      } catch (err) {
-        setError('Faturalar yüklenemedi.');
-      }
-      setLoading(false);
-    };
-    if (userEmail) fetchInvoices();
-  }, [userEmail]);
-
-  if (!userEmail) return <div className="p-8 text-center text-red-500">Fatura arşivini görmek için giriş yapmalısınız.</div>;
-  if (loading) return <div className="p-8 text-center">Yükleniyor...</div>;
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
-  if (invoices.length === 0) return <div className="p-8 text-center text-gray-500">Fatura bulunamadı.</div>;
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
-      <h3 className="text-lg font-semibold text-alo-dark mb-4">Fatura Arşivim</h3>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fatura No</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tutar</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-100">
-          {invoices.map((inv) => (
-            <tr key={inv.id}>
-              <td className="px-4 py-2 whitespace-nowrap font-mono">{inv.invoiceNo || inv.id}</td>
-              <td className="px-4 py-2 whitespace-nowrap">{new Date(inv.createdAt).toLocaleDateString('tr-TR')}</td>
-              <td className="px-4 py-2 whitespace-nowrap">{inv.amount} {inv.currency || '₺'}</td>
-              <td className="px-4 py-2 whitespace-nowrap">
-                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${inv.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{inv.status === 'paid' ? 'Ödendi' : inv.status}</span>
-              </td>
-              <td className="px-4 py-2 whitespace-nowrap flex gap-2">
-                {inv.pdfUrl && (
-                  <a href={inv.pdfUrl} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs">PDF İndir</a>
-                )}
-                <button
-                  onClick={() => alert('Fatura e-posta ile gönderildi (mock).')}
-                  className="px-3 py-1 bg-alo-orange text-white rounded hover:bg-orange-600 text-xs"
-                >
-                  E-posta Gönder
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 } 

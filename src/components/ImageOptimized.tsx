@@ -58,7 +58,7 @@ export default function OptimizedImage({
         <div className="absolute inset-0 bg-gray-200 animate-pulse rounded" />
       )}
       <Image
-        src={src || '/placeholder.png'}
+        src={src || '/images/placeholder.svg'}
         alt={alt}
         width={width}
         height={height}

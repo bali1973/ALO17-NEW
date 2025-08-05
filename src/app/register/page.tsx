@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '@/components/Providers';
+
+import { User, Mail, Lock, Phone, CheckCircle } from 'lucide-react';
 
 // Basit client-side auth sistemi - kullanıcıları localStorage'da saklayacağız
 const getStoredUsers = () => {
@@ -22,6 +24,7 @@ const saveUser = (user: any) => {
 export default function Register() {
   const router = useRouter();
   const { setSession } = useAuth();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',

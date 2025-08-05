@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '@/components/Providers';
 
@@ -46,6 +47,7 @@ export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setSession } = useAuth();
+  
   const [callbackUrl, setCallbackUrl] = useState('/');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

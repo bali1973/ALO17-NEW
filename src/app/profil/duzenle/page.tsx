@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/Providers';
 import { useRouter } from 'next/navigation';
+
 import Image from 'next/image';
 import { PencilIcon, CameraIcon } from '@heroicons/react/24/outline';
 
@@ -10,11 +11,13 @@ export default function EditProfilePage() {
   const { session, isLoading, setSession } = useAuth();
   const router = useRouter();
   
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     location: '',
+    address: '',
     birthdate: '',
   });
   const [avatar, setAvatar] = useState<string>('');
@@ -55,9 +58,10 @@ export default function EditProfilePage() {
         email: session.user.email || '',
         phone: session.user.phone || '',
         location: session.user.location || '',
+        address: session.user.address || '',
         birthdate: session.user.birthdate || '',
       });
-      setAvatar('/images/placeholder.jpg');
+      setAvatar('/images/placeholder.svg');
       setInitialized(true);
     }
     // DEBUG: Session ve expires logla
@@ -163,6 +167,7 @@ export default function EditProfilePage() {
         email: formData.email,
         phone: formData.phone,
         location: formData.location,
+        address: formData.address,
         birthdate: formData.birthdate
       };
       console.log('GÖNDERİLEN (frontend):', payload);
@@ -190,6 +195,7 @@ export default function EditProfilePage() {
             name: formData.name,
             phone: formData.phone,
             location: formData.location,
+            address: formData.address,
             birthdate: formData.birthdate,
           });
           setSession({
@@ -199,10 +205,15 @@ export default function EditProfilePage() {
               name: formData.name,
               phone: formData.phone,
               location: formData.location,
+              address: formData.address,
               birthdate: formData.birthdate,
             }
           });
         }
+        // Profil sayfasına yönlendir
+        setTimeout(() => {
+          router.push('/profil?updated=true');
+        }, 1500);
       } else {
         setMessage({ type: 'error', text: (data && data.error) || 'Profil güncellenirken hata oluştu.' });
         console.error('Profil güncelleme API hatası:', data);
@@ -220,6 +231,12 @@ export default function EditProfilePage() {
 
   if (!isLoading && !session) {
     router.push('/giris');
+    return null;
+  }
+
+  // Sadece admin ve kullanıcıların erişebilmesi için rol kontrolü
+  if (session && session.user.role !== 'admin' && session.user.role !== 'user') {
+    router.push('/');
     return null;
   }
 
@@ -244,7 +261,7 @@ export default function EditProfilePage() {
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200">
                   {/* Eğer avatar yoksa varsayılan profil fotoğrafı gösterilir */}
                   <Image
-                    src={avatar || "/images/placeholder.jpg"}
+                    src={avatar || "/images/placeholder.svg"}
                     alt="Profil fotoğrafı"
                     width={128}
                     height={128}
@@ -354,6 +371,21 @@ export default function EditProfilePage() {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
                   placeholder="İl, İlçe"
+                />
+              </div>
+              {/* Adres */}
+              <div>
+                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                  Adres
+                </label>
+                <textarea
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent resize-none"
+                  placeholder="Detaylı adres bilgisi"
                 />
               </div>
               {/* Doğum Tarihi */}

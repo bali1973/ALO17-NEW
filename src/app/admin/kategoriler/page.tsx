@@ -5,10 +5,10 @@ import { useAuth } from "@/components/Providers";
 import { useToast } from "@/components/ToastProvider";
 import * as LucideIcons from 'lucide-react';
 import React from 'react';
-import { triggerCategoryUpdate } from '@/lib/useCategories';
+import { useCategories, triggerCategoryUpdate } from '@/lib/useCategories';
 
 // SubCategoryInput bileşenini sadeleştir
-function SubCategoryInput({ value, onChange, onAdd, loading }: { value: string, onChange: (val: string) => void, onAdd: (name: string) => Promise<boolean>, loading: boolean }) {
+function SubcategoryInput({ value, onChange, onAdd, loading }: { value: string, onChange: (val: string) => void, onAdd: (name: string) => Promise<boolean>, loading: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1">
@@ -30,7 +30,7 @@ function SubCategoryInput({ value, onChange, onAdd, loading }: { value: string, 
         className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
         disabled={loading}
       >
-        {loading ? '⏳' : '➕ Alt Kategori Ekle'}
+        {loading ? 'Yükleniyor...' : 'Alt Kategori Ekle'}
       </button>
     </div>
   );
@@ -152,11 +152,11 @@ const iconOptions = [
 ];
 
 export default function AdminKategorilerPage() {
-  const { session, isLoading } = useAuth();
+  const { session } = useAuth();
   const user = session?.user;
-  const [categories, setCategories] = useState<any[]>([]);
+  const { categories, isLoading, isError } = useCategories();
   const [newCategory, setNewCategory] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [apiLoading, setApiLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const { showToast } = useToast();
@@ -167,39 +167,38 @@ export default function AdminKategorilerPage() {
   const [editSubCategoryId, setEditSubCategoryId] = useState<string | null>(null);
   const [editSubCategoryName, setEditSubCategoryName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState(iconOptions[0].value);
-  // Alt kategori ikon state'lerini yönetmek için:
-  const [subCategoryIcons, setSubCategoryIcons] = useState<{ [catId: string]: string }>({});
+  // Alt kategori ikon state'leri
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    setLoading(true);
+  const handleSync = async () => {
+    setApiLoading(true);
     setError("");
+    setSuccess("");
     try {
-      // Önce API endpoint'ini dene
-      const res = await fetch("/api/categories");
-      if (res.ok) {
-        const data = await res.json();
-        console.log('API /api/categories yanıtı:', data);
-        setCategories(data);
-      } else {
-        // API başarısız olursa JSON dosyasını dene
-        const jsonRes = await fetch("/categories.json");
-        const data = await jsonRes.json();
-        console.log('JSON /categories.json yanıtı:', data);
-        setCategories(data);
+      const res = await fetch("/api/categories/sync", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${localStorage.getItem("alo17-session")}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Senkronizasyon başarısız oldu.");
       }
-    } catch (err) {
-      setError("Kategoriler yüklenemedi");
+      setSuccess(`Senkronizasyon başarılı! ${data.createdCategories} kategori ve ${data.createdSubCategories} alt kategori eklendi.`);
+      showToast(`Senkronizasyon başarılı!`, "success");
+      triggerCategoryUpdate();
+    } catch (err: any) {
+      setError(err.message || "Senkronizasyon sırasında bir hata oluştu.");
+      showToast(err.message || "Senkronizasyon başarısız oldu.", "error");
     }
-    setLoading(false);
+    setApiLoading(false);
   };
+
 
   const handleAddCategory = async () => {
     if (!newCategory) return;
-    setLoading(true);
+    setApiLoading(true);
     setError("");
     setSuccess("");
     try {
@@ -219,19 +218,17 @@ export default function AdminKategorilerPage() {
         setSuccess("Kategori eklendi");
         showToast("Kategori eklendi", "success");
         setNewCategory("");
-        fetchCategories();
-        // Ana sayfayı güncelle
         triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Kategori eklenemedi");
       showToast("Kategori eklenemedi", "error");
     }
-    setLoading(false);
+    setApiLoading(false);
   };
 
   const handleDeleteCategory = async (id: string) => {
-    setLoading(true);
+    setApiLoading(true);
     setError("");
     setSuccess("");
     try {
@@ -248,20 +245,18 @@ export default function AdminKategorilerPage() {
       } else {
         setSuccess("Kategori silindi");
         showToast("Kategori silindi", "success");
-        fetchCategories();
-        // Ana sayfayı güncelle
         triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Kategori silinemedi");
       showToast("Kategori silinemedi", "error");
     }
-    setLoading(false);
+    setApiLoading(false);
   };
 
   const handleEditCategory = async (id: string) => {
     if (!editCategoryName) return;
-    setLoading(true);
+    setApiLoading(true);
     setError("");
     setSuccess("");
     try {
@@ -282,15 +277,13 @@ export default function AdminKategorilerPage() {
         showToast("Kategori güncellendi", "success");
         setEditCategoryId(null);
         setEditCategoryName("");
-        fetchCategories();
-        // Ana sayfayı güncelle
         triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Kategori güncellenemedi");
       showToast("Kategori güncellenemedi", "error");
     }
-    setLoading(false);
+    setApiLoading(false);
   };
 
   // Alt kategori işlemleri
@@ -314,7 +307,6 @@ export default function AdminKategorilerPage() {
       } else {
         setSuccess("Alt kategori eklendi");
         showToast("Alt kategori eklendi", "success");
-        fetchCategories();
         triggerCategoryUpdate();
         return true;
       }
@@ -326,7 +318,7 @@ export default function AdminKategorilerPage() {
   };
 
   const handleDeleteSubCategory = async (id: string) => {
-    setLoading(true);
+    setApiLoading(true);
     setError("");
     setSuccess("");
     try {
@@ -343,21 +335,19 @@ export default function AdminKategorilerPage() {
       } else {
         setSuccess("Alt kategori silindi");
         showToast("Alt kategori silindi", "success");
-        fetchCategories();
-        // Ana sayfayı güncelle
         triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Alt kategori silinemedi");
       showToast("Alt kategori silinemedi", "error");
     }
-    setLoading(false);
+    setApiLoading(false);
   };
 
   const [editSubCategoryIcon, setEditSubCategoryIcon] = useState<string>(iconOptions[0].value);
   const handleEditSubCategory = async (id: string) => {
     if (!editSubCategoryName) return;
-    setLoading(true);
+    setApiLoading(true);
     setError("");
     setSuccess("");
     try {
@@ -378,26 +368,23 @@ export default function AdminKategorilerPage() {
         showToast("Alt kategori güncellendi", "success");
         setEditSubCategoryId(null);
         setEditSubCategoryName("");
-        fetchCategories();
-        // Ana sayfayı güncelle
         triggerCategoryUpdate();
       }
     } catch (err) {
       setError("Alt kategori güncellenemedi");
       showToast("Alt kategori güncellenemedi", "error");
     }
-    setLoading(false);
+    setApiLoading(false);
   };
-
-  useEffect(() => {
-    console.log('categories state:', categories);
-  }, [categories]);
 
   // Kategorileri order'a göre sırala
   const orderedCategories = [...categories].sort((a: any, b: any) => a.name.localeCompare(b.name, 'tr'));
 
   if (isLoading) {
     return <div className="p-8">Yükleniyor...</div>;
+  }
+  if (isError) {
+    return <div className="p-8 text-red-600">Kategoriler yüklenirken hata oluştu.</div>;
   }
   if (!user || user.role !== "admin") {
     return <div className="p-8 text-red-600">Yetkisiz erişim</div>;
@@ -407,13 +394,23 @@ export default function AdminKategorilerPage() {
     <div className="max-w-4xl mx-auto p-8 bg-gray-50 min-h-screen">
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h1 className="text-3xl font-bold mb-6 text-gray-800 flex items-center">
-          <span className="mr-3">🎯</span>
           Kategori Yönetimi
         </h1>
         
+        {/* Senkronizasyon Butonu */}
+        <div className="mb-6">
+          <button
+            onClick={handleSync}
+            className="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-60 flex items-center justify-center"
+            disabled={apiLoading}
+          >
+            {apiLoading ? 'Senkronize Ediliyor...' : 'Veritabanını JSON ile Senkronize Et'}
+          </button>
+        </div>
+
         {/* Yeni Kategori Ekleme */}
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-700">➕ Yeni Kategori Ekle</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">Yeni Kategori Ekle</h2>
           <div className="flex gap-3 items-center">
             <input
               type="text"
@@ -422,13 +419,13 @@ export default function AdminKategorilerPage() {
               placeholder="Kategori adını girin..."
               className="border-2 border-gray-200 rounded-lg px-4 py-2 flex-1 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
               autoComplete="off"
-              disabled={loading}
+              disabled={apiLoading}
             />
             <select
               value={selectedIcon}
               onChange={e => setSelectedIcon(e.target.value)}
               className="border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-              disabled={loading}
+              disabled={apiLoading}
             >
               {iconOptions.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -440,9 +437,9 @@ export default function AdminKategorilerPage() {
             <button
               onClick={handleAddCategory}
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-              disabled={loading}
+              disabled={apiLoading}
             >
-              {loading ? 'Ekleniyor...' : '➕ Ekle'}
+              {apiLoading ? 'Ekleniyor...' : 'Ekle'}
             </button>
           </div>
         </div>
@@ -450,18 +447,16 @@ export default function AdminKategorilerPage() {
         {/* Mesajlar */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center">
-              <span className="text-red-500 mr-2">❌</span>
-              <span className="text-red-700 font-medium">{error}</span>
-            </div>
+                      <div className="flex items-center">
+            <span className="text-red-700 font-medium">{error}</span>
+          </div>
           </div>
         )}
         {success && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-            <div className="flex items-center">
-              <span className="text-green-500 mr-2">✅</span>
-              <span className="text-green-700 font-medium">{success}</span>
-            </div>
+                      <div className="flex items-center">
+            <span className="text-green-700 font-medium">{success}</span>
+          </div>
           </div>
         )}
       </div>
@@ -472,11 +467,11 @@ export default function AdminKategorilerPage() {
           const Icon = getIcon(cat.slug);
           const color = getColor(cat.slug, i);
           return (
-            <div key={cat.id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <div key={String(cat.id)} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
               {/* Ana Kategori Başlığı */}
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  {editCategoryId === cat.id ? (
+                  {editCategoryId === String(cat.id) ? (
                     <div className="flex items-center gap-3 flex-1">
                       <input
                         type="text"
@@ -497,11 +492,11 @@ export default function AdminKategorilerPage() {
                         {iconOptions.find(opt => opt.value === editCategoryIcon)?.icon}
                       </div>
                       <button
-                        onClick={() => handleEditCategory(cat.id)}
+                        onClick={() => handleEditCategory(String(cat.id))}
                         className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors"
-                        disabled={loading}
+                        disabled={apiLoading}
                       >
-                        💾 Kaydet
+                        Kaydet
                       </button>
                       <button
                         onClick={() => { 
@@ -511,7 +506,7 @@ export default function AdminKategorilerPage() {
                         }}
                         className="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors"
                       >
-                        ❌ İptal
+                        İptal
                       </button>
                     </div>
                   ) : (
@@ -533,27 +528,27 @@ export default function AdminKategorilerPage() {
                             window.open(`/kategori/${cat.slug}`, '_blank');
                           }}
                           className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-sm"
-                          disabled={loading}
+                          disabled={apiLoading}
                         >
-                          👁️ Detaya Git
+                          Kategori Sayfası
                         </button>
                         <button
                           onClick={() => { 
-                            setEditCategoryId(cat.id); 
+                            setEditCategoryId(String(cat.id)); 
                             setEditCategoryName(cat.name); 
                             setEditCategoryIcon(cat.icon || iconOptions[0].value);
                           }}
                           className="bg-yellow-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 transition-colors shadow-sm"
-                          disabled={loading}
+                          disabled={apiLoading}
                         >
-                          ✏️ Düzenle
+                          Düzenle
                         </button>
                         <button
-                          onClick={() => handleDeleteCategory(cat.id)}
+                          onClick={() => handleDeleteCategory(String(cat.id))}
                           className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors shadow-sm"
-                          disabled={loading}
+                          disabled={apiLoading}
                         >
-                          🗑️ Sil
+                          Sil
                         </button>
                       </div>
                     </>
@@ -563,7 +558,6 @@ export default function AdminKategorilerPage() {
               {/* Alt kategoriler */}
               <div className="p-4 bg-gray-50">
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                  <span className="mr-2">📂</span>
                   Alt Kategoriler
                 </h4>
                 <div className="space-y-2">
@@ -572,9 +566,9 @@ export default function AdminKategorilerPage() {
                     // const SubIcon = getIcon(subSlug); // kaldırıldı
                     // const subColor = getColor(subSlug, j); // kaldırıldı
                     return (
-                      <div key={sub.id} className="bg-white rounded-lg border border-gray-200 p-3">
+                      <div key={String(sub.id)} className="bg-white rounded-lg border border-gray-200 p-3">
                         <div className="flex items-center justify-between">
-                          {editSubCategoryId === sub.id ? (
+                          {editSubCategoryId === String(sub.id) ? (
                             <div className="flex items-center gap-3 flex-1">
                               <input
                                 type="text"
@@ -584,17 +578,17 @@ export default function AdminKategorilerPage() {
                               />
                               {/* İKON SEÇİMİ VE GÖSTERİMİ KALDIRILDI */}
                               <button
-                                onClick={() => handleEditSubCategory(sub.id)}
+                                onClick={() => handleEditSubCategory(String(sub.id))}
                                 className="bg-green-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors"
-                                disabled={loading}
+                                disabled={apiLoading}
                               >
-                                💾
+                                Kaydet
                               </button>
                               <button
                                 onClick={() => { setEditSubCategoryId(null); setEditSubCategoryName(""); }}
                                 className="bg-gray-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-gray-600 transition-colors"
                               >
-                                ❌
+                                İptal
                               </button>
                             </div>
                           ) : (
@@ -609,23 +603,23 @@ export default function AdminKategorilerPage() {
                                     window.open(`/kategori/${cat.slug}/${sub.slug}`, '_blank');
                                   }}
                                   className="bg-blue-500 text-white px-3 py-1 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm"
-                                  disabled={loading}
+                                  disabled={apiLoading}
                                 >
-                                  👁️
+                                  Görüntüle
                                 </button>
                                 <button
-                                  onClick={() => { setEditSubCategoryId(sub.id); setEditSubCategoryName(sub.name); setEditSubCategoryIcon(sub.icon || iconOptions[0].value); }}
+                                  onClick={() => { setEditSubCategoryId(String(sub.id)); setEditSubCategoryName(sub.name); setEditSubCategoryIcon(sub.icon || iconOptions[0].value); }}
                                   className="bg-yellow-500 text-white px-3 py-1 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm"
-                                  disabled={loading}
+                                  disabled={apiLoading}
                                 >
-                                  ✏️
+                                  Düzenle
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteSubCategory(sub.id)}
+                                  onClick={() => handleDeleteSubCategory(String(sub.id))}
                                   className="bg-red-500 text-white px-3 py-1 rounded-lg font-medium hover:bg-red-600 transition-colors text-sm"
-                                  disabled={loading}
+                                  disabled={apiLoading}
                                 >
-                                  🗑️
+                                  Sil
                                 </button>
                               </div>
                             </>
@@ -638,17 +632,17 @@ export default function AdminKategorilerPage() {
                 
                 {/* Alt kategori ekleme inputu */}
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <SubCategoryInput
-                    value={subCategoryInputs[cat.id] || ""}
-                    onChange={val => setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: val }))}
+                  <SubcategoryInput
+                    value={subCategoryInputs[String(cat.id)] || ""}
+                    onChange={val => setSubCategoryInputs(inputs => ({ ...inputs, [String(cat.id)]: val }))}
                     onAdd={async (name) => {
-                      const result = await handleAddSubCategory(cat.id, name);
+                      const result = await handleAddSubCategory(String(cat.id), name);
                       if (result) {
-                        setSubCategoryInputs(inputs => ({ ...inputs, [cat.id]: "" }));
+                        setSubCategoryInputs(inputs => ({ ...inputs, [String(cat.id)]: "" }));
                       }
                       return result;
                     }}
-                    loading={loading}
+                    loading={apiLoading}
                   />
                 </div>
               </div>

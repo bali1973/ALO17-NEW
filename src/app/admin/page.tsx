@@ -1,21 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '@/components/Providers';
 import { useRouter } from 'next/navigation';
 import {
-  HomeIcon,
   UserGroupIcon,
   ClipboardDocumentListIcon,
   ChatBubbleLeftRightIcon,
   StarIcon,
-  SparklesIcon,
-  CreditCardIcon,
-  ArrowTrendingUpIcon,
   CheckIcon,
   XMarkIcon,
+  CreditCardIcon,
   EyeIcon,
-  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 import Link from "next/link";
 
@@ -38,12 +34,7 @@ const recentListings: any[] = [];
 
 const recentUsers: any[] = [];
 
-const premiumFeatures = [
-  { id: 'featured', name: 'Öne Çıkan İlan', price: 50, description: 'İlanınız ana sayfada öne çıkarılır' },
-  { id: 'urgent', name: 'Acil İlan', price: 30, description: 'İlanınız acil olarak işaretlenir' },
-  { id: 'highlighted', name: 'Vurgulanmış İlan', price: 25, description: 'İlanınız renkli çerçeve ile vurgulanır' },
-  { id: 'top', name: 'Üst Sıralarda', price: 40, description: 'İlanınız kategoride üst sıralarda görünür' },
-];
+// Premium özellikler tanımları
 
 export default function AdminDashboard() {
   const { session, isLoading } = useAuth();
@@ -54,22 +45,17 @@ export default function AdminDashboard() {
     if (isLoading) return;
 
     if (!session) {
-      console.log('❌ Kullanıcı giriş yapmamış, giriş sayfasına yönlendiriliyor...');
       router.push('/giris');
       return;
     }
 
     if (session?.user) {
       const userRole = session.user.role;
-      console.log('🔍 Kullanıcı role:', userRole);
       
       if (userRole !== 'admin') {
-        console.log('❌ Kullanıcı admin değil, ana sayfaya yönlendiriliyor...');
         router.push('/');
         return;
       }
-      
-      console.log('✅ Admin kullanıcısı, admin sayfasına erişim veriliyor...');
     }
   }, [isLoading, session, router]);
 
@@ -100,11 +86,9 @@ export default function AdminDashboard() {
       if (response.ok) {
         // Başarılı - sayfayı yenile
         window.location.reload();
-      } else {
-        console.error('İlan onaylama hatası:', await response.text());
       }
     } catch (error) {
-      console.error('İlan onaylama hatası:', error);
+      // İlan onaylama hatası
     }
   };
 
@@ -117,11 +101,9 @@ export default function AdminDashboard() {
       if (response.ok) {
         // Başarılı - sayfayı yenile
         window.location.reload();
-      } else {
-        console.error('İlan reddetme hatası:', await response.text());
       }
     } catch (error) {
-      console.error('İlan reddetme hatası:', error);
+      // İlan reddetme hatası
     }
   };
 
@@ -131,7 +113,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           {/* Header */}
           <div className="border-b border-gray-200 pb-5">
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Yönetim Paneli</h1>
             <p className="mt-2 text-sm text-gray-700">
               Platform genel durumu ve istatistikler
             </p>

@@ -11,6 +11,58 @@ async function main() {
 
   console.log('🌱 Seeding database...')
 
+  // Helper function to create slugs
+  const slugify = (text: string) => {
+    const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+    const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+    const p = new RegExp(a.split('').join('|'), 'g')
+
+    return text.toString().toLowerCase()
+      .replace(/\s+/g, '-') // Replace spaces with -
+      .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+      .replace(/&/g, '-and-') // Replace & with 'and'
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-') // Replace multiple - with single -
+      .replace(/^-+/, '') // Trim - from start of text
+      .replace(/-+$/, '') // Trim - from end of text
+  }
+
+  async function createSubCategories(subcategories: any[], categoryId: string, parentId: string | null) {
+    for (const sub of subcategories) {
+      const subName = typeof sub === 'string' ? sub : sub.name;
+      const subSlug = slugify(subName);
+
+      // Find existing subcategory to prevent duplicates within the same main category
+      let existingSub = await prisma.subCategory.findFirst({
+        where: { slug: subSlug, categoryId: categoryId }
+      });
+
+      if (existingSub) {
+        // If it exists, update its parentId
+        existingSub = await prisma.subCategory.update({
+          where: { id: existingSub.id },
+          data: { parentId: parentId || null }
+        });
+        console.log(`  ${parentId ? '  ' : ''}Alt kategori güncellendi:`, existingSub.name);
+      } else {
+        // If it doesn't exist, create it
+        existingSub = await prisma.subCategory.create({
+          data: {
+            name: subName,
+            slug: subSlug,
+            categoryId,
+            parentId: parentId || null,
+          },
+        });
+        console.log(`  ${parentId ? '  ' : ''}Alt kategori eklendi:`, existingSub.name);
+      }
+
+      if (typeof sub === 'object' && sub.subs && sub.subs.length > 0) {
+        await createSubCategories(sub.subs, categoryId, existingSub.id);
+      }
+    }
+  }
+
   // Check if DATABASE_URL is set
   if (!process.env.DATABASE_URL) {
     console.log('🔧 DATABASE_URL not found, using SQLite for testing...')
@@ -53,19 +105,25 @@ async function main() {
       },
     })
 
-    // Yeni categories dizisi ve ekleme işlemleri aşağıda
     const categoriesSeed = [
-      { name: 'Elektronik', slug: 'elektronik', subs: [
-        'Bilgisayar',
-        'Telefon',
-        'Tablet',
-        'Kulaklık',
-        'Televizyon',
-        'Kamera',
-        'Oyun Konsolu',
-        'Yazıcı',
-        'Network'
-      ] },
+      {
+        name: 'Elektronik', slug: 'elektronik', subs: [
+          { name: 'Bilgisayar', subs: ['Dizüstü Bilgisayar', 'Masaüstü Bilgisayar', 'Bilgisayar Bileşenleri', 'Ağ Ürünleri'] },
+          { name: 'Telefon', subs: ['Akıllı Telefonlar', 'Tuşlu Telefonlar', 'Telefon Aksesuarları'] },
+          { name: 'Televizyon & Ses Sistemleri', subs: ['Televizyonlar', 'Ses Sistemleri', 'Projeksiyon'] },
+          'Tablet',
+          'Kulaklık',
+          'Kamera',
+          'Oyun Konsolu',
+        ]
+      },
+      {
+        name: 'Giyim', slug: 'giyim', subs: [
+          { name: 'Kadın Giyim', subs: ['Elbise', 'Ayakkabı', 'Çanta', 'Aksesuar', 'Dış Giyim'] },
+          { name: 'Erkek Giyim', subs: ['Tişört', 'Gömlek', 'Pantolon', 'Ayakkabı', 'Ceket'] },
+          { name: 'Çocuk Giyim', subs: ['Kız Çocuk', 'Erkek Çocuk', 'Bebek Giyim'] },
+        ]
+      },
       { name: 'Ev & Bahçe', slug: 'ev-bahce', subs: [
         'Mobilya',
         'Dekorasyon',
@@ -75,7 +133,6 @@ async function main() {
         'Mutfak',
         'Banyo'
       ] },
-      { name: 'Giyim', slug: 'giyim', subs: ['Kadın Giyim', 'Erkek Giyim', 'Çocuk Giyim'] },
       { name: 'Sporlar, Oyunlar ve Eğlenceler', slug: 'sporlar-oyunlar-eglenceler', subs: ['Takım Sporları', 'Bireysel Sporlar', 'Oyun Konsolları'] },
       { name: 'Anne & Bebek', slug: 'anne-bebek', subs: ['Bebek Arabası', 'Bebek Giyim', 'Bebek Oyuncakları'] },
       { name: 'Eğitim & Kurslar', slug: 'egitim-kurslar', subs: ['Yabancı Dil Kursları', 'Akademik Kurslar', 'Sertifika Programları'] },
@@ -85,22 +142,6 @@ async function main() {
       { name: 'Araçlar', slug: 'araclar', subs: ['Otomobil', 'Motosiklet', 'Ticari Araçlar'] },
       { name: 'Evcil Hayvanlar', slug: 'evcil-hayvanlar', subs: ['Köpek', 'Kedi', 'Kuş'] },
       { name: 'Sanat & Koleksiyon', slug: 'sanat-koleksiyon', subs: ['Tablolar', 'Antikalar', 'Koleksiyon Ürünleri'] },
-      { name: 'İş Makineleri & Sanayi', slug: 'is-makineleri-sanayi', subs: ['İş Makineleri', 'Sanayi Ekipmanları', 'Yedek Parçalar'] },
-      { name: 'Diğer', slug: 'diger', subs: ['Diğer Ürünler', 'Diğer Hizmetler', 'Fırsatlar'] },
-      { name: 'Sağlık & Güzellik', slug: 'saglik-guzellik', subs: [
-        'Kişisel Bakım',
-        'Diyet & Beslenme',
-        'Sporcu Takviyeleri',
-        'Medikal Ürünler',
-        'Güzellik Salonları'
-      ] },
-      { name: 'İş & Kariyer', slug: 'is-kariyer', subs: [
-        'Yönetici',
-        'Danışmanlık',
-        'İnsan Kaynakları',
-        'Mühendislik',
-        'Satış & Pazarlama'
-      ] },
     ];
 
     for (const cat of categoriesSeed) {
@@ -110,13 +151,9 @@ async function main() {
         update: {},
         create: { name: cat.name, slug: cat.slug },
       });
-      for (const sub of cat.subs) {
-        const subcat = await prisma.subCategory.upsert({
-          where: { name_categoryId: { name: sub, categoryId: main.id } },
-          update: {},
-          create: { name: sub, slug: sub.toLowerCase().replace(/ /g, '-'), categoryId: main.id },
-        });
-        console.log('  Alt kategori eklendi:', subcat.name);
+
+      if (cat.subs && cat.subs.length > 0) {
+        await createSubCategories(cat.subs, main.id, null);
       }
     }
 
@@ -131,7 +168,7 @@ async function main() {
         condition: 'Yeni',
         location: 'İstanbul',
         category: 'elektronik',
-        subCategory: 'telefon',
+        subcategory: 'telefon',
         brand: 'Apple',
         model: 'iPhone 14 Pro Max',
         year: '2023',
@@ -146,12 +183,12 @@ async function main() {
         title: 'MacBook Air M2 - İkinci El',
         description: '13 inç, 8GB RAM, 256GB SSD, Mükemmel durumda',
         price: 25000,
-        images: '["/images/listings/placeholder.jpg"]',
+        images: '["/images/placeholder.svg"]',
         features: '["8GB RAM", "256GB SSD", "M2 Chip"]',
         condition: 'İkinci El',
         location: 'Ankara',
         category: 'elektronik',
-        subCategory: 'bilgisayar',
+        subcategory: 'bilgisayar',
         brand: 'Apple',
         model: 'MacBook Air M2',
         year: '2022',
@@ -166,12 +203,12 @@ async function main() {
         title: 'Hemenalgetir Toptan Ürünler',
         description: 'Toptan fiyatına ürünler. Hemenalgetir ile hızlı ve güvenilir alışveriş!\nİletişim: 05414042404',
         price: 1000,
-        images: '["/images/placeholder.jpg"]',
+        images: '["/images/placeholder.svg"]',
         features: '["Toptan Satış", "Güvenli Teslimat"]',
         condition: 'Yeni',
         location: 'İstanbul',
         category: 'yemek-icecek',
-        subCategory: 'gida',
+        subcategory: 'gida',
         brand: 'Hemenalgetir',
         model: '',
         year: '2024',
@@ -237,7 +274,7 @@ async function main() {
         description: 'A1-A2 seviyesi İngilizce kursu, haftada 2 gün, 3 ay süre. Deneyimli öğretmenlerle birebir ders.',
         price: 1500,
         category: 'egitim-kurslar',
-        subCategory: 'dil-kurslari',
+        subcategory: 'dil-kurslari',
         condition: 'Yeni',
         location: 'İstanbul',
         images: JSON.stringify(['/images/listings/ingilizce-kursu.jpg']),
@@ -252,7 +289,7 @@ async function main() {
         description: 'Lise ve üniversite öğrencileri için matematik özel ders. TYT, AYT, KPSS hazırlık.',
         price: 200,
         category: 'egitim-kurslar',
-        subCategory: 'ozel-dersler',
+        subcategory: 'ozel-dersler',
         condition: 'Yeni',
         location: 'Ankara',
         images: JSON.stringify(['/images/listings/matematik-ders.jpg']),
@@ -267,7 +304,7 @@ async function main() {
         description: 'Gitar öğrenmek isteyenler için temel kurs. Akustik ve elektro gitar dersleri.',
         price: 800,
         category: 'egitim-kurslar',
-        subCategory: 'muzik-kurslari',
+        subcategory: 'muzik-kurslari',
         condition: 'Yeni',
         location: 'İzmir',
         images: JSON.stringify(['/images/listings/gitar-kursu.jpg']),
@@ -282,7 +319,7 @@ async function main() {
         description: 'Web geliştirme kursu: HTML, CSS, JavaScript, React. Sıfırdan başlayanlar için.',
         price: 3000,
         category: 'egitim-kurslar',
-        subCategory: 'teknoloji-kurslari',
+        subcategory: 'teknoloji-kurslari',
         condition: 'Yeni',
         location: 'İstanbul',
         images: JSON.stringify(['/images/listings/yazilim-kursu.jpg']),
@@ -297,7 +334,7 @@ async function main() {
         description: 'Stres azaltma ve esneklik için yoga dersleri. Her seviyeye uygun.',
         price: 600,
         category: 'egitim-kurslar',
-        subCategory: 'spor-kurslari',
+        subcategory: 'spor-kurslari',
         condition: 'Yeni',
         location: 'Bursa',
         images: JSON.stringify(['/images/listings/yoga-kursu.jpg']),
@@ -339,12 +376,12 @@ async function main() {
           title: `${cat.name} için örnek ilan`,
           description: `${cat.name} kategorisinde örnek açıklama`,
           price: 1000,
-          images: JSON.stringify(['/images/placeholder.jpg']),
+          images: JSON.stringify(['/images/placeholder.svg']),
           features: JSON.stringify(['Özellik 1', 'Özellik 2']),
           condition: 'Yeni',
           location: 'Çanakkale',
           category: cat.slug,
-          subCategory: '',
+          subcategory: '',
           brand: '',
           model: '',
           year: '2024',

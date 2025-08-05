@@ -21,11 +21,58 @@ class MockPrismaClient {
 
   // Mock models
   user = {
-    findMany: async () => {
+    findMany: async (params?: any) => {
       try {
+        console.log('Mock Prisma findMany called with params:', params);
         const data = await fs.readFile(path.join(process.cwd(), 'public', 'users.json'), 'utf-8');
-        return JSON.parse(data);
-      } catch {
+        let users = JSON.parse(data);
+        console.log('Total users loaded in findMany:', users.length);
+        
+        // Filtreleme işlemleri
+        if (params?.where) {
+          const where = params.where;
+          console.log('Applying filters in findMany:', where);
+          
+          if (where.OR) {
+            users = users.filter((user: any) => 
+              where.OR.some((condition: any) => {
+                if (condition.name?.contains) {
+                  return user.name?.toLowerCase().includes(condition.name.contains.toLowerCase());
+                }
+                if (condition.email?.contains) {
+                  return user.email?.toLowerCase().includes(condition.email.contains.toLowerCase());
+                }
+                return false;
+              })
+            );
+          }
+          if (where.role) {
+            users = users.filter((user: any) => user.role === where.role);
+          }
+          if (where.status) {
+            users = users.filter((user: any) => user.status === where.status);
+          }
+        }
+        
+        // Sıralama
+        if (params?.orderBy?.createdAt === 'desc') {
+          users.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        } else if (params?.orderBy?.createdAt === 'asc') {
+          users.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        }
+        
+        // Sayfalama - skip ve take parametrelerini kontrol et
+        if (params?.skip !== undefined && params?.take !== undefined) {
+          const skip = parseInt(params.skip) || 0;
+          const take = parseInt(params.take) || 10;
+          console.log('Applying pagination - skip:', skip, 'take:', take);
+          users = users.slice(skip, skip + take);
+        }
+        
+        console.log('Users returned from findMany:', users.length);
+        return users;
+      } catch (error) {
+        console.error('Mock Prisma findMany error:', error);
         return [];
       }
     },
@@ -36,6 +83,46 @@ class MockPrismaClient {
         return users.find((user: any) => user.id === params.where.id || user.email === params.where.email);
       } catch {
         return null;
+      }
+    },
+    count: async (params?: any) => {
+      try {
+        console.log('Mock Prisma count called with params:', params);
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'users.json'), 'utf-8');
+        let users = JSON.parse(data);
+        console.log('Total users loaded:', users.length);
+        
+        // Filtreleme işlemleri
+        if (params?.where) {
+          const where = params.where;
+          console.log('Applying filters:', where);
+          
+          if (where.OR) {
+            users = users.filter((user: any) => 
+              where.OR.some((condition: any) => {
+                if (condition.name?.contains) {
+                  return user.name?.toLowerCase().includes(condition.name.contains.toLowerCase());
+                }
+                if (condition.email?.contains) {
+                  return user.email?.toLowerCase().includes(condition.email.contains.toLowerCase());
+                }
+                return false;
+              })
+            );
+          }
+          if (where.role) {
+            users = users.filter((user: any) => user.role === where.role);
+          }
+          if (where.status) {
+            users = users.filter((user: any) => user.status === where.status);
+          }
+        }
+        
+        console.log('Users after filtering:', users.length);
+        return users.length;
+      } catch (error) {
+        console.error('Mock Prisma count error:', error);
+        return 0;
       }
     },
     create: async (params: any) => {
@@ -52,11 +139,90 @@ class MockPrismaClient {
     }
   };
 
+  notificationSubscription = {
+    findFirst: async (params?: any) => {
+      try {
+        console.log('Mock Prisma notificationSubscription.findFirst called with params:', params);
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'notificationSubscriptions.json'), 'utf-8');
+        const subscriptions = JSON.parse(data);
+        
+        if (params?.where) {
+          const where = params.where;
+          return subscriptions.find((sub: any) => {
+            if (where.email && sub.email !== where.email) return false;
+            if (where.category && sub.category !== where.category) return false;
+            if (where.subcategory && sub.subcategory !== where.subcategory) return false;
+            return true;
+          });
+        }
+        
+        return subscriptions[0] || null;
+      } catch (error) {
+        console.error('Mock Prisma notificationSubscription.findFirst error:', error);
+        return null;
+      }
+    },
+    findMany: async (params?: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'notificationSubscriptions.json'), 'utf-8');
+        return JSON.parse(data);
+      } catch {
+        return [];
+      }
+    },
+    create: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'notificationSubscriptions.json'), 'utf-8');
+        const subscriptions = JSON.parse(data);
+        const newSubscription = { ...params.data, id: Date.now().toString() };
+        subscriptions.push(newSubscription);
+        await fs.writeFile(path.join(process.cwd(), 'public', 'notificationSubscriptions.json'), JSON.stringify(subscriptions, null, 2));
+        return newSubscription;
+      } catch {
+        return null;
+      }
+    },
+    delete: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'notificationSubscriptions.json'), 'utf-8');
+        let subscriptions = JSON.parse(data);
+        subscriptions = subscriptions.filter((sub: any) => {
+          if (params?.where?.email && sub.email !== params.where.email) return true;
+          if (params?.where?.category && sub.category !== params.where.category) return true;
+          if (params?.where?.subcategory && sub.subcategory !== params.where.subcategory) return true;
+          return false;
+        });
+        await fs.writeFile(path.join(process.cwd(), 'public', 'notificationSubscriptions.json'), JSON.stringify(subscriptions, null, 2));
+        return { count: 1 };
+      } catch {
+        return { count: 0 };
+      }
+    }
+  };
+
   listing = {
-    findMany: async () => {
+    findMany: async (params?: { where?: { category?: string; subcategory?: string }; orderBy?: { createdAt: 'desc' | 'asc' } }) => {
       try {
         const data = await fs.readFile(path.join(process.cwd(), 'public', 'listings.json'), 'utf-8');
-        return JSON.parse(data);
+        let listings = JSON.parse(data);
+
+        const where = params?.where;
+        if (where) {
+          if (where.category) {
+            listings = listings.filter((listing: any) => listing.category === where.category);
+          }
+          if (where.subcategory) {
+            listings = listings.filter((listing: any) => listing.subcategory === where.subcategory);
+          }
+        }
+
+        if (params?.orderBy?.createdAt === 'desc') {
+          listings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        } else if (params?.orderBy?.createdAt === 'asc') {
+          listings.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        }
+
+        return listings;
       } catch {
         return [];
       }
@@ -113,10 +279,141 @@ class MockPrismaClient {
   category = {
     findMany: async () => {
       try {
+        console.log('Reading categories.json...');
         const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        console.log('Categories data loaded successfully');
         return JSON.parse(data);
+      } catch (error) {
+        console.error('Error reading categories.json:', error);
+        return [];
+      }
+    },
+    findUnique: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        return categories.find((category: any) => category.slug === params.where.slug);
+      } catch {
+        return null;
+      }
+    },
+    create: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        const newCategory = { ...params.data, id: Date.now().toString(), subCategories: [] };
+        categories.push(newCategory);
+        await fs.writeFile(path.join(process.cwd(), 'public', 'categories.json'), JSON.stringify(categories, null, 2));
+        return newCategory;
+      } catch {
+        return null;
+      }
+    },
+    update: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        const index = categories.findIndex((category: any) => category.id === params.where.id);
+        if (index !== -1) {
+          categories[index] = { ...categories[index], ...params.data };
+          await fs.writeFile(path.join(process.cwd(), 'public', 'categories.json'), JSON.stringify(categories, null, 2));
+          return categories[index];
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+    delete: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        const filteredCategories = categories.filter((category: any) => category.id !== params.where.id);
+        await fs.writeFile(path.join(process.cwd(), 'public', 'categories.json'), JSON.stringify(filteredCategories, null, 2));
+        return { id: params.where.id };
+      } catch {
+        return null;
+      }
+    }
+  };
+
+  subCategory = {
+    findMany: async () => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        const allSubCategories: any[] = [];
+        for (const category of categories) {
+          if (category.subCategories) {
+            allSubCategories.push(...category.subCategories);
+          }
+        }
+        return allSubCategories;
       } catch {
         return [];
+      }
+    },
+    findFirst: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        for (const category of categories) {
+          const subCategory = category.subCategories.find((sub: any) => sub.slug === params.where.slug && sub.categoryId === params.where.categoryId);
+          if (subCategory) return subCategory;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+    create: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        const categoryIndex = categories.findIndex((cat: any) => cat.id === params.data.categoryId);
+        if (categoryIndex !== -1) {
+          const newSubCategory = { ...params.data, id: Date.now().toString() };
+          categories[categoryIndex].subCategories.push(newSubCategory);
+          await fs.writeFile(path.join(process.cwd(), 'public', 'categories.json'), JSON.stringify(categories, null, 2));
+          return newSubCategory;
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+    update: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        for (const category of categories) {
+          const subCategoryIndex = category.subCategories.findIndex((sub: any) => sub.id === params.where.id);
+          if (subCategoryIndex !== -1) {
+            category.subCategories[subCategoryIndex] = { ...category.subCategories[subCategoryIndex], ...params.data };
+            await fs.writeFile(path.join(process.cwd(), 'public', 'categories.json'), JSON.stringify(categories, null, 2));
+            return category.subCategories[subCategoryIndex];
+          }
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+    delete: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const categories = JSON.parse(data);
+        for (const category of categories) {
+          const subCategoryIndex = category.subCategories.findIndex((sub: any) => sub.id === params.where.id);
+          if (subCategoryIndex !== -1) {
+            category.subCategories.splice(subCategoryIndex, 1);
+            await fs.writeFile(path.join(process.cwd(), 'public', 'categories.json'), JSON.stringify(categories, null, 2));
+            return { id: params.where.id };
+          }
+        }
+        return null;
+      } catch {
+        return null;
       }
     }
   };

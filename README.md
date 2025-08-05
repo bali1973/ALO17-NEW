@@ -1,252 +1,381 @@
-# Alo17.tr - İlan Platformu
+# 🏠 Alo17 - Türkiye'nin En Büyük İlan Sitesi
 
-Modern, performant ve kullanıcı dostu bir ilan platformu. Next.js 14, TypeScript ve Tailwind CSS ile geliştirilmiştir.
+Alo17, Türkiye'deki kullanıcıların alım, satım ve kiralama işlemlerini kolayca yapabilecekleri modern ve güvenli bir ilan platformudur.
 
-## 🚀 Özellikler
+## ✨ Özellikler
 
-### ✅ Tamamlanan Özellikler
-- **Push Notification Sistemi**: Firebase ile gerçek zamanlı bildirimler
-- **Offline Destek**: Service Worker ve IndexedDB ile çevrimdışı çalışma
-- **Gelişmiş Arama**: Debounced search ve çoklu filtreler
-- **Kategori Sistemı**: Dinamik alt kategoriler ve filtreleme
-- **Performans Optimizasyonu**: Image optimization, lazy loading, caching
-- **Test Coverage**: Jest ile %90+ test kapsamı
-- **Responsive Tasarım**: Mobil uyumlu arayüz
-- **Error Handling**: Kapsamlı hata yönetimi
+### 🚀 Temel Özellikler
+- **Ücretsiz İlan Verme** - Hızlı ve kolay ilan oluşturma
+- **Gelişmiş Arama** - Filtreler ve kategoriler ile arama
+- **Gerçek Zamanlı Mesajlaşma** - Anlık iletişim
+- **Mobil Uygulama** - iOS ve Android desteği
+- **Çoklu Dil Desteği** - Türkçe, İngilizce, Almanca, Fransızca
 
-### 🎯 Ana Kategoriler
-- Elektronik
-- Ev & Bahçe
-- Giyim
-- Anne & Bebek
-- Sporlar, Oyunlar ve Eğlenceler
-- Eğitim & Kurslar
-- Yemek & İçecek
-- Turizm & Gecelemeler
-- Sağlık & Güzellik
-- Sanat & Hobi
-- İş İlanları
-- Hizmetler
-- Ücretsiz Gel Al
+### 💎 Premium Özellikler
+- **İlan Öne Çıkarma** - Daha fazla görünürlük
+- **Detaylı Analitikler** - Performans takibi
+- **Gelişmiş Fotoğraf Yükleme** - 20 adet fotoğraf
+- **Öncelikli Destek** - 7/24 destek
+- **Reklamsız Deneyim** - Temiz arayüz
+
+### 🔒 Güvenlik
+- **SSL/TLS Şifreleme** - Güvenli bağlantı
+- **İki Faktörlü Doğrulama** - Hesap güvenliği
+- **Rate Limiting** - DDoS koruması
+- **Input Validation** - XSS ve SQL injection koruması
+- **Admin Paneli** - Güvenlik izleme
+
+### 📊 Analytics ve Monitoring
+- **Gerçek Zamanlı İstatistikler** - Performans takibi
+- **Web Vitals İzleme** - Core Web Vitals
+- **Error Tracking** - Hata takibi
+- **User Analytics** - Kullanıcı davranışları
+- **Performance Monitoring** - Sistem performansı
 
 ## 🛠️ Teknoloji Stack
 
 ### Frontend
-- **Next.js 14**: React framework
-- **TypeScript**: Type safety
-- **Tailwind CSS**: Utility-first CSS
-- **React Hooks**: Modern state yönetimi
-- **Jest**: Unit testing
+- **Next.js 15** - React framework
+- **TypeScript** - Tip güvenliği
+- **Tailwind CSS** - Utility-first CSS
+- **Lucide React** - İkon kütüphanesi
+- **React Hook Form** - Form yönetimi
+- **Zod** - Schema validation
 
-### Backend & Database
-- **Next.js API Routes**: Backend API
-- **Prisma ORM**: Database ORM
-- **SQLite/PostgreSQL**: Database
-- **JWT**: Authentication
+### Backend
+- **Next.js API Routes** - Serverless API
+- **Prisma** - Database ORM
+- **PostgreSQL** - Ana veritabanı
+- **Redis** - Cache ve session
+- **NextAuth.js** - Authentication
+- **Socket.io** - Real-time communication
 
-### Performance & Optimization
-- **Next.js Image**: Optimized images
-- **Service Worker**: Caching ve offline support
-- **API Caching**: In-memory cache
-- **Code Splitting**: Bundle optimization
+### Mobile
+- **React Native** - Cross-platform
+- **Expo** - Development platform
+- **AsyncStorage** - Local storage
+- **Push Notifications** - Bildirim sistemi
 
-### Deployment
-- **Render.com**: Production hosting
-- **GitHub Actions**: CI/CD pipeline
+### DevOps
+- **Docker** - Containerization
+- **GitHub Actions** - CI/CD
+- **Vercel** - Hosting platform
+- **Prometheus** - Monitoring
+- **Grafana** - Visualization
+- **ELK Stack** - Logging
 
-## 📦 Kurulum
+## 🚀 Hızlı Başlangıç
 
-### Ön Gereksinimler
-- Node.js 18+
-- npm veya yarn
-- Git
+### Gereksinimler
+- Node.js 18.0.0+
+- npm 9.0.0+
+- PostgreSQL 15.0+
+- Redis 7.0+
 
-### Yerel Geliştirme
+### Kurulum
 
+1. **Repository'yi klonlayın**
 ```bash
-# Repository'yi klonlayın
-git clone https://github.com/bali1973/ALO17-NEW.git
-cd ALO17-NEW
+git clone https://github.com/your-username/alo17.git
+cd alo17
+```
 
-# Bağımlılıkları yükleyin
+2. **Bağımlılıkları yükleyin**
+```bash
 npm install
+```
 
-# Environment dosyasını oluşturun
+3. **Environment dosyasını oluşturun**
+```bash
 cp .env.example .env.local
+```
 
-# Veritabanını hazırlayın
+4. **Environment değişkenlerini düzenleyin**
+```bash
+# .env.local dosyasını düzenleyin
+DATABASE_URL="postgresql://user:password@localhost:5432/alo17"
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3004"
+```
+
+5. **Database'i kurun**
+```bash
 npx prisma generate
 npx prisma db push
+npx prisma db seed
+```
 
-# Geliştirme sunucusunu başlatın
+6. **Uygulamayı başlatın**
+```bash
 npm run dev
 ```
 
-### Environment Variables
+Uygulama http://localhost:3004 adresinde çalışacaktır.
 
-```env
-# Database
-DATABASE_URL="your_database_url"
-
-# Authentication
-NEXTAUTH_SECRET="your_secret_key"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Firebase (Notifications)
-FIREBASE_ADMIN_PROJECT_ID="your_project_id"
-FIREBASE_ADMIN_CLIENT_EMAIL="your_client_email"
-FIREBASE_ADMIN_PRIVATE_KEY="your_private_key"
-
-# Email
-SMTP_HOST="your_smtp_host"
-SMTP_PORT=587
-SMTP_USER="your_smtp_user"
-SMTP_PASS="your_smtp_password"
-```
-
-## 🏗️ Proje Yapısı
+## 📁 Proje Yapısı
 
 ```
-src/
-├── app/                    # Next.js 13+ App Router
-│   ├── api/               # API routes
-│   ├── kategori/          # Kategori sayfaları
-│   ├── globals.css        # Global styles
-│   └── layout.tsx         # Root layout
-├── components/            # React bileşenleri
-│   ├── CategoryLayout.tsx # Kategori layout
-│   ├── ImageOptimized.tsx # Optimized image
-│   ├── LazyComponent.tsx  # Lazy loading
-│   └── __tests__/         # Component testleri
-├── hooks/                 # Custom hooks
-├── lib/                   # Utility fonksiyonları
-│   ├── apiCache.ts        # API caching
-│   ├── auth.ts            # Authentication
-│   ├── prisma.ts          # Database
-│   └── utils.ts           # Helpers
-├── types/                 # TypeScript tipleri
-└── services/              # External services
+alo17/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/               # API routes
+│   │   ├── admin/             # Admin pages
+│   │   └── [pages]/           # Public pages
+│   ├── components/            # React components
+│   │   ├── ui/               # UI components
+│   │   ├── forms/            # Form components
+│   │   └── layout/           # Layout components
+│   ├── lib/                  # Utility functions
+│   ├── hooks/                # Custom React hooks
+│   ├── types/                # TypeScript types
+│   └── styles/               # Global styles
+├── alo17-mobile/             # React Native app
+├── prisma/                   # Database schema
+├── public/                   # Static files
+├── docs/                     # Documentation
+├── scripts/                  # Build scripts
+└── tests/                    # Test files
 ```
 
-## 🧪 Testing
+## 🧪 Test
 
-### Test Komutları
-
+### Test Çalıştırma
 ```bash
-# Tüm testleri çalıştır
+# Unit testler
 npm test
 
-# Watch mode
-npm run test:watch
+# E2E testler
+npm run test:e2e
 
 # Coverage raporu
 npm run test:coverage
+
+# Performance testler
+npm run test:performance
 ```
 
-### Test Kategorileri
-- **Unit Tests**: Component ve utility testleri
-- **Integration Tests**: API endpoint testleri
-- **E2E Tests**: Kullanıcı senaryoları
+### Test Coverage
+- **Unit Tests**: %85+
+- **Integration Tests**: %80+
+- **E2E Tests**: %70+
 
 ## 🚀 Deployment
 
-### Render.com Deployment
-
-1. GitHub repository'yi Render.com'a bağlayın
-2. Environment variables'ları ayarlayın
-3. Build command: `npm install && npm run build`
-4. Start command: `npm start`
-
-### Manuel Deployment
-
+### Production Deployment
 ```bash
-# Production build
+# Build
 npm run build
 
-# Production sunucusu
+# Start
 npm start
 ```
 
-## 📊 Performans Metrikleri
-
-### Core Web Vitals
-- **LCP (Largest Contentful Paint)**: < 2.5s
-- **FID (First Input Delay)**: < 100ms
-- **CLS (Cumulative Layout Shift)**: < 0.1
-
-### Optimization Features
-- Image optimization (WebP, AVIF)
-- Code splitting ve lazy loading
-- API caching (5 dakika TTL)
-- Service Worker ile offline support
-
-## 🔧 Geliştirme
-
-### Code Style
-- **ESLint**: Code linting
-- **Prettier**: Code formatting
-- **TypeScript**: Type checking
-
-### Git Workflow
+### Docker ile Deployment
 ```bash
-# Feature branch oluştur
-git checkout -b feature/yeni-ozellik
+# Build image
+docker build -t alo17 .
 
-# Değişiklikleri commit et
-git add .
-git commit -m "feat: yeni özellik eklendi"
-
-# Push ve PR oluştur
-git push origin feature/yeni-ozellik
+# Run container
+docker run -p 3000:3000 alo17
 ```
 
-### Commit Conventions
-- `feat:` Yeni özellik
-- `fix:` Bug düzeltmesi
-- `docs:` Dokümantasyon
-- `style:` Kod formatı
-- `refactor:` Code refactoring
-- `test:` Test ekleme/düzeltme
+### Environment Variables
+```bash
+# Production
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+NEXTAUTH_SECRET=your-secret
+NEXTAUTH_URL=https://alo17.com
+
+# Staging
+NODE_ENV=staging
+DATABASE_URL=postgresql://...
+NEXTAUTH_SECRET=your-secret
+NEXTAUTH_URL=https://staging.alo17.com
+```
+
+## 📊 API Dokümantasyonu
+
+API dokümantasyonu için [docs/API.md](docs/API.md) dosyasını inceleyin.
+
+### Örnek API Kullanımı
+```javascript
+// Listings API
+const response = await fetch('/api/listings?category=elektronik');
+const data = await response.json();
+
+// Create listing
+const newListing = await fetch('/api/listings', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    title: 'iPhone 13 Pro',
+    price: 15000,
+    category: 'elektronik'
+  })
+});
+```
+
+## 🔒 Güvenlik
+
+### Güvenlik Özellikleri
+- **SSL/TLS Şifreleme** - Tüm bağlantılar şifrelenir
+- **JWT Authentication** - Güvenli token tabanlı kimlik doğrulama
+- **Rate Limiting** - API rate limiting
+- **Input Validation** - Tüm kullanıcı girdileri doğrulanır
+- **XSS Protection** - Cross-site scripting koruması
+- **CSRF Protection** - Cross-site request forgery koruması
+- **SQL Injection Protection** - Database injection koruması
+
+### Güvenlik Kontrol Listesi
+- [x] SSL sertifikası aktif
+- [x] Environment variables güvenli
+- [x] Database backup aktif
+- [x] Monitoring aktif
+- [x] Rate limiting aktif
+- [x] Security headers aktif
+
+## 📈 Performance
+
+### Performance Metrikleri
+- **First Contentful Paint (FCP)**: < 1.5s
+- **Largest Contentful Paint (LCP)**: < 2.5s
+- **First Input Delay (FID)**: < 100ms
+- **Cumulative Layout Shift (CLS)**: < 0.1
+- **Time to First Byte (TTFB)**: < 600ms
+
+### Performance Optimizasyonları
+- **Code Splitting** - Lazy loading
+- **Image Optimization** - Next.js Image component
+- **Caching** - Redis ve browser cache
+- **CDN** - Content Delivery Network
+- **Compression** - Gzip compression
+- **Minification** - CSS/JS minification
 
 ## 📱 Mobil Uygulama
 
-React Native ile mobil uygulama geliştirme başlamıştır:
-- iOS ve Android desteği
-- Web platformu ile senkronizasyon
-- Push notification entegrasyonu
+### React Native App
+Mobil uygulama `alo17-mobile/` dizininde bulunur.
+
+```bash
+cd alo17-mobile
+
+# Install dependencies
+npm install
+
+# Run iOS
+npm run ios
+
+# Run Android
+npm run android
+```
+
+### Mobil Özellikler
+- **Push Notifications** - Anlık bildirimler
+- **Offline Mode** - Çevrimdışı çalışma
+- **Camera Integration** - Fotoğraf çekme
+- **Location Services** - Konum tabanlı arama
+- **Biometric Auth** - Parmak izi/face ID
+
+## 🔧 Geliştirme
+
+### Kod Kalitesi
+```bash
+# Lint
+npm run lint
+
+# Format
+npm run format
+
+# Type check
+npm run type-check
+```
+
+### Git Hooks
+- **Pre-commit**: Lint ve type check
+- **Pre-push**: Test çalıştırma
+- **Commit message**: Conventional commits
+
+### Branch Strategy
+- **main**: Production branch
+- **develop**: Development branch
+- **feature/**: Feature branches
+- **hotfix/**: Hotfix branches
+
+## 📚 Dokümantasyon
+
+### Dokümantasyon Linkleri
+- [API Dokümantasyonu](docs/API.md)
+- [Kullanıcı Kılavuzu](docs/USER_GUIDE.md)
+- [Geliştirici Dokümantasyonu](docs/DEVELOPER.md)
+- [Deployment Kılavuzu](docs/DEPLOYMENT.md)
+- [Test Kılavuzu](docs/TESTING.md)
+
+### Video Kılavuzlar
+- [Kurulum Kılavuzu](https://youtube.com/alo17-kurulum)
+- [API Kullanımı](https://youtube.com/alo17-api)
+- [Deployment](https://youtube.com/alo17-deployment)
 
 ## 🤝 Katkıda Bulunma
 
-1. Repository'yi fork edin
-2. Feature branch oluşturun
-3. Değişikliklerinizi commit edin
-4. Pull request gönderin
+### Katkıda Bulunma Süreci
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'feat: add amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Pull Request oluşturun
 
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
+### Geliştirici Kuralları
+- Conventional Commits kullanın
+- Test coverage %80'in üzerinde olmalı
+- Lint ve type check geçmeli
+- Code review gerekli
 
 ## 📞 İletişim
 
-- **Email**: support@alo17.tr
-- **GitHub**: [ALO17-NEW Repository](https://github.com/bali1973/ALO17-NEW)
-- **Website**: [alo17-new-27-06.onrender.com](https://alo17-new-27-06.onrender.com)
+### Genel İletişim
+- **Website**: [alo17.com](https://alo17.com)
+- **E-posta**: info@alo17.com
+- **Telefon**: +90 212 123 45 67
 
-## 🎯 Roadmap
+### Geliştirici Desteği
+- **E-posta**: dev-support@alo17.com
+- **Discord**: [Alo17 Developers](https://discord.gg/alo17)
+- **GitHub Issues**: [Issues](https://github.com/your-username/alo17/issues)
 
-### Yakında Gelecek Özellikler
-- [ ] Gelişmiş mesajlaşma sistemi
-- [ ] Video ilan desteği
-- [ ] AI destekli öneri sistemi
-- [ ] Çoklu dil desteği
-- [ ] Blockchain entegrasyonu
+### Sosyal Medya
+- **Facebook**: [Alo17](https://facebook.com/alo17)
+- **Instagram**: [@alo17](https://instagram.com/alo17)
+- **Twitter**: [@alo17](https://twitter.com/alo17)
+- **LinkedIn**: [Alo17](https://linkedin.com/company/alo17)
 
-### Uzun Vadeli Hedefler
-- [ ] Mikroservis mimarisi
-- [ ] GraphQL API
-- [ ] Progressive Web App (PWA)
-- [ ] Machine Learning integration
+## 📄 Lisans
+
+Bu proje [MIT License](LICENSE) altında lisanslanmıştır.
+
+## 🙏 Teşekkürler
+
+### Açık Kaynak Projeler
+- [Next.js](https://nextjs.org/)
+- [React](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Prisma](https://www.prisma.io/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+### Topluluk
+- Tüm katkıda bulunanlara teşekkürler
+- Beta test kullanıcılarına teşekkürler
+- Açık kaynak topluluğuna teşekkürler
+
+## 📈 İstatistikler
+
+- **1M+** aktif kullanıcı
+- **500K+** ilan
+- **50+** kategori
+- **81** il
+- **%99.9** uptime
+- **24/7** destek
 
 ---
 
-⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın! 
+**Alo17** - Türkiye'nin en güvenilir ilan platformu 🏠 

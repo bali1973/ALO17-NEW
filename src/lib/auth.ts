@@ -1,5 +1,24 @@
-// Client-side authentication utilities
-// Bu dosya artık NextAuth kullanmıyor, sadece client-side auth için yardımcı fonksiyonlar içeriyor
+import { NextAuthOptions } from 'next-auth';
+
+// NextAuth.js konfigürasyonu
+export const authOptions: NextAuthOptions = {
+  providers: [],
+  session: {
+    strategy: 'jwt',
+  },
+  callbacks: {
+    async session({ session, token }) {
+      return session;
+    },
+    async jwt({ token, user }) {
+      return token;
+    },
+  },
+  pages: {
+    signIn: '/giris',
+    error: '/giris',
+  },
+};
 
 // Hardcoded test kullanıcıları
 export const hardcodedUsers = [

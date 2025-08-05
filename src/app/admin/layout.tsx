@@ -24,13 +24,14 @@ import {
   XMarkIcon as XMarkIconSolid,
   ShieldCheckIcon,
   UserCircleIcon,
+  CpuChipIcon,
 } from '@heroicons/react/24/outline';
 import { useAdminAuth, AdminGuard, AdminAuthProvider, adminUtils } from '@/lib/admin-auth';
 
 const navigation = [
   { 
-    name: 'Dashboard', 
-    href: '/admin', 
+    name: 'Yönetim Paneli', 
+    href: '/admin/dashboard', 
     icon: HomeIcon,
     permission: 'dashboard:read' as const
   },
@@ -58,13 +59,19 @@ const navigation = [
     icon: BellIcon,
     permission: 'dashboard:read' as const
   },
-  { 
+    {
     name: 'Premium Planlar', 
     href: '/admin/premium-planlar', 
     icon: StarIcon,
     permission: 'premium:read' as const
   },
-  { 
+  {
+    name: 'Fiyatlandırma Stratejileri', 
+    href: '/admin/fiyatlandirma-stratejileri', 
+    icon: ArrowTrendingUpIcon,
+    permission: 'pricing:read' as const
+  },
+  {
     name: 'İstatistikler', 
     href: '/admin/istatistikler', 
     icon: ChartBarIcon,
@@ -81,6 +88,18 @@ const navigation = [
     href: '/admin/kategoriler',
     icon: ClipboardDocumentListIcon,
     permission: 'categories:read' as const
+  },
+  {
+    name: 'Sistem İzleme',
+    href: '/admin/monitoring',
+    icon: CpuChipIcon,
+    permission: 'monitoring:read' as const
+  },
+  {
+    name: 'Güvenlik',
+    href: '/admin/guvenlik',
+    icon: ShieldCheckIcon,
+    permission: 'security:read' as const
   },
 ];
 
@@ -159,22 +178,21 @@ function AdminLayoutContent({
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <AdminGuard key={item.name} permission={item.permission}>
-                  <Link
-                    href={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-900'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                    {item.href === '/admin/bildirimler' && <CountBadge count={reportCount} />}
-                    {item.href === '/admin/mesajlar' && <CountBadge count={messageCount} />}
-                  </Link>
-                </AdminGuard>
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                    isActive
+                      ? 'bg-blue-100 text-blue-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <item.icon className="mr-3 h-5 w-5" />
+                  {item.name}
+                  {item.href === '/admin/bildirimler' && <CountBadge count={reportCount} />}
+                  {item.href === '/admin/mesajlar' && <CountBadge count={messageCount} />}
+                </Link>
               );
             })}
           </nav>
@@ -191,21 +209,20 @@ function AdminLayoutContent({
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <AdminGuard key={item.name} permission={item.permission}>
-                  <Link
-                    href={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-900'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
-                  >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                    {item.href === '/admin/bildirimler' && <CountBadge count={reportCount} />}
-                    {item.href === '/admin/mesajlar' && <CountBadge count={messageCount} />}
-                  </Link>
-                </AdminGuard>
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                    isActive
+                      ? 'bg-blue-100 text-blue-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  <item.icon className="mr-3 h-5 w-5" />
+                  {item.name}
+                  {item.href === '/admin/bildirimler' && <CountBadge count={reportCount} />}
+                  {item.href === '/admin/mesajlar' && <CountBadge count={messageCount} />}
+                </Link>
               );
             })}
           </nav>

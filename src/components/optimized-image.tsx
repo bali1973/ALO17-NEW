@@ -46,7 +46,7 @@ export function OptimizedImage({
   priority = false,
   quality = 75,
   placeholder = 'empty',
-  fallbackSrc = '/images/placeholder.jpg',
+  fallbackSrc = '/images/placeholder.svg',
   onLoad,
   onError,
   ...props

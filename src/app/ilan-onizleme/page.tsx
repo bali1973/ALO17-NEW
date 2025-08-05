@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Heart, Phone, Mail, Share2, Facebook, Twitter, Instagram, MessageCircle, ChevronRight, Eye, BarChart, MessageSquare, AlertTriangle, User, ArrowLeft, Edit, Check, X } from 'lucide-react';
 import Image from 'next/image';
@@ -9,15 +9,51 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
 
+
 const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjQwMCIgeT0iMzAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Hw7Zyc2VsIFlvayA8L3RleHQ+PC9zdmc+';
 
 export default function IlanOnizlemePage() {
-  const searchParams = useSearchParams();
+  
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<any[]>([]);
+
+  // Kategorileri yükle
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error('Kategoriler yüklenirken hata:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Kategori adını bul
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : categoryId;
+  };
+
+  // Alt kategori adını bul
+  const getSubCategoryName = (subcategoryId: string) => {
+    const category = categories.find(cat => cat.id === listing.category);
+    if (category && category.subcategories) {
+      const subcategory = category.subcategories.find(sub => sub.id === subcategoryId);
+      return subcategory ? subcategory.name : subcategoryId;
+    }
+    return subcategoryId;
+  };
 
   // URL parametrelerinden ilan verilerini al
   useEffect(() => {
@@ -28,6 +64,7 @@ export default function IlanOnizlemePage() {
         const description = searchParams.get('description') || '';
         const price = searchParams.get('price') || '';
         const category = searchParams.get('category') || '';
+        const subcategory = searchParams.get('subcategory') || '';
         const location = searchParams.get('location') || '';
         const images = searchParams.get('images') ? JSON.parse(searchParams.get('images')!) : [];
         const contactPhone = searchParams.get('contactPhone') || '';
@@ -42,6 +79,7 @@ export default function IlanOnizlemePage() {
           description,
           price: parseFloat(price) || 0,
           category,
+          subcategory,
           location,
           images: images.length > 0 ? images : [placeholderImage],
           contactPhone,
@@ -108,7 +146,26 @@ export default function IlanOnizlemePage() {
   };
 
   const handleEdit = () => {
-    // İlan ver sayfasına geri dön (taslak ile)
+    // İlan verilerini localStorage'a kaydet
+    const draftData = {
+      title: listing.title,
+      description: listing.description,
+      price: listing.price.toString(),
+      category: listing.category,
+      subcategory: listing.subcategory,
+      condition: searchParams.get('condition') || '',
+      location: listing.location,
+      contactPhone: listing.contactPhone,
+      phoneVisibility: listing.phoneVisibility,
+      contactEmail: listing.contactEmail,
+      sellerName: listing.seller.name,
+      images: listing.images,
+      isDraft: true
+    };
+    
+    localStorage.setItem('ilanDraftData', JSON.stringify(draftData));
+    
+    // İlan ver sayfasına yönlendir
     router.push('/ilan-ver?draft=1');
   };
 
@@ -181,7 +238,7 @@ export default function IlanOnizlemePage() {
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
                 <Link href={`/kategori/${listing.category.toLowerCase()}`} className="text-gray-700 hover:text-alo-orange">
-                  {listing.category}
+                  {getCategoryName(listing.category)}
                 </Link>
               </div>
             </li>
@@ -253,7 +310,7 @@ export default function IlanOnizlemePage() {
               <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
                 <div className="flex items-center">
                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                    {listing.category}
+                    {getCategoryName(listing.category)}
                   </span>
                 </div>
                 <div className="flex items-center">
@@ -360,7 +417,11 @@ export default function IlanOnizlemePage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Kategori:</span>
-                  <span className="text-gray-900">{listing.category}</span>
+                  <span className="text-gray-900">{getCategoryName(listing.category)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Alt Kategori:</span>
+                  <span className="text-gray-900">{getSubCategoryName(listing.subcategory)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Konum:</span>

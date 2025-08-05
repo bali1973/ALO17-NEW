@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/Providers';
+
 import { Search, Filter, MapPin, Sparkles, Star, Clock, TrendingUp } from 'lucide-react';
 import { useCategories } from '@/lib/useCategories';
 import { SearchFilterBar } from '@/components/SearchFilterBar';
@@ -33,6 +34,7 @@ interface Ilan {
 export default function IlanlarPage() {
   const { session } = useAuth();
   const router = useRouter();
+  
   // Eski state'ler yerine merkezi filtre state'i
   const [filters, setFilters] = useState({
     category: '',
@@ -48,6 +50,7 @@ export default function IlanlarPage() {
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState('grid');
 
   useEffect(() => {
     setLoading(true);

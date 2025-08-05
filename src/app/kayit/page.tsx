@@ -43,13 +43,13 @@ export default function KayitPage() {
     setIsLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Şifreler eşleşmiyor');
+      setError('auth.passwords_dont_match');
       setIsLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Şifre en az 6 karakter olmalıdır');
+      setError('auth.password_min_length');
       setIsLoading(false);
       return;
     }
@@ -60,7 +60,7 @@ export default function KayitPage() {
       const existingUser = users.find((u: any) => u.email === formData.email);
       
       if (existingUser) {
-        setError('Bu email adresi zaten kullanılıyor');
+        setError('auth.email_already_exists');
         setIsLoading(false);
         return;
       }

@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+
+import { CreditCard, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 // Stripe ile ilgili importları kaldır
 // import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -8,8 +10,21 @@ const FEATURE_PRICE_API = '/api/premium-feature-prices';
 const PLAN_PRICE_API = '/api/premium-plans';
 const INVOICE_STORAGE_KEY = 'ilanOdemeInvoice';
 
+// Ekstra özelliklerin Türkçe isimleri
+const FEATURE_NAMES: Record<string, string> = {
+  'featured': 'Öne Çıkan İlan',
+  'urgent': 'Acil İlan',
+  'highlighted': 'Vurgulanmış İlan',
+  'top': 'Üst Sırada Göster',
+  'bump': 'Yukarı Taşı',
+  'spotlight': 'Spot Işık',
+  'priority': 'Öncelikli İlan',
+  'premium': 'Premium İlan'
+};
+
 export default function IlanOdemePage() {
   const router = useRouter();
+  
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -253,7 +268,7 @@ export default function IlanOdemePage() {
               <b>Premium Plan Ücreti:</b> {planPrices[listing.selectedPremiumPlan].price} ₺
             </div>
           )}
-          <div className="mb-2"><b>Ekstra Özellikler:</b> {listing.selectedFeatures?.join(', ') || '-'}</div>
+          <div className="mb-2"><b>Ekstra Özellikler:</b> {listing.selectedFeatures?.map((feature: string) => FEATURE_NAMES[feature] || feature).join(', ') || '-'}</div>
           {/* Premium özellik fiyat dökümü */}
           {listing.selectedFeatures && listing.selectedFeatures.length > 0 && (
             <div className="mb-2">
@@ -261,7 +276,7 @@ export default function IlanOdemePage() {
               <ul className="ml-4 mt-1">
                 {listing.selectedFeatures.map((feature: string) => (
                   <li key={feature}>
-                    {feature} : {featurePrices[feature] || 0} ₺
+                    {FEATURE_NAMES[feature] || feature} : {featurePrices[feature] || 0} ₺
                   </li>
                 ))}
               </ul>

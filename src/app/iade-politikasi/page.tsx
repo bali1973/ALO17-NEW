@@ -1,6 +1,11 @@
+'use client';
+
 import React from 'react';
 
+import { RotateCcw, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+
 export default function IadePolitikasiPage() {
+  
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-2xl font-bold mb-6">İade ve İptal Politikası</h1>

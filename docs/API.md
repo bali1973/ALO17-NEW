@@ -1,126 +1,141 @@
-# API Dokümantasyonu
+# Alo17 API Dokümantasyonu
 
-Alo17.tr platformunun RESTful API dokümantasyonu.
+Bu dokümantasyon Alo17 uygulamasının REST API endpoint'lerini açıklar.
 
 ## 🔗 Base URL
 
 ```
-Production: https://alo17-new-27-06.onrender.com/api
-Development: http://localhost:3000/api
+Production: https://alo17.com/api
+Staging: https://staging.alo17.com/api
+Development: http://localhost:3004/api
 ```
 
 ## 🔐 Authentication
 
-Çoğu endpoint için JWT token gereklidir. Token'ı `Authorization` header'ında gönderin:
+API'yi kullanmak için JWT token gereklidir. Token'ı header'da gönderin:
 
 ```
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer <your-jwt-token>
 ```
 
-## 📋 API Endpoints
+## 📋 İçindekiler
 
-### Authentication
+- [Authentication](#authentication)
+- [Users](#users)
+- [Listings](#listings)
+- [Categories](#categories)
+- [Messages](#messages)
+- [Notifications](#notifications)
+- [Reports](#reports)
+- [Premium Features](#premium-features)
+- [Search](#search)
+- [Analytics](#analytics)
+- [Admin](#admin)
 
-#### POST /api/auth/login
-Kullanıcı girişi
+---
 
-**Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
+## 👤 Users
+
+### Get Current User
+```http
+GET /api/user/profile
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "token": "jwt_token_here",
   "user": {
-    "id": "user_id",
+    "id": "user_123",
     "email": "user@example.com",
-    "name": "User Name"
+    "name": "John Doe",
+    "phone": "+905551234567",
+    "location": "İstanbul",
+    "role": "user",
+    "createdAt": "2024-01-01T00:00:00.000Z"
   }
 }
 ```
 
-#### POST /api/auth/register
-Kullanıcı kaydı
+### Update User Profile
+```http
+PUT /api/user/profile
+Content-Type: application/json
 
-**Request Body:**
-```json
 {
-  "email": "user@example.com",
-  "password": "password123",
-  "name": "User Name",
-  "phone": "+90555123456"
+  "name": "John Doe",
+  "phone": "+905551234567",
+  "location": "İstanbul"
 }
 ```
 
-### Categories
-
-#### GET /api/categories
-Tüm kategorileri getir
+### Get User Stats
+```http
+GET /api/user/stats
+```
 
 **Response:**
 ```json
-[
-  {
-    "id": "1",
-    "name": "Elektronik",
-    "slug": "elektronik",
-    "order": 0,
-    "count": 15,
-    "subCategories": [
-      {
-        "id": "1-1",
-        "name": "Bilgisayarlar",
-        "slug": "bilgisayarlar",
-        "categoryId": "1"
-      }
-    ]
+{
+  "success": true,
+  "stats": {
+    "totalListings": 15,
+    "activeListings": 12,
+    "totalViews": 1250,
+    "totalMessages": 45,
+    "totalFavorites": 23,
+    "membershipDate": "2024-01-01T00:00:00.000Z",
+    "lastActive": "2024-01-15T10:30:00.000Z"
   }
-]
+}
 ```
 
-#### GET /api/categories/:slug
-Belirli kategoriyi getir
+### Get User Listings
+```http
+GET /api/user/listings?page=1&limit=10&status=active
+```
 
-**Parameters:**
-- `slug`: Kategori slug'ı
+---
 
-### Listings
+## 🏠 Listings
 
-#### GET /api/listings
-İlanları listele
+### Get All Listings
+```http
+GET /api/listings?page=1&limit=20&category=elektronik&priceMin=100&priceMax=1000&search=iphone
+```
 
 **Query Parameters:**
-- `category`: Kategori filtresi
-- `city`: Şehir filtresi
-- `minPrice`: Minimum fiyat
-- `maxPrice`: Maksimum fiyat
-- `premiumOnly`: Sadece premium ilanlar (true/false)
-- `page`: Sayfa numarası (default: 1)
-- `limit`: Sayfa başına ilan sayısı (default: 20)
+- `page` (number): Sayfa numarası
+- `limit` (number): Sayfa başına kayıt sayısı
+- `category` (string): Kategori filtresi
+- `subcategory` (string): Alt kategori filtresi
+- `priceMin` (number): Minimum fiyat
+- `priceMax` (number): Maksimum fiyat
+- `location` (string): Konum filtresi
+- `condition` (string): Durum filtresi (yeni, az kullanılmış, eski)
+- `search` (string): Arama terimi
+- `sortBy` (string): Sıralama (price, date, views)
+- `sortOrder` (string): Sıralama yönü (asc, desc)
 
 **Response:**
 ```json
 {
+  "success": true,
   "listings": [
     {
-      "id": "listing_id",
-      "title": "İlan Başlığı",
-      "description": "İlan açıklaması",
-      "price": "1000",
+      "id": "listing_123",
+      "title": "iPhone 13 Pro",
+      "description": "Yeni iPhone 13 Pro satılık",
+      "price": 15000,
       "category": "elektronik",
-      "subcategory": "bilgisayarlar",
-      "city": "İstanbul",
-      "images": ["image1.jpg", "image2.jpg"],
-      "isPremium": false,
-      "userId": "user_id",
-      "createdAt": "2025-01-28T10:00:00Z",
-      "updatedAt": "2025-01-28T10:00:00Z"
+      "subcategory": "telefon",
+      "location": "İstanbul",
+      "condition": "yeni",
+      "images": ["/uploads/image1.jpg"],
+      "userId": "user_123",
+      "status": "active",
+      "views": 45,
+      "createdAt": "2024-01-01T00:00:00.000Z"
     }
   ],
   "pagination": {
@@ -133,169 +148,584 @@ Belirli kategoriyi getir
 }
 ```
 
-#### GET /api/listings/:id
-Belirli ilanı getir
+### Get Single Listing
+```http
+GET /api/listings/{id}
+```
 
-**Parameters:**
-- `id`: İlan ID'si
+### Create Listing
+```http
+POST /api/listings
+Content-Type: application/json
 
-#### POST /api/listings
-Yeni ilan oluştur (Auth gerekli)
-
-**Request Body:**
-```json
 {
-  "title": "İlan Başlığı",
-  "description": "İlan açıklaması",
-  "price": "1000",
+  "title": "iPhone 13 Pro",
+  "description": "Yeni iPhone 13 Pro satılık",
+  "price": 15000,
   "category": "elektronik",
-  "subcategory": "bilgisayarlar",
-  "city": "İstanbul",
-  "images": ["image1.jpg", "image2.jpg"]
+  "subcategory": "telefon",
+  "location": "İstanbul",
+  "condition": "yeni",
+  "images": ["/uploads/image1.jpg"]
 }
 ```
 
-#### PUT /api/listings/:id
-İlanı güncelle (Auth gerekli)
+### Update Listing
+```http
+PUT /api/listings/{id}
+Content-Type: application/json
 
-#### DELETE /api/listings/:id
-İlanı sil (Auth gerekli)
+{
+  "title": "iPhone 13 Pro - Güncellenmiş",
+  "price": 14000
+}
+```
 
-### Search
+### Delete Listing
+```http
+DELETE /api/listings/{id}
+```
 
-#### GET /api/search
-İlan ara
+### Upload Images
+```http
+POST /api/listings/{id}/images
+Content-Type: multipart/form-data
 
-**Query Parameters:**
-- `q`: Arama terimi
-- `category`: Kategori filtresi
-- `city`: Şehir filtresi
-- `minPrice`: Minimum fiyat
-- `maxPrice`: Maksimum fiyat
-- `condition`: Ürün durumu
-- `premiumOnly`: Sadece premium ilanlar
-- `sortBy`: Sıralama (newest, oldest, price_asc, price_desc)
+{
+  "images": [File1, File2, File3]
+}
+```
 
-### Notifications
+---
 
-#### POST /api/notifications/send
-Bildirim gönder (Admin gerekli)
+## 📂 Categories
 
-**Request Body:**
+### Get All Categories
+```http
+GET /api/categories
+```
+
+**Response:**
 ```json
 {
-  "userId": "user_id",
-  "type": "NEW_MESSAGE",
-  "data": {
-    "senderName": "John Doe",
-    "message": "Yeni mesajınız var"
+  "success": true,
+  "categories": [
+    {
+      "id": "cat_1",
+      "name": "Elektronik",
+      "slug": "elektronik",
+      "description": "Elektronik ürünler",
+      "icon": "phone",
+      "order": 1,
+      "isActive": true,
+      "subcategories": [
+        {
+          "id": "sub_1",
+          "name": "Telefon",
+          "slug": "telefon",
+          "description": "Telefonlar",
+          "order": 1,
+          "isActive": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Get Category by Slug
+```http
+GET /api/categories/{slug}
+```
+
+### Get Category Listings
+```http
+GET /api/categories/{slug}/listings?page=1&limit=20
+```
+
+---
+
+## 💬 Messages
+
+### Get Conversations
+```http
+GET /api/messages/conversations
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "conversations": [
+    {
+      "id": "conv_123",
+      "participant": {
+        "id": "user_456",
+        "name": "Jane Doe",
+        "avatar": "/images/avatar.jpg"
+      },
+      "lastMessage": {
+        "content": "Merhaba, ilan hakkında bilgi alabilir miyim?",
+        "timestamp": "2024-01-15T10:30:00.000Z",
+        "isRead": false
+      },
+      "unreadCount": 2,
+      "listing": {
+        "id": "listing_123",
+        "title": "iPhone 13 Pro",
+        "image": "/uploads/image1.jpg"
+      }
+    }
+  ]
+}
+```
+
+### Get Message History
+```http
+GET /api/messages/history?userId={userId}&page=1&limit=50
+```
+
+### Send Message
+```http
+POST /api/messages/send
+Content-Type: application/json
+
+{
+  "recipientId": "user_456",
+  "content": "Merhaba, ilan hakkında bilgi alabilir miyim?",
+  "listingId": "listing_123"
+}
+```
+
+### Mark Message as Read
+```http
+PUT /api/messages/read
+Content-Type: application/json
+
+{
+  "messageId": "msg_123"
+}
+```
+
+---
+
+## 🔔 Notifications
+
+### Get Notifications
+```http
+GET /api/notifications?page=1&limit=20&type=message
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "notifications": [
+    {
+      "id": "notif_123",
+      "title": "Yeni Mesaj",
+      "message": "iPhone 13 Pro ilanınız için yeni mesaj var",
+      "type": "message",
+      "isRead": false,
+      "data": {
+        "listingId": "listing_123",
+        "senderId": "user_456"
+      },
+      "createdAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 3,
+    "totalItems": 50
   }
 }
 ```
 
-## 🚨 Error Responses
+### Get Unread Count
+```http
+GET /api/notifications/unread/count
+```
 
-API hataları tutarlı format kullanır:
+### Mark as Read
+```http
+PUT /api/notifications/{id}/read
+```
 
-```json
+### Get Notification Preferences
+```http
+GET /api/notifications/preferences
+```
+
+### Update Notification Preferences
+```http
+PUT /api/notifications/preferences
+Content-Type: application/json
+
 {
-  "success": false,
-  "error": "Error message",
-  "code": "ERROR_CODE"
+  "email": true,
+  "push": true,
+  "sms": false,
+  "inApp": true,
+  "messageNotifications": true,
+  "listingNotifications": true,
+  "marketingNotifications": false,
+  "frequency": "immediate",
+  "silentHours": {
+    "enabled": true,
+    "start": "22:00",
+    "end": "08:00"
+  }
 }
 ```
 
-### HTTP Status Codes
+---
 
-- `200`: Başarılı
-- `201`: Oluşturuldu
-- `400`: Geçersiz istek
-- `401`: Yetkisiz
-- `403`: Yasak
-- `404`: Bulunamadı
-- `429`: Çok fazla istek
-- `500`: Sunucu hatası
+## 🚨 Reports
 
-## 🔒 Rate Limiting
+### Get Reports (Admin)
+```http
+GET /api/admin/reports?page=1&limit=20&status=pending
+```
 
-API'de rate limiting aktif:
-- **Genel**: 100 istek/dakika
-- **Authentication**: 5 istek/dakika
-- **Search**: 50 istek/dakika
+### Create Report
+```http
+POST /api/reports
+Content-Type: application/json
 
-## 📝 Örnek Kullanım
+{
+  "type": "listing_complaint",
+  "subject": "Yanıltıcı İlan",
+  "description": "İlan açıklaması gerçekle uyuşmuyor",
+  "priority": "medium",
+  "listingId": "listing_123",
+  "listingTitle": "iPhone 13 Pro"
+}
+```
 
-### JavaScript/TypeScript
+### Update Report Status (Admin)
+```http
+PUT /api/admin/reports/{id}
+Content-Type: application/json
 
-```typescript
-// İlan listesi getir
-const response = await fetch('/api/listings?category=elektronik&city=İstanbul');
-const data = await response.json();
+{
+  "status": "resolved",
+  "adminNotes": "Sorun çözüldü"
+}
+```
 
-// Yeni ilan oluştur
-const newListing = await fetch('/api/listings', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+---
+
+## ⭐ Premium Features
+
+### Get Premium Plans
+```http
+GET /api/premium/plans
+```
+
+### Get User Premium Status
+```http
+GET /api/premium/status
+```
+
+### Purchase Premium Plan
+```http
+POST /api/premium/purchase
+Content-Type: application/json
+
+{
+  "planId": "plan_monthly",
+  "paymentMethod": "paytr"
+}
+```
+
+### Get Premium Features
+```http
+GET /api/premium/features
+```
+
+---
+
+## 🔍 Search
+
+### Advanced Search
+```http
+POST /api/search/advanced
+Content-Type: application/json
+
+{
+  "query": "iphone",
+  "filters": {
+    "category": "elektronik",
+    "priceRange": {
+      "min": 1000,
+      "max": 20000
+    },
+    "location": "İstanbul",
+    "condition": "yeni"
   },
-  body: JSON.stringify({
-    title: 'iPhone 15',
-    description: 'Sıfır kutusunda iPhone 15',
-    price: '45000',
-    category: 'elektronik',
-    subcategory: 'telefon',
-    city: 'İstanbul'
-  })
+  "sortBy": "relevance",
+  "page": 1,
+  "limit": 20
+}
+```
+
+### Get Search Suggestions
+```http
+GET /api/search/suggestions?q=iph
+```
+
+---
+
+## 📊 Analytics
+
+### Get User Analytics
+```http
+GET /api/analytics?timeRange=30d
+```
+
+**Query Parameters:**
+- `timeRange` (string): 7d, 30d, 90d, 1y
+
+**Response:**
+```json
+{
+  "success": true,
+  "analytics": {
+    "overview": {
+      "totalViews": 1250,
+      "totalMessages": 45,
+      "conversionRate": 3.6,
+      "avgResponseTime": 2.5
+    },
+    "viewTrends": [
+      {
+        "date": "2024-01-01",
+        "views": 45
+      }
+    ],
+    "topListings": [
+      {
+        "id": "listing_123",
+        "title": "iPhone 13 Pro",
+        "views": 150,
+        "messages": 8
+      }
+    ],
+    "categoryPerformance": [
+      {
+        "category": "elektronik",
+        "views": 450,
+        "listings": 25
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 👨‍💼 Admin
+
+### Get Dashboard Stats
+```http
+GET /api/admin/dashboard
+```
+
+### Get Users (Admin)
+```http
+GET /api/admin/users?page=1&limit=20&role=user
+```
+
+### Update User (Admin)
+```http
+PUT /api/admin/users/{id}
+Content-Type: application/json
+
+{
+  "role": "moderator",
+  "isActive": true
+}
+```
+
+### Get Security Events
+```http
+GET /api/admin/security/events?type=login_attempt&severity=high
+```
+
+### Get Performance Metrics
+```http
+GET /api/admin/performance/metrics?name=FCP&startTime=1642233600000
+```
+
+---
+
+## 🚨 Error Responses
+
+### 400 Bad Request
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "details": {
+    "title": "Title is required",
+    "price": "Price must be a positive number"
+  }
+}
+```
+
+### 401 Unauthorized
+```json
+{
+  "success": false,
+  "error": "Authentication required"
+}
+```
+
+### 403 Forbidden
+```json
+{
+  "success": false,
+  "error": "Insufficient permissions"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "success": false,
+  "error": "Resource not found"
+}
+```
+
+### 429 Too Many Requests
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded",
+  "retryAfter": 60
+}
+```
+
+### 500 Internal Server Error
+```json
+{
+  "success": false,
+  "error": "Internal server error"
+}
+```
+
+---
+
+## 📝 Rate Limiting
+
+API rate limiting kuralları:
+
+- **Authenticated users**: 100 requests/minute
+- **Unauthenticated users**: 20 requests/minute
+- **Admin endpoints**: 1000 requests/minute
+
+Rate limit aşıldığında `429 Too Many Requests` hatası döner.
+
+---
+
+## 🔗 WebSocket Events
+
+### Connection
+```javascript
+const socket = io('https://alo17.com', {
+  auth: {
+    token: 'your-jwt-token'
+  }
 });
 ```
 
-### cURL
+### Events
 
+#### New Message
+```javascript
+socket.on('new_message', (data) => {
+  console.log('New message:', data);
+});
+```
+
+#### Message Read
+```javascript
+socket.on('message_read', (data) => {
+  console.log('Message read:', data);
+});
+```
+
+#### New Notification
+```javascript
+socket.on('new_notification', (data) => {
+  console.log('New notification:', data);
+});
+```
+
+#### Listing View
+```javascript
+socket.on('listing_view', (data) => {
+  console.log('Listing viewed:', data);
+});
+```
+
+---
+
+## 📚 SDK ve Örnekler
+
+### JavaScript SDK
+```javascript
+import { Alo17API } from '@alo17/sdk';
+
+const api = new Alo17API({
+  baseURL: 'https://alo17.com/api',
+  token: 'your-jwt-token'
+});
+
+// Get listings
+const listings = await api.listings.getAll({
+  category: 'elektronik',
+  page: 1,
+  limit: 20
+});
+
+// Create listing
+const newListing = await api.listings.create({
+  title: 'iPhone 13 Pro',
+  price: 15000,
+  category: 'elektronik'
+});
+```
+
+### cURL Örnekleri
+
+#### Get Listings
 ```bash
-# İlan listesi
-curl -X GET "https://alo17-new-27-06.onrender.com/api/listings?category=elektronik"
+curl -X GET "https://alo17.com/api/listings?category=elektronik&page=1&limit=20" \
+  -H "Authorization: Bearer your-jwt-token"
+```
 
-# Yeni ilan
-curl -X POST "https://alo17-new-27-06.onrender.com/api/listings" \
+#### Create Listing
+```bash
+curl -X POST "https://alo17.com/api/listings" \
+  -H "Authorization: Bearer your-jwt-token" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
-    "title": "iPhone 15",
-    "description": "Sıfır kutusunda",
-    "price": "45000",
-    "category": "elektronik",
-    "city": "İstanbul"
+    "title": "iPhone 13 Pro",
+    "description": "Yeni iPhone 13 Pro satılık",
+    "price": 15000,
+    "category": "elektronik"
   }'
 ```
 
-## 🔄 Versioning
+---
 
-API versiyonlama header ile yapılır:
+## 📞 Support
 
-```
-Accept: application/vnd.alo17.v1+json
-```
+API ile ilgili sorular için:
 
-Şu anki versiyon: v1
-
-## 📊 Response Caching
-
-Belirli endpoint'ler cache'lenir:
-- Categories: 5 dakika
-- Listings: 2 dakika
-- Search results: 1 dakika
-
-Cache'i bypass etmek için `Cache-Control: no-cache` header'ı kullanın.
-
-## 🐛 Hata Ayıklama
-
-Development ortamında detaylı hata mesajları döner. Production'da güvenlik için sınırlı bilgi verilir.
-
-Debug mode için `X-Debug: true` header'ı kullanın (sadece development).
-
-## 📞 Destek
-
-API ile ilgili sorunlar için:
-- Email: api-support@alo17.tr
-- GitHub Issues: [ALO17-NEW Issues](https://github.com/bali1973/ALO17-NEW/issues) 
+- **Documentation**: [docs/API.md](docs/API.md)
+- **Issues**: [GitHub Issues](https://github.com/your-username/alo17/issues)
+- **Email**: api-support@alo17.com
+- **Discord**: [Alo17 Developers](https://discord.gg/alo17) 

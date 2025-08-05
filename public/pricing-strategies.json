@@ -1,0 +1,66 @@
+[
+  {
+    "id": "1",
+    "name": "Dinamik Premium Fiyatlandırma",
+    "type": "dynamic",
+    "description": "Kullanıcı davranışlarına göre otomatik fiyat optimizasyonu",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "1",
+        "condition": "Yüksek trafik",
+        "action": "Fiyat artır",
+        "value": 15,
+        "priority": 1
+      },
+      {
+        "id": "2",
+        "condition": "Düşük dönüşüm",
+        "action": "Fiyat azalt",
+        "value": 10,
+        "priority": 2
+      }
+    ],
+    "performance": {
+      "revenue": 125000,
+      "conversionRate": 8.5,
+      "userSatisfaction": 4.2,
+      "marketShare": 12.5,
+      "roi": 245
+    },
+    "createdAt": "2024-01-01",
+    "updatedAt": "2024-01-15"
+  },
+  {
+    "id": "2",
+    "name": "Sezonsal Kampanya Stratejisi",
+    "type": "seasonal",
+    "description": "Mevsimsel değişimlere göre fiyat ayarlaması",
+    "isActive": true,
+    "rules": [
+      {
+        "id": "3",
+        "condition": "Yaz sezonu",
+        "action": "İndirim uygula",
+        "value": 20,
+        "priority": 1
+      },
+      {
+        "id": "4",
+        "condition": "Kış sezonu",
+        "action": "Premium artır",
+        "value": 25,
+        "priority": 2
+      }
+    ],
+    "performance": {
+      "revenue": 89000,
+      "conversionRate": 12.3,
+      "userSatisfaction": 4.5,
+      "marketShare": 8.7,
+      "roi": 189
+    },
+    "createdAt": "2024-01-01",
+    "updatedAt": "2024-01-10"
+  }
+]

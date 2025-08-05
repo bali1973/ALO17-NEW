@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "userEmail": "user@alo17.com",
+    "type": "system",
+    "title": "Hoş geldiniz!",
+    "content": "Alo17'ye katıldığınız için teşekkürler.",
+    "createdAt": "2024-07-10T10:00:00Z",
+    "read": false,
+    "relatedId": null
+  }
+] 

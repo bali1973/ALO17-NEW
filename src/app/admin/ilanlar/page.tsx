@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { CheckIcon, XMarkIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import OptimizedImage from '@/components/OptimizedImage';
 
 interface Listing {
   id: string;
@@ -12,6 +13,7 @@ interface Listing {
   city: string;
   status: string;
   createdAt: string;
+  images?: string[];
   user: {
     id: string;
     name: string;
@@ -42,7 +44,9 @@ export default function AdminIlanlarPage() {
     try {
       const response = await fetch('/api/listings');
       const data = await response.json();
-      setListings(data);
+      // API'den gelen veri bir object olabilir, listings array'ini al
+      const listingsArray = Array.isArray(data) ? data : (data.listings || []);
+      setListings(listingsArray);
       setLoading(false);
     } catch (err) {
       setError('İlanlar yüklenemedi');
@@ -59,7 +63,7 @@ export default function AdminIlanlarPage() {
         fetchListings();
       }
     } catch (error) {
-      console.error('Onaylama hatası:', error);
+      // Onaylama hatası
     }
   };
 
@@ -72,7 +76,7 @@ export default function AdminIlanlarPage() {
         fetchListings();
       }
     } catch (error) {
-      console.error('Reddetme hatası:', error);
+      // Reddetme hatası
     }
   };
 
@@ -87,7 +91,7 @@ export default function AdminIlanlarPage() {
         fetchListings();
       }
     } catch (error) {
-      console.error('Silme hatası:', error);
+      // Silme hatası
     }
   };
 
@@ -148,7 +152,8 @@ export default function AdminIlanlarPage() {
             </tr>
           </thead>
           <tbody>
-            {listings.map((listing) => (
+            {Array.isArray(listings) && listings.length > 0 ? (
+              listings.map((listing) => (
               <tr key={listing.id} className="border-t hover:bg-gray-50">
                 <td className="py-3 px-4">{listing.id}</td>
                 <td className="py-3 px-4">
@@ -288,7 +293,14 @@ export default function AdminIlanlarPage() {
                   </div>
                 </td>
               </tr>
-            ))}
+            ))
+            ) : (
+              <tr>
+                <td colSpan={9} className="py-8 text-center text-gray-500">
+                  Henüz ilan bulunmuyor
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -296,7 +308,7 @@ export default function AdminIlanlarPage() {
       {/* Detay Modalı */}
       {selectedListing && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full relative">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
             <button 
               onClick={() => setSelectedListing(null)} 
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
@@ -304,16 +316,63 @@ export default function AdminIlanlarPage() {
               &times;
             </button>
             <h2 className="text-xl font-bold mb-4">İlan Detayı</h2>
-            <div className="grid grid-cols-2 gap-4">
+            
+            {/* Resimler */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3">İlan Resimleri</h3>
+              {selectedListing.images && selectedListing.images.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {selectedListing.images.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <OptimizedImage
+                        src={image}
+                        alt={`${selectedListing.title} - Resim ${index + 1}`}
+                        width={300}
+                        height={200}
+                        className="w-full h-48 object-cover rounded-lg shadow-md"
+                        priority={index === 0}
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                        <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 font-medium">
+                          Resim {index + 1}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-100 rounded-lg p-8 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500">Bu ilan için resim bulunmuyor</p>
+                </div>
+              )}
+            </div>
+            
+            {/* İlan Bilgileri */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><strong>ID:</strong> {selectedListing.id}</div>
               <div><strong>Başlık:</strong> {selectedListing.title}</div>
               <div><strong>Kategori:</strong> {selectedListing.category}</div>
               <div><strong>Fiyat:</strong> {selectedListing.price} ₺</div>
               <div><strong>Şehir:</strong> {selectedListing.city}</div>
-              <div><strong>Durum:</strong> {selectedListing.status}</div>
-              <div><strong>Kullanıcı:</strong> {selectedListing.user?.name}</div>
-              <div><strong>Email:</strong> {selectedListing.user?.email}</div>
-              <div className="col-span-2">
+              <div><strong>Durum:</strong> 
+                <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                  selectedListing.status === 'approved' ? 'bg-green-100 text-green-800' :
+                  selectedListing.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {selectedListing.status === 'approved' ? 'Onaylandı' :
+                   selectedListing.status === 'rejected' ? 'Reddedildi' : 'Beklemede'}
+                </span>
+              </div>
+              <div><strong>Kullanıcı:</strong> {selectedListing.user?.name || 'Bilinmiyor'}</div>
+              <div><strong>Email:</strong> {selectedListing.user?.email || 'Bilinmiyor'}</div>
+              <div><strong>Tarih:</strong> {new Date(selectedListing.createdAt).toLocaleDateString('tr-TR')}</div>
+              <div className="md:col-span-2">
                 <strong>Açıklama:</strong>
                 <div className="bg-gray-100 rounded p-3 mt-1">
                   {selectedListing.description}

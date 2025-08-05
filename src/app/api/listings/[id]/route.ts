@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server';
-
-// Mock listings (production'da gerçek database kullanılacak)
-let mockListings: any[] = [];
+import { promises as fs } from 'fs';
+import path from 'path';
 
 async function readListings() {
-  return mockListings;
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'listings.json');
+    const data = await fs.readFile(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Listings.json okuma hatası:', error);
+    return [];
+  }
 }
 
 async function writeListings(listings: any[]) {
-  mockListings = listings;
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'listings.json');
+    await fs.writeFile(filePath, JSON.stringify(listings, null, 2));
+  } catch (error) {
+    console.error('Listings.json yazma hatası:', error);
+  }
 }
 
 // İlan güncelleme
@@ -88,7 +99,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: 'İlan bulunamadı' }, { status: 404 });
     }
 
-    return NextResponse.json({ listing });
+    return NextResponse.json(listing);
   } catch (error) {
     console.error('İlan getirme hatası:', error);
     return NextResponse.json(

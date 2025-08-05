@@ -1,166 +1,79 @@
-import { categories } from '@/lib/categories'
-import { FeaturedAds } from '@/components/featured-ads'
-import { LatestAds } from '@/components/latest-ads'
-import Link from 'next/link'
-import { listings as rawListings } from '@/lib/listings'
-import { Listing } from '@/types/listings'
-import { Home, Sparkles, Star, MapPin, Users, Clock, Shield, Award } from 'lucide-react'
+import { prisma } from '@/lib/prisma';
+import CategoryLayout from '@/components/CategoryLayout';
+import { notFound } from 'next/navigation';
+import ListingsDisplay from '@/components/ListingsDisplay';
+import Breadcrumb from '@/components/Breadcrumb';
 
-// generateStaticParams fonksiyonu ekle
-export async function generateStaticParams() {
-  const params: { slug: string; subSlug: string; subsubslug: string }[] = [];
-  
-  // Tüm kategoriler, alt kategoriler ve alt-alt kategoriler için statik parametreler oluştur
-  categories.forEach((category) => {
-    category.subcategories?.forEach((subcategory) => {
-      subcategory.subcategories?.forEach((subSubcategory) => {
-        params.push({
-          slug: category.slug,
-          subSlug: subcategory.slug,
-          subsubslug: subSubcategory.slug,
-        });
-      });
-    });
+export const revalidate = 3600;
+
+async function getCategoryData(slug: string, subSlug: string, subSubSlug: string) {
+  const category = await prisma.category.findUnique({ where: { slug } });
+  if (!category) return { category: null, subcategory: null, subSubCategory: null, listings: [] };
+
+  const subcategory = category.subCategories?.find((sub: any) => sub.slug === subSlug);
+  if (!subcategory) return { category, subcategory: null, subSubCategory: null, listings: [] };
+
+  const subSubCategory = subcategory.subCategories?.find((sub: any) => sub.slug === subSubSlug);
+  if (!subSubCategory) return { category, subcategory, subSubCategory: null, listings: [] };
+
+  const listings = await prisma.listing.findMany({
+    where: {
+      category: category.slug,
+      subcategory: subcategory.slug,
+    },
+    orderBy: { createdAt: 'desc' },
   });
-  
+
+  return { category, subcategory, subSubCategory, listings };
+}
+
+export async function generateStaticParams() {
+  const categories = await prisma.category.findMany();
+  const params: { slug: string; subSlug: string; subSubSlug: string }[] = [];
+  categories.forEach((category: any) => {
+    if (category.subCategories) {
+      category.subCategories.forEach((subCategory: any) => {
+        if (subCategory.subCategories) {
+          subCategory.subCategories.forEach((subSubCategory: any) => {
+            params.push({
+              slug: category.slug,
+              subSlug: subCategory.slug,
+              subSubSlug: subSubCategory.slug,
+            });
+          });
+        }
+      });
+    }
+  });
   return params;
 }
 
-export default async function SubSubCategoryPage({ params }: { params: Promise<{ slug: string; subSlug: string; subsubslug: string }> }) {
-  const { slug, subSlug, subsubslug } = await params;
+export default async function SubSubCategoryPage({ params }: { params: Promise<{ slug: string; subSlug: string; subSubSlug: string }> }) {
+  const { slug, subSlug, subSubSlug } = await params;
+  const { category, subcategory, subSubCategory, listings } = await getCategoryData(slug, subSlug, subSubSlug);
 
-  // Ana kategoriyi bul
-  const foundCategory = categories.find((cat) => cat.slug === slug)
-  if (!foundCategory) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Kategori bulunamadı</h1>
-          <Link href="/" className="text-blue-600 hover:text-blue-800">
-            Ana sayfaya dön
-          </Link>
-        </div>
-      </div>
-    )
+  if (!category || !subcategory || !subSubCategory) {
+    return notFound();
   }
 
-  // Alt kategoriyi bul
-  const foundSubcategory = foundCategory.subcategories?.find((sub) => sub.slug === subSlug)
-  if (!foundSubcategory) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Alt kategori bulunamadı</h1>
-          <Link href="/" className="text-blue-600 hover:text-blue-800">
-            Ana sayfaya dön
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  // Alt-alt kategoriyi bul
-  const foundSubSubcategory = foundSubcategory.subcategories?.find((subsub) => subsub.slug === subsubslug)
-  if (!foundSubSubcategory) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Alt-alt kategori bulunamadı</h1>
-          <Link href="/" className="text-blue-600 hover:text-blue-800">
-            Ana sayfaya dön
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  // Diğer alt-alt kategoriler
-  const otherSubSubcategories = foundSubcategory.subcategories?.filter((subsub) => subsub.slug !== subsubslug) || []
-
-  // Listings data'sını filtrele
-  const mappedListings = rawListings.filter(listing => 
-    listing.category.toLowerCase() === slug.toLowerCase() && 
-    listing.subCategory?.toLowerCase() === subSlug.toLowerCase()
-  )
+  const breadcrumbSegments = [
+    { name: category.name, href: `/kategori/${category.slug}` },
+    { name: subcategory.name, href: `/kategori/${category.slug}/${subcategory.slug}` },
+    { name: subSubCategory.name },
+  ];
 
   return (
-    <div className="container mx-auto py-8">
-      {/* Breadcrumb */}
-      <nav className="flex mb-8" aria-label="Breadcrumb">
-        <ol className="inline-flex items-center space-x-1 md:space-x-3">
-          <li className="inline-flex items-center">
-            <Link href="/" className="text-gray-700 hover:text-blue-600 flex items-center">
-              <Home className="w-4 h-4 mr-1" />
-              Ana Sayfa
-            </Link>
-          </li>
-          <li>
-            <div className="flex items-center">
-              <span className="mx-2 text-gray-400">/</span>
-              <Link href={`/kategori/${foundCategory.slug}`} className="text-gray-700 hover:text-blue-600">
-                {foundCategory.name}
-              </Link>
-            </div>
-          </li>
-          <li>
-            <div className="flex items-center">
-              <span className="mx-2 text-gray-400">/</span>
-              <Link href={`/kategori/${foundCategory.slug}/${foundSubcategory.slug}`} className="text-gray-700 hover:text-blue-600">
-                {foundSubcategory.name}
-              </Link>
-            </div>
-          </li>
-          <li aria-current="page">
-            <div className="flex items-center">
-              <span className="mx-2 text-gray-400">/</span>
-              <span className="text-gray-500">{foundSubSubcategory.name}</span>
-            </div>
-          </li>
-        </ol>
-      </nav>
-
-      <div className="flex gap-8">
-        {/* Main Content */}
-        <main className="flex-1">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
-              <span className="mr-3 text-2xl">{typeof foundSubSubcategory.icon === 'string' ? foundSubSubcategory.icon : '•'}</span>
-              {foundSubSubcategory.name} Hizmetleri
-            </h1>
-            <p className="text-gray-600">
-              Profesyonel {foundSubSubcategory.name.toLowerCase()} hizmetleri ile evinizi temiz ve düzenli tutun.
-            </p>
-          </div>
-
-          {/* Featured Ads */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <Star className="w-5 h-5 text-yellow-500 mr-2" />
-              Öne Çıkan {foundSubSubcategory.name} Hizmetleri
-            </h2>
-            <FeaturedAds 
-              category={foundCategory.slug} 
-              subcategory={foundSubcategory.slug} 
-              subSubcategory={foundSubSubcategory.slug} 
-              listings={mappedListings} 
-            />
-          </div>
-
-          {/* Latest Ads */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <Clock className="w-5 h-5 text-blue-500 mr-2" />
-              Son Eklenen {foundSubSubcategory.name} Hizmetleri
-            </h2>
-            <LatestAds 
-              category={foundCategory.slug} 
-              subcategory={foundSubcategory.slug} 
-              subSubcategory={foundSubSubcategory.slug} 
-              listings={mappedListings} 
-            />
-          </div>
-        </main>
-      </div>
-    </div>
-  )
+    <CategoryLayout
+      subcategories={subcategory.subCategories || []}
+      activeSlug={subSubSlug}
+      categorySlug={slug}
+      breadcrumbSegments={breadcrumbSegments}
+    >
+      <ListingsDisplay 
+        listings={listings} 
+        showPagination={true}
+        itemsPerPage={12}
+      />
+    </CategoryLayout>
+  );
 } 

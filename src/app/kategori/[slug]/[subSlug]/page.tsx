@@ -1,186 +1,174 @@
-'use client'
+import { prisma } from '@/lib/prisma';
+import { notFound } from 'next/navigation';
+import CategoryLayout from '@/components/CategoryLayout';
 
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { ListingCard } from '@/components/listing-card'
-import { useCategories } from '@/lib/useCategories'
-import { Smartphone, Home as HomeIcon, Shirt, Baby, Dumbbell, Heart, GraduationCap, Utensils, Palette, Gift, Users, Circle, Briefcase } from 'lucide-react'
+import Link from 'next/link';
+import Image from 'next/image';
+import { Heart, Eye } from 'lucide-react';
 
-const iconMap: Record<string, any> = {
-  elektronik: Smartphone,
-  "ev-bahce": HomeIcon,
-  giyim: Shirt,
-  "anne-bebek": Baby,
-  "sporlar-oyunlar-eglenceler": Dumbbell,
-  "egitim-kurslar": GraduationCap,
-  "yemek-icecek": Utensils,
-  "turizm-gecelemeler": Gift,
-  "saglik-guzellik": Heart,
-  "sanat-hobi": Palette,
-  "is": Briefcase,
-  "hizmetler": Users,
-  "ucretsiz-gel-al": Gift,
-  diger: Circle
-};
+export const revalidate = 3600;
 
-const colorPalette = [
-  "text-blue-500",
-  "text-indigo-500",
-  "text-orange-500",
-  "text-purple-500",
-  "text-pink-500",
-  "text-emerald-500",
-  "text-cyan-500",
-  "text-amber-500",
-  "text-teal-500",
-  "text-rose-500",
-  "text-violet-500",
-  "text-lime-500",
-  "text-green-600",
-  "text-slate-500"
-];
-
-function getIcon(slug: string) {
-  return iconMap[slug] || Circle;
+interface SubCategoryPageProps {
+  params: {
+    slug: string;
+    subSlug: string;
+  };
 }
 
-function getColor(slug: string, index: number) {
-  return colorPalette[index % colorPalette.length];
+async function getSubCategoryData(slug: string, subSlug: string) {
+  console.log('Getting subcategory data for slug:', slug, 'subSlug:', subSlug);
+  
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    include: {
+      subCategories: {
+        orderBy: { order: 'asc' }
+      }
+    }
+  });
+
+  console.log('Category found:', category);
+
+  if (!category) return null;
+
+  // Alt kategoriyi bul
+  const subCategory = category.subCategories?.find((sub: any) => sub.slug === subSlug);
+  console.log('SubCategory found:', subCategory);
+
+  if (!subCategory) return null;
+
+  // API'den ilanları çek (hem kategori hem alt kategori filtresi ile)
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004'}/api/listings?category=${slug}&subcategory=${subSlug}`;
+  console.log('Fetching from API:', apiUrl);
+  
+  const response = await fetch(apiUrl, { next: { revalidate: 3600 } });
+  
+  console.log('API Response status:', response.status);
+  
+  if (!response.ok) {
+    console.error('API response error:', response.status);
+    return { category, subCategory, listings: [] };
+  }
+  
+  const data = await response.json();
+  console.log('API Data:', data);
+  console.log('Data type:', typeof data);
+  console.log('Is array:', Array.isArray(data));
+  console.log('Data length:', data.length);
+  
+  const listings = Array.isArray(data) ? data : [];
+  console.log('Final listings count:', listings.length);
+
+  return { category, subCategory, listings };
 }
 
-export default function SubCategoryPage() {
-  const params = useParams()
-  const slug = params.slug as string
-  const subSlug = params.subSlug as string
-  const { categories, loading, error } = useCategories()
+export default async function SubCategoryPage({ params }: SubCategoryPageProps) {
+  const { slug, subSlug } = await params;
+  console.log('SubCategoryPage params slug:', slug, 'subSlug:', subSlug);
+  
+  const data = await getSubCategoryData(slug, subSlug);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Alt kategori yükleniyor...</p>
-        </div>
-      </div>
-    )
+  if (!data) {
+    console.log('No data found, showing 404');
+    notFound();
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">Alt kategori yüklenirken hata oluştu: {error}</p>
-        </div>
-      </div>
-    )
-  }
+  const { category, subCategory, listings } = data;
+  console.log('SubCategoryPage - Category:', category.name);
+  console.log('SubCategoryPage - SubCategory:', subCategory.name);
+  console.log('SubCategoryPage - Listings count:', listings.length);
 
-  const category = categories.find(cat => cat.slug === slug)
-  const subCategory = category?.subCategories?.find(sub => sub.slug === subSlug)
+  const subcategories = category.subCategories?.map((sub: any) => ({
+    slug: sub.slug,
+    name: sub.name,
+  })) || [];
 
-  if (!category || !subCategory) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Alt Kategori Bulunamadı</h1>
-          <p className="text-gray-600 mb-6">Aradığınız alt kategori mevcut değil.</p>
-          <Link
-            href="/"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Ana Sayfaya Dön
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  const Icon = getIcon(category.slug)
-  const color = getColor(category.slug, categories.findIndex(c => c.slug === slug))
+  const breadcrumbSegments = [
+    { name: category.name, href: `/kategori/${category.slug}` },
+    { name: subCategory.name, href: `/kategori/${category.slug}/${subCategory.slug}` }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar: Bu ana kategoriye ait alt kategoriler */}
-      <aside className="w-64 p-4 border-r bg-white">
-        <div className="flex items-center space-x-3 mb-6">
-          <Icon className={`w-6 h-6 ${color}`} />
-          <h2 className="text-lg font-semibold">{category.name}</h2>
+    <CategoryLayout 
+      subcategories={subcategories}
+      activeSlug={subCategory.slug}
+      categorySlug={category.slug}
+      breadcrumbSegments={breadcrumbSegments}
+    >
+
+
+
+
+      {/* İlanlar */}
+      {listings.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz İlan Bulunmuyor</h3>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            Bu alt kategoride henüz ilan bulunmuyor. İlk ilanı siz vererek başlayın!
+          </p>
+          <Link
+            href="/ilan-ver"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            + Ücretsiz İlan Ver
+          </Link>
         </div>
-        
-        {category.subCategories && category.subCategories.length > 0 ? (
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Alt Kategoriler</h3>
-            {category.subCategories.map((sub, index) => {
-              const SubIcon = getIcon(sub.slug)
-              const subColor = getColor(sub.slug, index)
-              const isActive = sub.slug === subSlug
-              return (
-                <Link
-                  key={sub.slug}
-                  href={`/kategori/${category.slug}/${sub.slug}`}
-                  className={`flex items-center space-x-3 p-3 rounded-md transition-colors ${
-                    isActive 
-                      ? 'bg-blue-100 text-blue-700 font-medium' 
-                      : 'hover:bg-blue-50'
-                  }`}
-                >
-                  <SubIcon className={`w-4 h-4 ${subColor}`} />
-                  <span className={isActive ? 'text-blue-700' : 'text-gray-700 hover:text-blue-600'}>
-                    {sub.name}
-                  </span>
-                </Link>
-              )
-            })}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-sm">Bu kategoride alt kategori bulunmuyor.</p>
-        )}
-      </aside>
-
-      {/* Ana içerik */}
-      <div className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center space-x-4 mb-8">
-            <Icon className={`w-8 h-8 ${color}`} />
-            <div>
-              <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-                <Link href="/" className="hover:text-blue-600">Ana Sayfa</Link>
-                <span>/</span>
-                <Link href={`/kategori/${category.slug}`} className="hover:text-blue-600">
-                  {category.name}
-                </Link>
-                <span>/</span>
-                <span className="text-gray-900">{subCategory.name}</span>
-              </nav>
-              <h1 className="text-3xl font-bold text-gray-900">{subCategory.name}</h1>
-              <p className="text-gray-600">
-                {category.name} kategorisinde {subCategory.name} alt kategorisi
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold mb-4">Bu Alt Kategorideki İlanlar</h2>
-            <p className="text-gray-600 mb-6">
-              Bu alt kategoride henüz ilan bulunmuyor. İlk ilanı vermek için aşağıdaki butona tıklayın.
-            </p>
-            <div className="flex space-x-4">
-              <Link
-                href="/ilan-ver"
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                İlan Ver
+      ) : (
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.map((listing: any) => (
+              <Link key={listing.id} href={`/ilan/${listing.id}`} className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer">
+                <div className="relative h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden">
+                  {listing.images && (Array.isArray(listing.images) ? listing.images.length > 0 : listing.images) ? (
+                    <Image
+                      src={Array.isArray(listing.images) ? listing.images[0] : listing.images}
+                      alt={listing.title}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="text-gray-400 text-4xl">📷</div>
+                  )}
+                  {listing.premium && (
+                    <div className="absolute top-3 left-3 px-2 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+                      ÖNCELİKLİ
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    {listing.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    {listing.description}
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-blue-600">
+                      {typeof listing.price === 'number' ? listing.price.toLocaleString('tr-TR') : listing.price} ₺
+                    </span>
+                    <div className="flex items-center text-gray-500 text-sm">
+                      <Eye className="w-4 h-4 mr-1" />
+                      {listing.views || 0}
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500">
+                    {listing.location} • {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
+                  </div>
+                </div>
               </Link>
-              <Link
-                href={`/kategori/${category.slug}`}
-                className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Tüm {category.name} İlanları
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
-    </div>
-  )
+      )}
+    </CategoryLayout>
+  );
 } 

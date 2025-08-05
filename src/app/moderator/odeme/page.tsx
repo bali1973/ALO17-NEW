@@ -137,7 +137,7 @@ export default function ModeratorOdemePage() {
                         document.body.appendChild(script);
                       });
                     }
-                    // @ts-ignore
+                    // @ts-expect-error - jsPDF global window object
                     const jsPDF = window.jspdf.jsPDF;
                     const doc = new jsPDF();
                     const p = selected;

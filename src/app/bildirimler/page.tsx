@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/Providers";
+
+import { Settings } from 'lucide-react';
 
 interface Report {
   id: number;
@@ -20,9 +22,10 @@ const DEFAULT_PREFS = {
   inApp: true,
 };
 
-export default function UserNotificationsPage() {
+export default function NotificationsPage() {
   const { session, isLoading } = useAuth();
   const router = useRouter();
+  
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +80,16 @@ export default function UserNotificationsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Bildirimlerim</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Bildirimlerim</h1>
+        <button
+          onClick={() => router.push('/bildirim-tercihleri')}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
+          <Settings className="w-4 h-4" />
+          Tercihleri Düzenle
+        </button>
+      </div>
       <div className="mb-8 p-4 bg-white rounded shadow border">
         <h2 className="text-lg font-semibold mb-2">Bildirim Tercihleri</h2>
         <div className="flex flex-col gap-2">

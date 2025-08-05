@@ -1,0 +1,32 @@
+# Netlify redirects
+/api/*  /api/:splat  200
+/admin/*  /admin/:splat  200
+/ilan-ver  /ilan-ver.html  200
+/giris  /giris.html  200
+/kayit  /kayit.html  200
+/profil  /profil.html  200
+/ilanlar  /ilanlar.html  200
+/tum-ilanlar  /tum-ilanlar.html  200
+/tum-kategoriler  /tum-kategoriler.html  200
+/premium  /premium.html  200
+/odeme  /odeme.html  200
+/iletisim  /iletisim.html  200
+/hakkimizda  /hakkimizda.html  200
+/yardim  /yardim.html  200
+/sss  /sss.html  200
+/kampanyalar  /kampanyalar.html  200
+/yeni-urunler  /yeni-urunler.html  200
+/privacy  /privacy.html  200
+/gizlilik  /gizlilik.html  200
+/gizlilik-politikasi  /gizlilik-politikasi.html  200
+/cerez-politikasi  /cerez-politikasi.html  200
+/kullanim-kosullari  /kullanim-kosullari.html  200
+/kullanim-sartlari  /kullanim-sartlari.html  200
+/kvkk  /kvkk.html  200
+/sifremi-unuttum  /sifremi-unuttum.html  200
+/ilan-onizleme  /ilan-onizleme.html  200
+/login  /login.html  200
+/register  /register.html  200
+
+# Catch all - serve index.html for client-side routing
+/*  /index.html  200 

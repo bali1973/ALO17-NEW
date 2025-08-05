@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+
 import { ListingCard } from "@/components/listing-card"
-import { Sidebar } from "@/components/sidebar"
+import { Sidebar } from "@/components/Sidebar"
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline'
 
 interface Listing {
@@ -21,6 +22,7 @@ interface Listing {
 }
 
 export default function TumIlanlarPage() {
+  
   const [listings, setListings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')

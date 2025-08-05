@@ -37,7 +37,6 @@ interface ListingDetail {
     id: string;
     name: string;
     avatar: string;
-    rating: number;
     isVerified: boolean;
   };
 }
@@ -81,7 +80,6 @@ const ListingDetailScreen: React.FC = () => {
           id: 'seller1',
           name: 'Ahmet Yılmaz',
           avatar: 'https://via.placeholder.com/50x50',
-          rating: 4.8,
           isVerified: true,
         },
       };
@@ -236,9 +234,6 @@ const ListingDetailScreen: React.FC = () => {
                     <Text style={styles.verifiedBadge}>✓</Text>
                   )}
                 </View>
-                <Text style={[styles.sellerRating, { color: theme.colors.textSecondary }]}>
-                  ⭐ {listing.seller.rating}/5.0
-                </Text>
               </View>
             </View>
           </View>

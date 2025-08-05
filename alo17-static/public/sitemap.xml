@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://alo17.com/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://alo17.com/ilan-ver</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://alo17.com/premium</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://alo17.com/kategoriler</loc>
+    <priority>0.7</priority>
+  </url>
+  <!-- Dinamik olarak ilanlar ve kategoriler eklenebilir -->
+</urlset> 

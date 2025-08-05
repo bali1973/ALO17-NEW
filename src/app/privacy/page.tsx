@@ -1,6 +1,11 @@
+'use client';
+
 import React from 'react';
 
+import { Shield, Lock, Eye, Database } from 'lucide-react';
+
 export default function PrivacyPage() {
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Gizlilik Politikası</h1>

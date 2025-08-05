@@ -42,9 +42,9 @@ export default function AdminMesajlarPage() {
   };
 
   const filteredMessages = messages.filter(m =>
-    m.sender.toLowerCase().includes(search.toLowerCase()) ||
-    m.receiver.toLowerCase().includes(search.toLowerCase()) ||
-    m.content.toLowerCase().includes(search.toLowerCase())
+    (m.sender?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (m.receiver?.toLowerCase() || '').includes(search.toLowerCase()) ||
+    (m.content?.toLowerCase() || '').includes(search.toLowerCase())
   );
 
   return (
@@ -77,10 +77,10 @@ export default function AdminMesajlarPage() {
             {filteredMessages.map(msg => (
               <tr key={msg.id} className="border-t">
                 <td className="py-2 px-4">{msg.id}</td>
-                <td className="py-2 px-4">{msg.sender}</td>
-                <td className="py-2 px-4">{msg.receiver}</td>
-                <td className="py-2 px-4 line-clamp-1 max-w-xs">{msg.content}</td>
-                <td className="py-2 px-4">{msg.date}</td>
+                <td className="py-2 px-4">{msg.sender || 'Bilinmiyor'}</td>
+                <td className="py-2 px-4">{msg.receiver || 'Bilinmiyor'}</td>
+                <td className="py-2 px-4 line-clamp-1 max-w-xs">{msg.content || 'İçerik yok'}</td>
+                <td className="py-2 px-4">{msg.date || 'Tarih yok'}</td>
                 <td className="py-2 px-4">
                   <button onClick={() => setSelectedMessage(msg)} className="bg-blue-500 text-white px-3 py-1 rounded mr-2">Detay</button>
                   <button onClick={() => handleDelete(msg.id)} className="bg-red-500 text-white px-3 py-1 rounded">Sil</button>
@@ -97,10 +97,10 @@ export default function AdminMesajlarPage() {
             <button onClick={() => setSelectedMessage(null)} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
             <h2 className="text-xl font-bold mb-4">Mesaj Detayı</h2>
             <div className="mb-2"><b>ID:</b> {selectedMessage.id}</div>
-            <div className="mb-2"><b>Gönderen:</b> {selectedMessage.sender}</div>
-            <div className="mb-2"><b>Alıcı:</b> {selectedMessage.receiver}</div>
-            <div className="mb-2"><b>Tarih:</b> {selectedMessage.date}</div>
-            <div className="mb-2"><b>İçerik:</b> <div className="bg-gray-100 rounded p-2 mt-1 whitespace-pre-line">{selectedMessage.content}</div></div>
+            <div className="mb-2"><b>Gönderen:</b> {selectedMessage.sender || 'Bilinmiyor'}</div>
+            <div className="mb-2"><b>Alıcı:</b> {selectedMessage.receiver || 'Bilinmiyor'}</div>
+            <div className="mb-2"><b>Tarih:</b> {selectedMessage.date || 'Tarih yok'}</div>
+            <div className="mb-2"><b>İçerik:</b> <div className="bg-gray-100 rounded p-2 mt-1 whitespace-pre-line">{selectedMessage.content || 'İçerik yok'}</div></div>
           </div>
         </div>
       )}

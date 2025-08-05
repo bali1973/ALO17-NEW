@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+import { Metadata, Viewport } from 'next'
 import './globals.css'
 import Providers from '@/components/Providers'
 import Header from '@/components/Header'
@@ -6,6 +6,7 @@ import SiteFooter from '@/components/SiteFooter'
 import fs from 'fs';
 import path from 'path';
 import ClientCookieBanner from '@/components/ClientCookieBanner';
+import { initPerformanceMonitoring } from '@/lib/performance';
 
 export const metadata: Metadata = (() => {
   let metaTitle = "Alo17 - Türkiye'nin En Büyük İlan Sitesi";
@@ -33,8 +34,36 @@ export const metadata: Metadata = (() => {
       'alo17', 'ilan', 'ikinci el', 'satılık', 'hizmet', 'elektronik', 'ev eşyası', 'giyim', 'araba', 'emlak', 'iş ilanı', 'premium ilan', 'ücretsiz ilan', 'Çanakkale', 'Türkiye'
     ],
     icons: {
-      icon: '/favicon.ico',
-      apple: '/apple-icon',
+      icon: '/icons/favicon-32x32.png',
+      shortcut: '/icons/favicon-16x16.png',
+      apple: '/icons/apple-touch-icon.png',
+      other: [
+        {
+          rel: 'icon',
+          url: '/icons/favicon.ico',
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '16x16',
+          url: '/icons/favicon-16x16.png',
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '32x32',
+          url: '/icons/favicon-32x32.png',
+        },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          url: '/icons/apple-touch-icon.png',
+        },
+        {
+          rel: 'manifest',
+          url: '/manifest.json',
+        }
+      ]
     },
     openGraph: {
       type: 'website',
@@ -60,9 +89,12 @@ export const metadata: Metadata = (() => {
       images: ['/images/og-image.jpg'],
     },
     metadataBase: new URL('https://alo17.com'),
-    themeColor: '#ff6600',
   };
 })();
+
+export const viewport: Viewport = {
+  themeColor: '#ff6600',
+}
 
 export default function RootLayout({
   children,
@@ -85,12 +117,15 @@ export default function RootLayout({
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Alo17" />
         <meta name="copyright" content="Alo17" />
-        <meta name="theme-color" content="#ff6600" />
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-icon" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         {googleAdsCode && (
-          <div dangerouslySetInnerHTML={{ __html: googleAdsCode }} />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: googleAdsCode
+            }}
+          />
         )}
       </head>
       <body className="font-sans">
@@ -98,6 +133,84 @@ export default function RootLayout({
           <Header />
           <ClientCookieBanner />
           {children}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                // Performans optimizasyonları
+                if (typeof window !== 'undefined') {
+                  // Service Worker kaydet
+                  if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js')
+                      .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                      })
+                      .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                      });
+                  }
+                  
+                  // Performans izleme başlat
+                  try {
+                    // Core Web Vitals izleme
+                    if ('PerformanceObserver' in window) {
+                      // LCP (Largest Contentful Paint)
+                      new PerformanceObserver((list) => {
+                        const entries = list.getEntries();
+                        const lastEntry = entries[entries.length - 1];
+                        console.log('LCP:', lastEntry.startTime.toFixed(2) + 'ms');
+                      }).observe({ entryTypes: ['largest-contentful-paint'] });
+
+                      // FID (First Input Delay)
+                      new PerformanceObserver((list) => {
+                        const entries = list.getEntries();
+                        entries.forEach((entry) => {
+                          console.log('FID:', (entry.processingStart - entry.startTime).toFixed(2) + 'ms');
+                        });
+                      }).observe({ entryTypes: ['first-input'] });
+
+                      // CLS (Cumulative Layout Shift)
+                      new PerformanceObserver((list) => {
+                        let clsValue = 0;
+                        const entries = list.getEntries();
+                        entries.forEach((entry) => {
+                          if (!entry.hadRecentInput) {
+                            clsValue += entry.value;
+                          }
+                        });
+                        console.log('CLS:', clsValue.toFixed(4));
+                      }).observe({ entryTypes: ['layout-shift'] });
+                    }
+                  } catch (error) {
+                    console.error('Performance monitoring error:', error);
+                  }
+                  
+                  // Cache temizleme
+                  if (typeof localStorage !== 'undefined') {
+                    const lastCleanup = localStorage.getItem('last_cache_cleanup');
+                    const now = Date.now();
+                    
+                    if (!lastCleanup || (now - parseInt(lastCleanup)) > 24 * 60 * 60 * 1000) {
+                      const keys = Object.keys(localStorage);
+                      keys.forEach(key => {
+                        if (key.startsWith('cache_')) {
+                          try {
+                            const item = JSON.parse(localStorage.getItem(key) || '{}');
+                            if (item.timestamp && (now - item.timestamp) > 24 * 60 * 60 * 1000) {
+                              localStorage.removeItem(key);
+                            }
+                          } catch (e) {
+                            localStorage.removeItem(key);
+                          }
+                        }
+                      });
+                      
+                      localStorage.setItem('last_cache_cleanup', now.toString());
+                    }
+                  }
+                }
+              `
+            }}
+          />
           <div className="w-full m-0 p-0">
             <div className="bg-yellow-50 border-t-4 border-alo-orange p-1 pb-px mb-0 m-0 shadow flex flex-col gap-0 items-center rounded-none">
               <div className="flex items-center gap-1 text-yellow-700 font-semibold text-base mt-0">

@@ -1,21 +1,23 @@
-﻿'use client';
+'use client';
 
-import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, ChangeEvent, FormEvent, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/Providers';
-import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Upload, X, Eye, Send } from 'lucide-react';
+import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Upload, X, Eye, Send, Plus, AlertCircle } from 'lucide-react';
 import { getPremiumPlans } from '@/lib/utils';
 import { useCategories } from '@/lib/useCategories';
 
-// OPTIONAL_FEATURES dizisini kaldır
+// OPTIONAL_FEATURES dizisini kald�r
 
-// Cloudinary upload fonksiyonu ve ilgili kodları kaldır
+// Cloudinary upload fonksiyonu ve ilgili kodlar� kald�r
 
 const FORM_STORAGE_KEY = 'ilanVerForm';
 
 export default function IlanVerPage() {
   const { session, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isDraft = searchParams.get('draft') === '1';
   const [showPhone, setShowPhone] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -55,31 +57,65 @@ export default function IlanVerPage() {
     });
   };
 
-  // Form state'ini localStorage'dan yükle (sadece draft=1 ise)
+  // Form state'ini localStorage'dan y�kle (sadece draft=1 ise)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('draft') === '1') {
-      const savedDraft = localStorage.getItem('ilanTaslak');
-      if (savedDraft) {
+      // �nce ilanDraftData'y� kontrol et (�nizleme sayfas�ndan gelen)
+      const draftData = localStorage.getItem('ilanDraftData');
+      if (draftData) {
         try {
-          const parsed = JSON.parse(savedDraft);
-          if (parsed.formData) setFormData(parsed.formData);
-          if (parsed.selectedPremiumPlan) setSelectedPremiumPlan(parsed.selectedPremiumPlan);
-          if (parsed.selectedFeatures) setSelectedFeatures(parsed.selectedFeatures);
-          if (parsed.acceptedTerms) setAcceptedTerms(parsed.acceptedTerms);
-          // images alanı için uyarı ve base64 önizlemeleri yükle
-          setImages([]);
-          const previews = JSON.parse(localStorage.getItem('ilanImagePreviews') || '[]');
-          setImagePreviews(previews);
+          const parsed = JSON.parse(draftData);
+          setFormData({
+            title: parsed.title || '',
+            description: parsed.description || '',
+            price: parsed.price || '',
+            category: parsed.category || '',
+            subcategory: parsed.subcategory || '',
+            condition: parsed.condition || '',
+            location: parsed.location || '',
+            phone: parsed.contactPhone || '',
+            phoneVisibility: parsed.phoneVisibility || 'public',
+          });
+          
+          // Resim �nizlemelerini y�kle
+          if (parsed.images && Array.isArray(parsed.images)) {
+            setImagePreviews(parsed.images);
+          }
+          
+          // Taslak verilerini temizle
+          localStorage.removeItem('ilanDraftData');
+          
           setTimeout(() => {
-            alert('Resimler tarayıcı güvenliği nedeniyle tekrar eklenmelidir. Önizlemeleri aşağıda görebilirsiniz.');
+            alert('Taslak verileriniz y�klendi! Resimler tekrar eklenmelidir.');
           }, 500);
-        } catch (e) { /* ignore */ }
+        } catch (e) {
+          console.error('Taslak veri y�klenirken hata:', e);
+        }
+      } else {
+        // Eski taslak sistemi
+        const savedDraft = localStorage.getItem('ilanTaslak');
+        if (savedDraft) {
+          try {
+            const parsed = JSON.parse(savedDraft);
+            if (parsed.formData) setFormData(parsed.formData);
+            if (parsed.selectedPremiumPlan) setSelectedPremiumPlan(parsed.selectedPremiumPlan);
+            if (parsed.selectedFeatures) setSelectedFeatures(parsed.selectedFeatures);
+            if (parsed.acceptedTerms) setAcceptedTerms(parsed.acceptedTerms);
+            // images alan� i�in uyar� ve base64 �nizlemeleri y�kle
+            setImages([]);
+            const previews = JSON.parse(localStorage.getItem('ilanImagePreviews') || '[]');
+            setImagePreviews(previews);
+            setTimeout(() => {
+              alert('Resimler taray�c� g�venli�i nedeniyle tekrar eklenmelidir. �nizlemeleri a�a��da g�rebilirsiniz.');
+            }, 500);
+          } catch (e) { /* ignore */ }
+        }
       }
     }
   }, []);
 
-  // Form verileri değiştikçe localStorage'a kaydet
+  // Form verileri de�i�tik�e localStorage'a kaydet
   useEffect(() => {
     const draft = {
       formData,
@@ -106,7 +142,7 @@ export default function IlanVerPage() {
       const plans = await getPremiumPlans();
       setPremiumPlans(plans);
     } catch (error) {
-      console.error('Premium planları getirme hatası:', error);
+      console.error('Premium planlar� getirme hatas�:', error);
     }
   };
 
@@ -118,7 +154,7 @@ export default function IlanVerPage() {
         setFeaturePrices(data);
       }
     } catch (error) {
-      console.error('Özellik fiyatları getirme hatası:', error);
+      console.error('�zellik fiyatlar� getirme hatas�:', error);
     } finally {
       setFeatureLoading(false);
     }
@@ -129,29 +165,29 @@ export default function IlanVerPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-alo-orange mx-auto"></div>
-          <p className="mt-4 text-gray-600">Yükleniyor...</p>
+          <p className="mt-4 text-gray-600">Y�kleniyor...</p>
         </div>
       </div>
     );
   }
 
-  // Resim yükleme işlemi
+  // Resim y�kleme i�lemi
   type ImgEvent = ChangeEvent<HTMLInputElement>;
   const handleImageUpload = async (e: ImgEvent) => {
     const files = Array.from(e.target.files || []);
     if (images.length + files.length > 5) {
-      alert('Maksimum 5 resim yükleyebilirsiniz');
+      alert('Maksimum 5 resim y�kleyebilirsiniz');
       return;
     }
     setImages([...images, ...files]);
-    // Yeni seçilenlerin base64 önizlemesini oluştur
+    // Yeni se�ilenlerin base64 �nizlemesini olu�tur
     const previews = await Promise.all(files.map(fileToBase64));
     const newPreviews = [...imagePreviews, ...previews];
     setImagePreviews(newPreviews);
     localStorage.setItem('ilanImagePreviews', JSON.stringify(newPreviews));
   };
 
-  // Resim silme işlemi
+  // Resim silme i�lemi
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
@@ -159,18 +195,18 @@ export default function IlanVerPage() {
     localStorage.setItem('ilanImagePreviews', JSON.stringify(newPreviews));
   };
 
-  // Seçili premium planın fiyatını hesapla
+  // Se�ili premium plan�n fiyat�n� hesapla
   const getSelectedPlanPrice = () => {
     if (selectedPremiumPlan === 'free') return 0;
     return premiumPlans[selectedPremiumPlan]?.price || 0;
   };
 
-  // Özellik toplam fiyatı
+  // �zellik toplam fiyat�
   const getFeaturesTotal = () => selectedFeatures.reduce((sum, key) => {
     return sum + (featurePrices[key as keyof typeof featurePrices] || 0);
   }, 0);
 
-  // Önizleme butonu işlevi
+  // �nizleme butonu i�levi
   const handlePreview = () => {
     console.log('formData:', formData);
     const selectedCat = categories.find(cat => cat.id === formData.category);
@@ -186,14 +222,14 @@ export default function IlanVerPage() {
       !formData.condition.trim() ||
       !formData.location.trim()
     ) {
-      alert('Önizleme için lütfen tüm mecburi alanları doldurun.');
+      alert('�nizleme i�in l�tfen t�m mecburi alanlar� doldurun.');
       return;
     }
 
-    // Resimleri URL'lere dönüştür
+    // Resimleri URL'lere d�n��t�r
     const imageUrls = images.map(img => URL.createObjectURL(img));
     
-    // Ön izleme sayfasına yönlendir
+    // �n izleme sayfas�na y�nlendir
     const params = new URLSearchParams({
       title: formData.title,
       description: formData.description,
@@ -212,10 +248,10 @@ export default function IlanVerPage() {
     router.push(`/ilan-onizleme?${params.toString()}`);
   };
 
-  // İlan yayınlama işlevi
+  // �lan yay�nlama i�levi
   const handlePublish = async () => {
     if (!acceptedTerms) {
-      alert('Kullanım koşullarını kabul etmeniz gerekiyor.');
+      alert('Kullan�m ko�ullar�n� kabul etmeniz gerekiyor.');
       return;
     }
     const selectedCat = categories.find(cat => cat.id === formData.category);
@@ -229,12 +265,12 @@ export default function IlanVerPage() {
       !formData.condition.trim() ||
       !formData.location.trim()
     ) {
-      alert('Lütfen tüm mecburi alanları doldurun.');
+      alert('L�tfen t�m mecburi alanlar� doldurun.');
       return;
     }
-    // Admin kontrolü
+    // Admin kontrol�
     const isAdmin = session?.user?.role === 'admin';
-    // Premium plan veya özellik seçiliyse ödeme sayfasına yönlendir
+    // Premium plan veya �zellik se�iliyse �deme sayfas�na y�nlendir
     if (selectedPremiumPlan !== 'free' || selectedFeatures.length > 0) {
       localStorage.setItem('pendingListing', JSON.stringify({
         formData,
@@ -249,10 +285,10 @@ export default function IlanVerPage() {
       router.push('/ilan-odeme');
       return;
     }
-    // Ücretsiz ise doğrudan yayınla
+    // �cretsiz ise do�rudan yay�nla
     setIsPublishing(true);
     try {
-      // Resimleri yükle (geçici, sadece tarayıcıda çalışır)
+      // Resimleri y�kle (ge�ici, sadece taray�c�da �al���r)
       const imageUrls = images
         .map(img => img ? URL.createObjectURL(img) : null)
         .filter(Boolean);
@@ -284,22 +320,22 @@ export default function IlanVerPage() {
           localStorage.removeItem('ilanImagePreviews');
           const listing = await response.json();
           
-          alert('İlan başarıyla yayınlandı! Ana sayfada görünür.');
+          alert('�lan ba�ar�yla yay�nland�! Ana sayfada g�r�n�r.');
           router.push('/');
         } else {
           const error = await response.json();
-          console.error('API Hatası:', error);
-          alert(error.error || error.message || 'İlan yayınlanırken bir hata oluştu');
+          console.error('API Hatas�:', error);
+          alert(error.error || error.message || '�lan yay�nlan�rken bir hata olu�tu');
         }
       } catch (error) {
-        console.error('İlan yayınlama hatası:', error);
-        alert('İlan yayınlanırken bir hata oluştu. Lütfen tekrar deneyin.');
+        console.error('�lan yay�nlama hatas�:', error);
+        alert('�lan yay�nlan�rken bir hata olu�tu. L�tfen tekrar deneyin.');
       } finally {
       setIsPublishing(false);
     }
   };
 
-  // Önizleme kartı bileşeni
+  // �nizleme kart� bile�eni
   const PreviewCard = () => (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200">
       <div className="relative h-48">
@@ -332,21 +368,21 @@ export default function IlanVerPage() {
           {selectedFeatures.includes('featured') && (
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
               <Star className="w-3 h-3 mr-1" />
-              Öne Çıkan
+              �ne ��kan
             </span>
           )}
         </div>
 
-        {/* Görüntülenme Sayısı */}
+        {/* G�r�nt�lenme Say�s� */}
         <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-          0 görüntülenme
+          0 g�r�nt�lenme
         </div>
       </div>
       
       <div className="p-4">
         <h3 className="text-lg font-semibold mb-2 line-clamp-2">{formData.title || 'İlan Başlığı'}</h3>
         <p className="text-xl font-bold text-alo-orange mb-2">
-          {formData.price && !isNaN(Number(formData.price)) ? `${Number(formData.price).toLocaleString('tr-TR')} ₺` : 'Fiyat'}
+          {formData.category === 'ucretsiz-gel-al' ? '�cretsiz Gel Al' : (formData.price && !isNaN(Number(formData.price)) ? `${Number(formData.price).toLocaleString('tr-TR')} ₺` : 'Fiyat')}
         </p>
         
         <div className="flex items-center justify-between text-gray-500 mb-2">
@@ -360,7 +396,7 @@ export default function IlanVerPage() {
 
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">{formData.description || 'İlan açıklaması'}</p>
 
-        {/* Premium Özellikler */}
+        {/* Premiumzellikler */}
         {selectedFeatures.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {selectedFeatures.map((feature, index) => {
@@ -373,7 +409,12 @@ export default function IlanVerPage() {
                   {feature === 'urgent' && <Clock className="w-3 h-3 mr-1 text-red-500" />}
                   {feature === 'highlighted' && <Sparkles className="w-3 h-3 mr-1 text-blue-500" />}
                   {feature === 'top' && <TrendingUp className="w-3 h-3 mr-1 text-green-500" />}
-                  <span>{feature} ({featurePrices[feature as keyof typeof featurePrices] || 0}₺)</span>
+                  <span>
+                    {feature === 'featured' ? 'Öne Çıkan' :
+                     feature === 'urgent' ? 'Acil' :
+                     feature === 'highlighted' ? 'Vurgulanmış' :
+                     feature === 'top' ? 'Üst Sırada' : feature} ({featurePrices[feature as keyof typeof featurePrices] || 0}₺)
+                  </span>
                 </span>
               );
             })}
@@ -430,15 +471,18 @@ export default function IlanVerPage() {
                   </div>
                   <div>
                     <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">Fiyat (₺) *</label>
-                    <input
-                      id="price"
-                      type="number"
-                      value={formData.price}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
-                      placeholder="0"
-                      required
-                    />
+                    <div className="space-y-2">
+                      <input
+                        id="price"
+                        type="number"
+                        value={formData.price}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, price: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
+                        placeholder="0"
+                        required={formData.category !== 'ucretsiz-gel-al'}
+                        disabled={formData.category === 'ucretsiz-gel-al'}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -461,7 +505,16 @@ export default function IlanVerPage() {
                     <select
                       id="category"
                       value={formData.category}
-                      onChange={(e: ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, category: e.target.value, subcategory: '' })}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                        const selectedCategory = e.target.value;
+                        const isFreeCategory = selectedCategory === 'ucretsiz-gel-al';
+                        setFormData({ 
+                          ...formData, 
+                          category: selectedCategory, 
+                          subcategory: '',
+                          price: isFreeCategory ? '0' : formData.price
+                        });
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-alo-orange focus:border-transparent"
                       required
                       disabled={categoriesLoading}
@@ -505,7 +558,7 @@ export default function IlanVerPage() {
                     >
                       <option value="">Durum seçin</option>
                       <option value="Yeni">Yeni</option>
-                      <option value="İkinci El">İkinci El</option>
+                      <option value="�kinci El">�kinci El</option>
                     </select>
                   </div>
                   <div>
@@ -555,9 +608,9 @@ export default function IlanVerPage() {
                   </div>
                 </div>
 
-                {/* İsteğe Bağlı Özellikler */}
+                {/* �ste�e Ba�l� �zellikler */}
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">İsteğe Bağlı Özellikler</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">�ste�e Ba�l� �zellikler</label>
                   {featureLoading ? (
                     <div>Yükleniyor...</div>
                   ) : featurePrices && Object.keys(featurePrices).length > 0 ? (
@@ -577,26 +630,26 @@ export default function IlanVerPage() {
                             className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
                           />
                           <span className="text-sm">
-                            {featureKey === 'featured' && 'Öne Çıkan'}
+                            {featureKey === 'featured' && '�ne ��kan'}
                             {featureKey === 'urgent' && 'Acil'}
-                            {featureKey === 'highlighted' && 'Vurgulanmış'}
-                            {featureKey === 'top' && 'Üstte Gösterim'}
+                            {featureKey === 'highlighted' && 'Vurgulanm��'}
+                            {featureKey === 'top' && '�stte G�sterim'}
                             {' '}(+{featurePrice}₺)
                           </span>
                         </label>
                       ))}
                     </div>
                   ) : (
-                    <div>Özellik bulunamadı</div>
+                    <div>zellik bulunamad</div>
                   )}
                   {selectedFeatures.length > 0 && !featureLoading && (
                     <div className="mt-2 text-sm text-gray-700">
-                      Seçili özellikler toplamı: <span className="font-semibold">{getFeaturesTotal()}₺</span>
+                      Se�ili �zellikler toplam�: <span className="font-semibold">{getFeaturesTotal()}₺</span>
                     </div>
                   )}
                 </div>
 
-                {/* Resim Yükleme */}
+                {/* Resim Ykleme */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Resimler ({images.length}/5)
@@ -622,7 +675,7 @@ export default function IlanVerPage() {
                     </label>
                   </div>
                   
-                  {/* Yüklenen Resimler */}
+                  {/* Yklenen Resimler */}
                   {images.length > 0 && (
                     <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                       {images.map((img, index) => (
@@ -645,7 +698,7 @@ export default function IlanVerPage() {
                   )}
                 </div>
 
-                {/* Resim yükleme alanı renderında, eğer imagePreviews varsa ve images.length === 0 ise önizlemeleri göster */}
+                {/* Resim y�kleme alan� render�nda, e�er imagePreviews varsa ve images.length === 0 ise �nizlemeleri g�ster */}
                 {imagePreviews.length > 0 && images.length === 0 && (
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {imagePreviews.map((src, idx) => (
@@ -668,11 +721,11 @@ export default function IlanVerPage() {
                     className="rounded border-gray-300 text-alo-orange focus:ring-alo-orange"
                   />
                   <label htmlFor="terms" className="ml-2 text-sm text-gray-700">
-                    <a href="/kullanim-kosullari" className="text-alo-orange hover:underline">Kullanım koşullarını</a> kabul ediyorum
+                    <a href="/kullanim-kosullari" className="text-alo-orange hover:underline">Kullan�m ko�ullar�n�</a> kabul ediyorum
                   </label>
                 </div>
 
-                {/* Kategori ve Alt Kategori Seçimi */}
+                {/* Kategori ve Alt Kategori Se�imi */}
                 {/* This block is now redundant as category and subcategory are in the same grid row */}
                 {/* {formData.category && (
                   <div className="mb-4">
@@ -692,7 +745,7 @@ export default function IlanVerPage() {
                   </div>
                 )} */}
 
-                {/* Önizleme ve Yayınlama Butonları - Form Altında */}
+                {/*nizleme ve Yaynlama Butonlar - Form Altnda */}
                 <div className="flex justify-end gap-4 pt-6 border-t">
                   <button
                     type="button"
@@ -700,7 +753,7 @@ export default function IlanVerPage() {
                     className="px-6 py-3 border border-alo-orange text-alo-orange rounded-md hover:bg-orange-50 transition-colors flex items-center gap-2 font-medium"
                   >
                     <Eye className="w-4 h-4" />
-                    Önizle
+                    �nizle
                   </button>
                   <button
                     type="button"
@@ -711,12 +764,12 @@ export default function IlanVerPage() {
                     {isPublishing ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Yayınlanıyor...
+                        Yay�nlan�yor...
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        İlanı Yayınla
+                        �lan� Yay�nla
                       </>
                     )}
                   </button>
@@ -730,23 +783,23 @@ export default function IlanVerPage() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-bold mb-4">Premium Planlar</h2>
               <p className="text-gray-600 mb-6">
-                İlanınızı daha fazla kişiye ulaştırmak için premium plan seçin
+                �lan�n�z� daha fazla ki�iye ula�t�rmak i�in premium plan se�in
               </p>
 
-              {/* Ücretsiz Plan */}
+              {/* �cretsiz Plan */}
               <div className={`border rounded-lg p-4 mb-4 cursor-pointer transition-all ${
                 selectedPremiumPlan === 'free' 
                   ? 'border-alo-orange bg-orange-50' 
                   : 'border-gray-200 hover:border-gray-300'
               }`} onClick={() => setSelectedPremiumPlan('free')}>
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold">Ücretsiz Plan</h3>
+                  <h3 className="font-semibold">�cretsiz Plan</h3>
                   <span className="text-2xl font-bold text-green-600">0₺</span>
                 </div>
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    30 gün ücretsiz premium
+                    30 gncretsiz premium
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
@@ -754,7 +807,7 @@ export default function IlanVerPage() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    Temel özellikler
+                    Temel �zellikler
                   </li>
                 </ul>
               </div>
@@ -769,12 +822,12 @@ export default function IlanVerPage() {
                   <div className="flex flex-col items-center mb-2">
                     <Sparkles className="w-5 h-5 text-alo-orange mb-1" />
                     <h3 className="font-bold text-alo-orange text-lg text-center">{
-                      plan.name === '90 Gün' ? '90 Günlük Premium'
-                        : plan.name === '365 Gün' ? '365 Günlük Premium'
+                      plan.name === '90 G�n' ? '90 G�nl�k Premium'
+                        : plan.name === '365 G�n' ? '365 G�nl�k Premium'
                         : plan.name
                     }</h3>
                     <span className="text-2xl font-extrabold text-gray-900 mt-1">{plan.price}₺</span>
-                    <span className="text-sm text-gray-500">{plan.days} gün premium</span>
+                    <span className="text-sm text-gray-500">{plan.days} gn premium</span>
                   </div>
                   <ul className="text-sm text-gray-600 space-y-1 mt-2">
                     <li className="flex items-center">
@@ -783,11 +836,11 @@ export default function IlanVerPage() {
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      Öne çıkan rozet
+                      �ne ��kan rozet
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      Öncelikli sıralama
+                      �ncelikli s�ralama
                     </li>
                   </ul>
                 </div>
@@ -810,12 +863,12 @@ export default function IlanVerPage() {
                 <div className="flex items-start">
                   <Info className="w-5 h-5 text-blue-500 mr-2 mt-0.5" />
                   <div className="text-sm text-blue-700">
-                    <p className="font-medium mb-1">Premium Avantajları:</p>
+                    <p className="font-medium mb-1">Premium Avantajlar�:</p>
                     <ul className="space-y-1">
-                      <li>• İlanınız öne çıkarılır</li>
-                      <li>• Daha fazla görüntülenme</li>
-                      <li>• Öncelikli sıralama</li>
-                      <li>• Premium rozet</li>
+                      <li>� �lan�n�z �ne ��kar�l�r</li>
+                      <li>� Daha fazla g�r�nt�lenme</li>
+                      <li>� �ncelikli s�ralama</li>
+                      <li>� Premium rozet</li>
                     </ul>
                   </div>
                 </div>
