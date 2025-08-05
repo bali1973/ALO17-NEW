@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: alo17
+    name: alo17-nextjs
     env: node
     plan: free
     buildCommand: npm install && npm run build
@@ -8,8 +8,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        value: file:./dev.db
+      - key: NEXT_PUBLIC_BASE_URL
+        value: https://alo17-nextjs.onrender.com
+      - key: NEXT_PUBLIC_API_URL
+        value: https://alo17-nextjs.onrender.com
       - key: PORT
         value: 10000
     healthCheckPath: /
