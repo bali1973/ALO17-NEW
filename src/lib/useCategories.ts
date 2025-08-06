@@ -8,8 +8,8 @@ export function useCategories() {
 
   return {
     categories: data || [],
-    isLoading: !error && !data,
-    isError: error,
+    loading: !error && !data,
+    error: error,
   };
 }
 
