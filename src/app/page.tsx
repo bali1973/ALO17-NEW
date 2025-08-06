@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, Eye } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { Sidebar } from '@/components/Sidebar';
+import { Sidebar } from '@/components/SidebarComponent';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
 
 

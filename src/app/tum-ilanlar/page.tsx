@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { ListingCard } from "@/components/listing-card"
-import { Sidebar } from "@/components/Sidebar"
+import { Sidebar } from "@/components/SidebarComponent"
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline'
 
 interface Listing {

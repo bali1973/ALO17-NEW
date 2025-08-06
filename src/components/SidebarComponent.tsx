@@ -99,14 +99,14 @@ export const Sidebar = () => {
                           <Link
                             key={subcategory.slug}
                             href={`/kategori/${category.slug}/${subcategory.slug}`}
-                            className={`flex items-center gap-2 px-3 py-1.5 text-base rounded-md transition-all duration-150 cursor-pointer ${
+                            className={`flex items-center gap-2 px-3 py-1 rounded text-sm transition-all duration-150 cursor-pointer ${
                               currentSubcategory === subcategory.slug
-                                ? "bg-blue-50 text-primary shadow"
-                                : "text-gray-600 hover:bg-gray-50 hover:shadow"
+                                ? "bg-blue-100 text-primary"
+                                : "text-gray-600 hover:bg-gray-100"
                             }`}
                             onClick={()=>setOpen(false)}
                           >
-                            <SubIcon className={`w-5 h-5 ${subColor}`} />
+                            <SubIcon className={`w-4 h-4 ${subColor}`} />
                             <span>{subcategory.name}</span>
                           </Link>
                         );
@@ -118,8 +118,6 @@ export const Sidebar = () => {
           })}
         </div>
       </aside>
-      {/* Mobilde sidebar açıkken arka planı karart */}
-      {open && <div className="fixed inset-0 bg-black bg-opacity-30 z-20 lg:hidden" onClick={()=>setOpen(false)}></div>}
     </>
-  )
+  );
 } 
