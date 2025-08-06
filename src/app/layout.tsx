@@ -8,6 +8,7 @@ import path from 'path';
 import ClientCookieBanner from '@/components/ClientCookieBanner';
 import { initPerformanceMonitoring } from '@/lib/performance';
 
+
 export const metadata: Metadata = (() => {
   let metaTitle = "Alo17 - Türkiye'nin En Büyük İlan Sitesi";
   let metaTitleTemplate = "%s | Alo17";
@@ -112,14 +113,17 @@ export default function RootLayout({
 
   return (
     <html lang="tr">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="robots" content="index, follow" />
-        <meta name="author" content="Alo17" />
-        <meta name="copyright" content="Alo17" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
+                           <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="robots" content="index, follow" />
+          <meta name="author" content="Alo17" />
+          <meta name="copyright" content="Alo17" />
+          <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="apple-touch-icon" href="/apple-icon.png" />
+          <link rel="manifest" href="/manifest.json" />
+         
         {googleAdsCode && (
           <script
             dangerouslySetInnerHTML={{
@@ -128,7 +132,7 @@ export default function RootLayout({
           />
         )}
       </head>
-      <body className="font-sans">
+             <body className="font-sans">
         <Providers>
           <Header />
           <ClientCookieBanner />

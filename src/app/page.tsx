@@ -7,7 +7,6 @@ import { Heart, Eye } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Sidebar } from '@/components/Sidebar';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
-import { Category } from '@/lib/types';
 
 
 interface Listing {
@@ -78,7 +77,6 @@ function renderIcon(iconData: string | null, slug: string, index: number) {
 export default function Home() {
   const { session } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -103,7 +101,13 @@ export default function Home() {
     const fetchListings = async () => {
       try {
         console.log('Fetching listings from API...');
-        const response = await fetch('/api/listings');
+        const response = await fetch('/api/listings', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-cache'
+        });
         console.log('API Response status:', response.status);
         
         if (response.ok) {
@@ -132,20 +136,7 @@ export default function Home() {
       }
     };
 
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('/api/categories');
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data);
-        }
-      } catch (error) {
-        // Kategoriler yüklenirken hata
-      }
-    };
-
     fetchListings();
-    fetchCategories();
   }, []);
 
   const getVisibilityScore = (listing: Listing) => {
@@ -250,22 +241,27 @@ export default function Home() {
               />
             </div>
 
-            {/* Kategori Filtresi */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Tüm Kategoriler</option>
-                {categories?.map((category: Category) => (
-                  <option key={category.slug} value={category.slug}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                         {/* Kategori Filtresi */}
+             <div>
+               <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+               <select
+                 value={selectedCategory}
+                 onChange={(e) => setSelectedCategory(e.target.value)}
+                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+               >
+                 <option value="">Tüm Kategoriler</option>
+                 <option value="elektronik">Elektronik</option>
+                 <option value="ev-bahce">Ev & Bahçe</option>
+                 <option value="giyim">Giyim</option>
+                 <option value="anne-bebek">Anne & Bebek</option>
+                 <option value="egitim-kurslar">Eğitim & Kurslar</option>
+                 <option value="yemek-icecek">Yemek & İçecek</option>
+                 <option value="turizm-gecelemeler">Turizm & Gecelemeler</option>
+                 <option value="hizmetler">Hizmetler</option>
+                 <option value="is">İş</option>
+                 <option value="diger">Diğer</option>
+               </select>
+             </div>
 
             {/* Fiyat Aralığı */}
             <div>

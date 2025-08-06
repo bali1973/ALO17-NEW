@@ -13,31 +13,9 @@
   "categories": ["shopping", "business", "lifestyle"],
   "icons": [
     {
-      "src": "/icons/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/favicon-16x16.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/favicon-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png"
+      "src": "/icons/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
     }
   ],
   "shortcuts": [
@@ -48,8 +26,8 @@
       "url": "/ilan-ver",
       "icons": [
         {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "src": "/icons/favicon.ico",
+          "sizes": "any"
         }
       ]
     },
@@ -60,8 +38,8 @@
       "url": "/profil",
       "icons": [
         {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "src": "/icons/favicon.ico",
+          "sizes": "any"
         }
       ]
     },
@@ -72,8 +50,8 @@
       "url": "/mesajlasma",
       "icons": [
         {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "src": "/icons/favicon.ico",
+          "sizes": "any"
         }
       ]
     },
@@ -84,28 +62,13 @@
       "url": "/favoriler",
       "icons": [
         {
-          "src": "/icons/icon-96x96.png",
-          "sizes": "96x96"
+          "src": "/icons/favicon.ico",
+          "sizes": "any"
         }
       ]
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop-1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Alo17 Ana Sayfa"
-    },
-    {
-      "src": "/screenshots/mobile-1.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Alo17 Mobil Görünüm"
-    }
-  ],
+
   "related_applications": [
     {
       "platform": "play",

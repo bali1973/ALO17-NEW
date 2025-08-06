@@ -9,7 +9,7 @@ interface SelectOption {
 }
 
 interface SelectProps {
-  options: SelectOption[];
+  options?: SelectOption[];
   value?: string;
   onChange?: (value: string) => void;
   placeholder?: string;
@@ -40,7 +40,7 @@ export const SelectItem = React.forwardRef<HTMLDivElement, any>((props, ref) => 
 SelectItem.displayName = 'SelectItem';
 
 export function Select({
-  options,
+  options = [],
   value,
   onChange,
   placeholder = 'Seçiniz...',
@@ -49,9 +49,7 @@ export function Select({
   error
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<SelectOption | null>(
-    options.find(option => option.value === value) || null
-  );
+  const [selectedOption, setSelectedOption] = useState<SelectOption | null>(null);
   const selectRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -66,7 +64,7 @@ export function Select({
   }, []);
 
   useEffect(() => {
-    const option = options.find(option => option.value === value);
+    const option = options?.find(option => option.value === value);
     setSelectedOption(option || null);
   }, [value, options]);
 
@@ -119,7 +117,7 @@ export function Select({
 
       {isOpen && (
         <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-          {options.map((option) => (
+          {options?.map((option) => (
             <div
               key={option.value}
               className={cn(

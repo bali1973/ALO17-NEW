@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/components/Providers';
-import { signIn, hardcodedUsers } from '@/lib/auth';
+import { signIn } from '@/lib/auth';
 import Link from 'next/link';
 
 export default function GirisPage() {
@@ -69,51 +69,7 @@ export default function GirisPage() {
     }
   };
 
-  // Test kullanıcıları için hızlı giriş butonları
-  const testUsers = [
-    { email: 'admin@alo17.com', password: 'admin123', label: 'Admin' },
-    { email: 'test@alo17.com', password: 'test123', label: 'Test' },
-    { email: 'user@alo17.com', password: 'user123', label: 'User' },
-  ];
 
-  const handleTestLogin = async (testUser: typeof testUsers[0]) => {
-    setEmail(testUser.email);
-    setPassword(testUser.password);
-    setLoading(true);
-    setError('');
-
-    try {
-      console.log('🔐 Test giriş denemesi:', testUser.email);
-      
-      // Yeni auth sistemi ile test girişi yap
-      const session = await signIn(testUser.email, testUser.password);
-
-      if (!session) {
-        console.log('❌ Test kullanıcısı bulunamadı');
-        setError('Test kullanıcısı bulunamadı. Lütfen veritabanını kontrol edin.');
-        return;
-      }
-
-      console.log('✅ Test giriş başarılı:', session.user.email);
-      
-      // Context'e session'ı kaydet
-      setSession(session);
-      
-      // Role'e göre yönlendirme
-      if (session.user.role === 'admin') {
-        console.log('👑 Admin test kullanıcısı, admin sayfasına yönlendiriliyor...');
-        router.push('/admin');
-      } else {
-        console.log('👤 Normal test kullanıcısı, callback URL\'e yönlendiriliyor...');
-        router.push(callbackUrl);
-      }
-    } catch (error) {
-      console.error('💥 Test giriş exception:', error);
-      setError('Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Client-side yüklenene kadar loading göster
   if (!isClient) {
@@ -136,54 +92,11 @@ export default function GirisPage() {
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Hesabınıza giriş yapın
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Test kullanıcıları hızlı giriş
-            </p>
             {callbackUrl !== '/' && (
               <p className="mt-2 text-center text-xs text-blue-600">
                 Giriş sonrası yönlendirilecek: {callbackUrl}
               </p>
             )}
-          </div>
-
-          {/* Test Kullanıcıları */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">Test Kullanıcıları:</h3>
-            <div className="space-y-2">
-              {testUsers.map((user) => (
-                <button
-                  key={user.email}
-                  onClick={() => handleTestLogin(user)}
-                  disabled={loading}
-                  className="w-full text-left p-2 bg-white border border-blue-200 rounded hover:bg-blue-50 transition-colors disabled:opacity-50"
-                >
-                  <div className="font-medium text-blue-900">{user.label}</div>
-                  <div className="text-xs text-blue-600">{user.email}</div>
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-blue-600 mt-2">
-              Test kullanıcıları açıklaması
-            </p>
-            <div className="mt-2 flex gap-2">
-              <button
-                onClick={() => {
-                  setEmail('');
-                  setPassword('');
-                  setError('');
-                }}
-                className="text-xs text-blue-600 hover:text-blue-800 underline"
-              >
-                Formu Temizle
-              </button>
-              <span className="text-xs text-gray-500">|</span>
-              <span className="text-xs text-gray-500">
-                Client-side sistem
-              </span>
-            </div>
-            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">
-              <strong>✅ Çalışıyor:</strong> Vercel sorunlarını atlatıyor
-            </div>
           </div>
 
           {error && (

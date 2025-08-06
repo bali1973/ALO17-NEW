@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { User, LogOut, Bell, MessageCircle, Menu, X } from "lucide-react";
-import { useAuth } from './Providers';
+import { useAuth } from '@/components/Providers';
 
 interface NotificationCount {
   unreadCount: number;
@@ -40,9 +39,20 @@ export default function Header() {
   };
 
   const handleSignOut = () => {
-    setSession(null);
-    setIsMenuOpen(false);
-    window.location.href = '/';
+    try {
+      // LocalStorage'dan session'ı temizle
+      localStorage.removeItem('alo17-session');
+      // Session state'ini temizle
+      setSession(null);
+      // Menüyü kapat
+      setIsMenuOpen(false);
+      // Ana sayfaya yönlendir
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Çıkış yapılırken hata oluştu:', error);
+      // Hata durumunda da ana sayfaya yönlendir
+      window.location.href = '/';
+    }
   };
 
   return (
@@ -110,8 +120,9 @@ export default function Header() {
                       </Link>
                       <button 
                         onClick={handleSignOut} 
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                       >
+                        <LogOut className="w-4 h-4 mr-2" />
                         Çıkış Yap
                       </button>
                     </div>
@@ -182,9 +193,9 @@ export default function Header() {
                   </Link>
                   <button 
                     onClick={handleSignOut} 
-                    className="block w-full px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                    className="block w-full px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center"
                   >
-                    <LogOut className="w-4 h-4 inline mr-1" />
+                    <LogOut className="w-4 h-4 mr-2" />
                     Çıkış Yap
                   </button>
                 </>

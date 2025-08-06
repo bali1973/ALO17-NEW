@@ -27,6 +27,7 @@ import {
   CpuChipIcon,
 } from '@heroicons/react/24/outline';
 import { useAdminAuth, AdminGuard, AdminAuthProvider, adminUtils } from '@/lib/admin-auth';
+import { ToastProvider } from '@/components/ToastProvider';
 
 const navigation = [
   { 
@@ -309,9 +310,11 @@ export default function AdminLayout({
 }) {
   return (
     <AdminAuthProvider>
-      <AdminLayoutContent>
-        {children}
-      </AdminLayoutContent>
+      <ToastProvider>
+        <AdminLayoutContent>
+          {children}
+        </AdminLayoutContent>
+      </ToastProvider>
     </AdminAuthProvider>
   );
 } 
