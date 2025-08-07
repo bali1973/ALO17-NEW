@@ -1,298 +1,133 @@
-import { Alert } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'http://localhost:3000/api'; // Port 3000'e güncellendi
+// API base URL - Web uygulamasının URL'si
+const API_BASE_URL = 'http://localhost:3004/api';
 
-interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  success: boolean;
-}
+// Axios instance oluştur
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-class ApiService {
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
+// Request interceptor - Token ekleme
+api.interceptors.request.use(
+  async (config) => {
     try {
-      const url = `${API_BASE_URL}${endpoint}`;
-      const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        ...options,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const token = await AsyncStorage.getItem('alo17-token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-
-      const data = await response.json();
-      return { data, success: true };
     } catch (error) {
-      console.error('API Error:', error);
-      return { 
-        error: error instanceof Error ? error.message : 'Unknown error', 
-        success: false 
-      };
+      console.error('Token getirme hatası:', error);
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  // Auth endpoints
-  async login(email: string, password: string) {
-    return this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+// Response interceptor - Hata yönetimi
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Token geçersiz, kullanıcıyı logout yap
+      try {
+        await AsyncStorage.removeItem('alo17-token');
+        await AsyncStorage.removeItem('alo17-user');
+      } catch (storageError) {
+        console.error('Storage temizleme hatası:', storageError);
+      }
+      // Auth context'e logout sinyali gönder
+    }
+    return Promise.reject(error);
   }
+);
 
-  async register(userData: {
-    name: string;
-    email: string;
-    password: string;
-    phone?: string;
-  }) {
-    return this.request('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
-  }
-
-  // Listings endpoints
-  async getListings(params?: {
+// İlanlar API
+export const listingsAPI = {
+  // Tüm ilanları getir
+  getAll: (params?: {
     category?: string;
     subcategory?: string;
     search?: string;
     page?: number;
     limit?: number;
-    sortBy?: 'newest' | 'oldest' | 'price' | 'views' | 'premium';
-    priceMin?: number;
-    priceMax?: number;
-  }) {
-    const queryParams = new URLSearchParams();
-    if (params?.category) queryParams.append('category', params.category);
-    if (params?.subcategory) queryParams.append('subcategory', params.subcategory);
-    if (params?.search) queryParams.append('search', params.search);
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
-    if (params?.priceMin) queryParams.append('priceMin', params.priceMin.toString());
-    if (params?.priceMax) queryParams.append('priceMax', params.priceMax.toString());
+  }) => api.get('/listings', { params }),
 
-    const endpoint = `/listings${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    return this.request(endpoint);
-  }
+  // Tek ilan getir
+  getById: (id: string) => api.get(`/listings/${id}`),
 
-  async getListing(id: string) {
-    return this.request(`/listings/${id}`);
-  }
+  // Yeni ilan oluştur
+  create: (data: any) => api.post('/listings', data),
 
-  async getSimilarListings(id: string) {
-    return this.request(`/listings/${id}/similar`);
-  }
+  // İlan güncelle
+  update: (id: string, data: any) => api.put(`/listings/${id}`, data),
 
-  async createListing(listingData: {
-    title: string;
-    description: string;
-    price: number;
-    category: string;
-    subcategory?: string;
-    location: string;
-    condition: string;
-    images?: string[];
-    features?: string[];
-  }) {
-    return this.request('/listings', {
-      method: 'POST',
-      body: JSON.stringify(listingData),
-    });
-  }
+  // İlan sil
+  delete: (id: string) => api.delete(`/listings/${id}`),
+};
 
-  async updateListing(id: string, listingData: Partial<{
-    title: string;
-    description: string;
-    price: number;
-    category: string;
-    subcategory: string;
-    location: string;
-    condition: string;
-    images: string[];
-    features: string[];
-  }>) {
-    return this.request(`/listings/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(listingData),
-    });
-  }
+// Kategoriler API
+export const categoriesAPI = {
+  // Tüm kategorileri getir
+  getAll: () => api.get('/categories'),
 
-  async deleteListing(id: string) {
-    return this.request(`/listings/${id}`, {
-      method: 'DELETE',
-    });
-  }
+  // Kategori oluştur
+  create: (data: any) => api.post('/categories', data),
+};
 
-  // Categories endpoints
-  async getCategories() {
-    return this.request('/categories');
-  }
+// Kullanıcılar API
+export const usersAPI = {
+  // Giriş yap
+  login: (email: string, password: string) => 
+    api.post('/auth/login', { email, password }),
 
-  async getCategory(slug: string) {
-    return this.request(`/categories/${slug}`);
-  }
+  // Kayıt ol
+  register: (data: any) => api.post('/auth/register', data),
 
-  async getSubcategories(categorySlug: string) {
-    return this.request(`/categories/${categorySlug}/subcategories`);
-  }
+  // Profil getir
+  getProfile: () => api.get('/auth/profile'),
 
-  // Messages endpoints
-  async getMessages() {
-    return this.request('/messages');
-  }
+  // Profil güncelle
+  updateProfile: (data: any) => api.put('/auth/profile', data),
+};
 
-  async sendMessage(messageData: {
-    recipientId: string;
-    content: string;
-    listingId?: string;
-  }) {
-    return this.request('/messages', {
-      method: 'POST',
-      body: JSON.stringify(messageData),
-    });
-  }
+// Mesajlar API
+export const messagesAPI = {
+  // Mesaj listesi
+  getConversations: () => api.get('/messages/conversations'),
 
-  async markMessageAsRead(messageId: string) {
-    return this.request(`/messages/${messageId}/read`, {
-      method: 'PUT',
-    });
-  }
+  // Chat mesajları
+  getMessages: (conversationId: string) => 
+    api.get(`/messages/conversations/${conversationId}`),
 
-  // User profile endpoints
-  async getUserProfile() {
-    return this.request('/user/profile');
-  }
+  // Mesaj gönder
+  sendMessage: (conversationId: string, message: string) =>
+    api.post(`/messages/conversations/${conversationId}`, { message }),
 
-  async updateProfile(profileData: {
-    name?: string;
-    phone?: string;
-    avatar?: string;
-    location?: string;
-  }) {
-    return this.request('/user/profile', {
-      method: 'PUT',
-      body: JSON.stringify(profileData),
-    });
-  }
+  // Okunmamış mesaj sayısı
+  getUnreadCount: () => api.get('/messages/count'),
+};
 
-  // Favorites endpoints
-  async getFavorites() {
-    return this.request('/user/favorites');
-  }
+// Favoriler API
+export const favoritesAPI = {
+  // Favori listesi
+  getAll: () => api.get('/favorites'),
 
-  async addToFavorites(listingId: string) {
-    return this.request('/user/favorites', {
-      method: 'POST',
-      body: JSON.stringify({ listingId }),
-    });
-  }
+  // Favori ekle
+  add: (listingId: string) => api.post('/favorites', { listingId }),
 
-  async removeFromFavorites(listingId: string) {
-    return this.request(`/user/favorites/${listingId}`, {
-      method: 'DELETE',
-    });
-  }
+  // Favori çıkar
+  remove: (listingId: string) => api.delete(`/favorites/${listingId}`),
 
-  // Notifications endpoints
-  async getNotifications() {
-    return this.request('/notifications');
-  }
+  // Favori kontrolü
+  check: (listingId: string) => api.get(`/favorites/${listingId}`),
+};
 
-  async markNotificationAsRead(notificationId: string) {
-    return this.request(`/notifications/${notificationId}/read`, {
-      method: 'PUT',
-    });
-  }
-
-  async getUnreadNotificationCount() {
-    return this.request('/notifications/unread/count');
-  }
-
-  // Search endpoints
-  async search(query: string, filters?: {
-    category?: string;
-    subcategory?: string;
-    priceMin?: number;
-    priceMax?: number;
-    location?: string;
-    condition?: string;
-  }) {
-    const searchData = { query, filters };
-    return this.request('/search', {
-      method: 'POST',
-      body: JSON.stringify(searchData),
-    });
-  }
-
-  // Reports endpoints
-  async reportListing(listingId: string, reason: string, description?: string) {
-    return this.request('/reports', {
-      method: 'POST',
-      body: JSON.stringify({ listingId, reason, description }),
-    });
-  }
-
-  async getReports() {
-    return this.request('/reports');
-  }
-
-  // Premium features
-  async getPremiumPlans() {
-    return this.request('/premium/plans');
-  }
-
-  async upgradeToPremium(planId: string) {
-    return this.request('/premium/upgrade', {
-      method: 'POST',
-      body: JSON.stringify({ planId }),
-    });
-  }
-
-  // Analytics
-  async trackListingView(listingId: string) {
-    return this.request('/analytics/view', {
-      method: 'POST',
-      body: JSON.stringify({ listingId }),
-    });
-  }
-
-  async trackSearch(query: string) {
-    return this.request('/analytics/search', {
-      method: 'POST',
-      body: JSON.stringify({ query }),
-    });
-  }
-
-  // Error handling
-  handleError(error: string, title: string = 'Hata') {
-    Alert.alert(title, error);
-  }
-
-  // Offline support
-  async isOnline(): Promise<boolean> {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      const response = await fetch(`${API_BASE_URL}/health`, { 
-        method: 'HEAD',
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      return response.ok;
-    } catch {
-      return false;
-    }
-  }
-}
-
-export default new ApiService(); 
+export default api; 

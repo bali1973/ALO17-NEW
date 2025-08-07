@@ -15,7 +15,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { RootStackParamList } from '../../types/navigation';
-import apiService from '../../services/api';
+import { listingsAPI } from '../../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -49,15 +49,15 @@ const HomeScreen: React.FC = () => {
     try {
       setLoading(true);
       
-      // Gerçek API çağrısı
-      const response = await apiService.getListings({ limit: 20 });
+      // Yeni API servisi ile çağrı
+      const response = await listingsAPI.getAll({ limit: 20 });
       
-      if (response.success && response.data) {
+      if (response.data) {
         // API'den gelen veriyi Listing formatına dönüştür
         const apiListings = response.data.map((item: any) => ({
           id: item.id.toString(),
           title: item.title,
-          price: typeof item.price === 'number' ? item.price : parseFloat(item.price),
+          price: typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0,
           image: Array.isArray(item.images) ? item.images[0] : item.images || 'https://via.placeholder.com/300x200',
           location: item.city || item.location || 'Bilinmiyor',
           createdAt: item.createdAt || new Date().toISOString(),
@@ -66,46 +66,44 @@ const HomeScreen: React.FC = () => {
         }));
         
         setListings(apiListings);
-      } else {
-        // API hatası durumunda mock data kullan
-        console.warn('API error, using mock data:', response.error);
-        const mockListings: Listing[] = [
-          {
-            id: '1',
-            title: 'iPhone 14 Pro Max',
-            price: 25000,
-            image: 'https://via.placeholder.com/300x200',
-            location: 'İstanbul',
-            createdAt: '2024-01-15',
-            isPremium: true,
-            viewCount: 150,
-          },
-          {
-            id: '2',
-            title: 'MacBook Pro M2',
-            price: 45000,
-            image: 'https://via.placeholder.com/300x200',
-            location: 'Ankara',
-            createdAt: '2024-01-14',
-            isPremium: false,
-            viewCount: 89,
-          },
-          {
-            id: '3',
-            title: 'Samsung Galaxy S23',
-            price: 18000,
-            image: 'https://via.placeholder.com/300x200',
-            location: 'İzmir',
-            createdAt: '2024-01-13',
-            isPremium: true,
-            viewCount: 234,
-          },
-        ];
-        setListings(mockListings);
       }
     } catch (error) {
       console.error('Error loading listings:', error);
-      apiService.handleError('İlanlar yüklenirken bir hata oluştu', 'Yükleme Hatası');
+      // API hatası durumunda mock data kullan
+      const mockListings: Listing[] = [
+        {
+          id: '1',
+          title: 'iPhone 14 Pro Max',
+          price: 25000,
+          image: 'https://via.placeholder.com/300x200',
+          location: 'İstanbul',
+          createdAt: '2024-01-15',
+          isPremium: true,
+          viewCount: 150,
+        },
+        {
+          id: '2',
+          title: 'MacBook Pro M2',
+          price: 45000,
+          image: 'https://via.placeholder.com/300x200',
+          location: 'Ankara',
+          createdAt: '2024-01-14',
+          isPremium: false,
+          viewCount: 89,
+        },
+        {
+          id: '3',
+          title: 'Samsung Galaxy S23',
+          price: 18000,
+          image: 'https://via.placeholder.com/300x200',
+          location: 'İzmir',
+          createdAt: '2024-01-13',
+          isPremium: true,
+          viewCount: 234,
+        },
+      ];
+      setListings(mockListings);
+      Alert.alert('Bağlantı Hatası', 'İlanlar yüklenirken bir hata oluştu. Lütfen internet bağlantınızı kontrol edin.');
     } finally {
       setLoading(false);
     }
@@ -184,6 +182,14 @@ const HomeScreen: React.FC = () => {
       </TouchableOpacity>
     </View>
   );
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={[styles.loadingText, { color: theme.colors.text }]}>İlanlar yükleniyor...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -290,6 +296,10 @@ const styles = StyleSheet.create({
   },
   listingViews: {
     fontSize: 14,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 

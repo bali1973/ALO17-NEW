@@ -104,3 +104,92 @@ h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, label, a, li, td,
    border-color: hsl(var(--alo-orange));
  }
 } 
+
+/* Mobil Fotoğraf Yükleme Stilleri */
+.mobile-photo-upload {
+  @apply relative;
+}
+
+.mobile-photo-upload .camera-button {
+  @apply bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors;
+}
+
+.mobile-photo-upload .gallery-button {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors;
+}
+
+.mobile-photo-upload .crop-button {
+  @apply bg-blue-500 hover:bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs;
+}
+
+.mobile-photo-upload .delete-button {
+  @apply bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center;
+}
+
+/* Mobil cihazlarda buton boyutlarını artır */
+@media (max-width: 768px) {
+  .mobile-photo-upload .camera-button,
+  .mobile-photo-upload .gallery-button {
+    @apply px-6 py-3 text-base;
+  }
+  
+  .mobile-photo-upload .crop-button,
+  .mobile-photo-upload .delete-button {
+    @apply w-8 h-8;
+  }
+}
+
+/* Fotoğraf önizleme grid'i */
+.photo-grid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4;
+}
+
+.photo-item {
+  @apply relative rounded-lg overflow-hidden;
+}
+
+.photo-item img {
+  @apply w-full h-24 object-cover;
+}
+
+.photo-actions {
+  @apply absolute top-1 right-1 flex gap-1;
+}
+
+/* Kamera izni uyarısı */
+.camera-permission-warning {
+  @apply bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4;
+}
+
+/* Yükleme göstergesi */
+.upload-loading {
+  @apply flex items-center justify-center p-4;
+}
+
+.upload-loading .spinner {
+  @apply animate-spin rounded-full h-6 w-6 border-b-2 border-alo-orange;
+}
+
+/* Drag & Drop alanı */
+.drag-drop-area {
+  @apply border-2 border-dashed border-gray-300 rounded-lg p-6 text-center transition-colors;
+}
+
+.drag-drop-area.dragover {
+  @apply border-alo-orange bg-orange-50;
+}
+
+/* Mobil optimizasyon */
+@media (max-width: 640px) {
+  .drag-drop-area {
+    @apply p-4;
+  }
+  
+  .photo-grid {
+    @apply grid-cols-2 gap-2;
+  }
+  
+  .photo-item img {
+    @apply h-20;
+  }
+} 

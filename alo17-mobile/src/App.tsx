@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -26,6 +26,9 @@ import TabBarIcon from './components/common/TabBarIcon';
 // Context
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+
+// Services
+import NotificationService from './services/notificationService';
 
 // Types
 import { RootStackParamList, MainTabParamList } from './types/navigation';
@@ -122,6 +125,16 @@ const Navigation = () => {
 };
 
 const App = () => {
+  useEffect(() => {
+    // Bildirim servisini başlat
+    NotificationService.initialize();
+    
+    // Test bildirimi gönder (5 saniye sonra)
+    setTimeout(() => {
+      NotificationService.showTestNotification();
+    }, 5000);
+  }, []);
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>

@@ -1,4 +1,131 @@
 {
-  "name": "Alo17Mobile",
-  "displayName": "Alo17"
+  "expo": {
+    "name": "Alo17",
+    "slug": "alo17-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.alo17.mobile",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Bu uygulama fotoğraf çekmek için kamera erişimi gerektirir.",
+        "NSPhotoLibraryUsageDescription": "Bu uygulama fotoğraf seçmek için galeri erişimi gerektirir.",
+        "NSLocationWhenInUseUsageDescription": "Bu uygulama konumunuzu ilanlarınızda göstermek için kullanır.",
+        "NSMicrophoneUsageDescription": "Bu uygulama ses kaydı için mikrofon erişimi gerektirir.",
+        "NFCReaderUsageDescription": "Bu uygulama NFC ödeme için NFC erişimi gerektirir.",
+        "UIBackgroundModes": [
+          "remote-notification",
+          "background-processing",
+          "background-fetch"
+        ]
+      },
+      "entitlements": {
+        "com.apple.developer.nfc.readersession.formats": [
+          "NDEF",
+          "TAG"
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.alo17.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.NFC",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "com.google.android.c2dm.permission.RECEIVE"
+      ],
+      "usesFeatures": [
+        "android.hardware.camera",
+        "android.hardware.camera.autofocus",
+        "android.hardware.nfc"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff",
+          "sounds": [
+            "./assets/sounds/notification.wav"
+          ]
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Bu uygulama fotoğraf çekmek için kamera erişimi gerektirir."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Bu uygulama fotoğraf seçmek için galeri erişimi gerektirir."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Bu uygulama konumunuzu ilanlarınızda göstermek için kullanır."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Bu uygulama fotoğraf seçmek için galeri erişimi gerektirir.",
+          "savePhotosPermission": "Bu uygulama fotoğrafları kaydetmek için galeri erişimi gerektirir.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    },
+    "owner": "alo17",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/your-project-id"
+    },
+    "scheme": "alo17",
+    "notification": {
+      "icon": "./assets/notification-icon.png",
+      "color": "#ffffff",
+      "iosDisplayInForeground": true,
+      "androidMode": "default",
+      "androidCollapsedTitle": "Alo17"
+    }
+  }
 } 

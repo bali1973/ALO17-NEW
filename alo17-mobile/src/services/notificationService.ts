@@ -1,425 +1,343 @@
 import PushNotification from 'react-native-push-notification';
+import { Platform, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
 
-interface NotificationData {
+export interface NotificationData {
   id: string;
   title: string;
-  body: string;
+  message: string;
   data?: any;
-  sound?: string;
-  badge?: number;
-  userInteraction?: boolean;
-  foreground?: boolean;
-  background?: boolean;
-}
-
-interface NotificationChannel {
-  id: string;
-  name: string;
-  description: string;
-  sound?: string;
-  importance?: number;
-  vibrate?: boolean;
+  type: 'message' | 'listing' | 'favorite' | 'system';
 }
 
 class NotificationService {
-  private static instance: NotificationService;
   private isInitialized = false;
-  private notificationListeners: Map<string, Function> = new Map();
 
-  static getInstance(): NotificationService {
-    if (!NotificationService.instance) {
-      NotificationService.instance = new NotificationService();
-    }
-    return NotificationService.instance;
-  }
-
-  async initialize(): Promise<void> {
+  // Bildirim servisini başlat
+  initialize() {
     if (this.isInitialized) return;
 
-    try {
-      // Push notification konfigürasyonu
-      PushNotification.configure({
-        // (required) Called when a remote or local notification is opened or received
-        onNotification: this.handleNotification.bind(this),
-        
-        // (optional) Called when Token is generated (iOS and Android)
-        onRegister: this.handleToken.bind(this),
-        
-        // (required) Called when a remote is received or opened, or local notification is opened
-        onNotificationOpenedApp: this.handleNotificationOpened.bind(this),
-        
-        // (optional) Called when Action is pressed (Android)
-        onAction: this.handleAction.bind(this),
-        
-        // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
-        onRegistrationError: this.handleRegistrationError.bind(this),
-        
-        // IOS ONLY (optional): default: all - Permissions to register.
-        permissions: {
-          alert: true,
-          badge: true,
-          sound: true,
-        },
-        
-        // Should the initial notification be popped automatically
-        popInitialNotification: true,
-        
-        /**
-         * (optional) default: true
-         * - false: it will not be called (only if `popInitialNotification: true`)
-         * - true: it will be called every time a notification is opened/recieved
-         */
-        requestPermissions: Platform.OS === 'ios',
-      });
-
-      // Android için kanal oluştur
-      if (Platform.OS === 'android') {
-        this.createNotificationChannels();
-      }
-
-      this.isInitialized = true;
-      console.log('Notification service initialized successfully');
-    } catch (error) {
-      console.error('Notification service initialization failed:', error);
+    // Android için kanal oluştur
+    if (Platform.OS === 'android') {
+      this.createNotificationChannels();
     }
+
+    // Bildirim izinlerini iste
+    this.requestPermissions();
+
+    // Bildirim event listener'ları
+    this.setupEventListeners();
+
+    this.isInitialized = true;
   }
 
-  private createNotificationChannels(): void {
-    const channels: NotificationChannel[] = [
+  // Android için bildirim kanalları oluştur
+  private createNotificationChannels() {
+    PushNotification.createChannel(
       {
-        id: 'default',
-        name: 'Genel Bildirimler',
-        description: 'Genel uygulama bildirimleri',
-        sound: 'default',
+        channelId: 'alo17-general',
+        channelName: 'Genel Bildirimler',
+        channelDescription: 'Genel uygulama bildirimleri',
+        playSound: true,
+        soundName: 'default',
         importance: 4,
         vibrate: true,
       },
+      (created) => console.log(`Genel kanal oluşturuldu: ${created}`)
+    );
+
+    PushNotification.createChannel(
       {
-        id: 'messages',
-        name: 'Mesaj Bildirimleri',
-        description: 'Yeni mesaj bildirimleri',
-        sound: 'message',
-        importance: 5,
-        vibrate: true,
-      },
-      {
-        id: 'listings',
-        name: 'İlan Bildirimleri',
-        description: 'Yeni ilan ve güncelleme bildirimleri',
-        sound: 'default',
+        channelId: 'alo17-messages',
+        channelName: 'Mesaj Bildirimleri',
+        channelDescription: 'Yeni mesaj bildirimleri',
+        playSound: true,
+        soundName: 'default',
         importance: 4,
         vibrate: true,
       },
+      (created) => console.log(`Mesaj kanalı oluşturuldu: ${created}`)
+    );
+
+    PushNotification.createChannel(
       {
-        id: 'promotions',
-        name: 'Promosyon Bildirimleri',
-        description: 'Kampanya ve promosyon bildirimleri',
-        sound: 'default',
+        channelId: 'alo17-listings',
+        channelName: 'İlan Bildirimleri',
+        channelDescription: 'İlan ile ilgili bildirimler',
+        playSound: true,
+        soundName: 'default',
         importance: 3,
-        vibrate: false,
+        vibrate: true,
       },
-    ];
-
-    channels.forEach(channel => {
-      PushNotification.createChannel(
-        {
-          channelId: channel.id,
-          channelName: channel.name,
-          channelDescription: channel.description,
-          soundName: channel.sound,
-          importance: channel.importance,
-          vibrate: channel.vibrate,
-        },
-        (created) => {
-          console.log(`Notification channel ${channel.id} created:`, created);
-        }
-      );
-    });
-  }
-
-  private async handleNotification(notification: any): Promise<void> {
-    console.log('Notification received:', notification);
-    
-    // Bildirimi kaydet
-    await this.saveNotification(notification);
-    
-    // Listener'ları çağır
-    this.notificationListeners.forEach(listener => {
-      try {
-        listener(notification);
-      } catch (error) {
-        console.error('Notification listener error:', error);
-      }
-    });
-  }
-
-  private async handleToken(token: any): Promise<void> {
-    console.log('Push notification token:', token);
-    
-    try {
-      // Token'ı kaydet
-      await AsyncStorage.setItem('pushToken', token.token);
-      
-      // Sunucuya token'ı gönder
-      await this.sendTokenToServer(token.token);
-    } catch (error) {
-      console.error('Token handling error:', error);
-    }
-  }
-
-  private async handleNotificationOpened(notification: any): Promise<void> {
-    console.log('Notification opened:', notification);
-    
-    // Bildirimi okundu olarak işaretle
-    await this.markNotificationAsRead(notification.id);
-    
-    // Navigasyon işlemi (React Navigation ile entegre edilebilir)
-    this.handleNotificationNavigation(notification);
-  }
-
-  private async handleAction(notification: any): Promise<void> {
-    console.log('Notification action:', notification);
-    
-    // Action'a göre işlem yap
-    if (notification.action === 'reply') {
-      // Mesaj yanıtlama işlemi
-      this.handleReplyAction(notification);
-    } else if (notification.action === 'view') {
-      // Görüntüleme işlemi
-      this.handleViewAction(notification);
-    }
-  }
-
-  private async handleRegistrationError(error: any): Promise<void> {
-    console.error('Push notification registration error:', error);
-  }
-
-  // Yerel bildirim gönder
-  async sendLocalNotification(notification: NotificationData): Promise<void> {
-    try {
-      PushNotification.localNotification({
-        id: notification.id,
-        title: notification.title,
-        message: notification.body,
-        data: notification.data,
-        soundName: notification.sound || 'default',
-        number: notification.badge,
-        channelId: 'default',
-        userInteraction: notification.userInteraction || false,
-        playSound: true,
-        vibrate: true,
-        vibration: 300,
-        priority: 'high',
-        importance: 'high',
-        autoCancel: true,
-        largeIcon: 'ic_launcher',
-        smallIcon: 'ic_notification',
-        bigText: notification.body,
-        subText: 'Alo17',
-        color: '#007AFF',
-        actions: ['Yanıtla', 'Görüntüle'],
-      });
-    } catch (error) {
-      console.error('Send local notification error:', error);
-    }
-  }
-
-  // Zamanlanmış bildirim gönder
-  async scheduleNotification(notification: NotificationData, date: Date): Promise<void> {
-    try {
-      PushNotification.localNotificationSchedule({
-        id: notification.id,
-        title: notification.title,
-        message: notification.body,
-        data: notification.data,
-        date: date,
-        soundName: notification.sound || 'default',
-        channelId: 'default',
-        playSound: true,
-        vibrate: true,
-        vibration: 300,
-        priority: 'high',
-        importance: 'high',
-        autoCancel: true,
-        largeIcon: 'ic_launcher',
-        smallIcon: 'ic_notification',
-        bigText: notification.body,
-        subText: 'Alo17',
-        color: '#007AFF',
-      });
-    } catch (error) {
-      console.error('Schedule notification error:', error);
-    }
-  }
-
-  // Bildirimi iptal et
-  async cancelNotification(notificationId: string): Promise<void> {
-    try {
-      PushNotification.cancelLocalNotification(notificationId);
-    } catch (error) {
-      console.error('Cancel notification error:', error);
-    }
-  }
-
-  // Tüm bildirimleri iptal et
-  async cancelAllNotifications(): Promise<void> {
-    try {
-      PushNotification.cancelAllLocalNotifications();
-    } catch (error) {
-      console.error('Cancel all notifications error:', error);
-    }
-  }
-
-  // Bildirim izinlerini kontrol et
-  async checkPermissions(): Promise<boolean> {
-    try {
-      const permissions = await PushNotification.checkPermissions();
-      return permissions.alert && permissions.badge && permissions.sound;
-    } catch (error) {
-      console.error('Check permissions error:', error);
-      return false;
-    }
+      (created) => console.log(`İlan kanalı oluşturuldu: ${created}`)
+    );
   }
 
   // Bildirim izinlerini iste
-  async requestPermissions(): Promise<boolean> {
-    try {
-      const permissions = await PushNotification.requestPermissions();
-      return permissions.alert && permissions.badge && permissions.sound;
-    } catch (error) {
-      console.error('Request permissions error:', error);
-      return false;
-    }
-  }
-
-  // Bildirim listener'ı ekle
-  addNotificationListener(id: string, listener: Function): void {
-    this.notificationListeners.set(id, listener);
-  }
-
-  // Bildirim listener'ı kaldır
-  removeNotificationListener(id: string): void {
-    this.notificationListeners.delete(id);
-  }
-
-  // Bildirimi kaydet
-  private async saveNotification(notification: any): Promise<void> {
-    try {
-      const notifications = await this.getStoredNotifications();
-      const newNotification = {
-        id: notification.id || Date.now().toString(),
-        title: notification.title,
-        body: notification.body,
-        data: notification.data,
-        timestamp: new Date().toISOString(),
-        isRead: false,
-      };
-      
-      notifications.unshift(newNotification);
-      
-      // Sadece son 100 bildirimi tut
-      if (notifications.length > 100) {
-        notifications.splice(100);
+  private requestPermissions() {
+    PushNotification.requestPermissions(['alert', 'badge', 'sound']).then(
+      (permissions) => {
+        console.log('Bildirim izinleri:', permissions);
       }
-      
-      await AsyncStorage.setItem('notifications', JSON.stringify(notifications));
-    } catch (error) {
-      console.error('Save notification error:', error);
-    }
+    );
   }
 
-  // Kaydedilmiş bildirimleri getir
-  async getStoredNotifications(): Promise<any[]> {
-    try {
-      const notifications = await AsyncStorage.getItem('notifications');
-      return notifications ? JSON.parse(notifications) : [];
-    } catch (error) {
-      console.error('Get stored notifications error:', error);
-      return [];
-    }
-  }
-
-  // Bildirimi okundu olarak işaretle
-  private async markNotificationAsRead(notificationId: string): Promise<void> {
-    try {
-      const notifications = await this.getStoredNotifications();
-      const notificationIndex = notifications.findIndex(n => n.id === notificationId);
+  // Event listener'ları kur
+  private setupEventListeners() {
+    // Bildirim alındığında (uygulama açıkken)
+    PushNotification.onNotification((notification) => {
+      console.log('Bildirim alındı:', notification);
       
-      if (notificationIndex !== -1) {
-        notifications[notificationIndex].isRead = true;
-        await AsyncStorage.setItem('notifications', JSON.stringify(notifications));
+      // Bildirimi otomatik olarak kapat
+      notification.finish();
+    });
+
+    // Bildirime tıklandığında
+    PushNotification.onNotificationOpenedApp((notification) => {
+      console.log('Bildirime tıklandı:', notification);
+      this.handleNotificationTap(notification);
+    });
+
+    // Uygulama kapalıyken bildirime tıklandığında
+    PushNotification.getInitialNotification().then((notification) => {
+      if (notification) {
+        console.log('İlk bildirim:', notification);
+        this.handleNotificationTap(notification);
       }
-    } catch (error) {
-      console.error('Mark notification as read error:', error);
+    });
+  }
+
+  // Bildirime tıklama işlemi
+  private handleNotificationTap(notification: any) {
+    const data = notification.data;
+    
+    if (data?.type === 'message') {
+      // Mesaj ekranına yönlendir
+      // navigation.navigate('Chat', { conversationId: data.conversationId });
+    } else if (data?.type === 'listing') {
+      // İlan detay ekranına yönlendir
+      // navigation.navigate('ListingDetail', { listingId: data.listingId });
+    } else if (data?.type === 'favorite') {
+      // Favoriler ekranına yönlendir
+      // navigation.navigate('Favorites');
     }
   }
 
-  // Token'ı sunucuya gönder
-  private async sendTokenToServer(token: string): Promise<void> {
-    try {
-      const response = await fetch('https://alo17.netlify.app/api/notifications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pushToken: token,
-          platform: Platform.OS,
-          appVersion: '1.0.0',
-        }),
+  // Local bildirim gönder
+  scheduleLocalNotification(notification: NotificationData, delay: number = 0) {
+    PushNotification.localNotificationSchedule({
+      id: notification.id,
+      channelId: this.getChannelId(notification.type),
+      title: notification.title,
+      message: notification.message,
+      date: new Date(Date.now() + delay),
+      allowWhileIdle: true,
+      data: notification.data,
+      smallIcon: 'ic_notification',
+      largeIcon: '',
+      bigText: notification.message,
+      subText: 'ALO17',
+      vibrate: true,
+      vibration: 300,
+      priority: 'high',
+      importance: 'high',
+      autoCancel: true,
+      showWhen: true,
+      when: Date.now() + delay,
+      usesChronometer: false,
+      timeoutAfter: null,
+      invokeApp: true,
+    });
+  }
+
+  // Anında local bildirim gönder
+  showLocalNotification(notification: NotificationData) {
+    PushNotification.localNotification({
+      id: notification.id,
+      channelId: this.getChannelId(notification.type),
+      title: notification.title,
+      message: notification.message,
+      data: notification.data,
+      smallIcon: 'ic_notification',
+      largeIcon: '',
+      bigText: notification.message,
+      subText: 'ALO17',
+      vibrate: true,
+      vibration: 300,
+      priority: 'high',
+      importance: 'high',
+      autoCancel: true,
+      showWhen: true,
+      when: Date.now(),
+      usesChronometer: false,
+      timeoutAfter: null,
+      invokeApp: true,
+    });
+  }
+
+  // Bildirim kanalını belirle
+  private getChannelId(type: string): string {
+    switch (type) {
+      case 'message':
+        return 'alo17-messages';
+      case 'listing':
+        return 'alo17-listings';
+      default:
+        return 'alo17-general';
+    }
+  }
+
+  // Tüm bildirimleri temizle
+  clearAllNotifications() {
+    PushNotification.cancelAllLocalNotifications();
+  }
+
+  // Belirli bildirimi iptal et
+  cancelNotification(notificationId: string) {
+    PushNotification.cancelLocalNotification(notificationId);
+  }
+
+  // Bildirim sayısını al
+  getBadgeCount(): Promise<number> {
+    return new Promise((resolve) => {
+      PushNotification.getApplicationIconBadgeNumber((count) => {
+        resolve(count);
       });
+    });
+  }
 
-      if (!response.ok) {
-        throw new Error('Failed to send token to server');
+  // Bildirim sayısını ayarla
+  setBadgeCount(count: number) {
+    PushNotification.setApplicationIconBadgeNumber(count);
+  }
+
+  // Bildirim sayısını artır
+  incrementBadgeCount() {
+    this.getBadgeCount().then((count) => {
+      this.setBadgeCount(count + 1);
+    });
+  }
+
+  // Bildirim sayısını sıfırla
+  resetBadgeCount() {
+    this.setBadgeCount(0);
+  }
+
+  // Bildirim ayarlarını kaydet
+  async saveNotificationSettings(settings: {
+    messages: boolean;
+    listings: boolean;
+    favorites: boolean;
+    system: boolean;
+  }) {
+    try {
+      await AsyncStorage.setItem('notification-settings', JSON.stringify(settings));
+    } catch (error) {
+      console.error('Bildirim ayarları kaydedilemedi:', error);
+    }
+  }
+
+  // Bildirim ayarlarını al
+  async getNotificationSettings(): Promise<{
+    messages: boolean;
+    listings: boolean;
+    favorites: boolean;
+    system: boolean;
+  }> {
+    try {
+      const settings = await AsyncStorage.getItem('notification-settings');
+      if (settings) {
+        return JSON.parse(settings);
       }
     } catch (error) {
-      console.error('Send token to server error:', error);
+      console.error('Bildirim ayarları alınamadı:', error);
     }
+
+    // Varsayılan ayarlar
+    return {
+      messages: true,
+      listings: true,
+      favorites: true,
+      system: true,
+    };
   }
 
-  // Bildirim navigasyonu
-  private handleNotificationNavigation(notification: any): void {
-    // React Navigation ile entegre edilebilir
-    if (notification.data?.type === 'message') {
-      // Mesaj sayfasına git
-      console.log('Navigate to message:', notification.data.messageId);
-    } else if (notification.data?.type === 'listing') {
-      // İlan detay sayfasına git
-      console.log('Navigate to listing:', notification.data.listingId);
-    }
+  // Mesaj bildirimi gönder
+  async showMessageNotification(senderName: string, message: string, conversationId: string) {
+    const settings = await this.getNotificationSettings();
+    if (!settings.messages) return;
+
+    this.showLocalNotification({
+      id: `message_${conversationId}_${Date.now()}`,
+      title: `${senderName} size mesaj gönderdi`,
+      message: message,
+      type: 'message',
+      data: {
+        type: 'message',
+        conversationId,
+        senderName,
+      },
+    });
+
+    this.incrementBadgeCount();
   }
 
-  // Yanıtlama action'ı
-  private handleReplyAction(notification: any): void {
-    console.log('Handle reply action:', notification);
-    // Mesaj yanıtlama işlemi
+  // İlan bildirimi gönder
+  async showListingNotification(title: string, message: string, listingId: string) {
+    const settings = await this.getNotificationSettings();
+    if (!settings.listings) return;
+
+    this.showLocalNotification({
+      id: `listing_${listingId}_${Date.now()}`,
+      title: title,
+      message: message,
+      type: 'listing',
+      data: {
+        type: 'listing',
+        listingId,
+      },
+    });
   }
 
-  // Görüntüleme action'ı
-  private handleViewAction(notification: any): void {
-    console.log('Handle view action:', notification);
-    // Görüntüleme işlemi
+  // Favori bildirimi gönder
+  async showFavoriteNotification(title: string, message: string, listingId: string) {
+    const settings = await this.getNotificationSettings();
+    if (!settings.favorites) return;
+
+    this.showLocalNotification({
+      id: `favorite_${listingId}_${Date.now()}`,
+      title: title,
+      message: message,
+      type: 'favorite',
+      data: {
+        type: 'favorite',
+        listingId,
+      },
+    });
   }
 
-  // Badge sayısını güncelle
-  async setBadgeCount(count: number): Promise<void> {
-    try {
-      PushNotification.setApplicationIconBadgeNumber(count);
-    } catch (error) {
-      console.error('Set badge count error:', error);
-    }
+  // Sistem bildirimi gönder
+  async showSystemNotification(title: string, message: string) {
+    const settings = await this.getNotificationSettings();
+    if (!settings.system) return;
+
+    this.showLocalNotification({
+      id: `system_${Date.now()}`,
+      title: title,
+      message: message,
+      type: 'system',
+    });
   }
 
-  // Badge sayısını sıfırla
-  async clearBadge(): Promise<void> {
-    try {
-      PushNotification.setApplicationIconBadgeNumber(0);
-    } catch (error) {
-      console.error('Clear badge error:', error);
-    }
+  // Test bildirimi gönder
+  showTestNotification() {
+    this.showLocalNotification({
+      id: 'test_notification',
+      title: 'Test Bildirimi',
+      message: 'Bu bir test bildirimidir. ALO17 uygulaması çalışıyor!',
+      type: 'system',
+    });
   }
 }
 
-export default NotificationService.getInstance(); 
+export default new NotificationService(); 

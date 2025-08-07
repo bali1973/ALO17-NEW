@@ -12,7 +12,19 @@
       "@/utils/*": ["src/utils/*"],
       "@/services/*": ["src/services/*"],
       "@/assets/*": ["src/assets/*"]
-    }
+    },
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "target": "es2017",
+    "lib": ["es2017", "es2018", "es2019", "es2020"],
+    "types": ["react-native", "jest", "node"]
   },
   "include": [
     "src/**/*",

@@ -1,314 +1,276 @@
 // Performance optimization service for Alo17 Mobile
-import { InteractionManager, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from '@react-native-netinfo/netinfo';
+import { Platform, Dimensions } from 'react-native';
 
-// Performance monitoring
-export class PerformanceMonitor {
-  private static instance: PerformanceMonitor;
-  private metrics: Map<string, number[]> = new Map();
-  private startTimes: Map<string, number> = new Map();
-
-  static getInstance(): PerformanceMonitor {
-    if (!PerformanceMonitor.instance) {
-      PerformanceMonitor.instance = new PerformanceMonitor();
-    }
-    return PerformanceMonitor.instance;
-  }
-
-  startTimer(key: string): void {
-    this.startTimes.set(key, Date.now());
-  }
-
-  endTimer(key: string): number {
-    const startTime = this.startTimes.get(key);
-    if (!startTime) return 0;
-
-    const duration = Date.now() - startTime;
-    this.startTimes.delete(key);
-
-    if (!this.metrics.has(key)) {
-      this.metrics.set(key, []);
-    }
-    this.metrics.get(key)!.push(duration);
-
-    // Keep only last 100 measurements
-    if (this.metrics.get(key)!.length > 100) {
-      this.metrics.get(key)!.shift();
-    }
-
-    return duration;
-  }
-
-  getAverageTime(key: string): number {
-    const measurements = this.metrics.get(key);
-    if (!measurements || measurements.length === 0) return 0;
-
-    const sum = measurements.reduce((acc, val) => acc + val, 0);
-    return sum / measurements.length;
-  }
-
-  getMetrics(): Record<string, number> {
-    const result: Record<string, number> = {};
-    this.metrics.forEach((measurements, key) => {
-      result[key] = this.getAverageTime(key);
-    });
-    return result;
-  }
-
-  clearMetrics(): void {
-    this.metrics.clear();
-    this.startTimes.clear();
-  }
+export interface CacheConfig {
+  maxSize: number; // MB cinsinden
+  ttl: number; // Milisaniye cinsinden
+  enableCompression: boolean;
 }
 
-// Image optimization service
-export class ImageOptimizer {
-  private static cache = new Map<string, string>();
+export interface ImageConfig {
+  quality: number; // 0-1 arası
+  maxWidth: number;
+  maxHeight: number;
+  enableProgressive: boolean;
+  enableWebP: boolean;
+}
 
-  static async preloadImages(urls: string[]): Promise<void> {
-    const promises = urls.map(url => this.preloadImage(url));
-    await Promise.allSettled(promises);
-  }
+export interface PerformanceMetrics {
+  memoryUsage: number;
+  cpuUsage: number;
+  networkLatency: number;
+  cacheHitRate: number;
+  imageLoadTime: number;
+}
 
-  static async preloadImage(url: string): Promise<void> {
-    if (this.cache.has(url)) return;
+class PerformanceService {
+  private cache: Map<string, { data: any; timestamp: number; size: number }> = new Map();
+  private cacheConfig: CacheConfig = {
+    maxSize: 50, // 50MB
+    ttl: 24 * 60 * 60 * 1000, // 24 saat
+    enableCompression: true,
+  };
+  
+  private imageConfig: ImageConfig = {
+    quality: 0.8,
+    maxWidth: 800,
+    maxHeight: 600,
+    enableProgressive: true,
+    enableWebP: true,
+  };
 
+  private metrics: PerformanceMetrics = {
+    memoryUsage: 0,
+    cpuUsage: 0,
+    networkLatency: 0,
+    cacheHitRate: 0,
+    imageLoadTime: 0,
+  };
+
+  private cacheHits = 0;
+  private cacheMisses = 0;
+
+  // Performans servisini başlat
+  async initialize() {
     try {
-      // For React Native, we can use Image.prefetch
-      const { Image } = require('react-native');
-      await Image.prefetch(url);
-      this.cache.set(url, url);
-    } catch (error) {
-      console.warn('Failed to preload image:', url, error);
-    }
-  }
-
-  static getOptimizedImageUrl(url: string, width: number, height: number): string {
-    // Add image optimization parameters
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}w=${width}&h=${height}&fit=crop&auto=format`;
-  }
-
-  static clearCache(): void {
-    this.cache.clear();
-  }
-}
-
-// Memory management service
-export class MemoryManager {
-  private static instance: MemoryManager;
-  private memoryWarnings: number = 0;
-
-  static getInstance(): MemoryManager {
-    if (!MemoryManager.instance) {
-      MemoryManager.instance = new MemoryManager();
-    }
-    return MemoryManager.instance;
-  }
-
-  async optimizeMemory(): Promise<void> {
-    // Clear image cache
-    ImageOptimizer.clearCache();
-    
-    // Clear AsyncStorage if needed
-    const keys = await AsyncStorage.getAllKeys();
-    if (keys.length > 100) {
-      // Keep only essential keys
-      const essentialKeys = keys.filter(key => 
-        key.startsWith('auth_') || 
-        key.startsWith('user_') || 
-        key.startsWith('settings_')
-      );
+      // Cache konfigürasyonunu yükle
+      await this.loadCacheConfig();
       
-      const keysToRemove = keys.filter(key => !essentialKeys.includes(key));
-      await AsyncStorage.multiRemove(keysToRemove);
-    }
-
-    // Force garbage collection if available
-    if (global.gc) {
-      global.gc();
-    }
-  }
-
-  getMemoryUsage(): Promise<number> {
-    return new Promise((resolve) => {
-      if (Platform.OS === 'ios') {
-        // iOS memory usage
-        const { NativeModules } = require('react-native');
-        if (NativeModules.MemoryManager) {
-          NativeModules.MemoryManager.getMemoryUsage((usage: number) => {
-            resolve(usage);
-          });
-        } else {
-          resolve(0);
-        }
-      } else {
-        // Android memory usage
-        const { NativeModules } = require('react-native');
-        if (NativeModules.MemoryManager) {
-          NativeModules.MemoryManager.getMemoryUsage().then((usage: number) => {
-            resolve(usage);
-          });
-        } else {
-          resolve(0);
-        }
-      }
-    });
-  }
-}
-
-// Network optimization service
-export class NetworkOptimizer {
-  private static instance: NetworkOptimizer;
-  private isOnline: boolean = true;
-  private connectionType: string = 'unknown';
-
-  static getInstance(): NetworkOptimizer {
-    if (!NetworkOptimizer.instance) {
-      NetworkOptimizer.instance = new NetworkOptimizer();
-      NetworkOptimizer.instance.init();
-    }
-    return NetworkOptimizer.instance;
-  }
-
-  private init(): void {
-    NetInfo.addEventListener(state => {
-      this.isOnline = state.isConnected ?? false;
-      this.connectionType = state.type ?? 'unknown';
-    });
-  }
-
-  isConnected(): boolean {
-    return this.isOnline;
-  }
-
-  getConnectionType(): string {
-    return this.connectionType;
-  }
-
-  shouldUseLowQualityImages(): boolean {
-    return this.connectionType === 'cellular' || this.connectionType === '2g';
-  }
-
-  getImageQuality(): number {
-    if (this.connectionType === 'wifi') return 100;
-    if (this.connectionType === 'cellular') return 75;
-    if (this.connectionType === '2g') return 50;
-    return 75; // default
-  }
-}
-
-// Cache management service
-export class CacheManager {
-  private static instance: CacheManager;
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
-
-  static getInstance(): CacheManager {
-    if (!CacheManager.instance) {
-      CacheManager.instance = new CacheManager();
-    }
-    return CacheManager.instance;
-  }
-
-  set(key: string, data: any, ttl: number = 5 * 60 * 1000): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now(),
-      ttl
-    });
-  }
-
-  get(key: string): any | null {
-    const item = this.cache.get(key);
-    if (!item) return null;
-
-    if (Date.now() - item.timestamp > item.ttl) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return item.data;
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  clearExpired(): void {
-    const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
-      if (now - item.timestamp > item.ttl) {
-        this.cache.delete(key);
-      }
-    }
-  }
-
-  getSize(): number {
-    return this.cache.size;
-  }
-}
-
-// Animation optimization service
-export class AnimationOptimizer {
-  static enableInteractionAfterAnimation(): void {
-    InteractionManager.runAfterInteractions(() => {
-      // Animation completed, safe to perform heavy operations
-    });
-  }
-
-  static shouldReduceMotion(): boolean {
-    // Check if user prefers reduced motion
-    return false; // TODO: Implement accessibility check
-  }
-
-  static getOptimalAnimationDuration(): number {
-    return this.shouldReduceMotion() ? 0 : 300;
-  }
-}
-
-// Bundle optimization service
-export class BundleOptimizer {
-  static async lazyLoadComponent(importFunc: () => Promise<any>): Promise<any> {
-    try {
-      const module = await importFunc();
-      return module.default || module;
+      // Mevcut cache'i yükle
+      await this.loadCache();
+      
+      // Performans izlemeyi başlat
+      this.startPerformanceMonitoring();
+      
+      console.log('Performans servisi başlatıldı');
     } catch (error) {
-      console.error('Failed to lazy load component:', error);
+      console.error('Performans servisi başlatılamadı:', error);
+    }
+  }
+
+  // Cache konfigürasyonunu yükle
+  private async loadCacheConfig() {
+    try {
+      const savedConfig = await AsyncStorage.getItem('performance-cache-config');
+      if (savedConfig) {
+        this.cacheConfig = { ...this.cacheConfig, ...JSON.parse(savedConfig) };
+      }
+    } catch (error) {
+      console.error('Cache konfigürasyonu yüklenemedi:', error);
+    }
+  }
+
+  // Cache konfigürasyonunu kaydet
+  async saveCacheConfig(config: Partial<CacheConfig>) {
+    try {
+      this.cacheConfig = { ...this.cacheConfig, ...config };
+      await AsyncStorage.setItem('performance-cache-config', JSON.stringify(this.cacheConfig));
+    } catch (error) {
+      console.error('Cache konfigürasyonu kaydedilemedi:', error);
+    }
+  }
+
+  // Cache'e veri ekle
+  async setCache(key: string, data: any, ttl?: number): Promise<void> {
+    try {
+      const size = this.calculateDataSize(data);
+      const timestamp = Date.now();
+      const cacheTTL = ttl || this.cacheConfig.ttl;
+
+      // Cache boyutunu kontrol et
+      await this.ensureCacheSize(size);
+
+      this.cache.set(key, {
+        data,
+        timestamp,
+        size,
+      });
+
+      await this.saveCache();
+    } catch (error) {
+      console.error('Cache veri ekleme hatası:', error);
+    }
+  }
+
+  // Cache'den veri al
+  async getCache(key: string): Promise<any | null> {
+    try {
+      const cached = this.cache.get(key);
+      
+      if (!cached) {
+        this.cacheMisses++;
+        return null;
+      }
+
+      // TTL kontrolü
+      if (Date.now() - cached.timestamp > this.cacheConfig.ttl) {
+        this.cache.delete(key);
+        this.cacheMisses++;
+        await this.saveCache();
+        return null;
+      }
+
+      this.cacheHits++;
+      return cached.data;
+    } catch (error) {
+      console.error('Cache veri alma hatası:', error);
       return null;
     }
   }
 
-  static preloadCriticalComponents(): void {
-    // Preload critical components in background
-    InteractionManager.runAfterInteractions(() => {
-      // Preload components that are likely to be used
-      this.lazyLoadComponent(() => import('../screens/main/HomeScreen'));
-      this.lazyLoadComponent(() => import('../screens/main/SearchScreen'));
-    });
+  // Cache'i temizle
+  async clearCache(): Promise<void> {
+    try {
+      this.cache.clear();
+      await AsyncStorage.removeItem('performance-cache');
+      console.log('Cache temizlendi');
+    } catch (error) {
+      console.error('Cache temizleme hatası:', error);
+    }
   }
-}
 
-// Performance utilities
-export const PerformanceUtils = {
-  // Debounce function
+  // Cache boyutunu kontrol et
+  private async ensureCacheSize(newDataSize: number): Promise<void> {
+    const currentSize = this.getCurrentCacheSize();
+    const maxSize = this.cacheConfig.maxSize * 1024 * 1024; // MB'ı byte'a çevir
+
+    if (currentSize + newDataSize > maxSize) {
+      // En eski verileri sil
+      const entries = Array.from(this.cache.entries());
+      entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+
+      let removedSize = 0;
+      for (const [key, value] of entries) {
+        if (currentSize - removedSize + newDataSize <= maxSize) {
+          break;
+        }
+        this.cache.delete(key);
+        removedSize += value.size;
+      }
+    }
+  }
+
+  // Mevcut cache boyutunu hesapla
+  private getCurrentCacheSize(): number {
+    let totalSize = 0;
+    for (const value of this.cache.values()) {
+      totalSize += value.size;
+    }
+    return totalSize;
+  }
+
+  // Veri boyutunu hesapla
+  private calculateDataSize(data: any): number {
+    const jsonString = JSON.stringify(data);
+    return new Blob([jsonString]).size;
+  }
+
+  // Cache'i kaydet
+  private async saveCache() {
+    try {
+      const cacheData = Array.from(this.cache.entries());
+      await AsyncStorage.setItem('performance-cache', JSON.stringify(cacheData));
+    } catch (error) {
+      console.error('Cache kaydetme hatası:', error);
+    }
+  }
+
+  // Cache'i yükle
+  private async loadCache() {
+    try {
+      const cacheData = await AsyncStorage.getItem('performance-cache');
+      if (cacheData) {
+        const entries = JSON.parse(cacheData);
+        this.cache = new Map(entries);
+      }
+    } catch (error) {
+      console.error('Cache yükleme hatası:', error);
+    }
+  }
+
+  // Resim optimizasyonu
+  optimizeImageUrl(url: string, width?: number, height?: number): string {
+    if (!url) return url;
+
+    const maxWidth = width || this.imageConfig.maxWidth;
+    const maxHeight = height || this.imageConfig.maxHeight;
+    const quality = this.imageConfig.quality;
+
+    // CDN veya resim servisi kullanıyorsa parametreleri ekle
+    if (url.includes('cloudinary.com')) {
+      return `${url}?w=${maxWidth}&h=${maxHeight}&q=${Math.round(quality * 100)}&f=auto`;
+    }
+
+    if (url.includes('imgix.net')) {
+      return `${url}?w=${maxWidth}&h=${maxHeight}&q=${Math.round(quality * 100)}&auto=format`;
+    }
+
+    // Kendi resim servisimiz için
+    if (url.includes('alo17.com')) {
+      return `${url}?width=${maxWidth}&height=${maxHeight}&quality=${Math.round(quality * 100)}`;
+    }
+
+    return url;
+  }
+
+  // Lazy loading için Intersection Observer benzeri
+  createLazyLoader(callback: () => void, threshold: number = 0.1): () => void {
+    let isVisible = false;
+    let hasTriggered = false;
+
+    const checkVisibility = () => {
+      // Basit görünürlük kontrolü (gerçek uygulamada Intersection Observer kullanılabilir)
+      if (!isVisible && !hasTriggered) {
+        isVisible = true;
+        hasTriggered = true;
+        callback();
+      }
+    };
+
+    return checkVisibility;
+  }
+
+  // Debounce fonksiyonu
   debounce<T extends (...args: any[]) => any>(
     func: T,
     wait: number
   ): (...args: Parameters<T>) => void {
     let timeout: NodeJS.Timeout;
+    
     return (...args: Parameters<T>) => {
       clearTimeout(timeout);
       timeout = setTimeout(() => func(...args), wait);
     };
-  },
+  }
 
-  // Throttle function
+  // Throttle fonksiyonu
   throttle<T extends (...args: any[]) => any>(
     func: T,
     limit: number
   ): (...args: Parameters<T>) => void {
     let inThrottle: boolean;
+    
     return (...args: Parameters<T>) => {
       if (!inThrottle) {
         func(...args);
@@ -316,31 +278,175 @@ export const PerformanceUtils = {
         setTimeout(() => inThrottle = false, limit);
       }
     };
-  },
-
-  // Memoization helper
-  memoize<T extends (...args: any[]) => any>(
-    func: T,
-    resolver?: (...args: Parameters<T>) => string
-  ): T {
-    const cache = new Map<string, ReturnType<T>>();
-
-    return ((...args: Parameters<T>) => {
-      const key = resolver ? resolver(...args) : JSON.stringify(args);
-      
-      if (cache.has(key)) {
-        return cache.get(key);
-      }
-
-      const result = func(...args);
-      cache.set(key, result);
-      return result;
-    }) as T;
   }
-};
 
-// Export singleton instances
-export const performanceMonitor = PerformanceMonitor.getInstance();
-export const memoryManager = MemoryManager.getInstance();
-export const networkOptimizer = NetworkOptimizer.getInstance();
+  // Performans izlemeyi başlat
+  private startPerformanceMonitoring() {
+    // Her 30 saniyede bir performans metriklerini güncelle
+    setInterval(() => {
+      this.updatePerformanceMetrics();
+    }, 30000);
+  }
+
+  // Performans metriklerini güncelle
+  private updatePerformanceMetrics() {
+    // Cache hit rate hesapla
+    const totalRequests = this.cacheHits + this.cacheMisses;
+    this.metrics.cacheHitRate = totalRequests > 0 ? this.cacheHits / totalRequests : 0;
+
+    // Memory usage (basit hesaplama)
+    this.metrics.memoryUsage = this.getCurrentCacheSize() / (1024 * 1024); // MB
+
+    // CPU usage (basit hesaplama)
+    this.metrics.cpuUsage = Math.random() * 100; // Gerçek uygulamada system API kullanılabilir
+
+    console.log('Performans metrikleri güncellendi:', this.metrics);
+  }
+
+  // Performans metriklerini al
+  getPerformanceMetrics(): PerformanceMetrics {
+    return { ...this.metrics };
+  }
+
+  // Cache istatistiklerini al
+  getCacheStats() {
+    return {
+      size: this.getCurrentCacheSize(),
+      itemCount: this.cache.size,
+      hitRate: this.metrics.cacheHitRate,
+      hits: this.cacheHits,
+      misses: this.cacheMisses,
+    };
+  }
+
+  // Resim önbelleğe alma
+  async preloadImages(urls: string[]): Promise<void> {
+    try {
+      const promises = urls.map(url => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = this.optimizeImageUrl(url);
+        });
+      });
+
+      await Promise.all(promises);
+      console.log(`${urls.length} resim önbelleğe alındı`);
+    } catch (error) {
+      console.error('Resim önbelleğe alma hatası:', error);
+    }
+  }
+
+  // Veri sıkıştırma
+  async compressData(data: any): Promise<any> {
+    if (!this.cacheConfig.enableCompression) {
+      return data;
+    }
+
+    try {
+      // Basit sıkıştırma (gerçek uygulamada daha gelişmiş algoritmalar kullanılabilir)
+      const jsonString = JSON.stringify(data);
+      
+      // Gereksiz boşlukları kaldır
+      const compressed = jsonString.replace(/\s+/g, ' ').trim();
+      
+      return JSON.parse(compressed);
+    } catch (error) {
+      console.error('Veri sıkıştırma hatası:', error);
+      return data;
+    }
+  }
+
+  // Veri sıkıştırmayı aç
+  async decompressData(data: any): Promise<any> {
+    // Basit sıkıştırma için açma işlemi gerekmez
+    return data;
+  }
+
+  // Network latency ölçümü
+  async measureNetworkLatency(url: string): Promise<number> {
+    const startTime = Date.now();
+    
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      const endTime = Date.now();
+      const latency = endTime - startTime;
+      
+      this.metrics.networkLatency = latency;
+      return latency;
+    } catch (error) {
+      console.error('Network latency ölçüm hatası:', error);
+      return -1;
+    }
+  }
+
+  // Resim yükleme süresini ölç
+  async measureImageLoadTime(url: string): Promise<number> {
+    const startTime = Date.now();
+    
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const loadTime = Date.now() - startTime;
+        this.metrics.imageLoadTime = loadTime;
+        resolve(loadTime);
+      };
+      img.onerror = () => {
+        resolve(-1);
+      };
+      img.src = this.optimizeImageUrl(url);
+    });
+  }
+
+  // Performans raporu oluştur
+  generatePerformanceReport(): string {
+    const stats = this.getCacheStats();
+    const metrics = this.getPerformanceMetrics();
+    
+    return `
+Performans Raporu:
+==================
+Cache İstatistikleri:
+- Toplam Boyut: ${(stats.size / (1024 * 1024)).toFixed(2)} MB
+- Öğe Sayısı: ${stats.itemCount}
+- Hit Rate: ${(stats.hitRate * 100).toFixed(2)}%
+- Hit: ${stats.hits}
+- Miss: ${stats.misses}
+
+Performans Metrikleri:
+- Memory Usage: ${metrics.memoryUsage.toFixed(2)} MB
+- CPU Usage: ${metrics.cpuUsage.toFixed(2)}%
+- Network Latency: ${metrics.networkLatency}ms
+- Image Load Time: ${metrics.imageLoadTime}ms
+    `.trim();
+  }
+
+  // Performans optimizasyonu önerileri
+  getOptimizationSuggestions(): string[] {
+    const suggestions: string[] = [];
+    const stats = this.getCacheStats();
+    const metrics = this.getPerformanceMetrics();
+
+    if (stats.hitRate < 0.5) {
+      suggestions.push('Cache hit rate düşük. Daha fazla veri önbelleğe alınabilir.');
+    }
+
+    if (metrics.memoryUsage > 40) {
+      suggestions.push('Memory usage yüksek. Cache boyutu azaltılabilir.');
+    }
+
+    if (metrics.networkLatency > 1000) {
+      suggestions.push('Network latency yüksek. CDN kullanımı değerlendirilebilir.');
+    }
+
+    if (metrics.imageLoadTime > 2000) {
+      suggestions.push('Resim yükleme süresi yüksek. Resim optimizasyonu yapılabilir.');
+    }
+
+    return suggestions;
+  }
+}
+
+export default new PerformanceService(); 
 export const cacheManager = CacheManager.getInstance(); 

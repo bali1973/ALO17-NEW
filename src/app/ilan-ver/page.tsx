@@ -194,12 +194,19 @@ export default function IlanVerPage() {
       alert('Maksimum 5 resim yükleyebilirsiniz');
       return;
     }
-    setImages([...images, ...files]);
+    
+    // Fotoğrafları işle
+    const processedFiles = await Promise.all(files.map(processImage));
+    setImages([...images, ...processedFiles]);
+    
     // Yeni seçilenlerin base64 önizlemesini oluştur
-    const previews = await Promise.all(files.map(fileToBase64));
+    const previews = await Promise.all(processedFiles.map(fileToBase64));
     const newPreviews = [...imagePreviews, ...previews];
     setImagePreviews(newPreviews);
     localStorage.setItem('ilanImagePreviews', JSON.stringify(newPreviews));
+    
+    // Input'u temizle
+    e.target.value = '';
   };
 
   // Resim silme işlemi
@@ -450,6 +457,213 @@ export default function IlanVerPage() {
       </div>
     </div>
   );
+
+  // Mobil cihaz kontrolü
+  const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
+  // Kamera izni kontrolü
+  const checkCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (error) {
+      console.error('Kamera izni yok:', error);
+      return false;
+    }
+  };
+
+  // Kamera ile fotoğraf çek
+  const handleCameraCapture = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (images.length + files.length > 5) {
+      alert('Maksimum 5 resim yükleyebilirsiniz');
+      return;
+    }
+    
+    // Fotoğrafları işle
+    const processedFiles = await Promise.all(files.map(processImage));
+    setImages([...images, ...processedFiles]);
+    
+    const previews = await Promise.all(processedFiles.map(fileToBase64));
+    const newPreviews = [...imagePreviews, ...previews];
+    setImagePreviews(newPreviews);
+    localStorage.setItem('ilanImagePreviews', JSON.stringify(newPreviews));
+    
+    // Input'u temizle
+    e.target.value = '';
+  };
+
+  // Galeri seçimi
+  const handleGallerySelect = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (images.length + files.length > 5) {
+      alert('Maksimum 5 resim yükleyebilirsiniz');
+      return;
+    }
+    
+    // Fotoğrafları işle
+    const processedFiles = await Promise.all(files.map(processImage));
+    setImages([...images, ...processedFiles]);
+    
+    const previews = await Promise.all(processedFiles.map(fileToBase64));
+    const newPreviews = [...imagePreviews, ...previews];
+    setImagePreviews(newPreviews);
+    localStorage.setItem('ilanImagePreviews', JSON.stringify(newPreviews));
+    
+    // Input'u temizle
+    e.target.value = '';
+  };
+
+  // Fotoğraf kırpma
+  const cropImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Maksimum boyut
+        const maxWidth = 800;
+        const maxHeight = 600;
+        
+        let { width, height } = img;
+        
+        // Boyut oranını koru
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+        }
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const croppedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now()
+            });
+            resolve(croppedFile);
+          } else {
+            resolve(file);
+          }
+        }, file.type, 0.8);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Fotoğraf sıkıştırma
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+        }
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        }, file.type, 0.7); // %70 kalite
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Gelişmiş fotoğraf işleme
+  const processImage = async (file: File): Promise<File> => {
+    try {
+      // Önce sıkıştır
+      let processedFile = await compressImage(file);
+      
+      // Eğer dosya hala büyükse kırp
+      if (processedFile.size > 1024 * 1024) { // 1MB'dan büyükse
+        processedFile = await cropImage(processedFile);
+      }
+      
+      return processedFile;
+    } catch (error) {
+      console.error('Fotoğraf işleme hatası:', error);
+      return file;
+    }
+  };
+
+  // Mobil fotoğraf seçici
+  const showMobileImagePicker = () => {
+    const options = [
+      {
+        text: '📷 Kamera ile Çek',
+        onPress: () => {
+          const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
+          if (cameraInput) cameraInput.click();
+        }
+      },
+      {
+        text: '🖼️ Galeriden Seç',
+        onPress: () => {
+          const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+          if (galleryInput) galleryInput.click();
+        }
+      },
+      {
+        text: 'İptal',
+        style: 'cancel' as const
+      }
+    ];
+
+    // Mobil cihazda native alert kullan
+    if (isMobileDevice()) {
+      // @ts-ignore - Mobil tarayıcılarda alert API'si farklı olabilir
+      if (window.confirm) {
+        const choice = window.confirm('Fotoğraf eklemek için:\n\n1. Kamera ile çekmek için "Tamam"\n2. Galeriden seçmek için "İptal"');
+        if (choice) {
+          const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
+          if (cameraInput) cameraInput.click();
+        } else {
+          const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+          if (galleryInput) galleryInput.click();
+        }
+      } else {
+        // Fallback: Galeri seçiciyi aç
+        const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+        if (galleryInput) galleryInput.click();
+      }
+    } else {
+      // Desktop'ta normal input'u aç
+      const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+      if (fileInput) fileInput.click();
+    }
+  };
 
   return (
     <>
@@ -711,22 +925,84 @@ export default function IlanVerPage() {
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-600 mb-2">
-                        Resim yüklemek için tıklayın veya sürükleyin
+                        {isMobileDevice() 
+                          ? 'Kamera ile çekin veya galeriden seçin'
+                          : 'Resim yüklemek için tıklayın veya sürükleyin'
+                        }
                       </p>
+                      
+                      {/* Desktop için normal input */}
+                      {!isMobileDevice() && (
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="image-upload"
+                        />
+                      )}
+                      
+                      {/* Mobil için kamera input */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleCameraCapture}
+                        className="hidden"
+                        id="camera-capture"
+                      />
+                      
+                      {/* Mobil için galeri input */}
                       <input
                         type="file"
                         multiple
                         accept="image/*"
-                        onChange={handleImageUpload}
+                        onChange={handleGallerySelect}
                         className="hidden"
-                        id="image-upload"
+                        id="gallery-select"
                       />
-                      <label
-                        htmlFor="image-upload"
-                        className="inline-flex items-center px-4 py-2 bg-alo-orange text-white rounded-md hover:bg-orange-600 transition-colors cursor-pointer"
-                      >
-                        Resim Seç
-                      </label>
+                      
+                      {/* Desktop buton */}
+                      {!isMobileDevice() && (
+                        <label
+                          htmlFor="image-upload"
+                          className="inline-flex items-center px-4 py-2 bg-alo-orange text-white rounded-md hover:bg-orange-600 transition-colors cursor-pointer"
+                        >
+                          Resim Seç
+                        </label>
+                      )}
+                      
+                      {/* Mobil butonlar */}
+                      {isMobileDevice() && (
+                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const hasPermission = await checkCameraPermission();
+                              if (hasPermission) {
+                                const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
+                                if (cameraInput) cameraInput.click();
+                              } else {
+                                alert('Kamera izni gerekli. Lütfen tarayıcı ayarlarından kamera iznini verin.');
+                              }
+                            }}
+                            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                          >
+                            📷 Kamera ile Çek
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+                              if (galleryInput) galleryInput.click();
+                            }}
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                          >
+                            🖼️ Galeriden Seç
+                          </button>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Yüklenen Resimler */}
@@ -739,13 +1015,41 @@ export default function IlanVerPage() {
                               alt={`Resim ${index + 1}`}
                               className="w-full h-24 object-cover rounded-lg"
                             />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
+                            <div className="absolute top-1 right-1 flex gap-1">
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  try {
+                                    const croppedFile = await cropImage(img);
+                                    const newImages = [...images];
+                                    newImages[index] = croppedFile;
+                                    setImages(newImages);
+                                    
+                                    // Önizlemeyi güncelle
+                                    const newPreview = await fileToBase64(croppedFile);
+                                    const newPreviews = [...imagePreviews];
+                                    newPreviews[index] = newPreview;
+                                    setImagePreviews(newPreviews);
+                                    localStorage.setItem('ilanImagePreviews', JSON.stringify(newPreviews));
+                                  } catch (error) {
+                                    console.error('Kırpma hatası:', error);
+                                    alert('Fotoğraf kırpılırken bir hata oluştu.');
+                                  }
+                                }}
+                                className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-blue-600 text-xs"
+                                title="Kırp"
+                              >
+                                ✂️
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                                title="Sil"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>

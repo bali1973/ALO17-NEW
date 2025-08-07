@@ -1,18 +1,33 @@
 export type RootStackParamList = {
+  Main: undefined;
+  ListingDetail: { listingId: string };
   Login: undefined;
   Register: undefined;
-  MainTabs: undefined;
-  ListingDetail: { listingId: string };
-  Chat: { chatId: string; recipientId: string; recipientName: string };
-  Favorites: undefined;
-  Settings: undefined;
+  Payment: {
+    plan?: {
+      id: string;
+      name: string;
+      description: string;
+      price: number;
+      currency: string;
+      duration: number;
+      features: string[];
+      isPopular?: boolean;
+    };
+    amount?: number;
+    description?: string;
+  };
+  PaymentSuccess: {
+    token: string;
+    amount: number;
+  };
 };
 
-export type MainTabParamList = {
+export type TabParamList = {
   Home: undefined;
   Search: undefined;
-  CreateListing: undefined;
-  Messages: undefined;
+  Categories: undefined;
+  Create: undefined;
   Profile: undefined;
 };
 
