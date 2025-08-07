@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: alo17-nextjs
+    name: alo17-web
     env: node
     plan: free
     buildCommand: npm install && npm run build
@@ -8,11 +8,25 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NEXT_PUBLIC_BASE_URL
-        value: https://alo17-nextjs.onrender.com
-      - key: NEXT_PUBLIC_API_URL
-        value: https://alo17-nextjs.onrender.com
-      - key: PORT
-        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXTAUTH_SECRET
+        sync: false
+      - key: NEXTAUTH_URL
+        value: https://alo17-web.onrender.com
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
     healthCheckPath: /
     autoDeploy: true 

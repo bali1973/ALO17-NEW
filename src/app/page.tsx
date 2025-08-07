@@ -140,50 +140,85 @@ export default function Home() {
   }, []);
 
   const getVisibilityScore = (listing: Listing) => {
-    let score = 0;
-    if (listing.isPremium || listing.premium) score += 100;
-    if (listing.premiumFeatures?.includes('featured')) score += 50;
-    if (listing.premiumFeatures?.includes('urgent')) score += 30;
-    if (listing.premiumFeatures?.includes('highlighted')) score += 20;
-    if (listing.premiumFeatures?.includes('top')) score += 10;
-    score += listing.views || 0;
-    return score;
+    try {
+      if (!listing || typeof listing !== 'object') return 0;
+      
+      let score = 0;
+      if (listing.isPremium || listing.premium) score += 100;
+      if (listing.premiumFeatures?.includes('featured')) score += 50;
+      if (listing.premiumFeatures?.includes('urgent')) score += 30;
+      if (listing.premiumFeatures?.includes('highlighted')) score += 20;
+      if (listing.premiumFeatures?.includes('top')) score += 10;
+      score += listing.views || 0;
+      return score;
+    } catch (error) {
+      console.error('Visibility score calculation error:', error);
+      return 0;
+    }
   };
 
   const filteredListings = Array.isArray(listings) ? listings
-    .filter((listing: Listing) => 
-      listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.city.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .filter(listing => !selectedCategory || listing.category === selectedCategory)
-    .filter(listing => !selectedSubcategory || listing.subcategory === selectedSubcategory)
+    .filter((listing: Listing) => {
+      // Null check for listing properties
+      if (!listing || typeof listing !== 'object') return false;
+      
+      const title = listing.title || '';
+      const description = listing.description || '';
+      const category = listing.category || '';
+      const subcategory = listing.subcategory || '';
+      const city = listing.city || '';
+      
+      return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             city.toLowerCase().includes(searchQuery.toLowerCase());
+    })
     .filter(listing => {
-      const price = typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price));
-      const min = priceRange.min ? parseFloat(priceRange.min) : 0;
-      const max = priceRange.max ? parseFloat(priceRange.max) : Infinity;
-      return price >= min && price <= max;
+      if (!listing) return false;
+      return !selectedCategory || listing.category === selectedCategory;
+    })
+    .filter(listing => {
+      if (!listing) return false;
+      return !selectedSubcategory || listing.subcategory === selectedSubcategory;
+    })
+    .filter(listing => {
+      if (!listing) return false;
+      
+      try {
+        const price = typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price || 0));
+        const min = priceRange.min ? parseFloat(priceRange.min) : 0;
+        const max = priceRange.max ? parseFloat(priceRange.max) : Infinity;
+        return !isNaN(price) && price >= min && price <= max;
+      } catch (error) {
+        console.error('Price parsing error:', error);
+        return false;
+      }
     })
     .sort((a, b) => {
-      switch (sortBy) {
-        case 'newest':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case 'oldest':
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        case 'price-low':
-          return (typeof a.price === 'number' ? a.price : parseFloat(String(a.price))) - 
-                 (typeof b.price === 'number' ? b.price : parseFloat(String(b.price)));
-        case 'price-high':
-          return (typeof b.price === 'number' ? b.price : parseFloat(String(b.price))) - 
-                 (typeof a.price === 'number' ? a.price : parseFloat(String(a.price)));
-        case 'views':
-          return (b.views || 0) - (a.views || 0);
-        case 'premium':
-          return getVisibilityScore(b) - getVisibilityScore(a);
-        default:
-          return getVisibilityScore(b) - getVisibilityScore(a); // Varsayılan olarak premium skoruna göre sırala
+      if (!a || !b) return 0;
+      
+      try {
+        switch (sortBy) {
+          case 'newest':
+            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          case 'oldest':
+            return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+          case 'price-low':
+            const priceA = typeof a.price === 'number' ? a.price : parseFloat(String(a.price || 0));
+            const priceB = typeof b.price === 'number' ? b.price : parseFloat(String(b.price || 0));
+            return priceA - priceB;
+          case 'price-high':
+            const priceAHigh = typeof a.price === 'number' ? a.price : parseFloat(String(a.price || 0));
+            const priceBHigh = typeof b.price === 'number' ? b.price : parseFloat(String(b.price || 0));
+            return priceBHigh - priceAHigh;
+          case 'premium':
+          default:
+            return getVisibilityScore(b) - getVisibilityScore(a);
+        }
+      } catch (error) {
+        console.error('Sorting error:', error);
+        return 0;
       }
     }) : [];
 
@@ -407,61 +442,84 @@ export default function Home() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Tüm İlanlar</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {currentListings.map((listing: Listing) => (
-                  <Link key={listing.id} href={`/ilan/${listing.id}`} className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer">
-                    <div className="relative h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden">
-                      {listing.images && (Array.isArray(listing.images) ? listing.images.length > 0 : listing.images) ? (
-                        <Image
-                          src={Array.isArray(listing.images) ? listing.images[0] : listing.images}
-                          alt={listing.title}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="text-gray-400 text-4xl">📷</div>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleToggleFavorite(listing.id);
-                        }}
-                        className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
-                      >
-                        <Heart
-                          className={`w-5 h-5 ${
-                            favorites.has(listing.id) ? 'text-red-500 fill-current' : 'text-gray-400'
-                          }`}
-                        />
-                      </button>
-                      {listing.premium && (
-                        <div className="absolute top-3 left-3 px-2 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-                          ÖNCELİKLİ
+                {currentListings.map((listing: Listing) => {
+                  // Safety check for listing data
+                  if (!listing || !listing.id) {
+                    console.warn('Invalid listing data:', listing);
+                    return null;
+                  }
+                  
+                  return (
+                    <Link key={listing.id} href={`/ilan/${listing.id}`} className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer">
+                      <div className="relative h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden">
+                        {listing.images && (Array.isArray(listing.images) ? listing.images.length > 0 : listing.images) ? (
+                          <Image
+                            src={Array.isArray(listing.images) ? listing.images[0] : listing.images}
+                            alt={listing.title || 'İlan görseli'}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="text-gray-400 text-4xl">📷</div>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleToggleFavorite(listing.id);
+                          }}
+                          className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                        >
+                          <Heart
+                            className={`w-5 h-5 ${
+                              favorites.has(listing.id) ? 'text-red-500 fill-current' : 'text-gray-400'
+                            }`}
+                          />
+                        </button>
+                        {listing.premium && (
+                          <div className="absolute top-3 left-3 px-2 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+                            ÖNCELİKLİ
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {listing.title || 'Başlık yok'}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                          {listing.description || 'Açıklama yok'}
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-bold text-blue-600">
+                            {(() => {
+                              try {
+                                const price = typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price || 0));
+                                return isNaN(price) ? '0' : price.toLocaleString('tr-TR');
+                              } catch (error) {
+                                console.error('Price formatting error:', error);
+                                return '0';
+                              }
+                            })()} ₺
+                          </span>
+                          <div className="flex items-center text-gray-500 text-sm">
+                            <Eye className="w-4 h-4 mr-1" />
+                            {listing.views || 0}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                        {listing.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                        {listing.description}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-bold text-blue-600">
-                          {typeof listing.price === 'number' ? listing.price.toLocaleString('tr-TR') : listing.price} ₺
-                        </span>
-                        <div className="flex items-center text-gray-500 text-sm">
-                          <Eye className="w-4 h-4 mr-1" />
-                          {listing.views || 0}
+                        <div className="mt-2 text-xs text-gray-500">
+                          {listing.location || 'Konum yok'} • {(() => {
+                            try {
+                              return new Date(listing.createdAt || Date.now()).toLocaleDateString('tr-TR');
+                            } catch (error) {
+                              console.error('Date formatting error:', error);
+                              return new Date().toLocaleDateString('tr-TR');
+                            }
+                          })()}
                         </div>
                       </div>
-                      <div className="mt-2 text-xs text-gray-500">
-                        {listing.location} • {new Date(listing.createdAt).toLocaleDateString('tr-TR')}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* Sayfalama */}
