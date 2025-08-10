@@ -7,6 +7,7 @@ import { Heart, Eye } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Sidebar } from '@/components/SidebarComponent';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
+import { useCategories } from '@/lib/useCategories';
 
 
 interface Listing {
@@ -76,6 +77,7 @@ function renderIcon(iconData: string | null, slug: string, index: number) {
 
 export default function Home() {
   const { session } = useAuth();
+  const { categories, loading: categoriesLoading } = useCategories();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -264,19 +266,19 @@ export default function Home() {
         {/* Arama ve Filtreleme Bölümü */}
         <div className="mb-8 bg-white rounded-lg shadow-md p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Arama Kutusu */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Arama</label>
-              <input
-                type="text"
-                placeholder="Ne arıyorsunuz?"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+                         {/* Arama Kutusu */}
+             <div>
+               <label className="block text-sm font-medium text-gray-700 mb-2">Arama</label>
+               <input
+                 type="text"
+                 placeholder="Ne arıyorsunuz?"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+               />
+             </div>
 
-                         {/* Kategori Filtresi */}
+             {/* Kategori Filtresi */}
              <div>
                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                <select
@@ -292,13 +294,17 @@ export default function Home() {
                  <option value="egitim-kurslar">Eğitim & Kurslar</option>
                  <option value="yemek-icecek">Yemek & İçecek</option>
                  <option value="turizm-gecelemeler">Turizm & Gecelemeler</option>
-                 <option value="hizmetler">Hizmetler</option>
+                 <option value="saglik-guzellik">Sağlık & Güzellik</option>
+                 <option value="sanat-hobi">Sanat & Hobi</option>
+                 <option value="sporlar-oyunlar-eglenceler">Sporlar, Oyunlar & Eğlenceler</option>
                  <option value="is">İş</option>
+                 <option value="ucretsiz-gel-al">Ücretsiz Gel Al</option>
+                 <option value="hizmetler">Hizmetler</option>
                  <option value="diger">Diğer</option>
                </select>
              </div>
 
-            {/* Fiyat Aralığı */}
+             {/* Fiyat Aralığı */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Fiyat Aralığı</label>
               <div className="flex gap-2">
@@ -359,6 +365,8 @@ export default function Home() {
             </div>
           )}
         </div>
+
+
 
         <div className="flex gap-8">
           {/* Sidebar */}

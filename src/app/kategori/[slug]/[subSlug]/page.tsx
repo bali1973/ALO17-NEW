@@ -1,6 +1,7 @@
-import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import CategoryLayout from '@/components/CategoryLayout';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -18,48 +19,51 @@ interface SubCategoryPageProps {
 async function getSubCategoryData(slug: string, subSlug: string) {
   console.log('Getting subcategory data for slug:', slug, 'subSlug:', subSlug);
   
-  const category = await prisma.category.findUnique({
-    where: { slug },
-    include: {
-      subCategories: {
-        orderBy: { order: 'asc' }
-      }
+  try {
+    // categories.json dosyasından kategorileri oku
+    const filePath = path.join(process.cwd(), 'public', 'categories.json');
+    const data = await fs.readFile(filePath, 'utf-8');
+    const categories = JSON.parse(data);
+    
+    // Kategoriyi bul
+    const category = categories.find((cat: any) => cat.slug === slug);
+    console.log('Category found:', category);
+
+    if (!category) return null;
+
+    // Alt kategoriyi bul
+    const subCategory = category.subCategories?.find((sub: any) => sub.slug === subSlug);
+    console.log('SubCategory found:', subCategory);
+
+    if (!subCategory) return null;
+
+    // API'den ilanları çek (hem kategori hem alt kategori filtresi ile)
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004'}/api/listings?category=${slug}&subcategory=${subSlug}`;
+    console.log('Fetching from API:', apiUrl);
+    
+    const response = await fetch(apiUrl, { next: { revalidate: 3600 } });
+    
+    console.log('API Response status:', response.status);
+    
+    if (!response.ok) {
+      console.error('API response error:', response.status);
+      return { category, subCategory, listings: [] };
     }
-  });
+    
+    const listingsData = await response.json();
+    console.log('API Data:', listingsData);
+    console.log('Data type:', typeof listingsData);
+    console.log('Is array:', Array.isArray(listingsData));
+    console.log('Data length:', listingsData.length);
+    
+    const listings = Array.isArray(listingsData) ? listingsData : [];
+    console.log('Final listings count:', listings.length);
 
-  console.log('Category found:', category);
-
-  if (!category) return null;
-
-  // Alt kategoriyi bul
-  const subCategory = category.subCategories?.find((sub: any) => sub.slug === subSlug);
-  console.log('SubCategory found:', subCategory);
-
-  if (!subCategory) return null;
-
-  // API'den ilanları çek (hem kategori hem alt kategori filtresi ile)
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004'}/api/listings?category=${slug}&subcategory=${subSlug}`;
-  console.log('Fetching from API:', apiUrl);
-  
-  const response = await fetch(apiUrl, { next: { revalidate: 3600 } });
-  
-  console.log('API Response status:', response.status);
-  
-  if (!response.ok) {
-    console.error('API response error:', response.status);
-    return { category, subCategory, listings: [] };
+    return { category, subCategory, listings };
+  } catch (error) {
+    console.error('Error getting subcategory data:', error);
+    return null;
   }
-  
-  const data = await response.json();
-  console.log('API Data:', data);
-  console.log('Data type:', typeof data);
-  console.log('Is array:', Array.isArray(data));
-  console.log('Data length:', data.length);
-  
-  const listings = Array.isArray(data) ? data : [];
-  console.log('Final listings count:', listings.length);
-
-  return { category, subCategory, listings };
 }
 
 export default async function SubCategoryPage({ params }: SubCategoryPageProps) {
