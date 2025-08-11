@@ -3,12 +3,33 @@
 import React, { useEffect, useState } from 'react';
 
 interface Report {
-  id: number;
+  id: string;
   type: string;
   subject: string;
-  date: string;
+  description: string;
   status: string;
-  description?: string;
+  priority: string;
+  listingId?: string;
+  listingTitle?: string;
+  reportedUserEmail?: string;
+  userId?: string;
+  createdAt: string;
+  updatedAt: string;
+  listing?: {
+    id: string;
+    title: string;
+    price: number;
+    category: string;
+    subcategory: string;
+    location: string;
+    status: string;
+    createdAt: string;
+  };
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export default function BildirimlerPage() {
@@ -36,12 +57,6 @@ export default function BildirimlerPage() {
 
   const handleMarkAllAsRead = async () => {
     try {
-      // Tüm bildirimleri okundu olarak işaretle
-      const updatedReports = reports.map(report => ({
-        ...report,
-        status: 'Çözüldü'
-      }));
-      
       // API'ye güncelleme gönder
       const response = await fetch('/api/raporlar', {
         method: 'PUT',
@@ -52,7 +67,8 @@ export default function BildirimlerPage() {
       });
 
       if (response.ok) {
-        setReports(updatedReports);
+        // Sayfayı yenile
+        fetchReports();
         alert('Tüm bildirimler okundu olarak işaretlendi!');
       } else {
         alert('İşlem sırasında bir hata oluştu');
@@ -67,7 +83,7 @@ export default function BildirimlerPage() {
     setShowDetailModal(true);
   };
 
-  const handleDeleteReport = async (reportId: number) => {
+  const handleDeleteReport = async (reportId: string) => {
     if (confirm('Bu bildirimi silmek istediğinizden emin misiniz?')) {
       try {
         const response = await fetch(`/api/raporlar/${reportId}`, {
@@ -89,7 +105,7 @@ export default function BildirimlerPage() {
     }
   };
 
-  const handleUpdateStatus = async (reportId: number, newStatus: string) => {
+  const handleUpdateStatus = async (reportId: string, newStatus: string) => {
     try {
       const response = await fetch(`/api/raporlar/${reportId}`, {
         method: 'PUT',
@@ -140,7 +156,8 @@ export default function BildirimlerPage() {
               <tr>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">ID</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">Tür</th>
-                <th className="py-3 px-4 text-left font-semibold text-gray-700">Konu</th>
+                <th className="py-4 px-4 text-left font-semibold text-gray-700">Konu</th>
+                <th className="py-3 px-4 text-left font-semibold text-gray-700">Öncelik</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">Tarih</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">Durum</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">İşlemler</th>
@@ -158,10 +175,21 @@ export default function BildirimlerPage() {
                   <td className="py-3 px-4 text-sm text-gray-900 max-w-xs truncate" title={report.subject}>
                     {report.subject}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">{report.date}</td>
+                  <td className="py-3 px-4">
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                      report.priority === 'high' ? 'bg-red-100 text-red-800' :
+                      report.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {report.priority === 'high' ? 'Yüksek' : 
+                       report.priority === 'medium' ? 'Orta' : 'Düşük'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-600">{new Date(report.createdAt).toLocaleDateString('tr-TR')}</td>
                   <td className="py-3 px-4">
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                       report.status === 'Açık' ? 'bg-yellow-100 text-yellow-800' :
+                      report.status === 'İnceleniyor' ? 'bg-blue-100 text-blue-800' :
                       report.status === 'Çözüldü' ? 'bg-green-100 text-green-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
@@ -218,20 +246,46 @@ export default function BildirimlerPage() {
                 <label className="block text-sm font-medium text-gray-700">Konu:</label>
                 <p className="text-sm text-gray-900">{selectedReport.subject}</p>
               </div>
-              {selectedReport.description && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Açıklama:</label>
+                <p className="text-sm text-gray-900">{selectedReport.description}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Öncelik:</label>
+                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                  selectedReport.priority === 'high' ? 'bg-red-100 text-red-800' :
+                  selectedReport.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {selectedReport.priority === 'high' ? 'Yüksek' : 
+                   selectedReport.priority === 'medium' ? 'Orta' : 'Düşük'}
+                </span>
+              </div>
+              {selectedReport.listingTitle && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Açıklama:</label>
-                  <p className="text-sm text-gray-900">{selectedReport.description}</p>
+                  <label className="block text-sm font-medium text-gray-700">İlan Başlığı:</label>
+                  <p className="text-sm text-gray-900">{selectedReport.listingTitle}</p>
+                </div>
+              )}
+              {selectedReport.reportedUserEmail && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Şikayet Edilen Kullanıcı:</label>
+                  <p className="text-sm text-gray-900">{selectedReport.reportedUserEmail}</p>
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tarih:</label>
-                <p className="text-sm text-gray-900">{selectedReport.date}</p>
+                <label className="block text-sm font-medium text-gray-700">Oluşturulma Tarihi:</label>
+                <p className="text-sm text-gray-900">{new Date(selectedReport.createdAt).toLocaleDateString('tr-TR')}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Güncellenme Tarihi:</label>
+                <p className="text-sm text-gray-900">{new Date(selectedReport.updatedAt).toLocaleDateString('tr-TR')}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Durum:</label>
                 <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                   selectedReport.status === 'Açık' ? 'bg-yellow-100 text-yellow-800' :
+                  selectedReport.status === 'İnceleniyor' ? 'bg-blue-100 text-blue-800' :
                   selectedReport.status === 'Çözüldü' ? 'bg-green-100 text-green-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
@@ -246,6 +300,12 @@ export default function BildirimlerPage() {
                 className="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors"
               >
                 Çözüldü Olarak İşaretle
+              </button>
+              <button 
+                onClick={() => handleUpdateStatus(selectedReport.id, 'İnceleniyor')}
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
+              >
+                İncelemeye Al
               </button>
               <button 
                 onClick={() => handleUpdateStatus(selectedReport.id, 'Açık')}
