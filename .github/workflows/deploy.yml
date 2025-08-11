@@ -28,10 +28,7 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
         
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./out
-        force_orphan: true
+    - name: Deploy to Render
+      run: |
+        echo "Build completed successfully!"
+        echo "Deploy to Render platform manually or configure Render webhook"

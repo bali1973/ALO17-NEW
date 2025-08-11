@@ -6,8 +6,8 @@ Alo17, modern web teknolojileri kullanılarak geliştirilmiş kapsamlı bir ilan
 
 ## 🚀 Canlı Demo
 
-- **GitHub Pages**: https://bali1973.github.io/ALO17-NEW/
-- **Admin Panel**: https://bali1973.github.io/ALO17-NEW/admin
+- **Render**: https://alo17-new-27-06.onrender.com/
+- **Admin Panel**: https://alo17-new-27-06.onrender.com/admin
 
 ## ✨ Özellikler
 
@@ -79,15 +79,15 @@ http://localhost:3004
 npm run build
 ```
 
-### GitHub Pages Deploy
-Proje otomatik olarak GitHub Actions ile deploy edilir. Her `main` branch'e push yapıldığında otomatik olarak GitHub Pages'e deploy edilir.
+### Render Deploy
+Proje Render platformunda host edilmektedir. GitHub Actions ile build işlemi tamamlandıktan sonra Render'da otomatik deploy edilir.
 
 ## 🌐 Deployment
 
-### GitHub Pages
-- **URL**: https://bali1973.github.io/ALO17-NEW/
-- **Branch**: `gh-pages`
-- **Build**: Otomatik (GitHub Actions)
+### Render
+- **URL**: https://alo17-new-27-06.onrender.com/
+- **Branch**: `main`
+- **Build**: Otomatik (GitHub Actions + Render)
 
 ### Environment Variables
 ```env
@@ -122,7 +122,7 @@ prisma/                 # Veritabanı şeması ve migrations
 - **Authentication**: NextAuth.js
 - **Real-time**: Socket.io
 - **Mobile**: React Native, Expo
-- **Deployment**: GitHub Pages, GitHub Actions
+- **Deployment**: Render, GitHub Actions
 
 ## 📱 Mobil Uygulama
 
