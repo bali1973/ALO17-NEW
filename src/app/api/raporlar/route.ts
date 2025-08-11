@@ -1,98 +1,221 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const REPORTS_PATH = path.join(process.cwd(), 'public', 'raporlar.json');
-
-async function readReports() {
-  try {
-    const data = await fs.readFile(REPORTS_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function writeReports(reports: any[]) {
-  await fs.writeFile(REPORTS_PATH, JSON.stringify(reports, null, 2), 'utf-8');
-}
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function GET() {
-  const reports = await readReports();
-  return NextResponse.json(reports);
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    
+    const reports = await prisma.report.findMany({
+      include: {
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            category: true,
+            subcategory: true,
+            location: true,
+            status: true,
+            createdAt: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    return NextResponse.json(reports);
+  } catch (error) {
+    console.error('Raporlar yükleme hatası:', error);
+    return NextResponse.json({ error: 'Raporlar yüklenirken hata oluştu' }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const reports = await readReports();
-  const newId = reports.length > 0 ? Math.max(...reports.map((r: any) => r.id)) + 1 : 1;
-  
-  // Yeni rapor verilerini hazırla
-  const newReport = {
-    id: newId,
-    type: body.type || 'Genel Şikayet',
-    subject: body.subject || '',
-    description: body.description || '',
-    date: body.date || new Date().toISOString().slice(0, 10),
-    status: body.status || 'Açık',
-    user: body.user || 'Anonim',
-    priority: body.priority || 'medium',
-    listingId: body.listingId || null,
-    listingTitle: body.listingTitle || null,
-    reportedUserEmail: body.reportedUserEmail || null,
-    createdAt: new Date().toISOString()
-  };
-  
-  reports.push(newReport);
-  await writeReports(reports);
-  return NextResponse.json({ success: true, report: newReport });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Giriş yapmanız gerekiyor' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { prisma } = await import('@/lib/prisma');
+    
+    // Kullanıcıyı bul
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'Kullanıcı bulunamadı' }, { status: 404 });
+    }
+
+    // Yeni rapor oluştur
+    const newReport = await prisma.report.create({
+      data: {
+        type: body.type || 'Genel Şikayet',
+        subject: body.subject || '',
+        description: body.description || '',
+        status: body.status || 'Açık',
+        priority: body.priority || 'medium',
+        listingId: body.listingId || null,
+        listingTitle: body.listingTitle || null,
+        reportedUserEmail: body.reportedUserEmail || null,
+        userId: user.id
+      },
+      include: {
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            category: true,
+            subcategory: true,
+            location: true,
+            status: true,
+            createdAt: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json({ success: true, report: newReport });
+  } catch (error) {
+    console.error('Rapor oluşturma hatası:', error);
+    return NextResponse.json({ error: 'Rapor oluşturulurken hata oluştu' }, { status: 500 });
+  }
 }
 
 export async function PUT(req: NextRequest) {
-  const body = await req.json();
-  
-  // Toplu işlem kontrolü
-  if (body.action === 'markAllAsRead') {
-    const reports = await readReports();
-    const updatedReports = reports.map((report: any) => ({
-      ...report,
-      status: 'Çözüldü'
-    }));
-    await writeReports(updatedReports);
-    return NextResponse.json({ success: true, reports: updatedReports });
+  try {
+    const body = await req.json();
+    const { prisma } = await import('@/lib/prisma');
+    
+    // Toplu işlem kontrolü
+    if (body.action === 'markAllAsRead') {
+      const updatedReports = await prisma.report.updateMany({
+        where: {
+          status: 'Açık'
+        },
+        data: {
+          status: 'Çözüldü'
+        }
+      });
+
+      return NextResponse.json({ success: true, count: updatedReports.count });
+    }
+    
+    // Tekil güncelleme
+    const { id, ...updates } = body;
+    if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
+    
+    const updatedReport = await prisma.report.update({
+      where: { id },
+      data: updates,
+      include: {
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            category: true,
+            subcategory: true,
+            location: true,
+            status: true,
+            createdAt: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json({ success: true, report: updatedReport });
+  } catch (error) {
+    console.error('Rapor güncelleme hatası:', error);
+    return NextResponse.json({ error: 'Rapor güncellenirken hata oluştu' }, { status: 500 });
   }
-  
-  // Tekil güncelleme
-  const { id, ...updates } = body;
-  if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
-  const reports = await readReports();
-  const idx = reports.findIndex((r: any) => r.id === id);
-  if (idx === -1) return NextResponse.json({ error: 'Rapor bulunamadı' }, { status: 404 });
-  reports[idx] = { ...reports[idx], ...updates };
-  await writeReports(reports);
-  return NextResponse.json({ success: true, report: reports[idx] });
 }
 
 export async function PATCH(req: NextRequest) {
-  const body = await req.json();
-  const { id, ...updates } = body;
-  if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
-  const reports = await readReports();
-  const idx = reports.findIndex((r: any) => r.id === id);
-  if (idx === -1) return NextResponse.json({ error: 'Rapor bulunamadı' }, { status: 404 });
-  reports[idx] = { ...reports[idx], ...updates };
-  await writeReports(reports);
-  return NextResponse.json({ success: true, report: reports[idx] });
+  try {
+    const body = await req.json();
+    const { id, ...updates } = body;
+    
+    if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
+    
+    const { prisma } = await import('@/lib/prisma');
+    
+    const updatedReport = await prisma.report.update({
+      where: { id },
+      data: updates,
+      include: {
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            category: true,
+            subcategory: true,
+            location: true,
+            status: true,
+            createdAt: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json({ success: true, report: updatedReport });
+  } catch (error) {
+    console.error('Rapor güncelleme hatası:', error);
+    return NextResponse.json({ error: 'Rapor güncellenirken hata oluştu' }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {
-  const body = await req.json();
-  const { id } = body;
-  if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
-  const reports = await readReports();
-  const idx = reports.findIndex((r: any) => r.id === id);
-  if (idx === -1) return NextResponse.json({ error: 'Rapor bulunamadı' }, { status: 404 });
-  reports.splice(idx, 1);
-  await writeReports(reports);
-  return NextResponse.json({ success: true });
+  try {
+    const body = await req.json();
+    const { id } = body;
+    
+    if (!id) return NextResponse.json({ error: 'ID gerekli' }, { status: 400 });
+    
+    const { prisma } = await import('@/lib/prisma');
+    
+    await prisma.report.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Rapor silme hatası:', error);
+    return NextResponse.json({ error: 'Rapor silinirken hata oluştu' }, { status: 500 });
+  }
 } 

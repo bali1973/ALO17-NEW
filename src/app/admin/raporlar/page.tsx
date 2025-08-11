@@ -1,21 +1,37 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Search, Filter, Eye, CheckCircle, X, Calendar, AlertCircle } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, X, Calendar, AlertCircle, Edit, ExternalLink, User, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 
 interface Report {
-  id: number;
+  id: string;
   type: string;
   subject: string;
-  date: string;
+  description: string;
   status: string;
-  description?: string;
-  user?: string;
-  priority?: string;
+  priority: string;
   listingId?: string;
   listingTitle?: string;
   reportedUserEmail?: string;
-  createdAt?: string;
+  userId?: string;
+  createdAt: string;
+  updatedAt: string;
+  listing?: {
+    id: string;
+    title: string;
+    price: number;
+    category: string;
+    subcategory?: string;
+    location: string;
+    status: string;
+    createdAt: string;
+  };
+  user?: {
+    id: string;
+    name?: string;
+    email: string;
+  };
 }
 
 export default function AdminRaporlarPage() {
@@ -28,23 +44,34 @@ export default function AdminRaporlarPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showListingModal, setShowListingModal] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/raporlar')
-      .then(res => res.json())
-      .then(data => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/raporlar');
+      if (response.ok) {
+        const data = await response.json();
         setReports(data);
         setFilteredReports(data);
-        setLoading(false);
-      })
-      .catch(() => {
+      } else {
         setError('Raporlar yüklenemedi');
-        setLoading(false);
-      });
-  }, []);
+      }
+    } catch (error) {
+      setError('Raporlar yüklenirken hata oluştu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filtreleme fonksiyonu
   useEffect(() => {
@@ -55,7 +82,8 @@ export default function AdminRaporlarPage() {
       filtered = filtered.filter(report =>
         report.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
         report.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (report.description && report.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        report.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (report.listingTitle && report.listingTitle.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -69,6 +97,11 @@ export default function AdminRaporlarPage() {
       filtered = filtered.filter(report => report.type === typeFilter);
     }
 
+    // Öncelik filtresi
+    if (priorityFilter !== 'all') {
+      filtered = filtered.filter(report => report.priority === priorityFilter);
+    }
+
     // Tarih filtresi
     if (dateFilter !== 'all') {
       const today = new Date();
@@ -76,41 +109,55 @@ export default function AdminRaporlarPage() {
       
       switch (dateFilter) {
         case 'today':
-          filtered = filtered.filter(report => report.date === today.toISOString().slice(0, 10));
+          filtered = filtered.filter(report => {
+            const reportDate = new Date(report.createdAt);
+            return reportDate.toDateString() === today.toDateString();
+          });
           break;
         case 'week':
           filterDate.setDate(today.getDate() - 7);
-          filtered = filtered.filter(report => new Date(report.date) >= filterDate);
+          filtered = filtered.filter(report => new Date(report.createdAt) >= filterDate);
           break;
         case 'month':
           filterDate.setMonth(today.getMonth() - 1);
-          filtered = filtered.filter(report => new Date(report.date) >= filterDate);
+          filtered = filtered.filter(report => new Date(report.createdAt) >= filterDate);
           break;
       }
     }
 
     setFilteredReports(filtered);
-  }, [reports, searchTerm, statusFilter, typeFilter, dateFilter]);
+  }, [reports, searchTerm, statusFilter, typeFilter, priorityFilter, dateFilter]);
 
   const handleViewDetail = (report: Report) => {
     setSelectedReport(report);
     setShowDetailModal(true);
   };
 
-  const handleUpdateStatus = async (reportId: number, newStatus: string) => {
+  const handleViewListing = async (listingId: string) => {
     try {
-      const response = await fetch(`/api/raporlar/${reportId}`, {
+      const response = await fetch(`/api/listings/${listingId}`);
+      if (response.ok) {
+        const listing = await response.json();
+        setSelectedListing(listing);
+        setShowListingModal(true);
+      }
+    } catch (error) {
+      console.error('İlan detayları yüklenemedi:', error);
+    }
+  };
+
+  const handleUpdateStatus = async (reportId: string, newStatus: string) => {
+    try {
+      const response = await fetch('/api/raporlar', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ id: reportId, status: newStatus }),
       });
 
       if (response.ok) {
-        setReports(reports.map(report => 
-          report.id === reportId ? { ...report, status: newStatus } : report
-        ));
+        await fetchReports(); // Listeyi yenile
         alert('Rapor durumu güncellendi!');
         setShowDetailModal(false);
       } else {
@@ -121,15 +168,19 @@ export default function AdminRaporlarPage() {
     }
   };
 
-  const handleDeleteReport = async (reportId: number) => {
+  const handleDeleteReport = async (reportId: string) => {
     if (confirm('Bu raporu silmek istediğinizden emin misiniz?')) {
       try {
-        const response = await fetch(`/api/raporlar/${reportId}`, {
+        const response = await fetch('/api/raporlar', {
           method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: reportId }),
         });
 
         if (response.ok) {
-          setReports(reports.filter(report => report.id !== reportId));
+          await fetchReports(); // Listeyi yenile
           alert('Rapor silindi!');
           setShowDetailModal(false);
         } else {
@@ -153,10 +204,7 @@ export default function AdminRaporlarPage() {
         });
 
         if (response.ok) {
-          setReports(reports.map(report => ({
-            ...report,
-            status: 'Çözüldü'
-          })));
+          await fetchReports(); // Listeyi yenile
           alert('Tüm raporlar çözüldü olarak işaretlendi!');
         } else {
           alert('İşlem sırasında bir hata oluştu');
@@ -173,6 +221,8 @@ export default function AdminRaporlarPage() {
         return 'bg-yellow-100 text-yellow-800';
       case 'Çözüldü':
         return 'bg-green-100 text-green-800';
+      case 'İnceleniyor':
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -184,17 +234,44 @@ export default function AdminRaporlarPage() {
         return 'bg-red-100 text-red-800';
       case 'Kullanıcı Şikayeti':
         return 'bg-blue-100 text-blue-800';
+      case 'Genel Şikayet':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const stats = {
     total: reports.length,
     open: reports.filter(r => r.status === 'Açık').length,
     resolved: reports.filter(r => r.status === 'Çözüldü').length,
+    examining: reports.filter(r => r.status === 'İnceleniyor').length,
     listingReports: reports.filter(r => r.type === 'İlan Şikayeti').length,
     userReports: reports.filter(r => r.type === 'Kullanıcı Şikayeti').length,
+    highPriority: reports.filter(r => r.priority === 'high').length,
   };
 
   return (
@@ -211,7 +288,7 @@ export default function AdminRaporlarPage() {
       </div>
 
       {/* İstatistikler */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
         <div className="bg-blue-50 p-4 rounded-lg">
           <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
           <div className="text-sm text-blue-600">Toplam Rapor</div>
@@ -219,6 +296,10 @@ export default function AdminRaporlarPage() {
         <div className="bg-yellow-50 p-4 rounded-lg">
           <div className="text-2xl font-bold text-yellow-600">{stats.open}</div>
           <div className="text-sm text-yellow-600">Açık Rapor</div>
+        </div>
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="text-2xl font-bold text-blue-600">{stats.examining}</div>
+          <div className="text-sm text-blue-600">İnceleniyor</div>
         </div>
         <div className="bg-green-50 p-4 rounded-lg">
           <div className="text-2xl font-bold text-green-600">{stats.resolved}</div>
@@ -232,11 +313,15 @@ export default function AdminRaporlarPage() {
           <div className="text-2xl font-bold text-blue-600">{stats.userReports}</div>
           <div className="text-sm text-blue-600">Kullanıcı Şikayeti</div>
         </div>
+        <div className="bg-red-50 p-4 rounded-lg">
+          <div className="text-2xl font-bold text-red-600">{stats.highPriority}</div>
+          <div className="text-sm text-red-600">Yüksek Öncelik</div>
+        </div>
       </div>
 
       {/* Filtreler */}
       <div className="bg-gray-50 p-4 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Arama */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
@@ -257,6 +342,7 @@ export default function AdminRaporlarPage() {
           >
             <option value="all">Tüm Durumlar</option>
             <option value="Açık">Açık</option>
+            <option value="İnceleniyor">İnceleniyor</option>
             <option value="Çözüldü">Çözüldü</option>
           </select>
 
@@ -269,6 +355,19 @@ export default function AdminRaporlarPage() {
             <option value="all">Tüm Türler</option>
             <option value="İlan Şikayeti">İlan Şikayeti</option>
             <option value="Kullanıcı Şikayeti">Kullanıcı Şikayeti</option>
+            <option value="Genel Şikayet">Genel Şikayet</option>
+          </select>
+
+          {/* Öncelik Filtresi */}
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">Tüm Öncelikler</option>
+            <option value="high">Yüksek</option>
+            <option value="medium">Orta</option>
+            <option value="low">Düşük</option>
           </select>
 
           {/* Tarih Filtresi */}
@@ -301,6 +400,8 @@ export default function AdminRaporlarPage() {
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">ID</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Tür</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Konu</th>
+                  <th className="py-3 px-4 text-left font-semibold text-gray-700">İlan</th>
+                  <th className="py-3 px-4 text-left font-semibold text-gray-700">Öncelik</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Tarih</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">Durum</th>
                   <th className="py-3 px-4 text-left font-semibold text-gray-700">İşlemler</th>
@@ -309,7 +410,7 @@ export default function AdminRaporlarPage() {
               <tbody>
                 {filteredReports.map(report => (
                   <tr key={report.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 text-sm text-gray-900">#{report.id}</td>
+                    <td className="py-3 px-4 text-sm text-gray-900">#{report.id.slice(-6)}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(report.type)}`}>
                         {report.type}
@@ -318,7 +419,39 @@ export default function AdminRaporlarPage() {
                     <td className="py-3 px-4 text-sm text-gray-900 max-w-xs truncate" title={report.subject}>
                       {report.subject}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">{report.date}</td>
+                    <td className="py-3 px-4">
+                      {report.listingId ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-900 max-w-xs truncate" title={report.listingTitle}>
+                            {report.listingTitle}
+                          </span>
+                          <button
+                            onClick={() => handleViewListing(report.listingId!)}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="İlan detaylarını görüntüle"
+                          >
+                            <Eye size={14} />
+                          </button>
+                          <Link
+                            href={`/ilan/${report.listingId}`}
+                            target="_blank"
+                            className="text-green-600 hover:text-green-800"
+                            title="İlanı yeni sekmede aç"
+                          >
+                            <ExternalLink size={14} />
+                          </Link>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">-</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(report.priority)}`}>
+                        {report.priority === 'high' ? 'Yüksek' : 
+                         report.priority === 'medium' ? 'Orta' : 'Düşük'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-gray-600">{formatDate(report.createdAt)}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(report.status)}`}>
                         {report.status}
@@ -334,6 +467,15 @@ export default function AdminRaporlarPage() {
                           Detay
                         </button>
                         {report.status === 'Açık' && (
+                          <button 
+                            onClick={() => handleUpdateStatus(report.id, 'İnceleniyor')}
+                            className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors flex items-center gap-1"
+                          >
+                            <Edit size={12} />
+                            İncele
+                          </button>
+                        )}
+                        {report.status === 'İnceleniyor' && (
                           <button 
                             onClick={() => handleUpdateStatus(report.id, 'Çözüldü')}
                             className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 transition-colors flex items-center gap-1"
@@ -362,7 +504,7 @@ export default function AdminRaporlarPage() {
       {/* Detay Modal */}
       {showDetailModal && selectedReport && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-gray-800">Rapor Detayı</h2>
               <button 
@@ -373,72 +515,103 @@ export default function AdminRaporlarPage() {
               </button>
             </div>
             
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Rapor ID:</label>
-                <p className="text-sm text-gray-900">#{selectedReport.id}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Tür:</label>
-                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(selectedReport.type)}`}>
-                  {selectedReport.type}
-                </span>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Konu:</label>
-                <p className="text-sm text-gray-900">{selectedReport.subject}</p>
-              </div>
-              {selectedReport.description && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Rapor ID:</label>
+                  <p className="text-sm text-gray-900">#{selectedReport.id.slice(-6)}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tür:</label>
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(selectedReport.type)}`}>
+                    {selectedReport.type}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Konu:</label>
+                  <p className="text-sm text-gray-900">{selectedReport.subject}</p>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Açıklama:</label>
                   <p className="text-sm text-gray-900">{selectedReport.description}</p>
                 </div>
-              )}
-              {selectedReport.user && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Rapor Eden:</label>
-                  <p className="text-sm text-gray-900">{selectedReport.user}</p>
-                </div>
-              )}
-              {selectedReport.priority && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Öncelik:</label>
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    selectedReport.priority === 'high' ? 'bg-red-100 text-red-800' :
-                    selectedReport.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(selectedReport.priority)}`}>
                     {selectedReport.priority === 'high' ? 'Yüksek' :
                      selectedReport.priority === 'medium' ? 'Orta' : 'Düşük'}
                   </span>
                 </div>
-              )}
-              {selectedReport.listingTitle && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">İlan:</label>
-                  <p className="text-sm text-gray-900">{selectedReport.listingTitle}</p>
-                </div>
-              )}
-              {selectedReport.reportedUserEmail && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Şikayet Edilen Kullanıcı:</label>
-                  <p className="text-sm text-gray-900">{selectedReport.reportedUserEmail}</p>
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Tarih:</label>
-                <p className="text-sm text-gray-900">{selectedReport.date}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Durum:</label>
-                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedReport.status)}`}>
-                  {selectedReport.status}
-                </span>
+              
+              <div className="space-y-3">
+                {selectedReport.listing && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">İlan Bilgileri:</label>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm font-medium">{selectedReport.listing.title}</p>
+                      <p className="text-sm text-gray-600">{selectedReport.listing.price} ₺</p>
+                      <p className="text-sm text-gray-600">{selectedReport.listing.category} - {selectedReport.listing.subcategory || 'Alt kategori yok'}</p>
+                      <p className="text-sm text-gray-600">{selectedReport.listing.location}</p>
+                      <Link
+                        href={`/ilan/${selectedReport.listing.id}`}
+                        target="_blank"
+                        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        <ExternalLink size={14} />
+                        İlanı Görüntüle
+                      </Link>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedReport.user && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Rapor Eden:</label>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm font-medium">{selectedReport.user.name || 'İsim yok'}</p>
+                      <p className="text-sm text-gray-600">{selectedReport.user.email}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedReport.reportedUserEmail && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Şikayet Edilen Kullanıcı:</label>
+                    <p className="text-sm text-gray-900">{selectedReport.reportedUserEmail}</p>
+                  </div>
+                )}
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Oluşturulma Tarihi:</label>
+                  <p className="text-sm text-gray-900">{formatDate(selectedReport.createdAt)}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Güncellenme Tarihi:</label>
+                  <p className="text-sm text-gray-900">{formatDate(selectedReport.updatedAt)}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Durum:</label>
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedReport.status)}`}>
+                    {selectedReport.status}
+                  </span>
+                </div>
               </div>
             </div>
             
             <div className="flex gap-2 mt-6">
               {selectedReport.status === 'Açık' && (
+                <button 
+                  onClick={() => handleUpdateStatus(selectedReport.id, 'İnceleniyor')}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Edit size={16} />
+                  İncelemeye Al
+                </button>
+              )}
+              {selectedReport.status === 'İnceleniyor' && (
                 <button 
                   onClick={() => handleUpdateStatus(selectedReport.id, 'Çözüldü')}
                   className="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
@@ -447,7 +620,7 @@ export default function AdminRaporlarPage() {
                   Çözüldü Olarak İşaretle
                 </button>
               )}
-              {selectedReport.status === 'Çözüldü' && (
+              {(selectedReport.status === 'Çözüldü' || selectedReport.status === 'İnceleniyor') && (
                 <button 
                   onClick={() => handleUpdateStatus(selectedReport.id, 'Açık')}
                   className="flex-1 bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700 transition-colors flex items-center justify-center gap-2"
@@ -466,6 +639,79 @@ export default function AdminRaporlarPage() {
                 <X size={16} />
                 Raporu Sil
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* İlan Detay Modal */}
+      {showListingModal && selectedListing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">İlan Detayları</h2>
+              <button 
+                onClick={() => setShowListingModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">İlan Başlığı:</label>
+                <p className="text-sm text-gray-900">{selectedListing.title}</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Açıklama:</label>
+                <p className="text-sm text-gray-900">{selectedListing.description}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Fiyat:</label>
+                  <p className="text-sm text-gray-900">{selectedListing.price} ₺</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Kategori:</label>
+                  <p className="text-sm text-gray-900">{selectedListing.category}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Alt Kategori:</label>
+                  <p className="text-sm text-gray-900">{selectedListing.subcategory || '-'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Konum:</label>
+                  <p className="text-sm text-gray-900">{selectedListing.location}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Durum:</label>
+                  <p className="text-sm text-gray-900">{selectedListing.status}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Görüntülenme:</label>
+                  <p className="text-sm text-gray-900">{selectedListing.views || 0}</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 mt-6">
+                <Link
+                  href={`/ilan/${selectedListing.id}`}
+                  target="_blank"
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <ExternalLink size={16} />
+                  İlanı Görüntüle
+                </Link>
+                <button
+                  onClick={() => setShowListingModal(false)}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+                >
+                  Kapat
+                </button>
+              </div>
             </div>
           </div>
         </div>

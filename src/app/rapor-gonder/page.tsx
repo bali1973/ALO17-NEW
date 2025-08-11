@@ -21,9 +21,8 @@ export default function RaporGonderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  
   const [formData, setFormData] = useState<ReportForm>({
-    type: t('listing_complaint'),
+    type: 'İlan Şikayeti',
     subject: '',
     description: '',
     listingId: '',
@@ -47,7 +46,7 @@ export default function RaporGonderPage() {
         ...prev,
         listingId,
         listingTitle: listingTitle || '',
-        type: t('listing_complaint')
+        type: 'İlan Şikayeti'
       }));
     }
     
@@ -55,10 +54,10 @@ export default function RaporGonderPage() {
       setFormData(prev => ({
         ...prev,
         userEmail,
-        type: t('user_complaint')
+        type: 'Kullanıcı Şikayeti'
       }));
     }
-  }, [searchParams, t]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -71,12 +70,12 @@ export default function RaporGonderPage() {
     e.preventDefault();
     
     if (!session) {
-      setErrorMessage(t('login_required_to_report'));
+      setErrorMessage('Bu işlemi yapmak için giriş yapmanız gerekiyor');
       return;
     }
 
     if (!formData.subject.trim() || !formData.description.trim()) {
-      setErrorMessage(t('subject_and_description_required'));
+      setErrorMessage('Konu ve açıklama alanları zorunludur');
       return;
     }
 
@@ -88,9 +87,7 @@ export default function RaporGonderPage() {
         type: formData.type,
         subject: formData.subject,
         description: formData.description,
-        date: new Date().toISOString().slice(0, 10),
-        status: t('open'),
-        user: session.user.email,
+        status: 'Açık',
         priority: formData.priority,
         listingId: formData.listingId || undefined,
         listingTitle: formData.listingTitle || undefined,
@@ -108,7 +105,7 @@ export default function RaporGonderPage() {
       if (response.ok) {
         setSubmitStatus('success');
         setFormData({
-          type: t('listing_complaint'),
+          type: 'İlan Şikayeti',
           subject: '',
           description: '',
           listingId: '',
@@ -124,11 +121,11 @@ export default function RaporGonderPage() {
         }, 3000);
       } else {
         setSubmitStatus('error');
-        setErrorMessage(t('report_send_error'));
+        setErrorMessage('Rapor gönderilirken bir hata oluştu');
       }
     } catch (error) {
       setSubmitStatus('error');
-      setErrorMessage(t('report_send_error'));
+      setErrorMessage('Rapor gönderilirken bir hata oluştu');
     } finally {
       setIsSubmitting(false);
     }
@@ -144,29 +141,29 @@ export default function RaporGonderPage() {
 
   const reportTypes = [
     {
-      value: t('listing_complaint'),
-      label: t('listing_complaint'),
+      value: 'İlan Şikayeti',
+      label: 'İlan Şikayeti',
       icon: ShoppingBag,
-      description: t('listing_complaint_description')
+      description: 'İlan ile ilgili şikayetlerinizi bildirin'
     },
     {
-      value: t('user_complaint'),
-      label: t('user_complaint'),
+      value: 'Kullanıcı Şikayeti',
+      label: 'Kullanıcı Şikayeti',
       icon: User,
-      description: t('user_complaint_description')
+      description: 'Kullanıcı davranışları ile ilgili şikayetlerinizi bildirin'
     },
     {
-      value: t('general_complaint'),
-      label: t('general_complaint'),
+      value: 'Genel Şikayet',
+      label: 'Genel Şikayet',
       icon: FileText,
-      description: t('general_complaint_description')
+      description: 'Site ile ilgili genel şikayetlerinizi bildirin'
     }
   ];
 
   const priorityOptions = [
-    { value: 'low', label: t('low'), color: 'text-green-600' },
-    { value: 'medium', label: t('medium'), color: 'text-yellow-600' },
-    { value: 'high', label: t('high'), color: 'text-red-600' }
+    { value: 'low', label: 'Düşük', color: 'text-green-600' },
+    { value: 'medium', label: 'Orta', color: 'text-yellow-600' },
+    { value: 'high', label: 'Yüksek', color: 'text-red-600' }
   ];
 
   if (isLoading) {
@@ -174,7 +171,7 @@ export default function RaporGonderPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">""</p>
+          <p className="mt-4 text-gray-600">Yükleniyor...</p>
         </div>
       </div>
     );
@@ -193,9 +190,9 @@ export default function RaporGonderPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">""</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Şikayet Bildir</h1>
             <p className="text-gray-600">
-              ""
+              Karşılaştığınız sorunları bize bildirin, en kısa sürede çözüm bulalım
             </p>
           </div>
 
@@ -205,7 +202,7 @@ export default function RaporGonderPage() {
               <div className="flex items-center">
                 <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
                 <span className="text-green-800 font-medium">
-                  ""
+                  Raporunuz başarıyla gönderildi! En kısa sürede inceleyeceğiz.
                 </span>
               </div>
             </div>
@@ -225,7 +222,7 @@ export default function RaporGonderPage() {
             {/* Rapor Türü */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                ""
+                Şikayet Türü
               </label>
               <div className="grid gap-3">
                 {reportTypes.map((type) => {
@@ -272,17 +269,17 @@ export default function RaporGonderPage() {
             </div>
 
             {/* İlan Bilgileri (İlan Şikayeti seçiliyse) */}
-            {formData.type === t('listing_complaint') && formData.listingTitle && (
+            {formData.type === 'İlan Şikayeti' && formData.listingTitle && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-2">""</h3>
+                <h3 className="font-medium text-blue-900 mb-2">Şikayet Edilen İlan:</h3>
                 <p className="text-sm text-blue-800">{formData.listingTitle}</p>
               </div>
             )}
 
             {/* Kullanıcı Bilgileri (Kullanıcı Şikayeti seçiliyse) */}
-            {formData.type === t('user_complaint') && formData.userEmail && (
+            {formData.type === 'Kullanıcı Şikayeti' && formData.userEmail && (
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-2">""</h3>
+                <h3 className="font-medium text-blue-900 mb-2">Şikayet Edilen Kullanıcı:</h3>
                 <p className="text-sm text-blue-800">{formData.userEmail}</p>
               </div>
             )}
@@ -290,7 +287,7 @@ export default function RaporGonderPage() {
             {/* Öncelik */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                ""
+                Öncelik Seviyesi
               </label>
               <div className="flex gap-4">
                 {priorityOptions.map((priority) => (
@@ -312,14 +309,14 @@ export default function RaporGonderPage() {
             {/* Konu */}
             <div>
               <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                "" *
+                Konu *
               </label>
               <input
                 type="text"
                 id="subject"
                 value={formData.subject}
                 onChange={(e) => handleInputChange('subject', e.target.value)}
-                placeholder=""
+                placeholder="Şikayetinizin konusunu kısaca belirtin"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -328,17 +325,17 @@ export default function RaporGonderPage() {
             {/* Açıklama */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                "" *
+                Detaylı Açıklama *
               </label>
               <textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder=""
+                placeholder="Şikayetinizi detaylı olarak açıklayın..."
                 rows={6}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 required
-              />
+              ></textarea>
             </div>
 
             {/* Gönder Butonu */}
@@ -351,12 +348,12 @@ export default function RaporGonderPage() {
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ""...
+                    Gönderiliyor...
                   </>
                 ) : (
                   <>
                     <Send className="w-5 h-5" />
-                    ""
+                    Şikayeti Gönder
                   </>
                 )}
               </button>
@@ -366,19 +363,19 @@ export default function RaporGonderPage() {
                 onClick={() => router.back()}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                ""
+                İptal
               </button>
             </div>
           </form>
 
           {/* Bilgi Notu */}
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium text-gray-900 mb-2">""</h3>
+            <h3 className="font-medium text-gray-900 mb-2">Önemli Bilgiler</h3>
             <ul className="text-sm text-gray-600 space-y-1">
-              <li>• ""</li>
-              <li>• ""</li>
-              <li>• ""</li>
-              <li>• ""</li>
+              <li>• Tüm şikayetler gizlilik içinde değerlendirilir</li>
+              <li>• Yanlış şikayetler hesap kapatılmasına neden olabilir</li>
+              <li>• Şikayetleriniz en kısa sürede incelenir</li>
+              <li>• Gerekli durumlarda sizinle iletişime geçilir</li>
             </ul>
           </div>
         </div>
