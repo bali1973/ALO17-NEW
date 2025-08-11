@@ -66,8 +66,21 @@ export const Sidebar = () => {
       <button className="lg:hidden fixed top-20 left-4 z-40 bg-primary text-white p-2 rounded-full shadow-lg" onClick={()=>setOpen(o=>!o)}>
         <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="25" y2="12" /><line x1="3" y1="6" x2="25" y2="6" /><line x1="3" y1="18" x2="25" y2="18" /></svg>
       </button>
+      
+      {/* Mobil overlay */}
+      {open && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setOpen(false)}
+        />
+      )}
+      
       {/* Sidebar ana */}
-      <aside className={`w-64 bg-white p-4 border-r shadow-lg rounded-xl transition-all duration-300 z-30 lg:static fixed top-0 left-0 h-full ${open ? 'block' : 'hidden'} lg:block`}> 
+      <aside className={`w-64 bg-white p-4 border-r shadow-lg rounded-xl transition-all duration-300 z-30 lg:static fixed top-0 left-0 h-full ${
+        open 
+          ? 'translate-x-0 opacity-100 visible' 
+          : 'lg:translate-x-0 lg:opacity-100 lg:visible -translate-x-full opacity-0 invisible'
+      } lg:block`}> 
         <h2 className="text-xl font-bold mb-6 text-primary tracking-tight">Kategoriler</h2>
         <div className="space-y-2">
           {categories.map((category, i) => {

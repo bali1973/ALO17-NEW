@@ -368,14 +368,14 @@ export default function Home() {
 
 
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
-          <div className="w-64 flex-shrink-0">
+          <div className="w-full lg:w-64 flex-shrink-0 order-2 lg:order-1">
             <Sidebar />
           </div>
 
           {/* Main Content: İlanlar */}
-          <div className="flex-1">
+          <div className="flex-1 order-1 lg:order-2">
             {/* Son Baktıkların */}
             {session && <RecentlyViewed allListings={listings} />}
             

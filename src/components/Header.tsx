@@ -148,68 +148,70 @@ export default function Header() {
         </div>
         
         {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-200">
-            <div className="space-y-3">
-              <Link 
-                href="/ilan-ver" 
-                className="block w-full px-4 py-3 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors text-center"
-              >
-                + İlan Ver
-              </Link>
-              <Link 
-                href="/premium-ozellikler" 
-                className="block w-full px-4 py-3 text-sm font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors text-center"
-              >
-                ⭐ Öncelikli
-              </Link>
-              {session ? (
-                <>
-                  <Link 
-                    href="/bildirimler" 
-                    className="relative block w-full px-4 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-center"
-                  >
-                    <Bell className="w-4 h-4 inline mr-1" />
-                    Bildirimler
-                    {notificationCount.unreadCount > 0 && (
-                      <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {notificationCount.unreadCount > 99 ? '99+' : notificationCount.unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                  <Link 
-                    href="/profil/mesajlar" 
-                    className="block w-full px-4 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-center"
-                  >
-                    <MessageCircle className="w-4 h-4 inline mr-1" />
-                    Mesajlarım
-                  </Link>
-                  <Link 
-                    href="/profil" 
-                    className="block w-full px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center"
-                  >
-                    <User className="w-4 h-4 inline mr-1" />
-                    Profilim
-                  </Link>
-                  <button 
-                    onClick={handleSignOut} 
-                    className="block w-full px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Çıkış Yap
-                  </button>
-                </>
-              ) : (
+        <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen 
+            ? 'max-h-96 opacity-100 py-4 border-t border-gray-200' 
+            : 'max-h-0 opacity-0 py-0 border-t-0'
+        }`}>
+          <div className="space-y-3">
+            <Link 
+              href="/ilan-ver" 
+              className="block w-full px-4 py-3 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors text-center"
+            >
+              + İlan Ver
+            </Link>
+            <Link 
+              href="/premium-ozellikler" 
+              className="block w-full px-4 py-3 text-sm font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors text-center"
+            >
+              ⭐ Öncelikli
+            </Link>
+            {session ? (
+              <>
                 <Link 
-                  href="/giris" 
-                  className="block w-full px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors text-center"
+                  href="/bildirimler" 
+                  className="relative block w-full px-4 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-center"
                 >
-                  Giriş
+                  <Bell className="w-4 h-4 inline mr-1" />
+                  Bildirimler
+                  {notificationCount.unreadCount > 0 && (
+                    <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {notificationCount.unreadCount > 99 ? '99+' : notificationCount.unreadCount}
+                    </span>
+                  )}
                 </Link>
-              )}
-            </div>
+                <Link 
+                  href="/profil/mesajlar" 
+                  className="block w-full px-4 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors text-center"
+                >
+                  <MessageCircle className="w-4 h-4 inline mr-1" />
+                  Mesajlarım
+                </Link>
+                <Link 
+                  href="/profil" 
+                  className="block w-full px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors text-center"
+                >
+                  <User className="w-4 h-4 inline mr-1" />
+                  Profilim
+                </Link>
+                <button 
+                  onClick={handleSignOut} 
+                  className="block w-full px-4 py-3 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center"
+                >
+                  <LogOut className="w-4 h-4 mr-1" />
+                  Çıkış Yap
+                </button>
+              </>
+            ) : (
+              <Link 
+                href="/giris" 
+                className="block w-full px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors text-center"
+              >
+                Giriş
+              </Link>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
