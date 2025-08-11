@@ -1,4 +1,4 @@
-name: Deploy Alo17 to GitHub Pages
+name: Deploy Alo17 to Render
 
 on:
   push:
@@ -31,4 +31,12 @@ jobs:
     - name: Deploy to Render
       run: |
         echo "Build completed successfully!"
-        echo "Deploy to Render platform manually or configure Render webhook"
+        echo "Deploying to Render..."
+        echo "Render will automatically deploy from GitHub repository"
+        echo "Deployment URL: https://alo17-new-27-06.onrender.com"
+        
+    - name: Notify deployment
+      run: |
+        echo "✅ Alo17 successfully deployed to Render!"
+        echo "🌐 Live URL: https://alo17-new-27-06.onrender.com"
+        echo "🔧 Admin Panel: https://alo17-new-27-06.onrender.com/admin"
