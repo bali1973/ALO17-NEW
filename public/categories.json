@@ -328,32 +328,62 @@
       {
         "id": "8-1",
         "name": "Kişisel Bakım",
-        "slug": "kisisel-bakim"
+        "slug": "kisisel-bakim",
+        "icon": "emoji:🧴"
       },
       {
         "id": "8-2",
-        "name": "Kozmetik Ürünleri",
-        "slug": "kozmetik-urunleri"
+        "name": "Saç Bakımı",
+        "slug": "sac-bakimi",
+        "icon": "emoji:💇‍♀️"
       },
       {
         "id": "8-3",
-        "name": "Diyet & Beslenme",
-        "slug": "diyet-beslenme"
+        "name": "Cilt Bakımı",
+        "slug": "cilt-bakimi",
+        "icon": "emoji:✨"
       },
       {
         "id": "8-4",
-        "name": "Güzellik Merkezi",
-        "slug": "guzellik-merkezi"
+        "name": "Ağız ve Diş Bakımı",
+        "slug": "agiz-dis-bakimi",
+        "icon": "emoji:🦷"
       },
       {
         "id": "8-5",
-        "name": "Kuaför & Berber",
-        "slug": "kuafor-berber"
+        "name": "Makyaj Ürünleri",
+        "slug": "makya-urunleri",
+        "icon": "emoji:💄"
       },
       {
         "id": "8-6",
-        "name": "Spa Merkezi",
-        "slug": "spa-merkezi"
+        "name": "Parfüm & Deodorant",
+        "slug": "parfum-deodorant",
+        "icon": "emoji:🌸"
+      },
+      {
+        "id": "8-7",
+        "name": "Sağlık Ürünleri & Medikal",
+        "slug": "saglik-urunleri-medikal",
+        "icon": "emoji:💊"
+      },
+      {
+        "id": "8-8",
+        "name": "Vücut Bakımı",
+        "slug": "vucut-bakimi",
+        "icon": "emoji:🧖‍♀️"
+      },
+      {
+        "id": "8-9",
+        "name": "Erkek Bakım Ürünleri",
+        "slug": "erkek-bakim-urunleri",
+        "icon": "emoji:🧔‍♂️"
+      },
+      {
+        "id": "8-10",
+        "name": "Anne & Bebek Bakım",
+        "slug": "anne-bebek-bakim",
+        "icon": "emoji:👶"
       }
     ]
   },
