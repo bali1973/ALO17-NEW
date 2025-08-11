@@ -142,17 +142,6 @@ export default function RootLayout({
               __html: `
                 // Performans optimizasyonları
                 if (typeof window !== 'undefined') {
-                  // Service Worker kaydet
-                  if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js')
-                      .then(registration => {
-                        console.log('Service Worker registered:', registration);
-                      })
-                      .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                      });
-                  }
-                  
                   // Performans izleme başlat
                   try {
                     // Core Web Vitals izleme
