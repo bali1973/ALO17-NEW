@@ -120,8 +120,10 @@ export default function RootLayout({
           <meta name="author" content="Alo17" />
           <meta name="copyright" content="Alo17" />
           <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
-          <link rel="icon" href="/favicon.ico" />
-          <link rel="apple-touch-icon" href="/apple-icon.png" />
+          <link rel="icon" href="/icons/favicon.ico" />
+          <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+          <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+          <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
           <link rel="manifest" href="/manifest.json" />
          
         {googleAdsCode && (
