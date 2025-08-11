@@ -94,30 +94,75 @@ export default function IlanDetayPage({ params }: IlanDetayPageProps) {
   }
 
   // Favorilere ekle fonksiyonu
-  const handleAddFavorite = () => {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+
+  // Favori durumunu kontrol et
+  useEffect(() => {
+    if (session && ilan) {
+      checkFavoriteStatus();
+    }
+  }, [session, ilan]);
+
+  const checkFavoriteStatus = async () => {
+    try {
+      const response = await fetch(`/api/favorites?listingId=${ilan?.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setIsFavorite(data.isFavorite);
+      }
+    } catch (error) {
+      console.error('Favori durumu kontrol hatası:', error);
+    }
+  };
+
+  const handleAddFavorite = async () => {
     if (!session) {
       router.push(`/giris?redirect=/ilan/${resolvedParams.id}`);
       return;
     }
     if (!ilan) return;
+
     try {
-      const key = 'frequentlyUsed';
-      let favs: number[] = [];
-      if (typeof window !== 'undefined') {
-        favs = JSON.parse(localStorage.getItem(key) || '[]');
-        const ilanId = typeof ilan.id === 'string' ? parseInt(ilan.id) : ilan.id;
-        if (favs.includes(ilanId)) {
-          setFavMsg('Bu ilan zaten favorilerde!');
-          return;
+      setFavoriteLoading(true);
+      
+      if (isFavorite) {
+        // Favoriden çıkar
+        const response = await fetch('/api/favorites', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listingId: ilan.id })
+        });
+
+        if (response.ok) {
+          setIsFavorite(false);
+          setFavMsg('Favorilerden çıkarıldı!');
+        } else {
+          setFavMsg('Favori kaldırılamadı!');
         }
-        favs.unshift(ilanId);
-        localStorage.setItem(key, JSON.stringify(favs));
-        setFavMsg('Favorilere eklendi!');
+      } else {
+        // Favoriye ekle
+        const response = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listingId: ilan.id })
+        });
+
+        if (response.ok) {
+          setIsFavorite(true);
+          setFavMsg('Favorilere eklendi!');
+        } else {
+          const data = await response.json();
+          setFavMsg(data.error || 'Favori eklenemedi!');
+        }
       }
-    } catch {
-      setFavMsg('Favorilere eklenirken hata oluştu.');
+    } catch (error) {
+      console.error('Favori işlemi hatası:', error);
+      setFavMsg('Favori işlemi sırasında hata oluştu!');
+    } finally {
+      setFavoriteLoading(false);
+      setTimeout(() => setFavMsg(null), 2000);
     }
-    setTimeout(() => setFavMsg(null), 2000);
   };
 
   // Mesaj gönder fonksiyonu
@@ -287,10 +332,22 @@ export default function IlanDetayPage({ params }: IlanDetayPageProps) {
           {/* İşlevsel butonlar */}
           <div className="flex gap-2 mt-6">
             <button
-              className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600"
+              className={`px-4 py-2 rounded transition-colors flex items-center gap-2 ${
+                isFavorite 
+                  ? 'bg-red-500 text-white hover:bg-red-600' 
+                  : 'bg-pink-500 text-white hover:bg-pink-600'
+              }`}
               onClick={handleAddFavorite}
+              disabled={favoriteLoading}
               title={session ? '' : 'Bu işlemi yapmak için giriş yapmalısınız.'}
-            >Favorilere Ekle</button>
+            >
+              {favoriteLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+              )}
+              {isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+            </button>
             <button
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                           onClick={() => {
