@@ -150,24 +150,45 @@
     "subCategories": [
       {
         "id": "4-1",
-        "name": "Bebek Arabası",
-        "slug": "bebek-arabasi"
+        "name": "Bebek Giyim & Aksesuar",
+        "slug": "bebek-giyim-aksesuar",
+        "icon": "emoji:👕"
       },
       {
         "id": "4-2",
-        "name": "Bebek Giyim",
-        "slug": "bebek-giyim"
+        "name": "Bebek Beslenme",
+        "slug": "bebek-beslenme",
+        "icon": "emoji:🍼"
       },
       {
         "id": "4-3",
-        "name": "Bebek Oyuncakları",
-        "slug": "bebek-oyuncaklari"
+        "name": "Bebek Bakım Ürünleri",
+        "slug": "bebek-bakim-urunleri",
+        "icon": "emoji:🧴"
       },
       {
         "id": "4-4",
-        "name": "Bebek eşyaları",
-        "slug": "bebek-esyalari",
-        "icon": "Smartphone"
+        "name": "Taşıma & Seyahat",
+        "slug": "tasima-seyahat",
+        "icon": "emoji:🚗"
+      },
+      {
+        "id": "4-5",
+        "name": "Bebek Odası",
+        "slug": "bebek-odasi",
+        "icon": "emoji:🛏️"
+      },
+      {
+        "id": "4-6",
+        "name": "Hamile & Anne Ürünleri",
+        "slug": "hamile-anne-urunleri",
+        "icon": "emoji:🤰"
+      },
+      {
+        "id": "4-7",
+        "name": "Oyuncak & Aktivite",
+        "slug": "oyuncak-aktivite",
+        "icon": "emoji:🧸"
       }
     ]
   },
