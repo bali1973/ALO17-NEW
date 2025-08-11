@@ -37,7 +37,7 @@ async function getSubcategoryData(categorySlug: string, subcategorySlug: string)
     console.log('Subcategory found:', subcategory.name);
 
     // API'den ilanları çek (alt kategori filtresi ile)
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004'}/api/listings?category=${categorySlug}&subcategory=${subcategorySlug}`;
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://alo17-new-27-06.onrender.com'}/api/listings?category=${categorySlug}&subcategory=${subcategorySlug}`;
     console.log('Fetching from API:', apiUrl);
     
     const response = await fetch(apiUrl, { next: { revalidate: 3600 } });

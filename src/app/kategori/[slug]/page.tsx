@@ -31,7 +31,7 @@ async function getCategoryData(slug: string) {
     if (!category) return null;
 
     // API'den ilanları çek
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004'}/api/listings?category=${slug}`;
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://alo17-new-27-06.onrender.com'}/api/listings?category=${slug}`;
     console.log('Fetching from API:', apiUrl);
     
     const response = await fetch(apiUrl, { next: { revalidate: 3600 } });

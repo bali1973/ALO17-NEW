@@ -31,7 +31,7 @@ export default function ChatSystem({ listingId, sellerId, onClose }: ChatSystemP
 
   useEffect(() => {
     // Socket.io bağlantısı
-    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3004', {
+    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'https://alo17-new-27-06.onrender.com', {
       auth: {
         token: localStorage.getItem('token')
       }
