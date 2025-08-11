@@ -48,6 +48,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    console.log('Rapor oluşturma isteği:', body);
+    
     const { prisma } = await import('@/lib/prisma');
     
     // Kullanıcıyı bul
@@ -56,49 +58,40 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
+      console.log('Kullanıcı bulunamadı:', session.user.email);
       return NextResponse.json({ error: 'Kullanıcı bulunamadı' }, { status: 404 });
     }
 
+    console.log('Kullanıcı bulundu:', user.id);
+
     // Yeni rapor oluştur
+    const reportData = {
+      type: body.type || 'Genel Şikayet',
+      subject: body.subject || '',
+      description: body.description || '',
+      status: body.status || 'Açık',
+      priority: body.priority || 'medium',
+      listingId: body.listingId || null,
+      listingTitle: body.listingTitle || null,
+      reportedUserEmail: body.reportedUserEmail || null,
+      userId: user.id
+    };
+
+    console.log('Rapor verisi:', reportData);
+
     const newReport = await prisma.report.create({
-      data: {
-        type: body.type || 'Genel Şikayet',
-        subject: body.subject || '',
-        description: body.description || '',
-        status: body.status || 'Açık',
-        priority: body.priority || 'medium',
-        listingId: body.listingId || null,
-        listingTitle: body.listingTitle || null,
-        reportedUserEmail: body.reportedUserEmail || null,
-        userId: user.id
-      },
-      include: {
-        listing: {
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            category: true,
-            subcategory: true,
-            location: true,
-            status: true,
-            createdAt: true
-          }
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
-      }
+      data: reportData
     });
+
+    console.log('Rapor oluşturuldu:', newReport);
 
     return NextResponse.json({ success: true, report: newReport });
   } catch (error) {
     console.error('Rapor oluşturma hatası:', error);
-    return NextResponse.json({ error: 'Rapor oluşturulurken hata oluştu' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Rapor oluşturulurken hata oluştu',
+      details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+    }, { status: 500 });
   }
 }
 

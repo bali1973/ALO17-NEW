@@ -365,6 +365,7 @@ class MockPrismaClient {
     },
     create: async (params: any) => {
       try {
+        console.log('Mock Prisma report.create called with:', params);
         const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
         const reports = JSON.parse(data);
         const newReport = { 
@@ -373,10 +374,13 @@ class MockPrismaClient {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         };
+        console.log('New report data:', newReport);
         reports.push(newReport);
         await fs.writeFile(path.join(process.cwd(), 'public', 'raporlar.json'), JSON.stringify(reports, null, 2));
+        console.log('Report saved successfully');
         return newReport;
-      } catch {
+      } catch (error) {
+        console.error('Mock Prisma report.create error:', error);
         return null;
       }
     },
