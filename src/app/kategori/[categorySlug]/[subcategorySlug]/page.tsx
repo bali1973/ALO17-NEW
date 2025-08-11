@@ -9,14 +9,15 @@ import { Heart, Eye } from 'lucide-react';
 
 export const revalidate = 3600;
 
-interface CategoryPageProps {
+interface SubcategoryPageProps {
   params: {
-    slug: string;
+    categorySlug: string;
+    subcategorySlug: string;
   };
 }
 
-async function getCategoryData(slug: string) {
-  console.log('Getting category data for slug:', slug);
+async function getSubcategoryData(categorySlug: string, subcategorySlug: string) {
+  console.log('Getting subcategory data for:', categorySlug, subcategorySlug);
   
   try {
     // categories.json dosyasından kategorileri oku
@@ -24,14 +25,19 @@ async function getCategoryData(slug: string) {
     const data = await fs.readFile(filePath, 'utf-8');
     const categories = JSON.parse(data);
     
-    // Kategoriyi bul
-    const category = categories.find((cat: any) => cat.slug === slug);
-    console.log('Category found:', category);
-
+    // Ana kategoriyi bul
+    const category = categories.find((cat: any) => cat.slug === categorySlug);
     if (!category) return null;
 
-    // API'den ilanları çek
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004'}/api/listings?category=${slug}`;
+    // Alt kategoriyi bul
+    const subcategory = category.subCategories?.find((sub: any) => sub.slug === subcategorySlug);
+    if (!subcategory) return null;
+
+    console.log('Category found:', category.name);
+    console.log('Subcategory found:', subcategory.name);
+
+    // API'den ilanları çek (alt kategori filtresi ile)
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004'}/api/listings?category=${categorySlug}&subcategory=${subcategorySlug}`;
     console.log('Fetching from API:', apiUrl);
     
     const response = await fetch(apiUrl, { next: { revalidate: 3600 } });
@@ -40,60 +46,67 @@ async function getCategoryData(slug: string) {
     
     if (!response.ok) {
       console.error('API response error:', response.status);
-      return { category, listings: [] };
+      return { category, subcategory, listings: [] };
     }
     
     const listingsData = await response.json();
     console.log('API Data:', listingsData);
-    console.log('Data type:', typeof listingsData);
-    console.log('Is array:', Array.isArray(listingsData));
-    console.log('Data length:', listingsData.length);
     
     const listings = Array.isArray(listingsData) ? listingsData : [];
     console.log('Final listings count:', listings.length);
 
-    return { category, listings };
+    return { category, subcategory, listings };
   } catch (error) {
-    console.error('Error getting category data:', error);
+    console.error('Error getting subcategory data:', error);
     return null;
   }
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { slug } = await params;
-  console.log('CategoryPage params slug:', slug);
+export default async function SubcategoryPage({ params }: SubcategoryPageProps) {
+  const { categorySlug, subcategorySlug } = await params;
+  console.log('SubcategoryPage params:', { categorySlug, subcategorySlug });
   
-  const data = await getCategoryData(slug);
+  const data = await getSubcategoryData(categorySlug, subcategorySlug);
 
   if (!data) {
     console.log('No data found, showing 404');
     notFound();
   }
 
-  const { category, listings } = data;
-  console.log('CategoryPage - Category:', category.name);
-  console.log('CategoryPage - Listings count:', listings.length);
+  const { category, subcategory, listings } = data;
+  console.log('SubcategoryPage - Category:', category.name);
+  console.log('SubcategoryPage - Subcategory:', subcategory.name);
+  console.log('SubcategoryPage - Listings count:', listings.length);
 
   const subcategories = category.subCategories?.map((sub: any) => ({
     slug: sub.slug,
     name: sub.name,
-    icon: sub.icon,
   })) || [];
 
   const breadcrumbSegments = [
-    { name: category.name, href: `/kategori/${category.slug}` }
+    { name: category.name, href: `/kategori/${category.slug}` },
+    { name: subcategory.name, href: `/kategori/${category.slug}/${subcategory.slug}` }
   ];
 
   return (
     <CategoryLayout 
       subcategories={subcategories}
-      activeSlug=""
+      activeSlug={subcategorySlug}
       categorySlug={category.slug}
       breadcrumbSegments={breadcrumbSegments}
     >
-
-
-
+      {/* Alt Kategori Başlığı */}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="flex items-center mb-4">
+          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+            <span className="text-2xl">{subcategory.icon || '📂'}</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{subcategory.name}</h1>
+            <p className="text-gray-600">{category.name} kategorisinde {listings.length} ilan bulundu}</p>
+          </div>
+        </div>
+      </div>
 
       {/* İlanlar */}
       {listings.length === 0 ? (
@@ -105,7 +118,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz İlan Bulunmuyor</h3>
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            Bu kategoride henüz ilan bulunmuyor. İlk ilanı siz vererek başlayın!
+            Bu alt kategoride henüz ilan bulunmuyor. İlk ilanı siz vererek başlayın!
           </p>
           <Link
             href="/ilan-ver"
@@ -167,4 +180,4 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       )}
     </CategoryLayout>
   );
-} 
+}
