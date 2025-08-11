@@ -35,7 +35,7 @@ export async function GET(
     // Aynı kategori ve alt kategorideki diğer ilanları bul
     const similarListings = listings.filter((l: any) => 
       l.id !== listingId && 
-      (l.status === 'active' || l.status === 'approved') &&
+      (l.status === 'active' || l.status === 'onaylandı') &&
       (l.category === currentListing.category || l.subcategory === currentListing.subcategory)
     );
 

@@ -33,7 +33,7 @@ interface Listing {
   createdAt: string;
   views: number;
   condition: string;
-  status: "active" | "pending" | "sold" | "expired" | "approved" | undefined;
+  status: "active" | "pending" | "sold" | "expired" | "onaylandı" | undefined;
   premium?: boolean;
   premiumFeatures?: string[];
 }

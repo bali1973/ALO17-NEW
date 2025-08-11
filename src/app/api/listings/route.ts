@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Sadece onaylanmış ilanları göster
-    listings = listings.filter((listing: any) => listing.status === 'approved');
+    listings = listings.filter((listing: any) => listing.status === 'onaylandı');
     
     // Sıralama (en yeni önce)
     listings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     await writeListings(listings);
     
     // İlan onaylandığında bildirim gönder
-    if (newListing.status === 'approved') {
+    if (newListing.status === 'onaylandı') {
       try {
         await NotificationService.notifyNewListing(newListing);
       } catch (notificationError) {

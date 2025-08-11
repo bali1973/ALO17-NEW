@@ -26,19 +26,37 @@ export interface Listing {
   title: string;
   description: string;
   price: number;
-  category: string;
-  subcategory: string;
-  city: string;
   location: string;
-  status: 'active' | 'pending' | 'sold' | 'expired' | 'approved' | 'rejected';
-  condition: 'new' | 'used' | 'refurbished';
-  images: string[];
-  createdAt: string;
-  updatedAt: string;
-  views: number;
+  category: string;
+  subcategory?: string;
+  images: string | string[];
+  features: string | string[];
+  condition: string;
+  brand?: string;
+  model?: string;
+  year?: string;
+  mileage?: string;
+  color?: string;
+  fuelType?: string;
+  gearType?: string;
+  engineDisplacement?: string;
+  enginePower?: string;
+  traction?: string;
+  warranty?: boolean;
+  exchange?: boolean;
+  fromWho?: string;
+  status: 'active' | 'pending' | 'sold' | 'expired' | 'onaylandı' | 'rejected';
   isPremium: boolean;
-  premiumFeatures?: string[];
-  user: User;
+  premiumFeatures?: string;
+  premiumUntil?: Date;
+  premiumPlan?: string;
+  views: number;
+  approvedAt?: Date;
+  rejectedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  user?: User;
 }
 
 // Category tipleri

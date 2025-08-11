@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     // Filtreleri uygula
     let filteredListings = listings.filter((listing: any) => {
       // Status filtresi
-      if (listing.status !== 'approved') return false;
+      if (listing.status !== 'onaylandı') return false;
       
       // Arama terimi filtresi
       const matchesSearch = 
@@ -331,7 +331,7 @@ export async function GET(request: NextRequest) {
         
         const listingSuggestions = listings
           .filter((listing: any) => 
-            listing.status === 'approved' &&
+            listing.status === 'onaylandı' &&
             (listing.title.toLowerCase().includes(searchTerm) ||
              listing.description.toLowerCase().includes(searchTerm))
           )

@@ -444,7 +444,7 @@ export class NotificationService {
 
       const filteredListings = allListings.filter((listing: any) => {
         const listingDate = new Date(listing.createdAt);
-        return listingDate >= since && listing.status === 'approved';
+        return listingDate >= since && listing.status === 'onaylandı';
       });
 
       return filteredListings

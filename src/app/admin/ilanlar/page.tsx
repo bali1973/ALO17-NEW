@@ -212,16 +212,16 @@ export default function AdminIlanlarPage() {
                       className="border rounded px-2 py-1 w-full"
                     >
                       <option value="pending">Beklemede</option>
-                      <option value="approved">Onaylandı</option>
+                      <option value="onaylandı">Onaylandı</option>
                       <option value="rejected">Reddedildi</option>
                     </select>
                   ) : (
                     <span className={`px-2 py-1 rounded text-xs ${
-                      listing.status === 'approved' ? 'bg-green-100 text-green-800' :
+                      listing.status === 'onaylandı' ? 'bg-green-100 text-green-800' :
                       listing.status === 'rejected' ? 'bg-red-100 text-red-800' :
                       'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {listing.status === 'approved' ? 'Onaylandı' :
+                      {listing.status === 'onaylandı' ? 'Onaylandı' :
                        listing.status === 'rejected' ? 'Reddedildi' : 'Beklemede'}
                     </span>
                   )}
@@ -361,11 +361,11 @@ export default function AdminIlanlarPage() {
               <div><strong>Şehir:</strong> {selectedListing.city}</div>
               <div><strong>Durum:</strong> 
                 <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                  selectedListing.status === 'approved' ? 'bg-green-100 text-green-800' :
+                  selectedListing.status === 'onaylandı' ? 'bg-green-100 text-green-800' :
                   selectedListing.status === 'rejected' ? 'bg-red-100 text-red-800' :
                   'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {selectedListing.status === 'approved' ? 'Onaylandı' :
+                  {selectedListing.status === 'onaylandı' ? 'Onaylandı' :
                    selectedListing.status === 'rejected' ? 'Reddedildi' : 'Beklemede'}
                 </span>
               </div>
