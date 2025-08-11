@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Render deployment için
-  output: 'standalone',
+  // GitHub Pages deployment için
+  output: 'export',
+  trailingSlash: true,
   poweredByHeader: false,
   
   // Image optimization
