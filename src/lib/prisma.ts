@@ -337,10 +337,104 @@ class MockPrismaClient {
     }
   };
 
+  report = {
+    findMany: async (params?: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
+        const reports = JSON.parse(data);
+        
+        // Sıralama
+        if (params?.orderBy?.createdAt === 'desc') {
+          reports.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+        
+        return reports;
+      } catch (error) {
+        console.error('Mock Prisma report findMany error:', error);
+        return [];
+      }
+    },
+    findUnique: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
+        const reports = JSON.parse(data);
+        return reports.find((report: any) => report.id === params.where.id);
+      } catch {
+        return null;
+      }
+    },
+    create: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
+        const reports = JSON.parse(data);
+        const newReport = { 
+          ...params.data, 
+          id: Date.now().toString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        reports.push(newReport);
+        await fs.writeFile(path.join(process.cwd(), 'public', 'raporlar.json'), JSON.stringify(reports, null, 2));
+        return newReport;
+      } catch {
+        return null;
+      }
+    },
+    update: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
+        const reports = JSON.parse(data);
+        const reportIndex = reports.findIndex((report: any) => report.id === params.where.id);
+        if (reportIndex !== -1) {
+          reports[reportIndex] = { 
+            ...reports[reportIndex], 
+            ...params.data,
+            updatedAt: new Date().toISOString()
+          };
+          await fs.writeFile(path.join(process.cwd(), 'public', 'raporlar.json'), JSON.stringify(reports, null, 2));
+          return reports[reportIndex];
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+    updateMany: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
+        let reports = JSON.parse(data);
+        
+        if (params.data.status) {
+          reports = reports.map((report: any) => ({
+            ...report,
+            status: params.data.status,
+            updatedAt: new Date().toISOString()
+          }));
+          await fs.writeFile(path.join(process.cwd(), 'public', 'raporlar.json'), JSON.stringify(reports, null, 2));
+        }
+        
+        return { count: reports.length };
+      } catch {
+        return { count: 0 };
+      }
+    },
+    delete: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
+        const reports = JSON.parse(data);
+        const filteredReports = reports.filter((report: any) => report.id !== params.where.id);
+        await fs.writeFile(path.join(process.cwd(), 'public', 'raporlar.json'), JSON.stringify(filteredReports, null, 2));
+        return { id: params.where.id };
+      } catch {
+        return null;
+      }
+    }
+  };
+
   subCategory = {
     findMany: async () => {
       try {
-        const data = await fs.readFile(path.join(process.cwd(), 'public', 'categories.json'), 'utf-8');
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
         const categories = JSON.parse(data);
         const allSubCategories: any[] = [];
         for (const category of categories) {

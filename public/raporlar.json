@@ -1,42 +1,72 @@
 [
   {
-    "id": 1,
+    "id": "1",
     "type": "İlan Şikayeti",
     "subject": "Yanıltıcı ilan başlığı",
-    "date": "2024-01-15",
+    "description": "Kullanıcı ilanın başlığının yanıltıcı olduğunu belirtiyor.",
     "status": "Çözüldü",
-    "description": "Kullanıcı ilanın başlığının yanıltıcı olduğunu belirtiyor."
+    "priority": "medium",
+    "listingId": null,
+    "listingTitle": null,
+    "reportedUserEmail": null,
+    "userId": null,
+    "createdAt": "2024-01-15T00:00:00.000Z",
+    "updatedAt": "2024-01-15T00:00:00.000Z"
   },
   {
-    "id": 2,
+    "id": "2",
     "type": "Kullanıcı Şikayeti",
     "subject": "Uygunsuz davranış",
-    "date": "2024-01-14",
+    "description": "Kullanıcı diğer kullanıcının uygunsuz davrandığını bildiriyor.",
     "status": "Çözüldü",
-    "description": "Kullanıcı diğer kullanıcının uygunsuz davrandığını bildiriyor."
+    "priority": "high",
+    "listingId": null,
+    "listingTitle": null,
+    "reportedUserEmail": "kullanici@example.com",
+    "userId": null,
+    "createdAt": "2024-01-14T00:00:00.000Z",
+    "updatedAt": "2024-01-14T00:00:00.000Z"
   },
   {
-    "id": 3,
+    "id": "3",
     "type": "İlan Şikayeti",
     "subject": "Fiyat uyumsuzluğu",
-    "date": "2024-01-13",
+    "description": "İlanda belirtilen fiyat ile gerçek fiyat arasında uyumsuzluk var.",
     "status": "Açık",
-    "description": "İlanda belirtilen fiyat ile gerçek fiyat arasında uyumsuzluk var."
+    "priority": "medium",
+    "listingId": "listing123",
+    "listingTitle": "iPhone 13 Pro",
+    "reportedUserEmail": null,
+    "userId": null,
+    "createdAt": "2024-01-13T00:00:00.000Z",
+    "updatedAt": "2024-01-13T00:00:00.000Z"
   },
   {
-    "id": 4,
+    "id": "4",
     "type": "Kullanıcı Şikayeti",
     "subject": "Spam mesajlar",
-    "date": "2024-01-12",
+    "description": "Kullanıcı spam mesajlar aldığını bildiriyor.",
     "status": "Açık",
-    "description": "Kullanıcı spam mesajlar aldığını bildiriyor."
+    "priority": "low",
+    "listingId": null,
+    "listingTitle": null,
+    "reportedUserEmail": "spam@example.com",
+    "userId": null,
+    "createdAt": "2024-01-12T00:00:00.000Z",
+    "updatedAt": "2024-01-12T00:00:00.000Z"
   },
   {
-    "id": 5,
+    "id": "5",
     "type": "İlan Şikayeti",
     "subject": "Eksik bilgi",
-    "date": "2024-01-11",
+    "description": "İlanda önemli bilgiler eksik.",
     "status": "Çözüldü",
-    "description": "İlanda önemli bilgiler eksik."
+    "priority": "medium",
+    "listingId": "listing456",
+    "listingTitle": "MacBook Air",
+    "reportedUserEmail": null,
+    "userId": null,
+    "createdAt": "2024-01-11T00:00:00.000Z",
+    "updatedAt": "2024-01-11T00:00:00.000Z"
   }
 ]
