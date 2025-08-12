@@ -79,6 +79,8 @@ export async function POST(req: NextRequest) {
 
     console.log('Rapor verisi:', reportData);
 
+    console.log('Prisma create çağrısı öncesi');
+    
     const newReport = await prisma.report.create({
       data: reportData
     });
@@ -88,6 +90,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, report: newReport });
   } catch (error) {
     console.error('Rapor oluşturma hatası:', error);
+    console.error('Hata detayları:', {
+      message: error instanceof Error ? error.message : 'Bilinmeyen hata',
+      stack: error instanceof Error ? error.stack : undefined,
+      reportData
+    });
     return NextResponse.json({ 
       error: 'Rapor oluşturulurken hata oluştu',
       details: error instanceof Error ? error.message : 'Bilinmeyen hata'

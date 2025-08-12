@@ -363,27 +363,38 @@ class MockPrismaClient {
         return null;
       }
     },
-    create: async (params: any) => {
-      try {
-        console.log('Mock Prisma report.create called with:', params);
-        const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
-        const reports = JSON.parse(data);
-        const newReport = { 
-          ...params.data, 
-          id: Date.now().toString(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        console.log('New report data:', newReport);
-        reports.push(newReport);
-        await fs.writeFile(path.join(process.cwd(), 'public', 'raporlar.json'), JSON.stringify(reports, null, 2));
-        console.log('Report saved successfully');
-        return newReport;
-      } catch (error) {
-        console.error('Mock Prisma report.create error:', error);
-        return null;
-      }
-    },
+         create: async (params: any) => {
+       try {
+         console.log('Mock Prisma report.create called with:', params);
+         console.log('Params data:', params.data);
+         
+         const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
+         console.log('Existing reports loaded:', data.length);
+         
+         const reports = JSON.parse(data);
+         console.log('Parsed reports count:', reports.length);
+         
+         const newReport = { 
+           ...params.data, 
+           id: Date.now().toString(),
+           createdAt: new Date().toISOString(),
+           updatedAt: new Date().toISOString()
+         };
+         console.log('New report data:', newReport);
+         
+         reports.push(newReport);
+         console.log('Report added to array, new count:', reports.length);
+         
+         await fs.writeFile(path.join(process.cwd(), 'public', 'raporlar.json'), JSON.stringify(reports, null, 2));
+         console.log('Report saved successfully to file');
+         
+         return newReport;
+       } catch (error) {
+         console.error('Mock Prisma report.create error:', error);
+         console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+         return null;
+       }
+     },
     update: async (params: any) => {
       try {
         const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');

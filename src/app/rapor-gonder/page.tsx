@@ -120,12 +120,15 @@ export default function RaporGonderPage() {
           router.push('/bildirimler');
         }, 3000);
       } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API Error Response:', errorData);
         setSubmitStatus('error');
-        setErrorMessage('Rapor gönderilirken bir hata oluştu');
+        setErrorMessage(`Rapor gönderilirken bir hata oluştu: ${errorData.error || response.statusText}`);
       }
     } catch (error) {
+      console.error('Fetch Error:', error);
       setSubmitStatus('error');
-      setErrorMessage('Rapor gönderilirken bir hata oluştu');
+      setErrorMessage(`Rapor gönderilirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
     } finally {
       setIsSubmitting(false);
     }
