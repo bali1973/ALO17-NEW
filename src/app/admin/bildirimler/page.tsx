@@ -156,7 +156,8 @@ export default function BildirimlerPage() {
               <tr>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">ID</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">Tür</th>
-                <th className="py-4 px-4 text-left font-semibold text-gray-700">Konu</th>
+                <th className="py-3 px-4 text-left font-semibold text-gray-700">Konu</th>
+                <th className="py-3 px-4 text-left font-semibold text-gray-700">İlan</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">Öncelik</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">Tarih</th>
                 <th className="py-3 px-4 text-left font-semibold text-gray-700">Durum</th>
@@ -174,6 +175,21 @@ export default function BildirimlerPage() {
                   </td>
                   <td className="py-3 px-4 text-sm text-gray-900 max-w-xs truncate" title={report.subject}>
                     {report.subject}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-900">
+                    {report.listingId && report.listingTitle ? (
+                      <a 
+                        href={`/ilan/${report.listingId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 underline hover:no-underline transition-colors"
+                        title={`${report.listingTitle} - Tıklayarak ilanı görüntüle`}
+                      >
+                        {report.listingTitle}
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 italic">İlan bilgisi yok</span>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
@@ -263,8 +279,19 @@ export default function BildirimlerPage() {
               </div>
               {selectedReport.listingTitle && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">İlan Başlığı:</label>
-                  <p className="text-sm text-gray-900">{selectedReport.listingTitle}</p>
+                  <label className="block text-sm font-medium text-gray-700">İlan:</label>
+                  {selectedReport.listingId ? (
+                    <a 
+                      href={`/ilan/${selectedReport.listingId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline hover:no-underline transition-colors block mt-1"
+                    >
+                      {selectedReport.listingTitle} ↗
+                    </a>
+                  ) : (
+                    <p className="text-sm text-gray-900">{selectedReport.listingTitle}</p>
+                  )}
                 </div>
               )}
               {selectedReport.reportedUserEmail && (

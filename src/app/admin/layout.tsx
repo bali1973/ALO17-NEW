@@ -162,17 +162,18 @@ function AdminLayoutContent({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { reportCount, messageCount } = useAdminCounts();
 
-  // Admin değilse giriş sayfasına yönlendir
-  useEffect(() => {
-    if (!isAdmin && pathname !== '/admin/giris') {
-      router.push('/admin/giris');
-    }
-  }, [isAdmin, pathname, router]);
-
   // Giriş sayfasındaysa sadece children'ı göster
   if (pathname === '/admin/giris') {
     return <>{children}</>;
   }
+
+  // Admin değilse giriş sayfasına yönlendir
+  useEffect(() => {
+    if (!isAdmin && pathname !== '/admin/giris') {
+      router.push('/admin/giris');
+      return;
+    }
+  }, [isAdmin, pathname, router]);
 
   // Admin değilse loading göster
   if (!isAdmin) {
