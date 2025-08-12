@@ -117,10 +117,37 @@ function CountBadge({ count }: { count: number }) {
 function useAdminCounts() {
   const [reportCount, setReportCount] = useState(0);
   const [messageCount, setMessageCount] = useState(0);
+  
   useEffect(() => {
-    fetch('/api/notifications/report/count').then(r => r.json()).then(d => setReportCount(d.count || 0));
-    fetch('/api/messages/count').then(r => r.json()).then(d => setMessageCount(d.count || 0));
-  }, []);
+    let isMounted = true;
+    
+    const fetchCounts = async () => {
+      try {
+        const [reportResponse, messageResponse] = await Promise.all([
+          fetch('/api/notifications/report/count'),
+          fetch('/api/messages/count')
+        ]);
+        
+        if (isMounted) {
+          const reportData = await reportResponse.json();
+          const messageData = await messageResponse.json();
+          
+          setReportCount(reportData.count || 0);
+          setMessageCount(messageData.count || 0);
+        }
+      } catch (error) {
+        console.error('Count fetch error:', error);
+      }
+    };
+    
+    fetchCounts();
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array - only run once
+  
   return { reportCount, messageCount };
 }
 
