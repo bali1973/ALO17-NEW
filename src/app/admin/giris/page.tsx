@@ -84,7 +84,7 @@ export default function AdminLoginPage() {
 
           <div className="text-sm text-center text-gray-600">
             <p>Test Kullanıcıları:</p>
-            <p>Email: admin@alo17.com | Şifre: admin123</p>
+            <p>Email: admin@alo17.com | Şifre: TRS8n@Aw2BZLxqa</p>
             <p>Email: moderator@alo17.com | Şifre: admin123</p>
           </div>
         </form>
