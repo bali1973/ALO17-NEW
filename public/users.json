@@ -108,7 +108,7 @@
     "name": "Test User",
     "email": "test@alo17.com",
     "phone": "+905445132046",
-    "password": "$2b$10$testpassword",
+    "password": "test123",
     "role": "user",
     "status": "active",
     "createdAt": "2024-01-01T00:00:00Z",
