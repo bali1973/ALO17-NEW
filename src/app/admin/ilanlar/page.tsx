@@ -23,6 +23,7 @@ interface Listing {
 
 export default function AdminIlanlarPage() {
   const [listings, setListings] = useState<Listing[]>([]);
+  const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
@@ -35,10 +36,36 @@ export default function AdminIlanlarPage() {
     city: '',
     status: ''
   });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchField, setSearchField] = useState<'title' | 'category' | 'city' | 'user'>('title');
 
   useEffect(() => {
     fetchListings();
   }, []);
+
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredListings(listings);
+    } else {
+      const filtered = listings.filter(listing => {
+        const searchValue = searchTerm.toLowerCase();
+        switch (searchField) {
+          case 'title':
+            return listing.title.toLowerCase().includes(searchValue);
+          case 'category':
+            return listing.category.toLowerCase().includes(searchValue);
+          case 'city':
+            return listing.city.toLowerCase().includes(searchValue);
+          case 'user':
+            return listing.user?.name?.toLowerCase().includes(searchValue) || 
+                   listing.user?.email?.toLowerCase().includes(searchValue);
+          default:
+            return true;
+        }
+      });
+      setFilteredListings(filtered);
+    }
+  }, [searchTerm, searchField, listings]);
 
   const fetchListings = async () => {
     try {
@@ -47,6 +74,7 @@ export default function AdminIlanlarPage() {
       // API'den gelen veri bir object olabilir, listings array'ini al
       const listingsArray = Array.isArray(data) ? data : (data.listings || []);
       setListings(listingsArray);
+      setFilteredListings(listingsArray);
       setLoading(false);
     } catch (err) {
       setError('İlanlar yüklenemedi');
@@ -136,6 +164,47 @@ export default function AdminIlanlarPage() {
     <div className="max-w-7xl mx-auto p-8 bg-white rounded-lg shadow-md mt-8">
       <h1 className="text-2xl font-bold mb-6">İlan Yönetimi</h1>
       
+      {/* Arama Arayüzü */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Arama yapın..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex gap-2">
+            <select
+              value={searchField}
+              onChange={(e) => setSearchField(e.target.value as 'title' | 'category' | 'city' | 'user')}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="title">Başlık</option>
+              <option value="category">Kategori</option>
+              <option value="city">Şehir</option>
+              <option value="user">Kullanıcı</option>
+            </select>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilteredListings(listings);
+              }}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              Temizle
+            </button>
+          </div>
+        </div>
+        {searchTerm && (
+          <div className="mt-2 text-sm text-gray-600">
+            "{searchTerm}" için {filteredListings.length} sonuç bulundu
+          </div>
+        )}
+      </div>
+      
       <div className="overflow-x-auto">
         <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
           <thead className="bg-gray-100">
@@ -152,8 +221,8 @@ export default function AdminIlanlarPage() {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(listings) && listings.length > 0 ? (
-              listings.map((listing) => (
+            {Array.isArray(filteredListings) && filteredListings.length > 0 ? (
+              filteredListings.map((listing) => (
               <tr key={listing.id} className="border-t hover:bg-gray-50">
                 <td className="py-3 px-4">{listing.id}</td>
                 <td className="py-3 px-4">

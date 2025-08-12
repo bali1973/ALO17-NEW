@@ -70,10 +70,7 @@ export default function SiteFooter() {
             <li><a href={`mailto:${settings.supportEmail || 'destek@alo17.tr'}`} className="hover:underline">{settings.supportEmail || 'destek@alo17.tr'}</a></li>
             <li><a href={`tel:${settings.phone || '5414042404'}`} className="hover:underline">{settings.phone || '541 404 24 04'}</a></li>
             <li><Link href="/bildirim-tercihleri" className="hover:underline">Yeni İlanlardan Haberdar Ol</Link></li>
-            <li className="flex gap-3 mt-2">
-              <a href="#" className="hover:opacity-80" aria-label="Instagram"><svg width="22" height="22" fill="currentColor" className="text-white"><circle cx="11" cy="11" r="10" stroke="white" strokeWidth="2" fill="none"/><rect x="6" y="6" width="10" height="10" rx="3" fill="white" opacity=".2"/><circle cx="11" cy="11" r="3" fill="white" opacity=".7"/></svg></a>
-              <a href="#" className="hover:opacity-80" aria-label="Twitter"><svg width="22" height="22" fill="currentColor" className="text-white"><circle cx="11" cy="11" r="10" stroke="white" strokeWidth="2" fill="none"/><path d="M7 13c2 1 4 1 6-1" stroke="white" strokeWidth="1.5" fill="none"/></svg></a>
-            </li>
+
           </ul>
         </div>
       </div>

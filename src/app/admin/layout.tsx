@@ -162,11 +162,6 @@ function AdminLayoutContent({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { reportCount, messageCount } = useAdminCounts();
 
-  // Giriş sayfasındaysa sadece children'ı göster
-  if (pathname === '/admin/giris') {
-    return <>{children}</>;
-  }
-
   // Admin değilse giriş sayfasına yönlendir
   useEffect(() => {
     if (!isAdmin && pathname !== '/admin/giris') {
@@ -174,6 +169,11 @@ function AdminLayoutContent({
       return;
     }
   }, [isAdmin, pathname, router]);
+
+  // Giriş sayfasındaysa sadece children'ı göster
+  if (pathname === '/admin/giris') {
+    return <>{children}</>;
+  }
 
   // Admin değilse loading göster
   if (!isAdmin) {
