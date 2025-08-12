@@ -76,14 +76,26 @@ export function clearSession(): void {
 }
 
 export function validateUser(email: string, password: string): Session | null {
-  // Mock kullanıcı doğrulama
-  if (email === 'admin@alo17.com' && password === 'admin123') {
+  // Mock kullanıcı doğrulama - users.json'dan kontrol et
+  const mockUsers = [
+    { email: 'admin@alo17.com', password: 'TRS8n@Aw2BZLxqa', id: 'admin1', name: 'Admin User', role: 'admin' },
+    { email: 'test@alo17.com', password: 'test123', id: 'test_user', name: 'Test User', role: 'user' },
+    { email: 'balisari17@hotmail.com', password: 'TRS8n@Aw2BZLxqa', id: '1752843407341', name: 'Bali Sarı', role: 'user' },
+    { email: 'balisaari17@hotmail.com', password: 'TRS8n@Aw2BZLxqa', id: '1752848611902', name: 'Bali Sarı', role: 'user' },
+    { email: 'bali73@gmail.com', password: 'TRS8n@Aw2BZLxqa', id: '1752850270982', name: 'MEDİNE sarı', role: 'user' },
+    { email: 'destek@hemenalgetir.com', password: 'TRS8n@Aw2BZLxqa', id: '1752850736095', name: 'MEDİNE sarı', role: 'user' },
+    { email: 'alo@hemenalgetir.com', password: 'TRS8n@Aw2BZLxqa', id: '1752861501524', name: 'MEDİNE sarı', role: 'user' }
+  ];
+
+  const user = mockUsers.find(u => u.email === email && u.password === password);
+  
+  if (user) {
     return {
       user: {
-        id: '1',
-        email: 'admin@alo17.com',
-        name: 'Admin',
-        role: 'admin'
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
       },
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     };

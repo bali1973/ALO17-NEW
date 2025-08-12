@@ -94,10 +94,14 @@ export default function RaporGonderPage() {
         reportedUserEmail: formData.userEmail || undefined
       };
 
+      // Session token'ı al
+      const sessionToken = `mock_token_${Date.now()}_${session?.user?.email}`;
+      
       const response = await fetch('/api/raporlar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
         },
         body: JSON.stringify(reportData),
       });
