@@ -78,7 +78,7 @@ export function clearSession(): void {
 export function validateUser(email: string, password: string): Session | null {
   // Mock kullanıcı doğrulama - users.json'dan kontrol et
   const mockUsers = [
-    { email: 'admin@alo17.com', password: 'TRS8n@Aw2BZLxqa', id: 'admin1', name: 'Admin User', role: 'admin' },
+    { email: 'admin@alo17.com', password: 'admin123', id: 'admin1', name: 'Admin User', role: 'admin' },
     { email: 'test@alo17.com', password: 'test123', id: 'test_user', name: 'Test User', role: 'user' },
     { email: 'balisari17@hotmail.com', password: 'TRS8n@Aw2BZLxqa', id: '1752843407341', name: 'Bali Sarı', role: 'user' },
     { email: 'balisaari17@hotmail.com', password: 'TRS8n@Aw2BZLxqa', id: '1752848611902', name: 'Bali Sarı', role: 'user' },
