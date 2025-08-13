@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/components/Providers';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Search, Filter, Eye, Star, Trash2, ArrowLeft } from 'lucide-react';
+import { Heart, Search, Eye, Trash2, ArrowLeft } from 'lucide-react';
 
 interface FavoriteListing {
   id: string;
@@ -59,13 +59,13 @@ export default function FavorilerPage() {
       return;
     }
     loadFavorites();
-  }, [session, isLoading, router]);
+  }, [session, isLoading, router, loadFavorites]);
 
   useEffect(() => {
     loadFavorites();
-  }, [searchQuery, selectedCategory, currentPage]);
+  }, [searchQuery, selectedCategory, currentPage, loadFavorites]);
 
-  const loadFavorites = async () => {
+  const loadFavorites = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -91,13 +91,12 @@ export default function FavorilerPage() {
       } else {
         setError(data.error || 'Favoriler yüklenirken hata oluştu');
       }
-    } catch (error) {
-      console.error('Favoriler yükleme hatası:', error);
+    } catch {
       setError('Favoriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchQuery, selectedCategory]);
 
   const removeFavorite = async (favoriteId: string, listingId: string) => {
     try {
@@ -123,8 +122,7 @@ export default function FavorilerPage() {
         const data = await response.json();
         setError(data.error || 'Favori kaldırılamadı');
       }
-    } catch (error) {
-      console.error('Favori kaldırma hatası:', error);
+    } catch {
       setError('Favori kaldırılırken hata oluştu');
     } finally {
       setRemovingFavorite(null);
@@ -267,12 +265,12 @@ export default function FavorilerPage() {
           <div className="text-center py-12">
             <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-medium text-gray-900 mb-2">
-              {searchQuery || selectedCategory ? 'Filtreleme sonucu bulunamadı' : 'Henüz favori ilanınız yok'}
+              {searchQuery || selectedCategory ? "Filtreleme sonucu bulunamadı" : "Henüz favori ilanınız yok"}
             </h3>
             <p className="text-gray-500 mb-6">
               {searchQuery || selectedCategory 
-                ? 'Farklı arama terimleri veya kategoriler deneyin'
-                : 'Beğendiğiniz ilanları favorilere ekleyerek burada görebilirsiniz'
+                ? "Farklı arama terimleri veya kategoriler deneyin"
+                : "Beğendiğiniz ilanları favorilere ekleyerek burada görebilirsiniz"
               }
             </p>
             {!searchQuery && !selectedCategory && (

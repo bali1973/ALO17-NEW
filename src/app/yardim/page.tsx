@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-import { HelpCircle, BookOpen, Video, MessageCircle } from 'lucide-react';
+
 
 export default function HelpPage() {
   

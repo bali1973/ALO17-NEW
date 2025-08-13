@@ -9,7 +9,7 @@ export default function IlanDuzenlePage() {
   const router = useRouter();
   const params = useParams();
   const { session, isLoading } = useAuth();
-  const { categories, loading: categoriesLoading } = useCategories();
+  const { categories } = useCategories();
   const [formData, setFormData] = useState({
     title: "",
     description: "",

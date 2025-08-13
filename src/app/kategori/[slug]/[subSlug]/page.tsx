@@ -5,7 +5,7 @@ import path from 'path';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 export const revalidate = 3600;
 
@@ -17,8 +17,6 @@ interface SubCategoryPageProps {
 }
 
 async function getSubCategoryData(slug: string, subSlug: string) {
-  console.log('Getting subcategory data for slug:', slug, 'subSlug:', subSlug);
-  
   try {
     // categories.json dosyasından kategorileri oku
     const filePath = path.join(process.cwd(), 'public', 'categories.json');
@@ -26,63 +24,46 @@ async function getSubCategoryData(slug: string, subSlug: string) {
     const categories = JSON.parse(data);
     
     // Kategoriyi bul
-    const category = categories.find((cat: any) => cat.slug === slug);
-    console.log('Category found:', category);
+    const category = categories.find((cat: Record<string, unknown>) => cat.slug === slug);
 
     if (!category) return null;
 
     // Alt kategoriyi bul
-    const subCategory = category.subCategories?.find((sub: any) => sub.slug === subSlug);
-    console.log('SubCategory found:', subCategory);
+    const subCategory = category.subCategories?.find((sub: Record<string, unknown>) => sub.slug === subSlug);
 
     if (!subCategory) return null;
 
     // API'den ilanları çek (hem kategori hem alt kategori filtresi ile)
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://alo17-new-27-06.onrender.com'}/api/listings?category=${slug}&subcategory=${subSlug}`;
-    console.log('Fetching from API:', apiUrl);
     
     const response = await fetch(apiUrl, { next: { revalidate: 3600 } });
     
-    console.log('API Response status:', response.status);
-    
     if (!response.ok) {
-      console.error('API response error:', response.status);
       return { category, subCategory, listings: [] };
     }
     
     const listingsData = await response.json();
-    console.log('API Data:', listingsData);
-    console.log('Data type:', typeof listingsData);
-    console.log('Is array:', Array.isArray(listingsData));
-    console.log('Data length:', listingsData.length);
     
     const listings = Array.isArray(listingsData) ? listingsData : [];
-    console.log('Final listings count:', listings.length);
 
     return { category, subCategory, listings };
   } catch (error) {
-    console.error('Error getting subcategory data:', error);
     return null;
   }
 }
 
 export default async function SubCategoryPage({ params }: SubCategoryPageProps) {
   const { slug, subSlug } = await params;
-  console.log('SubCategoryPage params slug:', slug, 'subSlug:', subSlug);
   
   const data = await getSubCategoryData(slug, subSlug);
 
   if (!data) {
-    console.log('No data found, showing 404');
     notFound();
   }
 
   const { category, subCategory, listings } = data;
-  console.log('SubCategoryPage - Category:', category.name);
-  console.log('SubCategoryPage - SubCategory:', subCategory.name);
-  console.log('SubCategoryPage - Listings count:', listings.length);
 
-  const subcategories = category.subCategories?.map((sub: any) => ({
+  const subcategories = category.subCategories?.map((sub: Record<string, unknown>) => ({
     slug: sub.slug,
     name: sub.name,
   })) || [];

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/Providers';
 
-import { Search, Filter, MapPin, Sparkles, Star, Clock, TrendingUp } from 'lucide-react';
+import { MapPin, Sparkles, Star, Clock, TrendingUp } from 'lucide-react';
 import { useCategories } from '@/lib/useCategories';
 import { SearchFilterBar } from '@/components/SearchFilterBar';
 
@@ -46,11 +46,11 @@ export default function IlanlarPage() {
     sortBy: 'newest',
   });
   const [search, setSearch] = useState('');
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { categories } = useCategories();
   const [ilanlar, setIlanlar] = useState<Ilan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [viewMode, setViewMode] = useState('grid');
+
 
   useEffect(() => {
     setLoading(true);

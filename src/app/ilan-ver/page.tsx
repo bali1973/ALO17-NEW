@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, ChangeEvent, FormEvent, useEffect, useCallback } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/Providers';
 import { Sparkles, Star, Clock, TrendingUp, CheckCircle, Info, Upload, X, Eye, Send, Plus, AlertCircle } from 'lucide-react';
@@ -643,7 +643,6 @@ export default function IlanVerPage() {
 
     // Mobil cihazda native alert kullan
     if (isMobileDevice()) {
-      // @ts-ignore - Mobil tarayıcılarda alert API'si farklı olabilir
       if (window.confirm) {
         const choice = window.confirm('Fotoğraf eklemek için:\n\n1. Kamera ile çekmek için "Tamam"\n2. Galeriden seçmek için "İptal"');
         if (choice) {

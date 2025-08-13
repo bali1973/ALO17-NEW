@@ -37,7 +37,7 @@ export default function SiteFooter() {
         {/* Hakkımızda */}
         <div>
           <h3 className="text-xl font-extrabold mb-3 tracking-tight">{settings.siteTitle || 'Alo17'}</h3>
-          <p className="text-sm mb-2 opacity-90">Türkiye'nin güvenilir ilan platformu.</p>
+          <p className="text-sm mb-2 opacity-90">Türkiye&apos;nin güvenilir ilan platformu.</p>
           <p className="text-xs opacity-70">{settings.footerText || `© ${new Date().getFullYear()} Alo17. Tüm hakları saklıdır.`}</p>
         </div>
         {/* Hızlı Linkler */}

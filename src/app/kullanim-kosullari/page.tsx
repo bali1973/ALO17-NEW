@@ -77,7 +77,7 @@ export default function KullanimKosullariPage() {
       </section>
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-2">11. Fikri Mülkiyet</h2>
-        <p>Platformda yer alan tüm içeriklerin (metin, görsel, logo vb.) telif hakları Alo17'ye veya ilgili hak sahiplerine aittir. İzinsiz kopyalanamaz veya kullanılamaz. Kullanıcılar, kendi oluşturdukları içeriklerin sorumluluğunu taşır.</p>
+        <p>Platformda yer alan tüm içeriklerin (metin, görsel, logo vb.) telif hakları Alo17&apos;ye veya ilgili hak sahiplerine aittir. İzinsiz kopyalanamaz veya kullanılamaz. Kullanıcılar, kendi oluşturdukları içeriklerin sorumluluğunu taşır.</p>
       </section>
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-2">12. Gizlilik</h2>

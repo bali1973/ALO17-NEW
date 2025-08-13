@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Heart, Phone, Mail, Share2, Facebook, Twitter, Instagram, MessageCircle, ChevronRight, Eye, BarChart, MessageSquare, AlertTriangle, User, ArrowLeft, Edit, Check, X } from 'lucide-react';
+import { Share2, Facebook, Twitter, Instagram, MessageCircle, User, Edit, Check, Eye } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -18,9 +18,9 @@ export default function IlanOnizlemePage() {
   const searchParams = useSearchParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [listing, setListing] = useState<any>(null);
+  const [listing, setListing] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Record<string, unknown>[]>([]);
 
   // Kategorileri yükle
   useEffect(() => {

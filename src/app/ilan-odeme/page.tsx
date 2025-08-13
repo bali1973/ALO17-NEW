@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { CreditCard, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+
 // Stripe ile ilgili importları kaldır
 // import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -28,7 +28,7 @@ export default function IlanOdemePage() {
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+
   const [step, setStep] = useState(1);
   const [invoiceType, setInvoiceType] = useState<'bireysel' | 'kurumsal'>('bireysel');
   const [invoiceInfo, setInvoiceInfo] = useState({
@@ -143,39 +143,7 @@ export default function IlanOdemePage() {
     setStep(2);
   };
 
-  const handleTestPayment = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      // Test ödeme başarılı simülasyonu
-      const payload = {
-        ...listing.formData,
-        premiumPlan: listing.selectedPremiumPlan,
-        features: listing.selectedFeatures,
-        user: listing.user,
-        email: listing.email,
-        userRole: listing.userRole,
-        invoiceType,
-        invoiceInfo,
-      };
-      const response = await fetch('/api/listings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (response.ok) {
-        setSuccess(true);
-        localStorage.removeItem('pendingListing');
-        setTimeout(() => router.push('/'), 2000);
-      } else {
-        setError('İlan kaydedilemedi.');
-      }
-    } catch (e) {
-      setError('Bir hata oluştu.');
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   if (loading) return <div>Yükleniyor...</div>;
   if (!listing) return <div>İlan verisi bulunamadı.</div>;

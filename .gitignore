@@ -26,6 +26,15 @@ yarn-error.log*
 .env
 .env*.local
 
+# Database
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-journal
+
+# Prisma migrations (production'da gerekli olabilir)
+# prisma/migrations/
+
 # vercel
 .vercel
 

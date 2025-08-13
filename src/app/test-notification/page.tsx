@@ -138,7 +138,7 @@ export default function TestNotificationPage() {
             </div>
             
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">API Endpoint'leri:</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">API Endpoint&apos;leri:</h3>
               <ul className="text-sm text-gray-600 space-y-1">
                 <li>• <code>POST /api/notifications/subscription</code></li>
                 <li>• <code>DELETE /api/notifications/subscription</code></li>

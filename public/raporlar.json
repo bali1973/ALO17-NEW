@@ -32,14 +32,14 @@
     "type": "İlan Şikayeti",
     "subject": "Fiyat uyumsuzluğu",
     "description": "İlanda belirtilen fiyat ile gerçek fiyat arasında uyumsuzluk var.",
-    "status": "Açık",
+    "status": "İnceleniyor",
     "priority": "medium",
     "listingId": "listing123",
     "listingTitle": "iPhone 13 Pro",
     "reportedUserEmail": null,
     "userId": null,
     "createdAt": "2024-01-13T00:00:00.000Z",
-    "updatedAt": "2024-01-13T00:00:00.000Z"
+    "updatedAt": "2025-08-12T12:47:47.156Z"
   },
   {
     "id": "4",
@@ -68,5 +68,47 @@
     "userId": null,
     "createdAt": "2024-01-11T00:00:00.000Z",
     "updatedAt": "2024-01-11T00:00:00.000Z"
+  },
+  {
+    "type": "İlan Şikayeti",
+    "subject": "N11 entegrasyon hatası ",
+    "description": "rgqergerghergergerfgergergergergerg",
+    "status": "İnceleniyor",
+    "priority": "medium",
+    "listingId": "53",
+    "listingTitle": "Xbox Series X - Konsol",
+    "reportedUserEmail": null,
+    "userId": "test_user",
+    "id": "1754984028890",
+    "createdAt": "2025-08-12T07:33:48.890Z",
+    "updatedAt": "2025-08-12T08:18:30.421Z"
+  },
+  {
+    "type": "Kullanıcı Şikayeti",
+    "subject": "WooCommerce ürünlerinin sisteme entegresi ",
+    "description": "w45yw6yw56yw56y56y5y5wyw5y",
+    "status": "İnceleniyor",
+    "priority": "medium",
+    "listingId": "53",
+    "listingTitle": "Xbox Series X - Konsol",
+    "reportedUserEmail": null,
+    "userId": "admin1",
+    "id": "1754989536924",
+    "createdAt": "2025-08-12T09:05:36.924Z",
+    "updatedAt": "2025-08-12T12:47:40.460Z"
+  },
+  {
+    "type": "Kullanıcı Şikayeti",
+    "subject": "WooCommerce ürünlerinin sisteme entegresi ",
+    "description": "dhfhfghftghftghftgh",
+    "status": "Çözüldü",
+    "priority": "medium",
+    "listingId": "46",
+    "listingTitle": "Web Tasarım Hizmeti",
+    "reportedUserEmail": null,
+    "userId": "test_user",
+    "id": "1755002822415",
+    "createdAt": "2025-08-12T12:47:02.415Z",
+    "updatedAt": "2025-08-12T12:47:34.537Z"
   }
 ]

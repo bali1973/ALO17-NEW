@@ -102,7 +102,6 @@ export default function Home() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        console.log('Fetching listings from API...');
         const response = await fetch('/api/listings', {
           method: 'GET',
           headers: {
@@ -110,18 +109,12 @@ export default function Home() {
           },
           cache: 'no-cache'
         });
-        console.log('API Response status:', response.status);
         
         if (response.ok) {
           const data = await response.json();
-          console.log('API Data:', data);
-          console.log('Data type:', typeof data);
-          console.log('Is array:', Array.isArray(data));
-          console.log('Data length:', data.length);
           
           if (Array.isArray(data)) {
             setListings(data);
-            console.log('Listings set successfully:', data.length, 'items');
           } else {
             console.error('API did not return an array');
             setListings([]);
@@ -153,10 +146,9 @@ export default function Home() {
       if (listing.premiumFeatures?.includes('top')) score += 10;
       score += listing.views || 0;
       return score;
-    } catch (error) {
-      console.error('Visibility score calculation error:', error);
-      return 0;
-    }
+          } catch (error) {
+        return 0;
+      }
   };
 
   const filteredListings = Array.isArray(listings) ? listings
@@ -193,7 +185,6 @@ export default function Home() {
         const max = priceRange.max ? parseFloat(priceRange.max) : Infinity;
         return !isNaN(price) && price >= min && price <= max;
       } catch (error) {
-        console.error('Price parsing error:', error);
         return false;
       }
     })

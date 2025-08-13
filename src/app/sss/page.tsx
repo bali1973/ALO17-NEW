@@ -1,12 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-
-import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import React from 'react';
 
 export default function SSSPage() {
-  
-  const [openItems, setOpenItems] = useState<Set<number>>(new Set());
 
   const faqs = [
     {

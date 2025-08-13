@@ -12,7 +12,6 @@ export default function Error({
 }) {
   useEffect(() => {
     // Hatayı loglayabiliriz
-    console.error('Uygulama hatası:', error);
   }, [error]);
 
   return (

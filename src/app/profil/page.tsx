@@ -394,7 +394,7 @@ export default function ProfilePage() {
                         <div className="space-y-3">
                           <div className="flex items-center text-sm text-gray-600">
                             <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                            <span>Yeni ilan eklendi: "iPhone 13 Pro"</span>
+                            <span>Yeni ilan eklendi: &quot;iPhone 13 Pro&quot;</span>
                             <span className="ml-auto text-xs">2 saat önce</span>
                           </div>
                           <div className="flex items-center text-sm text-gray-600">

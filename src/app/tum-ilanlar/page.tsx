@@ -40,7 +40,6 @@ export default function TumIlanlarPage() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        console.log('Fetching listings from API...');
         const response = await fetch('/api/listings', {
           method: 'GET',
           headers: {
@@ -48,19 +47,13 @@ export default function TumIlanlarPage() {
           },
           cache: 'no-cache'
         });
-        console.log('API Response status:', response.status);
         
         if (response.ok) {
           const data = await response.json();
-          console.log('API Data:', data);
-          console.log('Data type:', typeof data);
-          console.log('Is array:', Array.isArray(data));
-          console.log('Data length:', data.length);
           
           if (Array.isArray(data)) {
             // Show all listings
             setListings(data)
-            console.log('All listings set:', data.length);
           } else {
             console.error('API did not return an array');
             setListings([]);
@@ -124,7 +117,6 @@ export default function TumIlanlarPage() {
             return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
         }
       } catch (error) {
-        console.error('Sorting error:', error);
         return 0;
       }
     })

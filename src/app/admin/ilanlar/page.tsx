@@ -200,7 +200,7 @@ export default function AdminIlanlarPage() {
         </div>
         {searchTerm && (
           <div className="mt-2 text-sm text-gray-600">
-            "{searchTerm}" için {filteredListings.length} sonuç bulundu
+            &quot;{searchTerm}&quot; için {filteredListings.length} sonuç bulundu
           </div>
         )}
       </div>

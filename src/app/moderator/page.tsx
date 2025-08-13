@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { Shield, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
 export default function ModeratorPage() {
   
@@ -34,17 +34,17 @@ export default function ModeratorPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-8">""</div>;
+    return <div className="text-center py-8">&quot;Yükleniyor...&quot;</div>;
   }
 
   if (pendingListings.length === 0) {
-    return <div className="text-center py-8">""</div>;
+    return <div className="text-center py-8">&quot;Bekleyen ilan bulunamadı&quot;</div>;
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">""</h1>
-      <h2 className="text-xl font-semibold mb-4">""</h2>
+      <h1 className="text-2xl font-bold mb-4">&quot;Moderatör Paneli&quot;</h1>
+      <h2 className="text-xl font-semibold mb-4">&quot;Bekleyen İlanlar&quot;</h2>
       <div className="grid gap-4">
         {pendingListings.map((listing) => (
           <div key={listing.id} className="bg-white p-4 rounded-lg shadow-md">
@@ -53,15 +53,15 @@ export default function ModeratorPage() {
             <p className="text-sm text-gray-600">Status: {listing.status}</p>
             <div className="flex items-center mt-4 text-green-600">
               <CheckCircle className="mr-2" />
-              ""
+              &quot;Onayla&quot;
             </div>
             <div className="flex items-center mt-2 text-red-600">
               <XCircle className="mr-2" />
-              ""
+              &quot;Reddet&quot;
             </div>
             <div className="flex items-center mt-2 text-yellow-600">
               <AlertTriangle className="mr-2" />
-              ""
+              &quot;Düzenle&quot;
             </div>
           </div>
         ))}

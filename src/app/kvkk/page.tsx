@@ -2,15 +2,13 @@
 
 import React from 'react';
 
-import { Shield, Database, Eye, Lock } from 'lucide-react';
-
 export default function KVKKPage() {
   
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-2xl font-bold mb-6">KVKK (Kişisel Verilerin Korunması Kanunu) Aydınlatma Metni</h1>
       <p className="mb-4">
-        6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) kapsamında, kişisel verileriniz aşağıda açıklanan çerçevede işlenmekte ve korunmaktadır.
+        6698 sayılı Kişisel Verilerin Korunması Kanunu (&ldquo;KVKK&rdquo;) kapsamında, kişisel verileriniz aşağıda açıklanan çerçevede işlenmekte ve korunmaktadır.
       </p>
       <h2 className="text-xl font-semibold mt-8 mb-2">1. Kişisel Verilerin İşlenme Amaçları</h2>
       <p className="mb-4">
@@ -22,11 +20,11 @@ export default function KVKKPage() {
       </p>
       <h2 className="text-xl font-semibold mt-8 mb-2">3. Kişisel Verilerin Aktarılması</h2>
       <p className="mb-4">
-        Kişisel verileriniz, yasal yükümlülükler ve hizmetin gereklilikleri doğrultusunda, ilgili kamu kurumları, iş ortakları ve tedarikçilerle paylaşılabilir. Üçüncü kişilere aktarım, KVKK'da öngörülen şartlara uygun olarak yapılır.
+        Kişisel verileriniz, yasal yükümlülükler ve hizmetin gereklilikleri doğrultusunda, ilgili kamu kurumları, iş ortakları ve tedarikçilerle paylaşılabilir. Üçüncü kişilere aktarım, KVKK&apos;da öngörülen şartlara uygun olarak yapılır.
       </p>
       <h2 className="text-xl font-semibold mt-8 mb-2">4. Kişisel Veri Sahibinin Hakları</h2>
       <p className="mb-4">
-        KVKK'nın 11. maddesi kapsamında, kişisel verilerinizle ilgili olarak aşağıdaki haklara sahipsiniz:
+        KVKK&apos;nın 11. maddesi kapsamında, kişisel verilerinizle ilgili olarak aşağıdaki haklara sahipsiniz:
       </p>
       <ul className="list-disc list-inside mb-4 text-gray-700">
         <li>Kişisel veri işlenip işlenmediğini öğrenme</li>
@@ -34,7 +32,7 @@ export default function KVKKPage() {
         <li>İşleme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme</li>
         <li>Yurt içinde veya yurt dışında kişisel verilerin aktarıldığı üçüncü kişileri bilme</li>
         <li>Kişisel verilerin eksik veya yanlış işlenmiş olması hâlinde bunların düzeltilmesini isteme</li>
-        <li>KVKK'da öngörülen şartlar çerçevesinde silinmesini veya yok edilmesini isteme</li>
+        <li>KVKK&apos;da öngörülen şartlar çerçevesinde silinmesini veya yok edilmesini isteme</li>
         <li>Aktarılan üçüncü kişilere yapılan işlemlerin bildirilmesini isteme</li>
         <li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle kişinin kendisi aleyhine bir sonucun ortaya çıkmasına itiraz etme</li>
         <li>Verilerin kanuna aykırı olarak işlenmesi sebebiyle zarara uğraması hâlinde zararın giderilmesini talep etme</li>

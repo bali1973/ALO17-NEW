@@ -149,7 +149,7 @@ export default function KayitPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="text-sm font-medium text-blue-900 mb-2">Client-side Kayıt Sistemi:</h3>
           <p className="text-xs text-blue-700 mb-2">
-            Bu sistem kullanıcıları tarayıcınızın localStorage'ında saklar. 
+            Bu sistem kullanıcıları tarayıcınızın localStorage&apos;ında saklar.
             Veriler sadece sizin cihazınızda tutulur.
           </p>
           <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800">

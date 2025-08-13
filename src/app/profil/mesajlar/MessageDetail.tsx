@@ -1,87 +1,79 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { useAuth } from '@/components/Providers';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  connectSocket,
-  joinRoom,
-  sendMessage as sendSocketMessage,
-  onMessage,
-  markMessageAsRead,
-  onMessageRead,
-  disconnectSocket,
-} from '@/services/socketService';
 
-type Message = {
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/components/Providers';
+import { useSocket } from '@/hooks/useSocket';
+
+interface Message {
   id: string;
   content: string;
   senderId: string;
   receiverId: string;
+  roomId: string;
   createdAt: string;
   isRead: boolean;
-};
-
-type SessionUser = {
-  id: string;
-  name: string;
-  email: string;
-};
-
-type Session = {
-  user: SessionUser;
-  token?: string;
-  [key: string]: any;
-} | null;
+}
 
 export default function MessageDetail() {
-  const { session } = useAuth() as { session: Session };
+  const { session } = useAuth();
   const router = useRouter();
-  const params = useSearchParams();
-  const recipientId = params.get('recipientId') || '';
+  const searchParams = useSearchParams();
+  const recipientId = searchParams.get('recipientId');
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { connectSocket, disconnectSocket, sendSocketMessage, onMessage, onMessageRead } = useSocket();
 
-  // Sesli bildirim fonksiyonu
-  function playNotificationSound() {
-    if (typeof window !== 'undefined') {
-      const audio = new Audio('/message-notification.mp3');
-      audio.play();
+  // Bildirim izni isteme
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
     }
-  }
+  }, []);
 
   useEffect(() => {
     if (!session || !recipientId) return;
+    
     let isMounted = true;
-    let roomId = '';
-    const token = session.token || JSON.stringify(session);
     const ids = [session.user.id, recipientId].sort();
-    roomId = `room_${ids[0]}_${ids[1]}`;
-    connectSocket(token);
-    joinRoom(roomId);
+    const roomId = `room_${ids[0]}_${ids[1]}`;
+    
+    connectSocket(roomId);
+    
     onMessage((msg: Message) => {
-      if (isMounted) setMessages((prev) => [...prev, msg]);
-      // Bildirim göster
-      if (msg.receiverId === session.user.id && typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-        new Notification('Yeni Mesaj', { body: msg.content });
-        playNotificationSound();
+      if (!isMounted) return;
+      setMessages((prev) => [...prev, msg]);
+      
+      // Yeni mesaj geldiğinde bildirim göster
+      if (msg.receiverId === session.user.id && msg.senderId !== session.user.id) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Yeni Mesaj', {
+            body: msg.content,
+            icon: '/icons/favicon-32x32.png'
+          });
+        }
         // Badge güncelle
         const badge = Number(localStorage.getItem('unreadBadge') || '0') + 1;
         localStorage.setItem('unreadBadge', badge.toString());
         if ('setAppBadge' in navigator) {
-          // @ts-ignore
+          // @ts-expect-error - setAppBadge is not in Navigator type
           navigator.setAppBadge(badge);
         }
       }
       // Okunmamışsa okundu olarak işaretle
       if (msg.receiverId === session.user.id && !msg.isRead) {
-        markMessageAsRead(msg.id, roomId);
+        // markMessageAsRead(msg.id, roomId); // This line was removed from the new_code, so it's removed here.
         // Badge sıfırla
         localStorage.setItem('unreadBadge', '0');
         if ('clearAppBadge' in navigator) {
-          // @ts-ignore
+          // @ts-expect-error - clearAppBadge is not in Navigator type
           navigator.clearAppBadge();
         }
       }
@@ -148,15 +140,6 @@ export default function MessageDetail() {
   if (!recipientId) {
     return <div className="p-8 text-center text-red-500">Alıcı bulunamadı.</div>;
   }
-
-  // Bildirim izni isteme
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
-    }
-  }, []);
 
   return (
     <div className="max-w-2xl mx-auto p-4">

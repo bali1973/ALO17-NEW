@@ -129,7 +129,7 @@ export default function HomeScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>ALO17'ye Hoş Geldiniz!</Text>
+        <Text style={styles.welcomeText}>ALO17&apos;ye Hoş Geldiniz!</Text>
         <Text style={styles.subtitleText}>En iyi fırsatları keşfedin</Text>
       </View>
 

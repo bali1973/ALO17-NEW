@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { Sparkles, Clock, Eye, Heart, Star } from 'lucide-react';
+
 
 export default function YeniUrunlerPage() {
   

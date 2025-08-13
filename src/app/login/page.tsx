@@ -71,18 +71,13 @@ export default function Login() {
     setError('');
 
     try {
-      console.log('🔐 Giriş denemesi:', email);
-      
       // Hardcoded kullanıcılardan ara
       const user = getAllUsers().find(u => u.email === email && u.password === password);
 
       if (!user) {
-        console.log('❌ Kullanıcı bulunamadı veya şifre yanlış');
         setError('Email veya şifre yanlış. Lütfen bilgilerinizi kontrol edin.');
         return;
       }
-
-      console.log('✅ Giriş başarılı:', user.email);
       
       // Session'ı oluştur ve context'e kaydet
       const session = {
@@ -99,10 +94,8 @@ export default function Login() {
       
       // Role'e göre yönlendirme
       if (user.role === 'admin') {
-        console.log('👑 Admin kullanıcısı, admin sayfasına yönlendiriliyor...');
         router.push('/admin');
       } else {
-        console.log('👤 Normal kullanıcı, callback URL\'e yönlendiriliyor...');
         router.push(callbackUrl);
       }
     } catch (error) {
@@ -127,18 +120,13 @@ export default function Login() {
     setError('');
 
     try {
-      console.log('🔐 Test giriş denemesi:', testUser.email);
-      
       // Hardcoded kullanıcılardan ara
       const user = getAllUsers().find(u => u.email === testUser.email && u.password === testUser.password);
 
       if (!user) {
-        console.log('❌ Test kullanıcısı bulunamadı');
         setError('Test kullanıcısı bulunamadı. Lütfen veritabanını kontrol edin.');
         return;
       }
-
-      console.log('✅ Test giriş başarılı:', user.email);
       
       // Session'ı oluştur ve context'e kaydet
       const session = {
@@ -155,10 +143,8 @@ export default function Login() {
       
       // Role'e göre yönlendirme
       if (user.role === 'admin') {
-        console.log('👑 Admin test kullanıcısı, admin sayfasına yönlendiriliyor...');
         router.push('/admin');
       } else {
-        console.log('👤 Normal test kullanıcısı, callback URL\'e yönlendiriliyor...');
         router.push(callbackUrl);
       }
     } catch (error) {

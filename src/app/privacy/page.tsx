@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { Shield, Lock, Eye, Database } from 'lucide-react';
+
 
 export default function PrivacyPage() {
   

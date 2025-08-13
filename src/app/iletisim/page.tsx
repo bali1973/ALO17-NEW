@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function IletisimPage() {
   
@@ -51,7 +51,7 @@ export default function IletisimPage() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Mesaj gönderilirken bir hata oluştu.' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Bir hata oluştu. Lütfen tekrar deneyin.' });
     } finally {
       setLoading(false);

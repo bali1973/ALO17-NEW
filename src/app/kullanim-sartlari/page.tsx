@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { FileText, CheckCircle, AlertTriangle, Scale } from 'lucide-react';
+
 
 export default function KullanimSartlariPage() {
   

@@ -171,7 +171,7 @@ export default function SecurityPage() {
             <CardContent>
               <div className="text-2xl font-bold text-red-600">{stats.lockedIPs}</div>
               <p className="text-xs text-muted-foreground">
-                Geçici olarak engellenen IP'ler
+                Geçici olarak engellenen IP&apos;ler
               </p>
             </CardContent>
           </Card>

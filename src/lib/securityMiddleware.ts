@@ -452,7 +452,7 @@ class SecurityMiddleware {
 export const securityMiddleware = SecurityMiddleware.getInstance();
 
 // Kolay kullanım için helper fonksiyonlar
-export const withSecurity = (handler: Function, type: string = 'default') => {
+export const withSecurity = (handler: (request: NextRequest) => Promise<Response>, type: string = 'default') => {
   return async (request: NextRequest) => {
     const result = await securityMiddleware.processRequest(request, type);
     

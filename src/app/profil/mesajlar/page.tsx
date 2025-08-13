@@ -36,13 +36,13 @@ export default function UserMessagesPage() {
         setLoading(false);
       })
       .catch(() => {
-        setError(t('messages_load_error'));
+        setError("Mesajlar yüklenirken hata oluştu");
         setLoading(false);
       });
-  }, [session, isLoading, router, t]);
+  }, [session, isLoading, router]);
 
   if (isLoading || loading) {
-    return <div className="min-h-screen flex items-center justify-center">""</div>;
+    return <div className="min-h-screen flex items-center justify-center">&quot;Yükleniyor...&quot;</div>;
   }
   if (error) {
     return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
@@ -53,9 +53,9 @@ export default function UserMessagesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">""</h1>
+      <h1 className="text-2xl font-bold mb-6">&quot;Mesajlarım&quot;</h1>
       {messages.length === 0 ? (
-        <div className="text-gray-500">""</div>
+        <div className="text-gray-500">&quot;Henüz mesajınız bulunmuyor&quot;</div>
       ) : (
         <div className="space-y-4">
           {messages.map((msg) => (
@@ -70,9 +70,9 @@ export default function UserMessagesPage() {
               <div className="mb-1">{msg.subject}</div>
               <div className="text-xs mt-1">
                 {msg.read ? (
-                  <span className="text-green-600">""</span>
+                  <span className="text-green-600">&quot;Okundu&quot;</span>
                 ) : (
-                  <span className="text-blue-700 font-semibold">""</span>
+                  <span className="text-blue-700 font-semibold">&quot;Yeni&quot;</span>
                 )}
               </div>
             </div>

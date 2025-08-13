@@ -5,7 +5,7 @@ import path from 'path';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 export const revalidate = 3600;
 
@@ -16,8 +16,6 @@ interface CategoryPageProps {
 }
 
 async function getCategoryData(slug: string) {
-  console.log('Getting category data for slug:', slug);
-  
   try {
     // categories.json dosyasından kategorileri oku
     const filePath = path.join(process.cwd(), 'public', 'categories.json');
@@ -25,56 +23,41 @@ async function getCategoryData(slug: string) {
     const categories = JSON.parse(data);
     
     // Kategoriyi bul
-    const category = categories.find((cat: any) => cat.slug === slug);
-    console.log('Category found:', category);
+    const category = categories.find((cat: Record<string, unknown>) => cat.slug === slug);
 
     if (!category) return null;
 
     // API'den ilanları çek
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://alo17-new-27-06.onrender.com'}/api/listings?category=${slug}`;
-    console.log('Fetching from API:', apiUrl);
     
     const response = await fetch(apiUrl, { next: { revalidate: 3600 } });
     
-    console.log('API Response status:', response.status);
-    
     if (!response.ok) {
-      console.error('API response error:', response.status);
       return { category, listings: [] };
     }
     
     const listingsData = await response.json();
-    console.log('API Data:', listingsData);
-    console.log('Data type:', typeof listingsData);
-    console.log('Is array:', Array.isArray(listingsData));
-    console.log('Data length:', listingsData.length);
     
     const listings = Array.isArray(listingsData) ? listingsData : [];
-    console.log('Final listings count:', listings.length);
 
     return { category, listings };
   } catch (error) {
-    console.error('Error getting category data:', error);
     return null;
   }
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  console.log('CategoryPage params slug:', slug);
   
   const data = await getCategoryData(slug);
 
   if (!data) {
-    console.log('No data found, showing 404');
     notFound();
   }
 
   const { category, listings } = data;
-  console.log('CategoryPage - Category:', category.name);
-  console.log('CategoryPage - Listings count:', listings.length);
 
-  const subcategories = category.subCategories?.map((sub: any) => ({
+  const subcategories = category.subCategories?.map((sub: Record<string, unknown>) => ({
     slug: sub.slug,
     name: sub.name,
     icon: sub.icon,

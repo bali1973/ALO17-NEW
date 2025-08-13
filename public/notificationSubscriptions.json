@@ -1,1 +1,13 @@
-[] 
+[
+  {
+    "userId": null,
+    "email": "destek@hemenalgetir.com",
+    "category": null,
+    "subcategory": null,
+    "keywords": "[\"telefon\"]",
+    "priceRange": null,
+    "location": null,
+    "frequency": "instant",
+    "id": "1754991415421"
+  }
+]
