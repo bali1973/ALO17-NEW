@@ -171,4 +171,19 @@ export function hasPermission(session: Session | null, permission: string): bool
   
   // Diğer rol tabanlı izin kontrolü burada yapılabilir
   return false;
+}
+
+// JWT Access Token oluştur
+export function signJwtAccessToken(userId: string, email: string, role: string): string {
+  // Gerçek uygulamada JWT library kullanılmalı
+  // Bu basit bir örnek
+  const payload = {
+    userId,
+    email,
+    role,
+    iat: Date.now(),
+    exp: Date.now() + (24 * 60 * 60 * 1000) // 24 saat
+  };
+  
+  return `jwt_${btoa(JSON.stringify(payload))}`;
 } 

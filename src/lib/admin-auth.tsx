@@ -352,6 +352,35 @@ export function AdminRoleCheck({
   return <>{children}</>;
 }
 
+// Server-side admin verification function
+export async function verifyAdminAccess(request: Request): Promise<{ success: boolean; user?: any; error?: string }> {
+  try {
+    // Authorization header'dan token'ı al
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return { success: false, error: 'Authorization header eksik' };
+    }
+
+    const token = authHeader.substring(7);
+    
+    // Basit token kontrolü (gerçek uygulamada JWT verify edilmeli)
+    if (token === 'alo17admin') {
+      return { 
+        success: true, 
+        user: { 
+          id: '1', 
+          email: 'admin@alo17.com', 
+          role: 'admin' 
+        } 
+      };
+    }
+
+    return { success: false, error: 'Geçersiz token' };
+  } catch (error) {
+    return { success: false, error: 'Admin yetki kontrolü hatası' };
+  }
+}
+
 // Utility functions
 export const adminUtils = {
   // Yetki kontrolü
