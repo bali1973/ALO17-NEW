@@ -1,138 +1,130 @@
-# Alo17 - İlan ve Kategoriler Platformu
+# ALO17 - İlan ve Alışveriş Platformu
 
-## 🌟 Proje Hakkında
+Modern web teknolojileri ile geliştirilmiş, kullanıcı dostu ilan ve alışveriş platformu.
 
-Alo17, modern web teknolojileri kullanılarak geliştirilmiş kapsamlı bir ilan ve kategoriler platformudur. Next.js, React Native ve Prisma kullanılarak hem web hem de mobil uygulama olarak çalışmaktadır.
+## 🚀 Özellikler
 
-## 🚀 Canlı Demo
+- **Kullanıcı Yönetimi**: Kayıt, giriş, profil yönetimi
+- **İlan Sistemi**: İlan verme, düzenleme, arama ve filtreleme
+- **Kategori Sistemi**: Hiyerarşik kategori yapısı
+- **Admin Paneli**: Kapsamlı yönetim araçları
+- **OAuth Entegrasyonu**: Google, Facebook, Apple ile giriş
+- **Responsive Tasarım**: Mobil ve masaüstü uyumlu
+- **Güvenlik**: JWT tabanlı kimlik doğrulama
 
-- **Render**: https://alo17-new-27-06.onrender.com/
-- **Admin Panel**: https://alo17-new-27-06.onrender.com/admin
+## 🛠️ Teknolojiler
 
-## ✨ Özellikler
+- **Frontend**: Next.js 15, React 18, TypeScript
+- **Styling**: Tailwind CSS, Heroicons
+- **Backend**: Next.js API Routes
+- **Veritabanı**: SQLite (Prisma ORM)
+- **Kimlik Doğrulama**: JWT, OAuth 2.0
+- **Deploy**: GitHub Actions, Vercel, Netlify
 
-### 🏷️ Kategori Sistemi
-- Dinamik kategori yönetimi
-- Alt kategoriler desteği
-- Emoji ikonları ve renkli tasarım
-- Gerçek zamanlı güncelleme
-
-### 👨‍💼 Admin Paneli
-- Kategori ve ilan yönetimi
-- Premium özellik yönetimi
-- Toplu işlemler
-- İstatistikler ve raporlar
-
-### 📱 Mobil Uygulama
-- React Native ile geliştirilmiş
-- Gerçek zamanlı mesajlaşma
-- Offline veri desteği
-- Push notifications
-
-### 🔧 Teknolojiler
-- Next.js 14 ile SSR/SSG
-- Prisma ORM ile veritabanı yönetimi
-- Socket.io ile gerçek zamanlı iletişim
-- Tailwind CSS ile responsive tasarım
-- TypeScript ile tip güvenliği
-
-## 🛠️ Kurulum
+## 📦 Kurulum
 
 ### Gereksinimler
 - Node.js 18+
 - npm veya yarn
-- SQLite veritabanı
 
 ### Adımlar
-
-1. **Repository'yi klonlayın**
+1. Repository'yi klonlayın:
 ```bash
 git clone https://github.com/bali1973/ALO17-NEW.git
 cd ALO17-NEW
 ```
 
-2. **Bağımlılıkları yükleyin**
+2. Bağımlılıkları yükleyin:
 ```bash
 npm install
 ```
 
-3. **Veritabanını hazırlayın**
+3. Environment variables'ları ayarlayın:
 ```bash
-npx prisma generate
-npx prisma db push
+cp .env.example .env
+# .env dosyasını düzenleyin
 ```
 
-4. **Geliştirme sunucusunu başlatın**
+4. Veritabanını hazırlayın:
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+5. Admin kullanıcısı oluşturun:
+```bash
+node scripts/create-admin.js
+```
+
+6. Geliştirme sunucusunu başlatın:
 ```bash
 npm run dev
 ```
 
-5. **Tarayıcıda açın**
-```
-http://localhost:3004
-```
+## 🔐 OAuth Kurulumu
 
-## 📦 Build ve Deploy
+### Google OAuth
+1. [Google Cloud Console](https://console.cloud.google.com/)'a gidin
+2. OAuth 2.0 Client ID oluşturun
+3. Redirect URI: `http://localhost:3004/api/auth/google/callback`
+4. Client ID ve Secret'ı admin panelinden girin
 
-### Production Build
+### Facebook OAuth
+1. [Facebook Developers](https://developers.facebook.com/)'a gidin
+2. App oluşturun
+3. Redirect URI: `http://localhost:3004/api/auth/facebook/callback`
+4. App ID ve Secret'ı admin panelinden girin
+
+### Apple OAuth
+1. [Apple Developer](https://developer.apple.com/)'a gidin
+2. App ID ve Key oluşturun
+3. Redirect URI: `http://localhost:3004/api/auth/apple/callback`
+4. Team ID, Key ID ve Client ID'yi admin panelinden girin
+
+## 🚀 Deploy
+
+### Otomatik Deploy (GitHub Actions)
+- `main` branch'e push yapıldığında otomatik deploy
+- Test, build ve deploy aşamaları
+- Vercel ve Netlify desteği
+
+### Manuel Deploy
 ```bash
 npm run build
-```
-
-### Render Deploy
-Proje Render platformunda host edilmektedir. GitHub Actions ile build işlemi tamamlandıktan sonra Render'da otomatik deploy edilir.
-
-## 🌐 Deployment
-
-### Render
-- **URL**: https://alo17-new-27-06.onrender.com/
-- **Branch**: `main`
-- **Build**: Otomatik (GitHub Actions + Render)
-
-### Environment Variables
-```env
-DATABASE_URL="file:./dev.db"
-NEXTAUTH_SECRET="your-secret-key"
-NEXTAUTH_URL="http://localhost:3004"
+npm run start
 ```
 
 ## 📁 Proje Yapısı
 
 ```
 src/
-├── app/                 # Next.js 14 App Router
-│   ├── admin/          # Admin panel sayfaları
-│   ├── api/            # API routes
-│   ├── components/     # React bileşenleri
-│   └── lib/            # Utility fonksiyonları
-├── components/          # Genel bileşenler
-├── hooks/              # Custom React hooks
-├── types/              # TypeScript tip tanımları
-└── locales/            # Çoklu dil desteği
-
-alo17-mobile/           # React Native mobil uygulama
-prisma/                 # Veritabanı şeması ve migrations
+├── app/                    # Next.js App Router
+│   ├── admin/             # Admin paneli
+│   ├── api/               # API routes
+│   ├── auth/              # OAuth routes
+│   └── ...                # Sayfa bileşenleri
+├── components/             # React bileşenleri
+├── hooks/                  # Custom hooks
+├── lib/                    # Utility fonksiyonları
+└── types/                  # TypeScript tipleri
 ```
 
-## 🔧 Teknolojiler
+## 🔧 Scripts
 
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, CSS Modules
-- **Database**: Prisma ORM, SQLite
-- **Authentication**: NextAuth.js
-- **Real-time**: Socket.io
-- **Mobile**: React Native, Expo
-- **Deployment**: Render, GitHub Actions
+- `npm run dev` - Geliştirme sunucusu
+- `npm run build` - Production build
+- `npm run start` - Production sunucusu
+- `npm run lint` - ESLint kontrolü
+- `npm run type-check` - TypeScript kontrolü
 
-## 📱 Mobil Uygulama
+## 🌐 Canlı Demo
 
-Mobil uygulama `alo17-mobile/` klasöründe bulunmaktadır:
+- **Ana Site**: [https://alo17-new-27-06.onrender.com](https://alo17-new-27-06.onrender.com)
+- **Admin Panel**: [https://alo17-new-27-06.onrender.com/admin](https://alo17-new-27-06.onrender.com/admin)
 
-```bash
-cd alo17-mobile
-npm install
-npx expo start
-```
+## 📝 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 🤝 Katkıda Bulunma
 
@@ -142,22 +134,8 @@ npx expo start
 4. Push yapın (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
 
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
-
 ## 📞 İletişim
 
+- **Geliştirici**: Bali
 - **GitHub**: [@bali1973](https://github.com/bali1973)
-- **Proje**: [ALO17-NEW](https://github.com/bali1973/ALO17-NEW)
-
-## 🙏 Teşekkürler
-
-- Next.js ekibine
-- React Native ekibine
-- Prisma ekibine
-- Tüm open source topluluğuna
-
----
-
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın! 
+- **Proje**: [ALO17-NEW](https://github.com/bali1973/ALO17-NEW) 
