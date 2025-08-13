@@ -10,7 +10,6 @@ const defaultSettings = {
   logoUrl: '',
   phone: '',
   footerText: '',
-  facebook: '',
   instagram: '',
   twitter: '',
   address: '',
@@ -227,18 +226,14 @@ export default function AdminAyarlarPage() {
           <label className="block text-gray-700 font-medium mb-2">Telefon</label>
           <input type="text" name="phone" value={settings.phone} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="+90 555 123 4567" />
         </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Footer Metni</label>
-          <input type="text" name="footerText" value={settings.footerText} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="© 2024 Alo17. Tüm hakları saklıdır." />
-        </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Facebook</label>
-          <input type="text" name="facebook" value={settings.facebook} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://facebook.com/alo17" />
-        </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Instagram</label>
-          <input type="text" name="instagram" value={settings.instagram} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://instagram.com/alo17" />
-        </div>
+                 <div>
+           <label className="block text-gray-700 font-medium mb-2">Footer Metni</label>
+           <input type="text" name="footerText" value={settings.footerText} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="© 2024 Alo17. Tüm hakları saklıdır." />
+         </div>
+         <div>
+           <label className="block text-gray-700 font-medium mb-2">Instagram</label>
+           <input type="text" name="instagram" value={settings.instagram} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://instagram.com/alo17" />
+         </div>
         <div>
           <label className="block text-gray-700 font-medium mb-2">Twitter</label>
           <input type="text" name="twitter" value={settings.twitter} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://twitter.com/alo17" />
