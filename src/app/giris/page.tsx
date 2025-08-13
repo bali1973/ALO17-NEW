@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AlertCircle, Eye, EyeOff, Mail, Facebook, Apple } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff, Mail, Apple } from 'lucide-react';
 import { useAuth } from '@/components/Providers';
 import { signIn } from '@/lib/auth';
 import { useOAuthCallback } from '@/hooks/useOAuthCallback';
@@ -194,15 +194,7 @@ export default function GirisPage() {
               Google ile giriş yap
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleSocialLogin('Facebook')}
-              disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <Facebook className="w-5 h-5 mr-3" />
-              Facebook ile giriş yap
-            </button>
+
 
             <button
               type="button"
