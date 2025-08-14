@@ -173,71 +173,86 @@ export default function Home() {
       }
   };
 
-  const filteredListings = Array.isArray(listings) ? listings
-    .filter((listing: Listing) => {
-      // Null check for listing properties
-      if (!listing || typeof listing !== 'object') return false;
-      
-      const title = listing.title || '';
-      const description = listing.description || '';
-      const category = listing.category || '';
-      const subcategory = listing.subcategory || '';
-      const city = listing.city || '';
-      
-      return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             city.toLowerCase().includes(searchQuery.toLowerCase());
-    })
-    .filter(listing => {
-      if (!listing) return false;
-      return !selectedCategory || listing.category === selectedCategory;
-    })
-    .filter(listing => {
-      if (!listing) return false;
-      return !selectedSubcategory || listing.subcategory === selectedSubcategory;
-    })
-    .filter(listing => {
-      if (!listing) return false;
-      
-      try {
-        const price = typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price || 0));
-        const min = priceRange.min ? parseFloat(priceRange.min) : 0;
-        const max = priceRange.max ? parseFloat(priceRange.max) : Infinity;
-        return !isNaN(price) && price >= min && price <= max;
-      } catch (error) {
-        return false;
-      }
-    })
-    .sort((a, b) => {
-      if (!a || !b) return 0;
-      
-      try {
-        switch (sortBy) {
-          case 'newest':
-            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-          case 'oldest':
-            return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
-          case 'price-low':
-            const priceA = typeof a.price === 'number' ? a.price : parseFloat(String(a.price || 0));
-            const priceB = typeof b.price === 'number' ? b.price : parseFloat(String(b.price || 0));
-            return priceA - priceB;
-          case 'price-high':
-            const priceAHigh = typeof a.price === 'number' ? a.price : parseFloat(String(a.price || 0));
-            const priceBHigh = typeof b.price === 'number' ? b.price : parseFloat(String(b.price || 0));
-            return priceBHigh - priceAHigh;
-          case 'premium':
-          default:
-            return getVisibilityScore(b) - getVisibilityScore(a);
+  const filteredListings = (() => {
+    // Güvenlik kontrolü - listings undefined veya null ise boş array döndür
+    if (!listings || !Array.isArray(listings)) {
+      return [];
+    }
+    
+    return listings
+      .filter((listing: Listing) => {
+        // Null check for listing properties
+        if (!listing || typeof listing !== 'object') return false;
+        
+        const title = listing.title || '';
+        const description = listing.description || '';
+        const category = listing.category || '';
+        const subcategory = listing.subcategory || '';
+        const city = listing.city || '';
+        
+        return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               city.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+      .filter(listing => {
+        if (!listing) return false;
+        return !selectedCategory || listing.category === selectedCategory;
+      })
+      .filter(listing => {
+        if (!listing) return false;
+        return !selectedSubcategory || listing.subcategory === selectedSubcategory;
+      })
+      .filter(listing => {
+        if (!listing) return false;
+        
+        try {
+          const price = typeof listing.price === 'number' ? listing.price : parseFloat(String(listing.price || 0));
+          const min = priceRange.min ? parseFloat(priceRange.min) : 0;
+          const max = priceRange.max ? parseFloat(priceRange.max) : Infinity;
+          return !isNaN(price) && price >= min && price <= max;
+        } catch (error) {
+          return false;
         }
-      } catch (error) {
-        console.error('Sorting error:', error);
-        return 0;
-      }
-    }) : [];
+      })
+      .sort((a, b) => {
+        if (!a || !b) return 0;
+        
+        try {
+          switch (sortBy) {
+            case 'newest':
+              return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+            case 'oldest':
+              return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+            case 'price-low':
+              const priceA = typeof a.price === 'number' ? a.price : parseFloat(String(a.price || 0));
+              const priceB = typeof b.price === 'number' ? b.price : parseFloat(String(b.price || 0));
+              return priceA - priceB;
+            case 'price-high':
+              const priceAHigh = typeof a.price === 'number' ? a.price : parseFloat(String(a.price || 0));
+              const priceBHigh = typeof b.price === 'number' ? b.price : parseFloat(String(b.price || 0));
+              return priceBHigh - priceAHigh;
+            case 'premium':
+            default:
+              return getVisibilityScore(b) - getVisibilityScore(a);
+          }
+        } catch (error) {
+          console.error('Sorting error:', error);
+          return 0;
+        }
+      });
+  })();
 
-  const premiumListings = filteredListings.filter((listing: Listing) => listing.isPremium || listing.premium).slice(0, 3)
+  const premiumListings = (() => {
+    if (!filteredListings || !Array.isArray(filteredListings)) {
+      return [];
+    }
+    return filteredListings.filter((listing: Listing) => {
+      if (!listing) return false;
+      return listing.isPremium || listing.premium;
+    }).slice(0, 3);
+  })();
 
   const indexOfLastItem = currentPage * itemsPerPage
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
