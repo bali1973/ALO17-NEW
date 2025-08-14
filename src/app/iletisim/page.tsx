@@ -1,8 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
+
+interface ContactSettings {
+  contactAddress?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  contactMapUrl?: string;
+}
 
 export default function IletisimPage() {
   
@@ -14,6 +20,34 @@ export default function IletisimPage() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [contactSettings, setContactSettings] = useState<ContactSettings>({});
+
+  // Admin ayarlarından iletişim bilgilerini al
+  useEffect(() => {
+    const fetchContactSettings = async () => {
+      try {
+        const response = await fetch('/api/admin/settings');
+        const settings = await response.json();
+        setContactSettings({
+          contactAddress: settings.contactAddress || 'Cevatpaşa Mahallesi, Bayrak Sokak No:4\nÇanakkale, Türkiye',
+          contactPhone: settings.contactPhone || '541 4042404',
+          contactEmail: settings.contactEmail || 'destek@alo17.tr',
+          contactMapUrl: settings.contactMapUrl || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3039.4283901490703!2d26.4089!3d40.1556!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDA5JzIwLjEiTiAyNsKwMjQnMzIuMCJF!5e0!3m2!1str!2str!4v1635000000000!5m2!1str!2str'
+        });
+      } catch (error) {
+        console.error('İletişim ayarları yüklenemedi:', error);
+        // Varsayılan değerleri kullan
+        setContactSettings({
+          contactAddress: 'Cevatpaşa Mahallesi, Bayrak Sokak No:4\nÇanakkale, Türkiye',
+          contactPhone: '541 4042404',
+          contactEmail: 'destek@alo17.tr',
+          contactMapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3039.4283901490703!2d26.4089!3d40.1556!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDA5JzIwLjEiTiAyNsKwMjQnMzIuMCJF!5e0!3m2!1str!2str!4v1635000000000!5m2!1str!2str'
+        });
+      }
+    };
+
+    fetchContactSettings();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -68,22 +102,23 @@ export default function IletisimPage() {
           <h2 className="text-2xl font-semibold mb-4">İletişim Bilgileri</h2>
           
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <MapPin className="h-6 w-6 text-blue-600" />
-              <div>
-                <h3 className="font-medium">Adres</h3>
-                <p className="text-gray-600">
-                  Cevatpaşa Mahallesi, Bayrak Sokak No:4<br />
-                  Çanakkale, Türkiye
-                </p>
-              </div>
-            </div>
+                            <div className="flex items-center gap-3">
+                  <MapPin className="h-6 w-6 text-blue-600" />
+                  <div>
+                    <h3 className="font-medium">Adres</h3>
+                    <p className="text-gray-600 whitespace-pre-line">
+                      {contactSettings.contactAddress}
+                    </p>
+                  </div>
+                </div>
 
             <div className="flex items-center gap-3">
               <Phone className="h-6 w-6 text-blue-600" />
               <div>
                 <h3 className="font-medium">Telefon</h3>
-                <p className="text-gray-600">541 4042404</p>
+                <p className="text-gray-600">
+                  {contactSettings.contactPhone}
+                </p>
               </div>
             </div>
 
@@ -91,7 +126,9 @@ export default function IletisimPage() {
               <Mail className="h-6 w-6 text-blue-600" />
               <div>
                 <h3 className="font-medium">E-posta</h3>
-                <p className="text-gray-600">destek@alo17.tr</p>
+                <p className="text-gray-600">
+                  {contactSettings.contactEmail}
+                </p>
               </div>
             </div>
           </div>
@@ -190,7 +227,7 @@ export default function IletisimPage() {
         <h2 className="text-2xl font-semibold mb-4">Konum</h2>
         <div className="h-[400px] bg-gray-200 rounded-lg">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3039.4283901490703!2d26.4089!3d40.1556!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDA5JzIwLjEiTiAyNsKwMjQnMzIuMCJF!5e0!3m2!1str!2str!4v1635000000000!5m2!1str!2str"
+            src={contactSettings.contactMapUrl}
             width="100%"
             height="100%"
             style={{ border: 0 }}

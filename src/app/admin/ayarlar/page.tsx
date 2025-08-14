@@ -16,6 +16,11 @@ const defaultSettings = {
   invoiceAddress: '',
   announcementText: '',
   googleAdsCode: '',
+  // İletişim bilgileri için yeni alanlar
+  contactAddress: '',
+  contactPhone: '',
+  contactEmail: '',
+  contactMapUrl: '',
   // OAuth ayarları
   oauthGoogleClientId: '',
   oauthGoogleClientSecret: '',
@@ -289,6 +294,64 @@ export default function AdminAyarlarPage() {
             placeholder="&lt;script async src='https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXX-X'&gt;&lt;/script&gt;\n&lt;script&gt;...&lt;/script&gt;"
             rows={4}
           />
+        </div>
+
+        {/* İletişim Bilgileri Bölümü */}
+        <div className="border-t pt-6 mt-8">
+          <h3 className="text-xl font-bold text-gray-800 mb-6">🌐 İletişim Bilgileri (İletişim Sayfasında Görünür)</h3>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-blue-700 mb-3">
+              <strong>ℹ️ Bilgi:</strong> Bu alanlarda yapılan değişiklikler otomatik olarak iletişim sayfasında görünecektir.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">İletişim Adresi</label>
+              <textarea 
+                name="contactAddress" 
+                value={settings.contactAddress || ''} 
+                onChange={handleTextareaChange} 
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" 
+                placeholder="Cevatpaşa Mahallesi, Bayrak Sokak No:4&#10;Çanakkale, Türkiye"
+                rows={3}
+              />
+              <p className="text-xs text-gray-500 mt-1">Alt satır için &#10; kullanın</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">İletişim Telefonu</label>
+              <input 
+                type="text" 
+                name="contactPhone" 
+                value={settings.contactPhone || ''} 
+                onChange={handleChange} 
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" 
+                placeholder="541 4042404" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">İletişim E-posta</label>
+              <input 
+                type="email" 
+                name="contactEmail" 
+                value={settings.contactEmail || ''} 
+                onChange={handleChange} 
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" 
+                placeholder="destek@alo17.tr" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Google Harita Embed URL</label>
+              <input 
+                type="text" 
+                name="contactMapUrl" 
+                value={settings.contactMapUrl || ''} 
+                onChange={handleChange} 
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" 
+                placeholder="https://www.google.com/maps/embed?..." 
+              />
+              <p className="text-xs text-gray-500 mt-1">Google Maps'ten "Embed" seçeneğini kullanın</p>
+            </div>
+          </div>
         </div>
 
         {/* OAuth Ayarları Bölümü */}
