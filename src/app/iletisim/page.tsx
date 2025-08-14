@@ -26,7 +26,8 @@ export default function IletisimPage() {
   useEffect(() => {
     const fetchContactSettings = async () => {
       try {
-        const response = await fetch('/api/admin/settings');
+        // Doğrudan settings.json dosyasından oku
+        const response = await fetch('/settings.json');
         const settings = await response.json();
         setContactSettings({
           contactAddress: settings.contactAddress || 'Cevatpaşa Mahallesi, Bayrak Sokak No:4\nÇanakkale, Türkiye',
