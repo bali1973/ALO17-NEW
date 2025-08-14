@@ -446,7 +446,7 @@ class MockPrismaClient {
     }
   };
 
-  subCategory = {
+    subCategory = {
     findMany: async () => {
       try {
         const data = await fs.readFile(path.join(process.cwd(), 'public', 'raporlar.json'), 'utf-8');
@@ -521,6 +521,88 @@ class MockPrismaClient {
           }
         }
         return null;
+      } catch {
+        return null;
+      }
+    }
+  };
+
+  message = {
+    findMany: async (params?: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'messages.json'), 'utf-8');
+        let messages = JSON.parse(data);
+
+        const where = params?.where;
+        if (where) {
+          if (where.type) {
+            messages = messages.filter((message: any) => message.type === where.type);
+          }
+          if (where.listingId) {
+            messages = messages.filter((message: any) => message.listingId === where.listingId);
+          }
+          if (where.receiver) {
+            messages = messages.filter((message: any) => message.receiver === where.receiver);
+          }
+        }
+
+        if (params?.orderBy?.date === 'desc') {
+          messages.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        }
+
+        return messages;
+      } catch {
+        return [];
+      }
+    },
+    findUnique: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'messages.json'), 'utf-8');
+        const messages = JSON.parse(data);
+        return messages.find((message: any) => message.id === params.where.id);
+      } catch {
+        return null;
+      }
+    },
+    create: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'messages.json'), 'utf-8');
+        const messages = JSON.parse(data);
+        const newMessage = { 
+          ...params.data, 
+          id: Date.now().toString(),
+          date: params.data.date || new Date().toISOString(),
+          isRead: params.data.isRead || false
+        };
+        messages.push(newMessage);
+        await fs.writeFile(path.join(process.cwd(), 'public', 'messages.json'), JSON.stringify(messages, null, 2));
+        return newMessage;
+      } catch {
+        return null;
+      }
+    },
+    update: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'messages.json'), 'utf-8');
+        const messages = JSON.parse(data);
+        const index = messages.findIndex((message: any) => message.id === params.where.id);
+        if (index !== -1) {
+          messages[index] = { ...messages[index], ...params.data };
+          await fs.writeFile(path.join(process.cwd(), 'public', 'messages.json'), JSON.stringify(messages, null, 2));
+          return messages[index];
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+    delete: async (params: any) => {
+      try {
+        const data = await fs.readFile(path.join(process.cwd(), 'public', 'public', 'messages.json'), 'utf-8');
+        const messages = JSON.parse(data);
+        const filteredMessages = messages.filter((message: any) => message.id !== params.where.id);
+        await fs.writeFile(path.join(process.cwd(), 'public', 'messages.json'), JSON.stringify(filteredMessages, null, 2));
+        return { id: params.where.id };
       } catch {
         return null;
       }

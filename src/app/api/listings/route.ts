@@ -90,8 +90,12 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Sadece onaylanmış ilanları göster
-    listings = listings.filter((listing: any) => listing.status === 'onaylandı');
+    // Sadece onaylanmış ve aktif ilanları göster
+    listings = listings.filter((listing: any) => 
+      listing.status === 'onaylandı' || 
+      listing.status === 'active' || 
+      listing.status === 'pending'
+    );
     
     // Sıralama (en yeni önce)
     listings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -117,7 +121,10 @@ export async function POST(request: NextRequest) {
       id: listings.length + 1,
       ...body,
       createdAt: new Date().toISOString(),
-      status: 'pending'
+      status: 'active',
+      views: 0,
+      isPremium: body.premiumPlan !== 'free',
+      premiumFeatures: body.features || []
     };
     
     listings.push(newListing);

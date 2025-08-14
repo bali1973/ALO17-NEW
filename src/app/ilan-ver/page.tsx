@@ -352,7 +352,17 @@ export default function IlanVerPage() {
         localStorage.removeItem('ilanImagePreviews');
         const listing = await response.json();
         
-        alert('İlan başarıyla yayınlandı! Ana sayfada görünür.');
+        // Başarı mesajı göster
+        const successMessage = 'İlan başarıyla yayınlandı! Ana sayfada görünür.';
+        
+        // Toast notification göster (basit alert yerine)
+        if (typeof window !== 'undefined') {
+          // LocalStorage'a başarı mesajını kaydet
+          localStorage.setItem('ilanYayinlandi', 'true');
+          localStorage.setItem('ilanYayinlandiMesaji', successMessage);
+        }
+        
+        // Ana sayfaya yönlendir
         router.push('/');
       } else {
         const error = await response.json();
@@ -458,19 +468,73 @@ export default function IlanVerPage() {
     </div>
   );
 
-  // Mobil cihaz kontrolü
+  // Mobil cihaz kontrolü - Gelişmiş versiyon
   const isMobileDevice = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // User Agent kontrolü
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    
+    // Touch desteği kontrolü
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Ekran boyutu kontrolü
+    const isSmallScreen = window.innerWidth <= 768;
+    
+    // Mobil cihaz özellikleri kontrolü
+    const hasMobileFeatures = 'getUserMedia' in navigator.mediaDevices || 'webkitGetUserMedia' in navigator;
+    
+    // En az 2 kriter sağlanıyorsa mobil kabul et
+    const mobileScore = [isMobileUA, hasTouch, isSmallScreen, hasMobileFeatures].filter(Boolean).length;
+    
+    console.log('Mobil cihaz kontrolü:', {
+      userAgent: isMobileUA,
+      touch: hasTouch,
+      screen: isSmallScreen,
+      features: hasMobileFeatures,
+      score: mobileScore
+    });
+    
+    return mobileScore >= 2;
   };
 
   // Kamera izni kontrolü
+  // Kamera izni kontrol et - Gelişmiş versiyon
   const checkCameraPermission = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Önce getUserMedia API'nin varlığını kontrol et
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.warn('getUserMedia API desteklenmiyor');
+        return false;
+      }
+
+      // Kamera erişimi iste
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: {
+          facingMode: 'environment', // Arka kamera tercih et
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
+      });
+      
+      // Stream'i hemen kapat
       stream.getTracks().forEach(track => track.stop());
+      
+      console.log('Kamera izni verildi');
       return true;
-    } catch (error) {
-      console.error('Kamera izni yok:', error);
+    } catch (error: any) {
+      console.error('Kamera izni hatası:', error);
+      
+      // Hata türüne göre kullanıcıya yardım et
+      if (error.name === 'NotAllowedError') {
+        console.warn('Kamera izni reddedildi');
+      } else if (error.name === 'NotFoundError') {
+        console.warn('Kamera bulunamadı');
+      } else if (error.name === 'NotReadableError') {
+        console.warn('Kamera başka uygulama tarafından kullanılıyor');
+      } else if (error.name === 'OverconstrainedError') {
+        console.warn('Kamera gereksinimleri karşılanamıyor');
+      }
+      
       return false;
     }
   };
@@ -618,49 +682,64 @@ export default function IlanVerPage() {
     }
   };
 
-  // Mobil fotoğraf seçici
-  const showMobileImagePicker = () => {
-    const options = [
-      {
-        text: '📷 Kamera ile Çek',
-        onPress: () => {
-          const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
-          if (cameraInput) cameraInput.click();
-        }
-      },
-      {
-        text: '🖼️ Galeriden Seç',
-        onPress: () => {
-          const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
-          if (galleryInput) galleryInput.click();
-        }
-      },
-      {
-        text: 'İptal',
-        style: 'cancel' as const
-      }
-    ];
-
-    // Mobil cihazda native alert kullan
-    if (isMobileDevice()) {
-      if (window.confirm) {
-        const choice = window.confirm('Fotoğraf eklemek için:\n\n1. Kamera ile çekmek için "Tamam"\n2. Galeriden seçmek için "İptal"');
-        if (choice) {
-          const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
-          if (cameraInput) cameraInput.click();
-        } else {
-          const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
-          if (galleryInput) galleryInput.click();
-        }
-      } else {
-        // Fallback: Galeri seçiciyi aç
-        const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
-        if (galleryInput) galleryInput.click();
-      }
-    } else {
+  // Mobil fotoğraf seçici - Gelişmiş versiyon
+  const showMobileImagePicker = async () => {
+    if (!isMobileDevice()) {
       // Desktop'ta normal input'u aç
       const fileInput = document.getElementById('image-upload') as HTMLInputElement;
       if (fileInput) fileInput.click();
+      return;
+    }
+
+    // Mobil cihazda gelişmiş seçenekler
+    try {
+      // Kamera izni kontrol et
+      const hasCameraPermission = await checkCameraPermission();
+      
+      if (hasCameraPermission) {
+        // Modern mobil cihazlarda native seçenekler
+        if ('showActionSheet' in window || 'ActionSheet' in window) {
+          // iOS ActionSheet benzeri
+          const choice = window.confirm(
+            'Fotoğraf eklemek için:\n\n' +
+            '📷 Kamera ile çekmek için "Tamam"\n' +
+            '🖼️ Galeriden seçmek için "İptal"\n\n' +
+            'Kamera ile çekmek istiyor musunuz?'
+          );
+          
+          if (choice) {
+            const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
+            if (cameraInput) cameraInput.click();
+          } else {
+            const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+            if (galleryInput) galleryInput.click();
+          }
+        } else {
+          // Fallback: Basit confirm dialog
+          const choice = window.confirm(
+            '📷 Kamera ile çekmek için "Tamam"\n' +
+            '🖼️ Galeriden seçmek için "İptal"'
+          );
+          
+          if (choice) {
+            const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
+            if (cameraInput) cameraInput.click();
+          } else {
+            const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+            if (galleryInput) galleryInput.click();
+          }
+        }
+      } else {
+        // Kamera izni yoksa sadece galeri seçeneği
+        alert('Kamera izni gerekli. Galeriden fotoğraf seçebilirsiniz.');
+        const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+        if (galleryInput) galleryInput.click();
+      }
+    } catch (error) {
+      console.error('Mobil fotoğraf seçici hatası:', error);
+      // Hata durumunda galeri seçiciyi aç
+      const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+      if (galleryInput) galleryInput.click();
     }
   };
 
@@ -972,33 +1051,85 @@ export default function IlanVerPage() {
                         </label>
                       )}
                       
-                      {/* Mobil butonlar */}
+                      {/* Mobil butonlar - Gelişmiş versiyon */}
                       {isMobileDevice() && (
                         <div className="flex flex-col sm:flex-row gap-2 justify-center">
                           <button
                             type="button"
                             onClick={async () => {
-                              const hasPermission = await checkCameraPermission();
-                              if (hasPermission) {
-                                const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
-                                if (cameraInput) cameraInput.click();
-                              } else {
-                                alert('Kamera izni gerekli. Lütfen tarayıcı ayarlarından kamera iznini verin.');
+                              try {
+                                const hasPermission = await checkCameraPermission();
+                                if (hasPermission) {
+                                  const cameraInput = document.getElementById('camera-capture') as HTMLInputElement;
+                                  if (cameraInput) {
+                                    cameraInput.click();
+                                    // Kamera açıldığında kullanıcıya bilgi ver
+                                    setTimeout(() => {
+                                      if (document.activeElement === cameraInput) {
+                                        // Kamera açıldı, kullanıcıya yardım et
+                                        console.log('Kamera açıldı - Fotoğraf çekin');
+                                      }
+                                    }, 100);
+                                  }
+                                } else {
+                                  // Kamera izni yoksa kullanıcıya yardım et
+                                  const helpMessage = 
+                                    'Kamera izni gerekli!\n\n' +
+                                    '1. Tarayıcı adres çubuğundaki 🔒 simgesine tıklayın\n' +
+                                    '2. "Kamera" iznini "İzin Ver" olarak ayarlayın\n' +
+                                    '3. Sayfayı yenileyin\n\n' +
+                                    'Şimdilik galeriden fotoğraf seçebilirsiniz.';
+                                  
+                                  alert(helpMessage);
+                                }
+                              } catch (error) {
+                                console.error('Kamera açma hatası:', error);
+                                alert('Kamera açılamadı. Galeriden fotoğraf seçebilirsiniz.');
                               }
                             }}
-                            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-md"
+                            title="📷 Kamera ile fotoğraf çekin"
                           >
                             📷 Kamera ile Çek
                           </button>
                           <button
                             type="button"
                             onClick={() => {
-                              const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
-                              if (galleryInput) galleryInput.click();
+                              try {
+                                const galleryInput = document.getElementById('gallery-select') as HTMLInputElement;
+                                if (galleryInput) {
+                                  galleryInput.click();
+                                  console.log('Galeri seçici açıldı');
+                                }
+                              } catch (error) {
+                                console.error('Galeri seçici hatası:', error);
+                                alert('Galeri açılamadı. Lütfen tekrar deneyin.');
+                              }
                             }}
-                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-md"
+                            title="🖼️ Galeriden fotoğraf seçin"
                           >
                             🖼️ Galeriden Seç
+                          </button>
+                          
+                          {/* Kamera Yardım Butonu */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const helpText = 
+                                '📱 Mobil Kamera Kullanımı\n\n' +
+                                '✅ Kamera ile Çek: Arka kamerayı kullanarak fotoğraf çekin\n' +
+                                '✅ Galeriden Seç: Mevcut fotoğraflarınızdan seçin\n' +
+                                '✅ Çoklu Seçim: Birden fazla fotoğraf seçebilirsiniz\n' +
+                                '✅ Otomatik İşleme: Fotoğraflar otomatik sıkıştırılır\n\n' +
+                                '💡 İpucu: En iyi sonuç için iyi aydınlatılmış ortamda çekim yapın!';
+                              
+                              alert(helpText);
+                            }}
+                            className="inline-flex items-center px-3 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors shadow-md text-sm"
+                            title="📖 Kamera kullanımı hakkında yardım"
+                          >
+                            ❓ Yardım
                           </button>
                         </div>
                       )}
