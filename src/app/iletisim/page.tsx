@@ -223,22 +223,7 @@ export default function IletisimPage() {
         </div>
       </div>
 
-      {/* Harita */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-semibold mb-4">Konum</h2>
-        <div className="h-[400px] bg-gray-200 rounded-lg">
-          <iframe
-            src={contactSettings.contactMapUrl}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="rounded-lg"
-          ></iframe>
-        </div>
-      </div>
+      {/* Harita bölümü kaldırıldı */}
     </div>
   )
 } 
