@@ -18,16 +18,39 @@ export default function AdminMesajlarPage() {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
   useEffect(() => {
-    fetch('/api/messages')
-      .then(res => res.json())
-      .then(data => {
-        setMessages(data);
+    const fetchMessages = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/messages');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Veri formatını kontrol et
+        if (Array.isArray(data)) {
+          setMessages(data);
+        } else if (data && Array.isArray(data.messages)) {
+          setMessages(data.messages);
+        } else {
+          console.warn('Unexpected data format:', data);
+          setMessages([]);
+        }
+      } catch (err) {
+        console.error('Mesajları yükleme hatası:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Bilinmeyen hata';
+        setError(`Mesajlar yüklenemedi: ${errorMessage}`);
+        setMessages([]);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setError('Mesajlar yüklenemedi');
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchMessages();
   }, []);
 
   const handleDelete = async (id: string) => {

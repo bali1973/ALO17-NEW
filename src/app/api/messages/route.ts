@@ -67,9 +67,19 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ messages });
+    // Admin sayfası için doğru format
+    return NextResponse.json(messages);
   } catch (error) {
     console.error('Mesajları getirme hatası:', error);
+    
+    // Daha detaylı hata mesajı
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: `Mesajlar yüklenemedi: ${error.message}` },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Mesajlar yüklenemedi' },
       { status: 500 }
