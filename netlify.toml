@@ -1,5 +1,5 @@
 [build]
-  publish = "out"
+  publish = ".next"
   command = "npm run build"
 
 [build.environment]
@@ -82,5 +82,8 @@
   from = "/_next/static/*"
   to = "/_next/static/:splat"
   status = 200
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
  
  
