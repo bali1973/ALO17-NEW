@@ -1,16 +1,11 @@
 services:
   - type: web
-    name: alo17-web
+    name: alo17
     env: node
-    plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
-      - key: DATABASE_URL
-        sync: false
-    healthCheckPath: /
-    autoDeploy: true 
+        value: 10000 
