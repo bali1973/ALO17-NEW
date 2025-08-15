@@ -1,6 +1,8 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { securityConfig, validateSecurityConfig } from './security-config';
+import { logFailedLogin, logAdminLogin } from './security-logger';
 
 // Admin yetki tipleri
 export type AdminPermission = 
@@ -79,8 +81,9 @@ const PERMISSION_MATRIX: Record<AdminRole, AdminPermission[]> = {
   ]
 };
 
-// Test admin kullanıcıları (gerçek uygulamada veritabanından gelecek)
-const TEST_ADMIN_USERS: AdminUser[] = [
+// Admin kullanıcıları (gerçek uygulamada veritabanından gelecek)
+// Şifreler environment variables veya güvenli bir sistemden alınmalı
+const ADMIN_USERS: AdminUser[] = [
   {
     id: '1',
     email: 'admin@alo17.com',
@@ -112,6 +115,30 @@ const TEST_ADMIN_USERS: AdminUser[] = [
     updatedAt: new Date()
   }
 ];
+
+// Güvenli şifre doğrulama fonksiyonu
+async function validateAdminPassword(email: string, password: string): Promise<boolean> {
+  try {
+    // Güvenlik konfigürasyonunu kontrol et
+    const configValidation = validateSecurityConfig();
+    if (!configValidation.valid) {
+      console.error('Security configuration errors:', configValidation.errors);
+      return false;
+    }
+    
+    // Email'e göre şifre kontrolü
+    if (email === 'admin@alo17.com' || email === 'moderator@alo17.com') {
+      return password === securityConfig.admin.password;
+    } else if (email === 'bali@alo17.com') {
+      return password === securityConfig.admin.baliPassword;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Password validation error:', error);
+    return false;
+  }
+}
 
 // Admin Auth Context
 interface AdminAuthContextType {
@@ -157,15 +184,25 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
     setError(null);
 
     try {
-      // Test kullanıcılarından kontrol et
-      const admin = TEST_ADMIN_USERS.find(user => user.email === email);
+      // Admin kullanıcılarından kontrol et
+      const admin = ADMIN_USERS.find(user => user.email === email);
       
-      if (admin && (password === 'admin123' || password === 'TRS8n@Aw2BZLxqa')) { // Test şifresi
+      // Şifre kontrolü - gerçek uygulamada hash'lenmiş şifreler kullanılmalı
+      if (admin && await validateAdminPassword(email, password)) {
         setAdminUser(admin);
         localStorage.setItem('adminUser', JSON.stringify(admin));
-        localStorage.setItem('alo17-admin-token', 'alo17admin'); // .env'deki ADMIN_TOKEN ile aynı olmalı
+        
+        // Güvenli admin token kullan
+        if (securityConfig.admin.token) {
+          localStorage.setItem('alo17-admin-token', securityConfig.admin.token);
+        }
+        
+        // Başarılı girişi logla
+        logAdminLogin('unknown', email, navigator?.userAgent);
         return true;
       } else {
+        // Başarısız girişi logla
+        logFailedLogin('unknown', email, navigator?.userAgent);
         setError('Geçersiz email veya şifre');
         return false;
       }
@@ -363,8 +400,12 @@ export async function verifyAdminAccess(request: Request): Promise<{ success: bo
 
     const token = authHeader.substring(7);
     
-    // Basit token kontrolü (gerçek uygulamada JWT verify edilmeli)
-    if (token === 'alo17admin') {
+    // Güvenli token kontrolü
+    if (!securityConfig.admin.token) {
+      return { success: false, error: 'Admin token not configured' };
+    }
+    
+    if (token === securityConfig.admin.token) {
       return { 
         success: true, 
         user: { 

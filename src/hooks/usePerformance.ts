@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { debounce, throttle } from '@/lib/performance-optimizations';
+import { debounce, throttle } from '@/lib/utils';
 
 // Debounced search hook
 export function useDebouncedSearch<T>(

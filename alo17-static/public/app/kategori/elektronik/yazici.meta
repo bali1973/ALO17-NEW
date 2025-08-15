@@ -1,7 +1,0 @@
-{
-  "headers": {
-    "x-nextjs-stale-time": "300",
-    "x-nextjs-prerender": "1",
-    "x-next-cache-tags": "_N_T_/layout,_N_T_/kategori/layout,_N_T_/kategori/elektronik/layout,_N_T_/kategori/elektronik/yazici/layout,_N_T_/kategori/elektronik/yazici/page,_N_T_/kategori/elektronik/yazici"
-  }
-}

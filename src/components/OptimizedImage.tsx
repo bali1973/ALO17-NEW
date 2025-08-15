@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { ImageOptimizer } from '@/lib/performance';
+// ImageOptimizer moved to utils
+// import { ImageOptimizer } from '@/lib/performance';
 
 interface OptimizedImageProps {
   src: string;
@@ -37,7 +38,10 @@ export default function OptimizedImage({
 
   useEffect(() => {
     // WebP desteğini kontrol et
-    setSupportsWebP(ImageOptimizer.supportsWebP());
+    // setSupportsWebP(ImageOptimizer.supportsWebP());
+    // Basit WebP desteği kontrolü
+    const canvas = document.createElement('canvas');
+    setSupportsWebP(canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0);
   }, []);
 
   const handleLoad = () => {

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { CheckIcon, XMarkIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, XMarkIcon, EyeIcon, PencilIcon, TrashIcon, StarIcon } from '@heroicons/react/24/outline';
 import OptimizedImage from '@/components/OptimizedImage';
+import { PREMIUM_PLANS } from '@/lib/premium-plans';
 
 interface Listing {
   id: string;
@@ -14,6 +15,10 @@ interface Listing {
   status: string;
   createdAt: string;
   images?: string[];
+  isPremium?: boolean;
+  premiumFeatures?: string;
+  premiumUntil?: string;
+  premiumPlan?: string;
   user: {
     id: string;
     name: string;
@@ -38,16 +43,25 @@ export default function AdminIlanlarPage() {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [searchField, setSearchField] = useState<'title' | 'category' | 'city' | 'user'>('title');
+  const [premiumFilter, setPremiumFilter] = useState<'all' | 'premium' | 'normal'>('all');
+  const [premiumModal, setPremiumModal] = useState<{ show: boolean; listing: Listing | null }>({ show: false, listing: null });
+  const [premiumData, setPremiumData] = useState({
+    isPremium: false,
+    premiumPlan: '',
+    premiumFeatures: '',
+    premiumDays: 30
+  });
 
   useEffect(() => {
     fetchListings();
   }, []);
 
   useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredListings(listings);
-    } else {
-      const filtered = listings.filter(listing => {
+    let filtered = listings;
+    
+    // Metin araması
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(listing => {
         const searchValue = searchTerm.toLowerCase();
         switch (searchField) {
           case 'title':
@@ -63,9 +77,21 @@ export default function AdminIlanlarPage() {
             return true;
         }
       });
-      setFilteredListings(filtered);
     }
-  }, [searchTerm, searchField, listings]);
+    
+    // Premium filtresi
+    if (premiumFilter !== 'all') {
+      filtered = filtered.filter(listing => {
+        if (premiumFilter === 'premium') {
+          return listing.isPremium === true;
+        } else {
+          return listing.isPremium !== true;
+        }
+      });
+    }
+    
+    setFilteredListings(filtered);
+  }, [searchTerm, searchField, premiumFilter, listings]);
 
   const fetchListings = async () => {
     try {
@@ -157,6 +183,50 @@ export default function AdminIlanlarPage() {
     setEditMode(null);
   };
 
+  const handlePremiumToggle = (listing: Listing) => {
+    setPremiumModal({ show: true, listing });
+    setPremiumData({
+      isPremium: listing.isPremium || false,
+      premiumPlan: listing.premiumPlan || '',
+      premiumFeatures: listing.premiumFeatures || '',
+      premiumDays: 30
+    });
+  };
+
+  const handleSavePremium = async () => {
+    if (!premiumModal.listing) return;
+    
+    try {
+      const premiumUntil = premiumData.isPremium 
+        ? new Date(Date.now() + premiumData.premiumDays * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
+      const response = await fetch(`/api/admin/listings/${premiumModal.listing.id}/premium`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          isPremium: premiumData.isPremium,
+          premiumPlan: premiumData.premiumPlan,
+          premiumFeatures: premiumData.premiumFeatures,
+          premiumUntil: premiumUntil
+        }),
+      });
+      
+      if (response.ok) {
+        setPremiumModal({ show: false, listing: null });
+        fetchListings();
+      }
+    } catch (error) {
+      console.error('Premium güncelleme hatası:', error);
+    }
+  };
+
+  const handleClosePremiumModal = () => {
+    setPremiumModal({ show: false, listing: null });
+  };
+
   if (loading) return <div className="text-center py-8">Yükleniyor...</div>;
   if (error) return <div className="text-red-600 text-center py-8">{error}</div>;
 
@@ -190,6 +260,7 @@ export default function AdminIlanlarPage() {
             <button
               onClick={() => {
                 setSearchTerm('');
+                setPremiumFilter('all');
                 setFilteredListings(listings);
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
@@ -197,10 +268,52 @@ export default function AdminIlanlarPage() {
               Temizle
             </button>
           </div>
+          
+          {/* Premium Filtresi */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Premium Durumu</label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="premiumFilter"
+                  value="all"
+                  checked={premiumFilter === 'all'}
+                  onChange={(e) => setPremiumFilter(e.target.value as 'all' | 'premium' | 'normal')}
+                  className="mr-2"
+                />
+                Tümü
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="premiumFilter"
+                  value="premium"
+                  checked={premiumFilter === 'premium'}
+                  onChange={(e) => setPremiumFilter(e.target.value as 'all' | 'premium' | 'normal')}
+                  className="mr-2"
+                />
+                Premium
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="premiumFilter"
+                  value="normal"
+                  checked={premiumFilter === 'normal'}
+                  onChange={(e) => setPremiumFilter(e.target.value as 'all' | 'premium' | 'normal')}
+                  className="mr-2"
+                />
+                Normal
+              </label>
+            </div>
+          </div>
         </div>
-        {searchTerm && (
+        {(searchTerm || premiumFilter !== 'all') && (
           <div className="mt-2 text-sm text-gray-600">
-            &quot;{searchTerm}&quot; için {filteredListings.length} sonuç bulundu
+            {searchTerm && `"${searchTerm}" için `}
+            {premiumFilter !== 'all' && `${premiumFilter === 'premium' ? 'Premium' : 'Normal'} ilanlar için `}
+            {filteredListings.length} sonuç bulundu
           </div>
         )}
       </div>
@@ -215,6 +328,7 @@ export default function AdminIlanlarPage() {
               <th className="py-3 px-4 text-left">Fiyat</th>
               <th className="py-3 px-4 text-left">Şehir</th>
               <th className="py-3 px-4 text-left">Durum</th>
+              <th className="py-3 px-4 text-left">Premium</th>
               <th className="py-3 px-4 text-left">Kullanıcı</th>
               <th className="py-3 px-4 text-left">Tarih</th>
               <th className="py-3 px-4 text-left">İşlemler</th>
@@ -295,6 +409,23 @@ export default function AdminIlanlarPage() {
                     </span>
                   )}
                 </td>
+                <td className="py-3 px-4">
+                  <div className="flex items-center space-x-2">
+                    {listing.isPremium ? (
+                      <span className="flex items-center text-yellow-600">
+                        <StarIcon className="h-4 w-4 mr-1" />
+                        <span className="text-xs">Premium</span>
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">Normal</span>
+                    )}
+                    {listing.premiumUntil && listing.isPremium && (
+                      <span className="text-xs text-gray-500">
+                        {new Date(listing.premiumUntil).toLocaleDateString('tr-TR')}
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td className="py-3 px-4">{listing.user?.name || 'Bilinmiyor'}</td>
                 <td className="py-3 px-4">{new Date(listing.createdAt).toLocaleDateString('tr-TR')}</td>
                 <td className="py-3 px-4">
@@ -351,6 +482,13 @@ export default function AdminIlanlarPage() {
                           <EyeIcon className="h-4 w-4" />
                         </button>
                         <button
+                          onClick={() => handlePremiumToggle(listing)}
+                          className={`${listing.isPremium ? 'text-yellow-600 hover:text-yellow-900' : 'text-gray-600 hover:text-gray-900'}`}
+                          title={listing.isPremium ? 'Premium Ayarları' : 'Premium Yap'}
+                        >
+                          <StarIcon className="h-4 w-4" />
+                        </button>
+                        <button
                           onClick={() => handleDelete(listing.id)}
                           className="text-red-600 hover:text-red-900"
                           title="Sil"
@@ -365,7 +503,7 @@ export default function AdminIlanlarPage() {
             ))
             ) : (
               <tr>
-                <td colSpan={9} className="py-8 text-center text-gray-500">
+                <td colSpan={10} className="py-8 text-center text-gray-500">
                   Henüz ilan bulunmuyor
                 </td>
               </tr>
@@ -438,6 +576,27 @@ export default function AdminIlanlarPage() {
                    selectedListing.status === 'rejected' ? 'Reddedildi' : 'Beklemede'}
                 </span>
               </div>
+              <div><strong>Premium:</strong> 
+                <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                  selectedListing.isPremium ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {selectedListing.isPremium ? 'Premium' : 'Normal'}
+                </span>
+              </div>
+              {selectedListing.isPremium && (
+                <>
+                  <div><strong>Premium Plan:</strong> {selectedListing.premiumPlan || 'Belirtilmemiş'}</div>
+                  <div><strong>Premium Bitiş:</strong> {selectedListing.premiumUntil ? new Date(selectedListing.premiumUntil).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}</div>
+                  {selectedListing.premiumFeatures && (
+                    <div className="md:col-span-2">
+                      <strong>Premium Özellikler:</strong>
+                      <div className="bg-gray-100 rounded p-3 mt-1">
+                        {selectedListing.premiumFeatures}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
               <div><strong>Kullanıcı:</strong> {selectedListing.user?.name || 'Bilinmiyor'}</div>
               <div><strong>Email:</strong> {selectedListing.user?.email || 'Bilinmiyor'}</div>
               <div><strong>Tarih:</strong> {new Date(selectedListing.createdAt).toLocaleDateString('tr-TR')}</div>
@@ -447,6 +606,109 @@ export default function AdminIlanlarPage() {
                   {selectedListing.description}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Premium Modal */}
+      {premiumModal.show && premiumModal.listing && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold flex items-center">
+                <StarIcon className="h-6 w-6 text-yellow-500 mr-2" />
+                Premium Ayarları
+              </h2>
+              <button 
+                onClick={handleClosePremiumModal}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <h3 className="font-semibold text-gray-700 mb-2">{premiumModal.listing.title}</h3>
+              <p className="text-sm text-gray-500">İlan premium durumunu yönetin</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="isPremium"
+                  checked={premiumData.isPremium}
+                  onChange={(e) => setPremiumData({...premiumData, isPremium: e.target.checked})}
+                  className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isPremium" className="text-sm font-medium text-gray-700">
+                  Premium İlan
+                </label>
+              </div>
+
+              {premiumData.isPremium && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Premium Plan
+                    </label>
+                    <select
+                      value={premiumData.premiumPlan}
+                      onChange={(e) => setPremiumData({...premiumData, premiumPlan: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    >
+                      <option value="">Plan Seçin</option>
+                      <option value="basic">Temel Premium</option>
+                      <option value="standard">Standart Premium</option>
+                      <option value="premium">Premium</option>
+                      <option value="vip">VIP Premium</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Premium Özellikler
+                    </label>
+                    <textarea
+                      value={premiumData.premiumFeatures}
+                      onChange={(e) => setPremiumData({...premiumData, premiumFeatures: e.target.value})}
+                      placeholder="Özel özellikler, öne çıkarma, vb."
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Premium Süresi (Gün)
+                    </label>
+                    <input
+                      type="number"
+                      value={premiumData.premiumDays}
+                      onChange={(e) => setPremiumData({...premiumData, premiumDays: parseInt(e.target.value) || 30})}
+                      min="1"
+                      max="365"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={handleSavePremium}
+                className="flex-1 bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 transition-colors"
+              >
+                Kaydet
+              </button>
+              <button
+                onClick={handleClosePremiumModal}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                İptal
+              </button>
             </div>
           </div>
         </div>

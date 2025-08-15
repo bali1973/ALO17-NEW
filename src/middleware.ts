@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { securityLogger, logRateLimitExceeded, logXSSAttempt, logSQLInjectionAttempt } from '@/lib/security-logger';
 
 // Güvenlik başlıkları
 const securityHeaders = {
@@ -30,7 +31,7 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 // Rate limiting ayarları
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 dakika
-const RATE_LIMIT_MAX_REQUESTS = 1000; // 1 dakikada maksimum 1000 istek (geliştirme için)
+const RATE_LIMIT_MAX_REQUESTS = 100; // 1 dakikada maksimum 100 istek (güvenlik için)
 
 // IP adresini al
 function getClientIP(request: NextRequest): string {
@@ -76,11 +77,11 @@ function checkRateLimit(ip: string): boolean {
 // Rate limiting temizleme (her 5 dakikada bir)
 setInterval(() => {
   const now = Date.now();
-  for (const [ip, record] of rateLimitStore.entries()) {
+  rateLimitStore.forEach((record, ip) => {
     if (now > record.resetTime) {
       rateLimitStore.delete(ip);
     }
-  }
+  });
 }, 5 * 60 * 1000);
 
 // Güvenlik middleware'i
@@ -97,6 +98,9 @@ export function middleware(request: NextRequest) {
   
   // Rate limiting kontrolü (geliştirme modunda devre dışı)
   if (process.env.NODE_ENV === 'production' && !checkRateLimit(clientIP)) {
+    // Rate limit aşımını logla
+    logRateLimitExceeded(clientIP, request.nextUrl.pathname, request.headers.get('user-agent') || undefined);
+    
     return new NextResponse(
       JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
       {
@@ -111,10 +115,26 @@ export function middleware(request: NextRequest) {
   
   // API endpoint'leri için ek güvenlik kontrolleri
   if (request.nextUrl.pathname.startsWith('/api/')) {
-    // CORS başlıkları
-    response.headers.set('Access-Control-Allow-Origin', '*');
+    // Güvenli CORS başlıkları
+    const origin = request.headers.get('origin');
+    const allowedOrigins = [
+      'http://localhost:3004',
+      'https://alo17.com',
+      'https://www.alo17.com',
+      'https://alo17.vercel.app',
+      'https://alo17.netlify.app'
+    ];
+    
+    // Origin kontrolü
+    if (origin && allowedOrigins.includes(origin)) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+    } else {
+      response.headers.set('Access-Control-Allow-Origin', 'https://alo17.com');
+    }
+    
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    response.headers.set('Access-Control-Max-Age', '86400'); // 24 saat
     
     // OPTIONS istekleri için
     if (request.method === 'OPTIONS') {
@@ -138,7 +158,7 @@ export function middleware(request: NextRequest) {
     // Dosya yükleme endpoint'leri için boyut kontrolü
     if (request.nextUrl.pathname.includes('/upload') || request.nextUrl.pathname.includes('/image')) {
       const contentLength = request.headers.get('content-length');
-      if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) { // 10MB limit
+      if (contentLength && parseInt(contentLength) > 5 * 1024 * 1024) { // 5MB limit (güvenlik için düşürüldü)
         return new NextResponse(
           JSON.stringify({ error: 'File size too large' }),
           {
@@ -154,18 +174,21 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const searchParams = url.searchParams;
   
-  for (const [key, value] of searchParams.entries()) {
+  searchParams.forEach((value, key) => {
     // Potansiyel XSS payload'larını kontrol et
+    const originalValue = value;
     const sanitizedValue = value
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       .replace(/javascript:/gi, '')
       .replace(/on\w+\s*=/gi, '')
       .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
     
-    if (sanitizedValue !== value) {
+    if (sanitizedValue !== originalValue) {
+      // XSS girişimini logla
+      logXSSAttempt(clientIP, originalValue, request.url, request.headers.get('user-agent') || undefined);
       searchParams.set(key, sanitizedValue);
     }
-  }
+  });
   
   // SQL injection koruması için basit kontrol
   const sqlInjectionPatterns = [
@@ -177,6 +200,9 @@ export function middleware(request: NextRequest) {
   const requestUrl = request.url.toLowerCase();
   for (const pattern of sqlInjectionPatterns) {
     if (pattern.test(requestUrl)) {
+      // SQL injection girişimini logla
+      logSQLInjectionAttempt(clientIP, pattern.source, request.url, request.headers.get('user-agent') || undefined);
+      
       return new NextResponse(
         JSON.stringify({ error: 'Invalid request' }),
         {
