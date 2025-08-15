@@ -83,7 +83,4 @@
   to = "/_next/static/:splat"
   status = 200
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
- 
- 
+# Plugin kaldırıldı - standalone Next.js için gerekli değil
