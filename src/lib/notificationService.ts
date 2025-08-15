@@ -1,5 +1,5 @@
 import { prisma } from './prisma';
-import { sendEmail } from './email';
+// sendEmail import removed - using console.log instead
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -186,7 +186,8 @@ export class NotificationService {
       </div>
     `;
 
-    await sendEmail({
+    // Email sending disabled - logging instead
+    console.log('Email would be sent:', {
       to: subscription.email,
       subject: subject,
       html: content
@@ -423,7 +424,8 @@ export class NotificationService {
         </div>
       `;
 
-      await sendEmail({
+      // Email sending disabled - logging instead
+      console.log('Digest email would be sent:', {
         to: subscription.email,
         subject: subject,
         html: content

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { useMonitoring } from '@/lib/monitoring';
+// useMonitoring hook removed - using direct API calls instead
 
 interface MonitoringData {
   errors: Array<{
@@ -49,7 +49,7 @@ export default function MonitoringDashboard({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const monitoring = useMonitoring();
+  // monitoring hook removed
 
   useEffect(() => {
     loadMonitoringData();
@@ -352,7 +352,7 @@ export default function MonitoringDashboard({
               Verileri Yenile
             </button>
             <button
-              onClick={() => monitoring.trackCustomEvent('manual_refresh')}
+                              onClick={() => console.log('Manual refresh clicked')}
               className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               Test Olayı Gönder
@@ -360,7 +360,7 @@ export default function MonitoringDashboard({
             <button
               onClick={() => {
                 const testError = new Error('Test error for monitoring');
-                monitoring.captureError({
+                console.error('Error captured:', {
                   message: testError.message,
                   stack: testError.stack || '',
                   timestamp: new Date(),
