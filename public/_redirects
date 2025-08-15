@@ -1,1 +1,13 @@
-/*    /index.html   200 
+# Netlify Redirects Configuration for Next.js Static Export
+
+# Handle client-side routing
+/*    /index.html   200
+
+# API routes (if needed)
+/api/*  /api/404.html  404
+
+# Static assets
+/_next/static/*  /_next/static/:splat  200
+
+# Handle 404 for missing assets
+/_next/static/*  /404.html  404 

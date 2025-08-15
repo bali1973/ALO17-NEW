@@ -1,0 +1,49 @@
+# Netlify Headers Configuration for Next.js Static Export
+# Fix MIME type issues with CSS and JS files
+
+# CSS files
+/_next/static/css/*.css
+  Content-Type: text/css
+
+# JavaScript files
+/_next/static/chunks/*.js
+  Content-Type: application/javascript
+
+/_next/static/js/*.js
+  Content-Type: application/javascript
+
+# Font files
+/_next/static/media/*.woff2
+  Content-Type: font/woff2
+
+/_next/static/media/*.woff
+  Content-Type: font/woff
+
+/_next/static/media/*.ttf
+  Content-Type: font/ttf
+
+# Image files
+/_next/static/media/*.png
+  Content-Type: image/png
+
+/_next/static/media/*.jpg
+  Content-Type: image/jpeg
+
+/_next/static/media/*.jpeg
+  Content-Type: image/jpeg
+
+/_next/static/media/*.gif
+  Content-Type: image/gif
+
+/_next/static/media/*.svg
+  Content-Type: image/svg+xml
+
+/_next/static/media/*.webp
+  Content-Type: image/webp
+
+# Security headers
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
