@@ -103,38 +103,8 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const fetchListings = async () => {
-      try {
-        const response = await fetch('/api/listings', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          cache: 'no-cache'
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          
-          if (Array.isArray(data)) {
-            setListings(data);
-          } else {
-            console.error('API did not return an array');
-            setListings([]);
-          }
-        } else {
-          console.error('API response not ok:', response.status);
-          setListings([]);
-        }
-      } catch (error) {
-        console.error('Error fetching listings:', error);
-        setListings([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchListings();
+    // Mock data kullanıldığı için API çağrısı yapılmıyor
+    setLoading(false);
 
     // İlan yayınlandı mesajını kontrol et
     if (typeof window !== 'undefined') {

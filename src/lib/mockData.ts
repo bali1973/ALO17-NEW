@@ -104,7 +104,7 @@ export const mockListings = [
     createdAt: '2025-08-13',
     views: 234,
     condition: 'Yeni',
-    status: 'active'
+    status: 'active' as const
   },
   {
     id: 4,
