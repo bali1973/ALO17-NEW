@@ -7,7 +7,7 @@ import { Heart, Eye } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Sidebar } from '@/components/SidebarComponent';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
-import { useCategories } from '@/lib/useCategories';
+import { mockCategories, mockListings } from '@/lib/mockData';
 
 
 interface Listing {
@@ -77,9 +77,10 @@ function renderIcon(iconData: string | null, slug: string, index: number) {
 
 export default function Home() {
   const { session } = useAuth();
-  const { categories, loading: categoriesLoading } = useCategories();
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const categories = mockCategories;
+  const categoriesLoading = false;
+  const [listings, setListings] = useState<Listing[]>(mockListings);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
